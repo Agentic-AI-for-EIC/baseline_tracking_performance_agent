@@ -1,0 +1,22 @@
+Fit:0: RuntimeWarning: Fit data is empty 
+Error in <TFitResultPtr>: TFitResult is empty - use the fit option S
+Error in <TFitResultPtr>: TFitResult is empty - use the fit option S
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/home/wxie/eic/tracking_performance/trkperf/__main__.py", line 3, in <module>
+    raise SystemExit(main())
+                     ~~~~^^
+  File "/home/wxie/eic/tracking_performance/trkperf/cli.py", line 196, in main
+    args.func(args)
+    ~~~~~~~~~^^^^^^
+  File "/home/wxie/eic/tracking_performance/trkperf/cli.py", line 138, in run
+    df = compute_fn(files, species=args.species, max_failures=args.max_file_failures)
+  File "/home/wxie/eic/tracking_performance/trkperf/metrics/resolution.py", line 55, in compute_resolution
+    fit = binning.fit_gaussian_core(group["delta_pt_over_pt"].to_numpy())
+  File "/home/wxie/eic/tracking_performance/trkperf/binning.py", line 185, in fit_gaussian_core
+    pass2 = _fit(values, core_range)
+  File "/home/wxie/eic/tracking_performance/trkperf/binning.py", line 165, in _fit
+    if not res or res.IsEmpty() or res.Status() != 0:
+                  ~~~~~~~~~~~^^
+ReferenceError: attempt to access a null-pointer

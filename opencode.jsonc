@@ -1,0 +1,10 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "model": "github-copilot/claude-sonnet-5",
+  "small_model": "github-copilot/claude-haiku-4.5",
+  "mcp": {
+    "uproot": { "type": "remote", "url": "http://127.0.0.1:9101/mcp", "enabled": true },
+    "xrootd": { "type": "remote", "url": "http://127.0.0.1:9102/mcp", "enabled": true },
+    "rucio": { "type": "remote", "url": "http://127.0.0.1:9103/mcp", "enabled": true }
+  }
+}

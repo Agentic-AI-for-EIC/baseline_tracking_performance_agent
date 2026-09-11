@@ -1,0 +1,114 @@
+Traceback (most recent call last):
+  File "/home/wxie/eic/tracking_performance/trkperf/io.py", line 125, in read_flat_multi
+    frames.append(read_flat(tree, columns, file_id=file_id))
+                  ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/wxie/eic/tracking_performance/trkperf/io.py", line 81, in read_flat
+    arrays = tree.arrays(branch_paths, library="ak")
+  File "/opt/local/lib/python3.13/site-packages/uproot/behaviors/TBranch.py", line 877, in arrays
+    return self._eager_arrays(
+           ~~~~~~~~~~~~~~~~~~^
+        expressions=expressions,
+        ^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<13 lines>...
+        how=how,
+        ^^^^^^^^
+    )
+    ^
+  File "/opt/local/lib/python3.13/site-packages/uproot/behaviors/TBranch.py", line 1201, in _eager_arrays
+    _ranges_or_baskets_to_arrays(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        self,
+        ^^^^^
+    ...<9 lines>...
+        interp_options,
+        ^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/opt/local/lib/python3.13/site-packages/uproot/behaviors/TBranch.py", line 3524, in _ranges_or_baskets_to_arrays
+    uproot.source.futures.delayed_raise(*obj)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "/opt/local/lib/python3.13/site-packages/uproot/source/futures.py", line 38, in delayed_raise
+    raise exception_value.with_traceback(traceback)
+  File "/opt/local/lib/python3.13/site-packages/uproot/behaviors/TBranch.py", line 3432, in chunk_to_basket
+    basket = uproot.models.TBasket.Model_TBasket.read(
+        chunk,
+    ...<4 lines>...
+        branch,
+    )
+  File "/opt/local/lib/python3.13/site-packages/uproot/model.py", line 854, in read
+    self.read_members(chunk, cursor, context, file)
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/local/lib/python3.13/site-packages/uproot/models/TBasket.py", line 227, in read_members
+    ) = cursor.fields(chunk, _tbasket_format1, context)
+        ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/local/lib/python3.13/site-packages/uproot/source/cursor.py", line 201, in fields
+    return format.unpack(chunk.get(start, stop, self, context))
+                         ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/local/lib/python3.13/site-packages/uproot/source/chunk.py", line 446, in get
+    self.wait(insist=stop)
+    ~~~~~~~~~^^^^^^^^^^^^^
+  File "/opt/local/lib/python3.13/site-packages/uproot/source/chunk.py", line 388, in wait
+    self._raw_data = numpy.frombuffer(self._future.result(), dtype=self._dtype)
+                                      ~~~~~~~~~~~~~~~~~~~^^
+  File "/opt/local/lib/python3.13/site-packages/uproot/source/coalesce.py", line 39, in result
+    return self._parent.result(timeout=timeout)[self._s]
+           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/opt/local/lib/python3.13/site-packages/uproot/source/coalesce.py", line 39, in result
+    return self._parent.result(timeout=timeout)[self._s]
+           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/opt/software/linux-x86_64_v2/python-3.13.13-krbjvs3adehddqc7e5dlrgjeo22aqruw/lib/python3.13/concurrent/futures/_base.py", line 449, in result
+    return self.__get_result()
+           ~~~~~~~~~~~~~~~~~^^
+  File "/opt/software/linux-x86_64_v2/python-3.13.13-krbjvs3adehddqc7e5dlrgjeo22aqruw/lib/python3.13/concurrent/futures/_base.py", line 401, in __get_result
+    raise self._exception
+  File "/opt/local/lib/python3.13/site-packages/uproot/source/fsspec.py", line 154, in async_wrapper_thread
+    return await asyncio.to_thread(blocking_func, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/software/linux-x86_64_v2/python-3.13.13-krbjvs3adehddqc7e5dlrgjeo22aqruw/lib/python3.13/asyncio/threads.py", line 25, in to_thread
+    return await loop.run_in_executor(None, func_call)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/software/linux-x86_64_v2/python-3.13.13-krbjvs3adehddqc7e5dlrgjeo22aqruw/lib/python3.13/concurrent/futures/thread.py", line 59, in run
+    result = self.fn(*self.args, **self.kwargs)
+  File "/opt/local/lib/python3.13/site-packages/fsspec/asyn.py", line 118, in wrapper
+    return sync(self.loop, func, *args, **kwargs)
+  File "/opt/local/lib/python3.13/site-packages/fsspec/asyn.py", line 103, in sync
+    raise return_result
+  File "/opt/local/lib/python3.13/site-packages/fsspec/asyn.py", line 56, in _runner
+    result[0] = await coro
+                ^^^^^^^^^^
+  File "/opt/local/lib/python3.13/site-packages/fsspec_xrootd/xrootd.py", line 657, in _cat_ranges
+    results = await _run_coros_in_chunks(coros, batch_size=batch_size, nofiles=True)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/local/lib/python3.13/site-packages/fsspec/asyn.py", line 267, in _run_coros_in_chunks
+    result, k = await done.pop()
+                ^^^^^^^^^^^^^^^^
+  File "/opt/local/lib/python3.13/site-packages/fsspec/asyn.py", line 244, in _run_coro
+    return await asyncio.wait_for(coro, timeout=timeout), i
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/software/linux-x86_64_v2/python-3.13.13-krbjvs3adehddqc7e5dlrgjeo22aqruw/lib/python3.13/asyncio/tasks.py", line 507, in wait_for
+    return await fut
+           ^^^^^^^^^
+  File "/opt/local/lib/python3.13/site-packages/fsspec_xrootd/xrootd.py", line 617, in _cat_vector_read
+    raise OSError(f"File did not vector_read properly: {status.message}")
+OSError: File did not vector_read properly: [ERROR] Operation expired
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/home/wxie/eic/tracking_performance/trkperf/__main__.py", line 3, in <module>
+    raise SystemExit(main())
+                     ~~~~^^
+  File "/home/wxie/eic/tracking_performance/trkperf/cli.py", line 182, in main
+    args.func(args)
+    ~~~~~~~~~^^^^^^
+  File "/home/wxie/eic/tracking_performance/trkperf/cli.py", line 126, in run
+    df = compute_fn(files, species=args.species)
+  File "/home/wxie/eic/tracking_performance/trkperf/metrics/resolution.py", line 32, in compute_resolution
+    truth_df = truth.read_truth_particles(file_paths)
+  File "/home/wxie/eic/tracking_performance/trkperf/truth.py", line 62, in read_truth_particles
+    df = io.read_flat_multi(file_paths, _MCPARTICLES_COLUMNS)
+  File "/home/wxie/eic/tracking_performance/trkperf/io.py", line 127, in read_flat_multi
+    raise RuntimeError(f"trkperf.io.read_flat_multi failed on file: {path}") from exc
+RuntimeError: trkperf.io.read_flat_multi failed on file: root://hpceph-xrootd.twgrid.org:1094//cephfs/epic//RECO/26.07.1/epic_craterlake/Bkg_Exact1S_2us/GoldCt/10um/DIS/NC/10x100/minQ2=1/pythia8NCDIS_10x100_minQ2=1_beamEffects_xAngle=-0.025_hiDiv_1.0001.eicrecon.edm4eic.root
