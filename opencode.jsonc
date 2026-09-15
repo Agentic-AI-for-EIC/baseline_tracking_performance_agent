@@ -1,7 +1,29 @@
 {
   "$schema": "https://opencode.ai/config.json",
-  "model": "github-copilot/claude-sonnet-5",
-  "small_model": "github-copilot/claude-haiku-4.5",
+  // ---- Primary and Fallback Models ----
+  // Try Gemini Flash first for its speed and agentic tuning.
+  "model": "google/gemini-3.8-flash",
+  
+  // Use Gemini for small, quick tasks as well.
+  "small_model": "google/gemini-3.8-flash",
+
+  "provider": {
+    "nrp": {
+      "npm": "@ai-sdk/openai-compatible",
+      "name": "NRP LLM",
+      "options": {
+        "baseURL": "https://ellm.nrp-nautilus.io/v1",
+        "apiKey": "{file:~/.nrp-llm-token}"
+      },
+      "models": {
+        "minimax-m2": { "name": "MiniMax M2" },
+        "gpt-oss": { "name": "GPT-OSS" },
+        "qwen3": { "name": "Qwen3 397B" },
+        "gemma-small": { "name": "Gemma 4 12B" },
+        "gemma": { "name": "Gemma 31B" }
+      }
+    }
+  },
   "mcp": {
     "uproot": { "type": "remote", "url": "http://127.0.0.1:9101/mcp", "enabled": true },
     "xrootd": { "type": "remote", "url": "http://127.0.0.1:9102/mcp", "enabled": true },
