@@ -1,11 +1,18 @@
 {
   "$schema": "https://opencode.ai/config.json",
-  // ---- Primary and Fallback Models ----
-  // Try Gemini Flash first for its speed and agentic tuning.
-  "model": "google/gemini-3.8-flash",
+  // Configure Ruff as your Python Language Server
+  "lsp": {
+    "ruff": {
+      "command": ["ruff", "server"],
+      "extensions": [".py"]
+    }
+  },
+
+  //"model": "google/gemini-3.8-flash",
+  "model": "nrp/Qwen3",
   
   // Use Gemini for small, quick tasks as well.
-  "small_model": "google/gemini-3.8-flash",
+  "small_model": "nrp/gemma-small",
 
   "provider": {
     "google": {
