@@ -8,6 +8,11 @@
   "small_model": "google/gemini-3.8-flash",
 
   "provider": {
+    "google": {
+      "options": {
+        "apiKey": "{file:~/.gemini-token}"
+      }
+    },
     "nrp": {
       "npm": "@ai-sdk/openai-compatible",
       "name": "NRP LLM",
