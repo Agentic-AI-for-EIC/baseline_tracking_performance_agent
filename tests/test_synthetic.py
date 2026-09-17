@@ -56,13 +56,107 @@ class TestGaussianFit(unittest.TestCase):
 
 
 class TestBinomialError(unittest.TestCase):
-    def test_zero_denominator_is_zero_not_nan_or_inf(self):
+    def test_zero_denominator_is_nan(self):
+        # No data -> no error bar, not a zero-width one.
         err = binning.binomial_error(0, 0)
-        self.assertEqual(float(err), 0.0)
+        self.assertTrue(np.isnan(float(err)))
 
-    def test_matches_known_formula(self):
+    def test_matches_wilson_score_interval(self):
+        # Wilson 95 % for 50/100: center 0.5, half-width 0.09617.
         err = binning.binomial_error(50, 100)
-        self.assertAlmostEqual(float(err), float(np.sqrt(0.5 * 0.5 / 100)), places=9)
+        self.assertAlmostEqual(float(err), 0.09617, places=4)
+
+    def test_perfect_and_empty_rates_still_have_width(self):
+        # The normal approximation returns exactly 0 at k=0 and k=n - the
+        # most-quoted bins (efficiency ~1, fake rate ~0) must not report
+        # zero-width errors.
+        self.assertGreater(float(binning.binomial_error(20, 20)), 0.0)
+        between = float(binning.binomial_error(0, 20))
+        self.assertGreater(between, 0.0)
+        self.assertLess(between, 1.0)
+
+
+class TestFullBinGrid(unittest.TestCase):
+    def test_grid_covers_every_species_bin_combination(self):
+        from trkperf import config
+
+        grid = binning.full_bin_grid(["pi+", "K+"])
+        n_pt = len(config.PT_BIN_EDGES) - 1
+        n_eta = len(config.ETA_BIN_EDGES) - 1
+        self.assertEqual(len(grid), 2 * n_pt * n_eta)
+        self.assertTrue((grid["pt_bin_center"] > 0).all())
+
+    def test_grid_bins_match_assign_bins_categories(self):
+        df = pd.DataFrame({"pt": [0.5, 5.0], "eta": [0.1, -2.0]})
+        binned = binning.assign_bins(df)
+        grid = binning.full_bin_grid(None)
+        self.assertEqual(
+            list(grid["pt_bin"].cat.categories),
+            list(binned["pt_bin"].cat.categories),
+        )
+        self.assertEqual(
+            list(grid["eta_bin"].cat.categories),
+            list(binned["eta_bin"].cat.categories),
+        )
+        self.assertNotIn("species", grid.columns)
+
+
+class TestEmptyInputGrids(unittest.TestCase):
+    """Metrics over zero rows still return the full schema on the full grid.
+
+    Empty bins must be explicitly reported (NaN values, insufficient_stats),
+    never a missing table or a missing column that breaks report/compare.
+    """
+
+    def test_acceptance_empty_input_returns_full_flagged_grid(self):
+        from trkperf import config
+        from trkperf.metrics import acceptance
+
+        empty_truth = pd.DataFrame({
+            "file_id": pd.Series(dtype="int64"), "event": pd.Series(dtype="int64"),
+            "idx": pd.Series(dtype="int64"), "generator_status": pd.Series(dtype="int64"),
+            "species": pd.Series(dtype="object"), "pt": pd.Series(dtype="float64"),
+            "eta": pd.Series(dtype="float64"),
+        })
+        empty_layers = pd.DataFrame({
+            "file_id": pd.Series(dtype="int64"), "event": pd.Series(dtype="int64"),
+            "idx": pd.Series(dtype="int64"), "n_layers_hit": pd.Series(dtype="int64"),
+        })
+        with mock.patch("trkperf.truth.read_truth_particles", return_value=empty_truth), \
+             mock.patch("trkperf.truth.read_truth_hit_layer_counts", return_value=empty_layers):
+            result = acceptance.compute_acceptance(["unreadable.root"])
+        n_pt = len(config.PT_BIN_EDGES) - 1
+        n_eta = len(config.ETA_BIN_EDGES) - 1
+        self.assertEqual(len(result), len(config.SPECIES) * n_pt * n_eta)
+        self.assertTrue(result["insufficient_stats"].all())
+        self.assertTrue((result["n_generated"] == 0).all())
+        self.assertTrue(result["acceptance"].isna().all())
+        self.assertIn("skipped_files", result.attrs)
+        self.assertEqual(result.attrs["run_params"]["min_layers"], config.ACCEPTANCE_MIN_LAYERS)
+
+    def test_resolution_empty_matches_keep_schema(self):
+        from trkperf import config
+        from trkperf.metrics import resolution
+
+        empty_pairs = pd.DataFrame({
+            "species": pd.Series(dtype="object"), "is_matched": pd.Series(dtype="bool"),
+            "reco_pt": pd.Series(dtype="float64"), "pt": pd.Series(dtype="float64"),
+            "eta": pd.Series(dtype="float64"),
+        })
+        with mock.patch("trkperf.truth.read_truth_particles", return_value=empty_pairs), \
+             mock.patch("trkperf.truth.select_primary", return_value=empty_pairs), \
+             mock.patch("trkperf.reco.read_reco_tracks", return_value=empty_pairs), \
+             mock.patch("trkperf.matching.read_associations", return_value=empty_pairs), \
+             mock.patch("trkperf.matching.build_matched_pairs", return_value=empty_pairs):
+            result = resolution.compute_resolution(["unreadable.root"])
+        n_pt = len(config.PT_BIN_EDGES) - 1
+        n_eta = len(config.ETA_BIN_EDGES) - 1
+        self.assertEqual(len(result), len(config.SPECIES) * n_pt * n_eta)
+        for col in ("mu", "sigma", "mu_err", "sigma_err", "chi2_ndf"):
+            self.assertIn(col, result.columns)
+            self.assertTrue(result[col].isna().all())
+        self.assertFalse(result["fit_converged"].any())
+        self.assertTrue(result["insufficient_stats"].all())
 
 
 class TestCompareMetric(unittest.TestCase):
@@ -164,6 +258,124 @@ class TestCompareMetric(unittest.TestCase):
             np.array(expected),
         )
 
+    def test_joins_on_string_bin_labels(self):
+        # String interval labels are the primary join keys: float centers
+        # must never be the thing holding two rows together.
+        clean = pd.DataFrame(
+            {
+                "species": ["pi+"],
+                "pt_bin": ["(0.5, 1.0]"],
+                "eta_bin": ["(0.0, 0.5]"],
+                "pt_bin_center": [0.75],
+                "eta_bin_center": [0.25],
+                "acceptance": [0.8],
+                "acceptance_err": [0.02],
+                "insufficient_stats": [False],
+            }
+        )
+        bkg = clean.copy()
+        bkg["acceptance"] = [0.4]
+        with tempfile.TemporaryDirectory() as tmp:
+            clean_path = Path(tmp) / "clean.json"
+            bkg_path = Path(tmp) / "bkg.json"
+            report.to_json(clean, str(clean_path))
+            report.to_json(bkg, str(bkg_path))
+            merged = compare.compare_metric(str(clean_path), str(bkg_path))
+        self.assertEqual(len(merged), 1)
+        self.assertAlmostEqual(
+            merged["acceptance_ratio_bkg_over_clean"].iloc[0], 0.5
+        )
+
+    def test_zero_bkg_value_has_finite_ratio_error(self):
+        # R = 0 is well-defined (b = 0); its error is db/|c|, not NaN.
+        clean = pd.DataFrame(
+            {
+                "pt_bin_center": [1.0],
+                "eta_bin_center": [0.0],
+                "fake_rate": [0.5],
+                "fake_rate_err": [0.05],
+            }
+        )
+        bkg = pd.DataFrame(
+            {
+                "pt_bin_center": [1.0],
+                "eta_bin_center": [0.0],
+                "fake_rate": [0.0],
+                "fake_rate_err": [0.02],
+            }
+        )
+        with tempfile.TemporaryDirectory() as tmp:
+            clean_path = Path(tmp) / "clean.json"
+            bkg_path = Path(tmp) / "bkg.json"
+            report.to_json(clean, str(clean_path))
+            report.to_json(bkg, str(bkg_path))
+            merged = compare.compare_metric(str(clean_path), str(bkg_path))
+        self.assertEqual(merged["fake_rate_ratio_bkg_over_clean"].iloc[0], 0.0)
+        self.assertAlmostEqual(
+            merged["fake_rate_ratio_bkg_over_clean_err"].iloc[0], 0.02 / 0.5
+        )
+
+    def test_null_errors_are_coerced_not_fatal(self):
+        # JSON nulls arrive as None/object: they must become NaN, never a
+        # to_numpy(dtype=float) exception.
+        clean = pd.DataFrame(
+            {
+                "pt_bin_center": [1.0],
+                "eta_bin_center": [0.0],
+                "fake_rate": [0.5],
+                "fake_rate_err": [None],
+            }
+        )
+        bkg = pd.DataFrame(
+            {
+                "pt_bin_center": [1.0],
+                "eta_bin_center": [0.0],
+                "fake_rate": [0.4],
+                "fake_rate_err": [0.03],
+            }
+        )
+        with tempfile.TemporaryDirectory() as tmp:
+            clean_path = Path(tmp) / "clean.json"
+            bkg_path = Path(tmp) / "bkg.json"
+            report.to_json(clean, str(clean_path))
+            report.to_json(bkg, str(bkg_path))
+            merged = compare.compare_metric(str(clean_path), str(bkg_path))
+        self.assertAlmostEqual(
+            merged["fake_rate_ratio_bkg_over_clean"].iloc[0], 0.8
+        )
+
+    def test_bkg_only_pair_still_appears(self):
+        # A value/err pair present on only one side must show up with NaNs
+        # opposite, never silently vanish from the comparison.
+        clean = pd.DataFrame(
+            {
+                "pt_bin_center": [1.0],
+                "eta_bin_center": [0.0],
+                "fake_rate": [0.5],
+                "fake_rate_err": [0.05],
+            }
+        )
+        bkg = pd.DataFrame(
+            {
+                "pt_bin_center": [1.0],
+                "eta_bin_center": [0.0],
+                "fake_rate": [0.4],
+                "fake_rate_err": [0.03],
+                "purity": [0.9],
+                "purity_err": [0.01],
+            }
+        )
+        with tempfile.TemporaryDirectory() as tmp:
+            clean_path = Path(tmp) / "clean.json"
+            bkg_path = Path(tmp) / "bkg.json"
+            report.to_json(clean, str(clean_path))
+            report.to_json(bkg, str(bkg_path))
+            merged = compare.compare_metric(str(clean_path), str(bkg_path))
+        self.assertIn("purity_diff_bkg_minus_clean", merged.columns)
+        self.assertTrue(merged["purity_clean"].isna().all())
+        self.assertTrue(merged["purity_diff_bkg_minus_clean"].isna().all())
+        self.assertAlmostEqual(merged["purity_bkg"].iloc[0], 0.9)
+
 
 class TestReadFlatMultiFailures(unittest.TestCase):
     """`io.read_flat_multi(max_failures=...)` skips flaky files instead of
@@ -213,6 +425,62 @@ class TestReadFlatMultiFailures(unittest.TestCase):
                 io.read_flat_multi(
                     ["A", "B", "C"], {"x": "T/x"}, max_failures=1
                 )
+
+    def test_shared_budget_covers_all_reads_of_a_run(self):
+        # Two reads sharing one budget: the first failure is tolerated, the
+        # second one (shared total 2 > 1) aborts - budgets must not reset.
+        good = pd.DataFrame({"file_id": [0], "event": [0], "idx": [0], "x": [1.0]})
+
+        def fake_open(path, tree_name="events"):
+            if path.startswith("BAD"):
+                raise OSError("transient network error")
+            return mock.Mock()
+
+        def fake_read(tree, columns, file_id=0):
+            return good.copy()
+
+        shared: dict = {}
+        with mock.patch.object(io, "open_tree", side_effect=fake_open), \
+             mock.patch.object(io, "read_flat", side_effect=fake_read):
+            first = io.read_flat_multi(
+                ["BAD", "GOOD"], {"x": "T/x"}, max_failures=1, shared_failures=shared
+            )
+            self.assertEqual(len(first), 1)
+            self.assertEqual(shared["skipped"], ["BAD"])
+            with self.assertRaises(RuntimeError):
+                io.read_flat_multi(
+                    ["BAD-again", "GOOD"], {"x": "T/x"}, max_failures=1,
+                    shared_failures=shared,
+                )
+
+    def test_shared_skip_set_keeps_tables_aligned(self):
+        # A path that failed once is skipped immediately by later reads of the
+        # same run: every joined table covers the same file subset.
+        good = pd.DataFrame({"file_id": [0], "event": [0], "idx": [0], "x": [1.0]})
+        calls = []
+
+        def fake_open(path, tree_name="events"):
+            calls.append(path)
+            if path == "BAD":
+                raise OSError("transient network error")
+            return mock.Mock()
+
+        def fake_read(tree, columns, file_id=0):
+            return good.copy()
+
+        shared: dict = {}
+        with mock.patch.object(io, "open_tree", side_effect=fake_open), \
+             mock.patch.object(io, "read_flat", side_effect=fake_read):
+            io.read_flat_multi(
+                ["BAD", "GOOD"], {"x": "T/x"}, max_failures=5, shared_failures=shared
+            )
+            n_calls_after_first = len(calls)
+            second = io.read_flat_multi(
+                ["BAD", "GOOD"], {"x": "T/x"}, max_failures=5, shared_failures=shared
+            )
+        # The second read never retried BAD (only GOOD was opened again).
+        self.assertEqual(calls.count("BAD"), n_calls_after_first - 1)
+        self.assertEqual(len(second), 1)
 
 
 class TestPerFileFilter(unittest.TestCase):
@@ -325,7 +593,7 @@ class TestReadCache(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             with mock.patch.object(io, "open_tree", side_effect=fake_open), \
                  mock.patch.object(io, "read_flat", side_effect=fake_read):
-                first = io.read_flat_multi(
+                first = io.read_flat_multi(  # noqa: F841 - warms the cache; assertions use `second`
                     ["A"], {"x": "T/x"}, cache_dir=tmp, max_failures=0
                 )
                 second = io.read_flat_multi(

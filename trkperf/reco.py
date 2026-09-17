@@ -48,7 +48,8 @@ _CENTRALCKFTRACKS_COLUMNS = {
 _JOIN_KEYS = ["file_id", "event", "idx"]
 
 
-def read_reco_tracks(file_paths: list[str], *, max_failures: int = 0) -> pd.DataFrame:
+def read_reco_tracks(file_paths: list[str], *, max_failures: int = 0,
+                     shared_failures: dict | None = None) -> pd.DataFrame:
     """Read reconstructed tracks and their perigee momentum from every file.
 
     Reads `CentralCKFTrackParameters` (qOverP/theta/phi - the only place the
@@ -68,8 +69,10 @@ def read_reco_tracks(file_paths: list[str], *, max_failures: int = 0) -> pd.Data
     docstring).
     """
     # Read the perigee parameters and the populate scalar track members.
-    params = io.read_flat_multi(file_paths, _TRACK_PARAM_COLUMNS, max_failures=max_failures)
-    tracks = io.read_flat_multi(file_paths, _CENTRALCKFTRACKS_COLUMNS, max_failures=max_failures)
+    params = io.read_flat_multi(file_paths, _TRACK_PARAM_COLUMNS, max_failures=max_failures,
+                                shared_failures=shared_failures)
+    tracks = io.read_flat_multi(file_paths, _CENTRALCKFTRACKS_COLUMNS, max_failures=max_failures,
+                                shared_failures=shared_failures)
 
     if params.empty:
         return pd.DataFrame(
@@ -77,7 +80,7 @@ def read_reco_tracks(file_paths: list[str], *, max_failures: int = 0) -> pd.Data
                      "p", "pt", "eta", "phi"]
         )
 
-    merged = params.merge(tracks, on=_JOIN_KEYS, how="left")
+    merged = params.merge(tracks, on=_JOIN_KEYS, how="left", validate="one_to_one")
 
     with np.errstate(divide="ignore", invalid="ignore"):
         # qOverP = q/p, so |p| = 1/|qOverP|; sign of charge from the track

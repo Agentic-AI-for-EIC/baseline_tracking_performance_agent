@@ -18,8 +18,12 @@ from . import report
 
 #: Candidate bin-identifying columns to join clean vs bkg results on. Only
 #: the ones actually present in both DataFrames are used (fake_rate has no
-#: "species" column, for example - see AGENTS.md).
-_JOIN_KEY_CANDIDATES = ("species", "reco_species", "pt_bin_center", "eta_bin_center")
+#: "species" column, for example - see AGENTS.md). String bin labels come
+#: first: float centers survive a JSON round-trip exactly in practice, but
+#: joining on the human-meaningful interval strings is robust by
+#: construction, and near-tie floats can never silently misalign rows.
+_JOIN_KEY_CANDIDATES = ("species", "reco_species", "pt_bin", "eta_bin",
+                        "pt_bin_center", "eta_bin_center")
 
 
 def _safe_divide(numerator: np.ndarray, denominator: np.ndarray) -> np.ndarray:
@@ -56,9 +60,16 @@ def compare_metric(
     bkg_json_path: str,
     out_json_path: str | None = None,
     out_md_path: str | None = None,
+    join_keys: list[str] | None = None,
 ) -> pd.DataFrame:
     """Load two same-metric result files and compute the clean-vs-background
     comparison.
+
+    Parameters
+    ----------
+    join_keys:
+        Columns identifying a row in both tables. Default: auto-detect from
+        ``species / reco_species / pt_bin_center / eta_bin_center``.
 
     Returns
     -------
@@ -71,32 +82,64 @@ def compare_metric(
     clean_df, clean_meta = report.read_json(clean_json_path)
     bkg_df, bkg_meta = report.read_json(bkg_json_path)
 
-    join_keys = _detect_join_keys(clean_df, bkg_df)
+    # `join_keys` lets a caller with a non-tracking-shaped table (e.g. the PID
+    # results, whose rows are keyed by quantity/signal/target fake rate rather
+    # than by (pt_bin, eta_bin, species)) state its identity columns explicitly
+    # instead of relying on the candidate list below.
+    join_keys = list(join_keys) if join_keys else _detect_join_keys(clean_df, bkg_df)
     if not join_keys:
         raise ValueError(
             "compare_metric: no common bin-identity columns between the two "
             "results - are these really the same metric's output?"
         )
+    # Detect value/err pairs on BOTH sides: a pair present on only one side
+    # must still appear (with NaNs opposite) rather than silently vanish. A
+    # one-sided pair keeps its UNSUFFIXED name through the merge, so attribute
+    # it to its side explicitly.
+    clean_pairs = set(_detect_value_err_pairs(clean_df))
     value_err_pairs = _detect_value_err_pairs(clean_df)
+    for pair in _detect_value_err_pairs(bkg_df):
+        if pair not in value_err_pairs:
+            value_err_pairs.append(pair)
 
     merged = clean_df.merge(
         bkg_df, on=join_keys, how="outer", suffixes=("_clean", "_bkg")
     )
+    for value_col, err_col in value_err_pairs:
+        for stem in (value_col, err_col):
+            clean_c, bkg_c = stem + "_clean", stem + "_bkg"
+            if clean_c in merged.columns or bkg_c in merged.columns or stem not in merged.columns:
+                continue
+            if (value_col, err_col) in clean_pairs:
+                merged = merged.rename(columns={stem: clean_c})
+                merged[bkg_c] = np.nan
+            else:
+                merged = merged.rename(columns={stem: bkg_c})
+                merged[clean_c] = np.nan
 
     for value_col, err_col in value_err_pairs:
-        clean_val = merged[f"{value_col}_clean"]
-        bkg_val = merged[f"{value_col}_bkg"]
-        clean_err = merged[f"{err_col}_clean"]
-        bkg_err = merged[f"{err_col}_bkg"]
+        # Coerce first: JSON nulls arrive as None/object and must become NaN,
+        # never a to_numpy(dtype=float) exception.
+        clean_val = pd.to_numeric(merged[f"{value_col}_clean"], errors="coerce").to_numpy(dtype=float)
+        bkg_val = pd.to_numeric(merged[f"{value_col}_bkg"], errors="coerce").to_numpy(dtype=float)
+        clean_err = pd.to_numeric(merged[f"{err_col}_clean"], errors="coerce").to_numpy(dtype=float)
+        bkg_err = pd.to_numeric(merged[f"{err_col}_bkg"], errors="coerce").to_numpy(dtype=float)
 
         ratio = _safe_divide(bkg_val, clean_val)
         # Standard error propagation for a ratio R = b/c:
         # (dR/R)^2 = (db/b)^2 + (dc/c)^2
         rel_err_sq = _safe_divide(bkg_err, bkg_val) ** 2 + _safe_divide(clean_err, clean_val) ** 2
         ratio_err = np.abs(ratio) * np.sqrt(rel_err_sq)
+        # A well-defined ratio of exactly zero still carries an error: R = 0
+        # comes from b = 0, so dR = db / |c| (the generic formula above gives
+        # NaN through 0/0).
+        zero = (ratio == 0) & np.isfinite(bkg_err) & np.isfinite(clean_val) & (clean_val != 0)
+        ratio_err = np.where(
+            zero, np.abs(bkg_err) / np.abs(np.where(zero, clean_val, 1.0)), ratio_err
+        )
 
         diff = bkg_val - clean_val
-        diff_err = np.sqrt(clean_err.to_numpy(dtype=float) ** 2 + bkg_err.to_numpy(dtype=float) ** 2)
+        diff_err = np.sqrt(clean_err**2 + bkg_err**2)
 
         merged[f"{value_col}_ratio_bkg_over_clean"] = ratio
         merged[f"{value_col}_ratio_bkg_over_clean_err"] = ratio_err

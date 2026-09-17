@@ -30,11 +30,16 @@ def compute_resolution(
     total momentum, for consistency with the pT/eta binning used
     everywhere).
     """
-    truth_df = truth.read_truth_particles(file_paths, max_failures=max_failures, primary_only=True)
+    shared: dict = {}
+    truth_df = truth.read_truth_particles(
+        file_paths, max_failures=max_failures, primary_only=True, shared_failures=shared
+    )
     truth_df = truth.select_primary(truth_df, species=species)
 
-    reco_df = reco.read_reco_tracks(file_paths, max_failures=max_failures)
-    assoc_df = matching.read_associations(file_paths, max_failures=max_failures)
+    reco_df = reco.read_reco_tracks(file_paths, max_failures=max_failures, shared_failures=shared)
+    assoc_df = matching.read_associations(
+        file_paths, max_failures=max_failures, shared_failures=shared
+    )
 
     pairs = matching.build_matched_pairs(truth_df, reco_df, assoc_df, weight_threshold)
     matched = pairs[pairs["is_matched"]].copy()
@@ -70,4 +75,37 @@ def compute_resolution(
                 "insufficient_stats": insufficient,
             }
         )
-    return pd.DataFrame(rows)
+    result = pd.DataFrame(rows)
+    # Bins with zero matches never enter the loop; right-join the full grid so
+    # they are explicitly reported as insufficient statistics.
+    grid = binning.full_bin_grid(species if species is not None else list(config.SPECIES))
+    if result.empty:
+        result = pd.DataFrame(
+            {
+                "species": grid["species"],
+                "pt_bin": grid["pt_bin"],
+                "eta_bin": grid["eta_bin"],
+                "pt_bin_center": grid["pt_bin_center"],
+                "eta_bin_center": grid["eta_bin_center"],
+                "n_matched": 0,
+                "mu": float("nan"),
+                "sigma": float("nan"),
+                "mu_err": float("nan"),
+                "sigma_err": float("nan"),
+                "chi2_ndf": float("nan"),
+                "fit_converged": False,
+                "insufficient_stats": True,
+            }
+        )
+    else:
+        result = result.merge(
+            grid, on=["species", "pt_bin", "eta_bin"], how="right", suffixes=("", "_grid")
+        )
+        result["pt_bin_center"] = result["pt_bin_center"].fillna(result.pop("pt_bin_center_grid"))
+        result["eta_bin_center"] = result["eta_bin_center"].fillna(result.pop("eta_bin_center_grid"))
+    result["n_matched"] = result["n_matched"].fillna(0).astype(int)
+    result["insufficient_stats"] = result["insufficient_stats"].fillna(True).astype(bool)
+    result["fit_converged"] = result["fit_converged"].fillna(False).astype(bool)
+    result.attrs["skipped_files"] = sorted(shared.get("skipped", []))
+    result.attrs["run_params"] = {"weight_threshold": weight_threshold, "species": species}
+    return result

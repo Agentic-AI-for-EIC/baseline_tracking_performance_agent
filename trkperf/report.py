@@ -97,8 +97,10 @@ def to_root(df: pd.DataFrame, path: str, tree_name: str = "data", meta: dict | N
 
     Species/code columns (species, truth_species, reco_species) are encoded as
     integer codes (0,1,2,...) matching the order in config.SPECIES, and the
-    ``species_code`` -> name legend is stored in the accompanying ``RunInfo``
-    TTree so it can be decoded. All numeric/boolean columns become TNtuple
+    ``species_code`` -> name legend is stored as TNamed objects (``species_code_<n>``)
+    alongside the ``meta_<key>`` provenance entries - not a RunInfo TTree
+    (PyROOT does not transparently reflect Python-str reassignment into a
+    char[] branch buffer, which silently drops the strings). All numeric/boolean columns become TNtuple
     branches (booleans as 0/1, NaN stays NaN). The ``pt_bin``/``eta_bin``
     string intervals are dropped - their centres (pt_bin_center /
     eta_bin_center) carry the same information and are kept.
@@ -139,8 +141,16 @@ def to_root(df: pd.DataFrame, path: str, tree_name: str = "data", meta: dict | N
         elif col in ("pt_bin", "eta_bin"):
             continue  # centres carry the bin information
         else:
+            try:
+                values = df[col].astype(float).tolist()
+            except (ValueError, TypeError) as exc:
+                raise TypeError(
+                    f"trkperf.report.to_root: column {col!r} is neither numeric "
+                    f"nor a registered string column {_ROOT_STRING_COLUMNS} - "
+                    "add it there (with a code legend) or drop it before writing."
+                ) from exc
             branch_names.append(col)
-            branches.append((col, df[col].astype(float).tolist()))
+            branches.append((col, values))
 
     _root = _import_root()
     f = _root.TFile.Open(path, "RECREATE")

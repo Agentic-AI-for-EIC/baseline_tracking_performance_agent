@@ -51,7 +51,8 @@ def add_kinematics(df: pd.DataFrame, px="px", py="py", pz="pz", prefix="") -> pd
 
 
 def read_truth_particles(
-    file_paths: list[str], *, max_failures: int = 0, primary_only: bool = False
+    file_paths: list[str], *, max_failures: int = 0, primary_only: bool = False,
+    shared_failures: dict | None = None,
 ) -> pd.DataFrame:
     """Read MCParticles from every file and compute pT/eta/phi/p.
 
@@ -80,7 +81,8 @@ def read_truth_particles(
     if primary_only:
         filter_ = lambda df: df[df["generator_status"] == 1].copy()
     df = io.read_flat_multi(
-        file_paths, _MCPARTICLES_COLUMNS, max_failures=max_failures, per_file_filter=filter_
+        file_paths, _MCPARTICLES_COLUMNS, max_failures=max_failures, per_file_filter=filter_,
+        shared_failures=shared_failures,
     )
     df = add_kinematics(df)
     df["species"] = df["pdg"].map(config.PDG_TO_SPECIES)
@@ -105,7 +107,8 @@ def select_primary(truth_df: pd.DataFrame, species: list[str] | None = None) -> 
     return out
 
 
-def read_truth_hit_layer_counts(file_paths: list[str], *, max_failures: int = 0) -> pd.DataFrame:
+def read_truth_hit_layer_counts(file_paths: list[str], *, max_failures: int = 0,
+                                shared_failures: dict | None = None) -> pd.DataFrame:
     """Count, per truth particle, how many central-tracking truth-hit
     collections registered >= 1 hit from it (see AGENTS.md / config.py for
     why "collection" is used as a proxy for "layer").
@@ -131,7 +134,8 @@ def read_truth_hit_layer_counts(file_paths: list[str], *, max_failures: int = 0)
         # below (pandas allows duplicate column names; groupby then breaks,
         # since `df["idx"]` returns a 2-column DataFrame, not a Series).
         columns = {"particle_idx": f"_{collection}_particle/_{collection}_particle.index"}
-        hits = io.read_flat_multi(file_paths, columns, max_failures=max_failures)
+        hits = io.read_flat_multi(file_paths, columns, max_failures=max_failures,
+                                    shared_failures=shared_failures)
         hits["collection"] = collection
         # Select only the columns we need FIRST (dropping the hit's own,
         # now-irrelevant bookkeeping "idx"), then rename - so there is only

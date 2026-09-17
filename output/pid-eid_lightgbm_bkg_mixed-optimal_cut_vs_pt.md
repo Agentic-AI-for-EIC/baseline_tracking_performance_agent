@@ -1,0 +1,15 @@
+| channel   | binning_basis   | bin_column   | bin                |   bin_center |   n_signal_bin |   n_background_bin |   threshold |   significance | valid   | reason                     | caution   |
+|:----------|:----------------|:-------------|:-------------------|-------------:|---------------:|-------------------:|------------:|---------------:|:--------|:---------------------------|:----------|
+| eid       | reconstructed   | pt           | (0.5, 1.23077]     |     0.865385 |              8 |                  3 |         nan |            nan | False   | bin has 11 candidates < 20 |           |
+| eid       | reconstructed   | pt           | (1.23077, 1.96154] |     1.59615  |              5 |                  0 |         nan |            nan | False   | bin has 5 candidates < 20  |           |
+| eid       | reconstructed   | pt           | (1.96154, 2.69231] |     2.32692  |              3 |                  0 |         nan |            nan | False   | bin has 3 candidates < 20  |           |
+| eid       | reconstructed   | pt           | (2.69231, 3.42308] |     3.05769  |              1 |                  0 |         nan |            nan | False   | bin has 1 candidates < 20  |           |
+| eid       | reconstructed   | pt           | (3.42308, 4.15385] |     3.78846  |              0 |                  0 |         nan |            nan | False   | bin has 0 candidates < 20  |           |
+| eid       | reconstructed   | pt           | (4.15385, 4.88462] |     4.51923  |              0 |                  0 |         nan |            nan | False   | bin has 0 candidates < 20  |           |
+| eid       | reconstructed   | pt           | (4.88462, 5.61538] |     5.25     |              0 |                  0 |         nan |            nan | False   | bin has 0 candidates < 20  |           |
+| eid       | reconstructed   | pt           | (5.61538, 6.34615] |     5.98077  |              0 |                  0 |         nan |            nan | False   | bin has 0 candidates < 20  |           |
+| eid       | reconstructed   | pt           | (6.34615, 7.07692] |     6.71154  |              0 |                  0 |         nan |            nan | False   | bin has 0 candidates < 20  |           |
+| eid       | reconstructed   | pt           | (7.07692, 7.80769] |     7.44231  |              0 |                  0 |         nan |            nan | False   | bin has 0 candidates < 20  |           |
+| eid       | reconstructed   | pt           | (7.80769, 8.53846] |     8.17308  |              0 |                  0 |         nan |            nan | False   | bin has 0 candidates < 20  |           |
+| eid       | reconstructed   | pt           | (8.53846, 9.26923] |     8.90385  |              0 |                  0 |         nan |            nan | False   | bin has 0 candidates < 20  |           |
+| eid       | reconstructed   | pt           | (9.26923, 10]      |     9.63462  |              0 |                  0 |         nan |            nan | False   | bin has 0 candidates < 20  |           |

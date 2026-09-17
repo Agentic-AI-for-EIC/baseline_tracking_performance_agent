@@ -1,0 +1,103 @@
+{
+  "meta": {
+    "pipeline": "pid",
+    "schema_version": "pid-v1",
+    "campaigns": {
+      "clean": "26.02.0",
+      "bkg_mixed": "26.07.1"
+    },
+    "match_weight_threshold": 0.5,
+    "min_track_p": 1.0,
+    "delta_r_max": 0.3,
+    "min_entries_per_bin": 50,
+    "fake_rate_targets": [
+      0.01,
+      0.001,
+      0.0001
+    ],
+    "excluded_columns": [
+      "charge"
+    ],
+    "n_jobs": 1,
+    "random_seed": 1234,
+    "libraries": {
+      "lightgbm": "4.7.0",
+      "xgboost": "3.4.1",
+      "sklearn": "1.9.1",
+      "numpy": "2.4.6",
+      "pandas": "3.0.3",
+      "awkward": "2.9.0",
+      "uproot": "5.7.1",
+      "torch": "2.12.0",
+      "ROOT": "6.40.04",
+      "problems": "none"
+    },
+    "numpy_path": "/home/wxie/.eic_python_pkgs/numpy/__init__.py",
+    "artifact": "confusion",
+    "task": "ehad",
+    "model": "lightgbm",
+    "dataset_tag": "bkg_mixed",
+    "scores_table": "output/models/ehad_lightgbm_bkg_mixed/test_scores.pkl",
+    "n_files_scored": 1,
+    "n_events_scored": 18,
+    "n_rows_scored": 20,
+    "n_signal": 17,
+    "n_background": 3,
+    "campaign": "26.07.1",
+    "written_at_utc": "2026-09-16T21:57:51.755076+00:00"
+  },
+  "data": [
+    {
+      "truth_class": "e",
+      "pred_class": "e",
+      "n": 0,
+      "row_fraction": 0.0,
+      "row_fraction_err_lo": 0.0,
+      "row_fraction_err_hi": 0.195064323,
+      "row_fraction_err": 0.0975321615,
+      "col_fraction": null,
+      "n_truth": 17,
+      "n_pred": 0,
+      "insufficient_stats": true
+    },
+    {
+      "truth_class": "e",
+      "pred_class": "hadron",
+      "n": 17,
+      "row_fraction": 1.0,
+      "row_fraction_err_lo": 0.804935677,
+      "row_fraction_err_hi": 1.0,
+      "row_fraction_err": 0.0975321615,
+      "col_fraction": 0.85,
+      "n_truth": 17,
+      "n_pred": 20,
+      "insufficient_stats": true
+    },
+    {
+      "truth_class": "hadron",
+      "pred_class": "e",
+      "n": 0,
+      "row_fraction": null,
+      "row_fraction_err_lo": null,
+      "row_fraction_err_hi": null,
+      "row_fraction_err": null,
+      "col_fraction": null,
+      "n_truth": 0,
+      "n_pred": 0,
+      "insufficient_stats": true
+    },
+    {
+      "truth_class": "hadron",
+      "pred_class": "hadron",
+      "n": 0,
+      "row_fraction": null,
+      "row_fraction_err_lo": null,
+      "row_fraction_err_hi": null,
+      "row_fraction_err": null,
+      "col_fraction": 0.0,
+      "n_truth": 0,
+      "n_pred": 20,
+      "insufficient_stats": true
+    }
+  ]
+}

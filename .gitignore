@@ -1,0 +1,16 @@
+# Python bytecode - regenerable, never reviewable. (A batch of .pyc files was
+# accidentally committed before this file existed; they were untracked with
+# `git rm --cached` and must not come back.)
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Linters / typecheckers
+.ruff_cache/
+.mypy_cache/
+
+# Local run state (pidfiles point at dead container PIDs; logs are huge).
+# Note: output/, cache/ and runs/*.log are COMMITTED run artifacts in this
+# project, so they are deliberately NOT ignored here.
+runs/*.pid
+runs/*.start

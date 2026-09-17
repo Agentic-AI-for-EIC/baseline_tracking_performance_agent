@@ -57,9 +57,54 @@ def assign_bins(
     out = df.copy()
     out["pt_bin"] = pd.cut(out[pt_col], bins=pt_edges)
     out["eta_bin"] = pd.cut(out[eta_col], bins=eta_edges)
-    out["pt_bin_center"] = out["pt_bin"].apply(lambda i: i.mid if pd.notna(i) else np.nan)
-    out["eta_bin_center"] = out["eta_bin"].apply(lambda i: i.mid if pd.notna(i) else np.nan)
+    # astype(float): on an empty frame Series.apply preserves the input's
+    # categorical dtype, which would poison every downstream fillna/merge.
+    out["pt_bin_center"] = out["pt_bin"].apply(
+        lambda i: i.mid if pd.notna(i) else np.nan
+    ).astype(float)
+    out["eta_bin_center"] = out["eta_bin"].apply(
+        lambda i: i.mid if pd.notna(i) else np.nan
+    ).astype(float)
     return out
+
+
+def _bin_categories(edges: np.ndarray) -> pd.IntervalIndex:
+    """The exact categoricals ``assign_bins`` cuts with.
+
+    ``pd.cut`` rounds breakpoints to ``precision=3`` decimals, so rebuilding
+    categories from the raw edges (e.g. via ``from_breaks``) yields
+    *different* intervals that would never merge-match. Deriving them through
+    ``pd.cut`` itself keeps grid and result keys identical by construction.
+    """
+    return pd.cut(pd.Series([float(edges[0])]), bins=np.asarray(edges)).cat.categories
+
+
+def full_bin_grid(species: list[str] | None) -> pd.DataFrame:
+    """Cartesian species x pt x eta grid (categorical bins + centers).
+
+    A groupby only yields observed bins, so bins with zero entries would be
+    silently absent from a metric table. AGENTS.md requires those reported as
+    insufficient statistics instead, so every metric right-joins its counts
+    onto this grid. ``species=None`` means "no species axis" (fake rate).
+    The categoricals are built from the same edges ``assign_bins`` cuts with,
+    so the merge keys match exactly.
+    """
+    pt = _bin_categories(config.PT_BIN_EDGES)
+    eta = _bin_categories(config.ETA_BIN_EDGES)
+    recs = []
+    specs: list = [None] if species is None else list(species)
+    for s in specs:
+        for pi in pt:
+            for ei in eta:
+                recs.append((s, pi, ei, pi.mid, ei.mid))
+    grid = pd.DataFrame(
+        recs, columns=["species", "pt_bin", "eta_bin", "pt_bin_center", "eta_bin_center"]
+    )
+    if species is None:
+        grid = grid.drop(columns=["species"])
+    grid["pt_bin"] = pd.Categorical(grid["pt_bin"], categories=pt)
+    grid["eta_bin"] = pd.Categorical(grid["eta_bin"], categories=eta)
+    return grid
 
 
 def gaussian(x: np.ndarray, amplitude: float, mu: float, sigma: float) -> np.ndarray:
@@ -179,9 +224,6 @@ def fit_gaussian_core(
             return None
         return popt, perr, float(res.Chi2()), int(res.Ndf())
 
-    if _fit(values, hist_range) is None:
-        return GaussianFitResult(n_entries, *([float("nan")] * 4), float("nan"), 0, False)
-
     pass1 = _fit(values, hist_range)
     if pass1 is None:
         return GaussianFitResult(n_entries, *([float("nan")] * 4), float("nan"), 0, False)
@@ -233,14 +275,25 @@ def fit_gaussian_core(
 
 
 def binomial_error(k: np.ndarray | int, n: np.ndarray | int) -> np.ndarray:
-    """Simple binomial (normal-approximation) uncertainty on a ratio k/n.
+    """Wilson score-interval uncertainty on a ratio k/n (95 % CL).
 
-    Used for acceptance/efficiency/fake-rate errors. Returns 0 where n == 0
-    (caller should already be excluding n == 0 bins via MIN_ENTRIES_PER_BIN,
-    this is just a safe fallback).
+    Used for acceptance/efficiency/fake-rate errors. A single conservative
+    width ``max(value - lo, hi - value)`` is reported so the ``*_err`` column
+    convention (and compare.py's symmetric propagation) keeps working; unlike
+    the normal approximation this never collapses to zero at k=0 or k=n -
+    exactly the most-quoted bins (efficiency ~1, fake rate ~0). NaN where
+    n == 0. Closed form on purpose: this module must work without scipy.
     """
     k = np.asarray(k, dtype=float)
     n = np.asarray(n, dtype=float)
-    p = np.divide(k, n, out=np.zeros_like(k, dtype=float), where=n > 0)
-    var = np.divide(p * (1 - p), n, out=np.zeros_like(k, dtype=float), where=n > 0)
-    return np.sqrt(var)
+    kk, nn = np.broadcast_arrays(k, n)
+    safe_n = np.where(nn > 0, nn, 1.0)
+    z = 1.96
+    with np.errstate(divide="ignore", invalid="ignore"):
+        denom = 1.0 + z * z / safe_n
+        p = np.where(nn > 0, kk / safe_n, np.nan)
+        center = (p + z * z / (2.0 * safe_n)) / denom
+        half = z * np.sqrt(p * (1.0 - p) / safe_n + z * z / (4.0 * safe_n**2)) / denom
+    lo = np.clip(center - half, 0.0, 1.0)
+    hi = np.clip(center + half, 0.0, 1.0)
+    return np.where(nn > 0, np.maximum(p - lo, hi - p), np.nan)

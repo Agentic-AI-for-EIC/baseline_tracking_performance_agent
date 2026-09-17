@@ -1,0 +1,119 @@
+{
+  "meta": {
+    "pipeline": "pid",
+    "schema_version": "pid-v1",
+    "campaigns": {
+      "clean": "26.02.0",
+      "bkg_mixed": "26.07.1"
+    },
+    "match_weight_threshold": 0.5,
+    "min_track_p": 1.0,
+    "delta_r_max": 0.3,
+    "min_entries_per_bin": 50,
+    "fake_rate_targets": [
+      0.01,
+      0.001,
+      0.0001
+    ],
+    "excluded_columns": [
+      "charge"
+    ],
+    "n_jobs": 1,
+    "random_seed": 1234,
+    "libraries": {
+      "lightgbm": "4.7.0",
+      "xgboost": "3.4.1",
+      "sklearn": "1.9.1",
+      "numpy": "2.4.6",
+      "pandas": "3.0.3",
+      "awkward": "2.9.0",
+      "uproot": "5.7.1",
+      "torch": "2.12.0",
+      "ROOT": "6.40.04",
+      "problems": "none"
+    },
+    "numpy_path": "/home/wxie/.eic_python_pkgs/numpy/__init__.py",
+    "model": "lightgbm",
+    "dataset_tag": "bkg_mixed",
+    "significance_mode": "s_over_sqrt",
+    "lumi_scale": 1.0,
+    "bkg_scale": 1.0,
+    "channels": [
+      "eid",
+      "ehad",
+      "Kpi",
+      "pK"
+    ],
+    "bin_source": "reco",
+    "nsigma_method": "quantile",
+    "binning_bases_in_rows": [
+      "reco"
+    ],
+    "pt_bins": 13,
+    "p_bins": 14,
+    "campaign": "26.07.1",
+    "written_at_utc": "2026-09-17T19:11:36.246709+00:00"
+  },
+  "data": [
+    {
+      "threshold": 0.5,
+      "significance": 3.8013155617,
+      "efficiency": 1.0,
+      "fake_rate": 1.0,
+      "fake_rate_upper_limit": 1.0,
+      "purity": 0.85,
+      "rejection": 1.0,
+      "rejection_lower_limit": 1.0,
+      "n_signal_total": 17,
+      "n_background_total": 3,
+      "valid": true,
+      "caution": "degenerate: FOM is maximised by accepting every candidate (efficiency and fake rate both 1), i.e. the classifier does not separate these classes - no working point exists in this score space; only 3 of 3 background candidates accepted: fake rate and purity are limited by the sample, use fake_rate_upper_limit / rejection_lower_limit",
+      "edge_flag": "interior",
+      "rejects_background": false,
+      "signal": "e",
+      "background": "pi",
+      "channel": "eid",
+      "task": "eid",
+      "status": "headline",
+      "status_note": "",
+      "nsigma_method": "",
+      "score_space": "task",
+      "binning_basis": "reco",
+      "n_files": 1,
+      "n_rows": 20,
+      "n_bins_with_cut": 0,
+      "ks_signal": 0.0,
+      "ks_background": null
+    },
+    {
+      "threshold": 0.5,
+      "significance": 3.8013155617,
+      "efficiency": 1.0,
+      "fake_rate": 1.0,
+      "fake_rate_upper_limit": 1.0,
+      "purity": 0.85,
+      "rejection": 1.0,
+      "rejection_lower_limit": 1.0,
+      "n_signal_total": 17,
+      "n_background_total": 3,
+      "valid": true,
+      "caution": "degenerate: FOM is maximised by accepting every candidate (efficiency and fake rate both 1), i.e. the classifier does not separate these classes - no working point exists in this score space; only 3 of 3 background candidates accepted: fake rate and purity are limited by the sample, use fake_rate_upper_limit / rejection_lower_limit",
+      "edge_flag": "interior",
+      "rejects_background": false,
+      "signal": "e",
+      "background": "hadron",
+      "channel": "ehad",
+      "task": "ehad",
+      "status": "headline",
+      "status_note": "",
+      "nsigma_method": "",
+      "score_space": "task",
+      "binning_basis": "reco",
+      "n_files": 1,
+      "n_rows": 20,
+      "n_bins_with_cut": 0,
+      "ks_signal": 0.0,
+      "ks_background": null
+    }
+  ]
+}

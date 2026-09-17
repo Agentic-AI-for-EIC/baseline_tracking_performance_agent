@@ -153,7 +153,15 @@ def _write_outputs(
         "dataset_tag": args.dataset_tag,
         "min_q2_tier": args.min_q2_tier,
         "n_files": n_files,
+        "max_file_failures": args.max_file_failures,
+        # Provenance the Definition of done requires: the exact thresholds the
+        # numbers were computed with, which files were skipped, and the full
+        # command line - carried on df.attrs by the metric modules.
+        "command": " ".join(sys.argv),
     }
+    run_params = dict(getattr(df, "attrs", {}).get("run_params", {}))
+    meta.update(run_params)
+    meta["skipped_files"] = list(getattr(df, "attrs", {}).get("skipped_files", []))
     base = os.path.join(args.out_dir, f"{metric_name}_{args.dataset_tag}")
     report.to_json(df, base + ".json", meta=meta)
     report.to_markdown_table(df, base + ".md")

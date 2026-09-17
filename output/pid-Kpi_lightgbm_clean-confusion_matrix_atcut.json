@@ -1,0 +1,159 @@
+{
+  "meta": {
+    "pipeline": "pid",
+    "schema_version": "pid-v1",
+    "campaigns": {
+      "clean": "26.02.0",
+      "bkg_mixed": "26.07.1"
+    },
+    "match_weight_threshold": 0.5,
+    "min_track_p": 1.0,
+    "delta_r_max": 0.3,
+    "min_entries_per_bin": 50,
+    "fake_rate_targets": [
+      0.01,
+      0.001,
+      0.0001
+    ],
+    "excluded_columns": [
+      "charge"
+    ],
+    "n_jobs": 1,
+    "random_seed": 1234,
+    "libraries": {
+      "lightgbm": "4.7.0",
+      "xgboost": "3.4.1",
+      "sklearn": "1.9.1",
+      "numpy": "2.4.6",
+      "pandas": "3.0.3",
+      "awkward": "2.9.0",
+      "uproot": "5.7.1",
+      "torch": "2.12.0",
+      "ROOT": "6.40.04",
+      "problems": "none"
+    },
+    "numpy_path": "/home/wxie/.eic_python_pkgs/numpy/__init__.py",
+    "channel": "Kpi",
+    "task": "hadpid",
+    "model": "lightgbm",
+    "dataset_tag": "clean",
+    "decision": "thresholds_at_c*",
+    "class_cuts": {
+      "pi": 0.1625,
+      "K": 0.23750000000000002,
+      "p": 0.2525
+    },
+    "campaign": "26.02.0",
+    "written_at_utc": "2026-09-17T19:10:56.131076+00:00"
+  },
+  "data": [
+    {
+      "truth_class": "pi",
+      "pred_class": "pi",
+      "n": 178,
+      "row_fraction": 0.5189504373,
+      "n_truth": 343,
+      "decision": "thresholds_at_c*",
+      "insufficient_stats": false
+    },
+    {
+      "truth_class": "pi",
+      "pred_class": "K",
+      "n": 95,
+      "row_fraction": 0.27696793,
+      "n_truth": 343,
+      "decision": "thresholds_at_c*",
+      "insufficient_stats": false
+    },
+    {
+      "truth_class": "pi",
+      "pred_class": "p",
+      "n": 70,
+      "row_fraction": 0.2040816327,
+      "n_truth": 343,
+      "decision": "thresholds_at_c*",
+      "insufficient_stats": false
+    },
+    {
+      "truth_class": "pi",
+      "pred_class": "none",
+      "n": 0,
+      "row_fraction": 0.0,
+      "n_truth": 343,
+      "decision": "thresholds_at_c*",
+      "insufficient_stats": false
+    },
+    {
+      "truth_class": "K",
+      "pred_class": "pi",
+      "n": 11,
+      "row_fraction": 0.4230769231,
+      "n_truth": 26,
+      "decision": "thresholds_at_c*",
+      "insufficient_stats": true
+    },
+    {
+      "truth_class": "K",
+      "pred_class": "K",
+      "n": 7,
+      "row_fraction": 0.2692307692,
+      "n_truth": 26,
+      "decision": "thresholds_at_c*",
+      "insufficient_stats": true
+    },
+    {
+      "truth_class": "K",
+      "pred_class": "p",
+      "n": 8,
+      "row_fraction": 0.3076923077,
+      "n_truth": 26,
+      "decision": "thresholds_at_c*",
+      "insufficient_stats": true
+    },
+    {
+      "truth_class": "K",
+      "pred_class": "none",
+      "n": 0,
+      "row_fraction": 0.0,
+      "n_truth": 26,
+      "decision": "thresholds_at_c*",
+      "insufficient_stats": true
+    },
+    {
+      "truth_class": "p",
+      "pred_class": "pi",
+      "n": 16,
+      "row_fraction": 0.3555555556,
+      "n_truth": 45,
+      "decision": "thresholds_at_c*",
+      "insufficient_stats": true
+    },
+    {
+      "truth_class": "p",
+      "pred_class": "K",
+      "n": 15,
+      "row_fraction": 0.3333333333,
+      "n_truth": 45,
+      "decision": "thresholds_at_c*",
+      "insufficient_stats": true
+    },
+    {
+      "truth_class": "p",
+      "pred_class": "p",
+      "n": 14,
+      "row_fraction": 0.3111111111,
+      "n_truth": 45,
+      "decision": "thresholds_at_c*",
+      "insufficient_stats": true
+    },
+    {
+      "truth_class": "p",
+      "pred_class": "none",
+      "n": 0,
+      "row_fraction": 0.0,
+      "n_truth": 45,
+      "decision": "thresholds_at_c*",
+      "insufficient_stats": true
+    }
+  ]
+}

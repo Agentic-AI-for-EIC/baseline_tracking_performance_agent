@@ -2,7 +2,8 @@
 # Run the clean-vs-bkg_mixed comparison for every metric once BOTH sides'
 # results exist in output/. Skips any metric whose inputs are not present yet.
 # Usage: scripts/run_comparisons.sh [max_attempts]  (repeat until --all-ok)
-cd /home/wxie/eic/tracking_performance
+HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+cd "$HERE"
 OUT=output
 DONE=0
 SKIP=0

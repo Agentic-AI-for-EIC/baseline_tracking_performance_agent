@@ -11,6 +11,7 @@ beam background).
 
 from __future__ import annotations
 
+import numpy as np
 import pandas as pd
 
 from .. import binning, config, truth
@@ -43,10 +44,15 @@ def compute_acceptance(
         n_generated, n_in_acceptance, acceptance, acceptance_err,
         insufficient_stats.
     """
-    truth_df = truth.read_truth_particles(file_paths, max_failures=max_failures, primary_only=True)
+    truth_df = truth.read_truth_particles(
+        file_paths, max_failures=max_failures, primary_only=True,
+        shared_failures=(shared := {}),
+    )
     truth_df = truth.select_primary(truth_df, species=species)
 
-    layer_counts = truth.read_truth_hit_layer_counts(file_paths, max_failures=max_failures)
+    layer_counts = truth.read_truth_hit_layer_counts(
+        file_paths, max_failures=max_failures, shared_failures=shared
+    )
     truth_df = truth.add_acceptance_flag(truth_df, layer_counts, min_layers=min_layers)
 
     truth_df = binning.assign_bins(truth_df)
@@ -60,9 +66,23 @@ def compute_acceptance(
         n_in_acceptance=("in_acceptance", "sum"),
     ).reset_index()
 
-    result["acceptance"] = result["n_in_acceptance"] / result["n_generated"]
+    # Bins with zero entries are absent from the groupby; right-join the full
+    # grid so they are explicitly reported as insufficient statistics.
+    grid = binning.full_bin_grid(species if species is not None else list(config.SPECIES))
+    result = result.merge(
+        grid, on=["species", "pt_bin", "eta_bin"], how="right", suffixes=("", "_grid")
+    )
+    result["pt_bin_center"] = result["pt_bin_center"].fillna(result.pop("pt_bin_center_grid"))
+    result["eta_bin_center"] = result["eta_bin_center"].fillna(result.pop("eta_bin_center_grid"))
+    result["n_generated"] = result["n_generated"].fillna(0).astype(int)
+    result["n_in_acceptance"] = result["n_in_acceptance"].fillna(0).astype(int)
+
+    with np.errstate(divide="ignore", invalid="ignore"):
+        result["acceptance"] = result["n_in_acceptance"] / result["n_generated"]
     result["acceptance_err"] = binning.binomial_error(
         result["n_in_acceptance"], result["n_generated"]
     )
     result["insufficient_stats"] = result["n_generated"] < config.MIN_ENTRIES_PER_BIN
+    result.attrs["skipped_files"] = sorted(shared.get("skipped", []))
+    result.attrs["run_params"] = {"min_layers": min_layers, "species": species}
     return result

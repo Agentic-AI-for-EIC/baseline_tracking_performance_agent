@@ -78,7 +78,7 @@ The overseas endpoint is flaky (`[ERROR] Operation expired` / socket
 timeouts). Always:
 - pass `--max-file-failures N` (5-20 is enough to ride out transient drops;
   the project historically used 60 for heavily degraded stretches);
-- pass `--cache-dir` (default `cache/bkg_files`) so a job interrupted by
+- pass `--cache-dir` (no default — pass `cache/bkg_files`) so a job interrupted by
   container teardown re-start for free over already-read files.
 
 ```sh

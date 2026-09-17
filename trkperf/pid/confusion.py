@@ -42,15 +42,23 @@ def compute_pid_confusion(
         n_truth_total_in_bin,                 # denominator for efficiency
         insufficient_stats.
     """
-    truth_df = truth.read_truth_particles(file_paths, max_failures=max_failures, primary_only=True)
+    shared: dict = {}
+    truth_df = truth.read_truth_particles(
+        file_paths, max_failures=max_failures, primary_only=True, shared_failures=shared
+    )
     truth_df = truth.select_primary(truth_df, species=species)
-    reco_df = reco.read_reco_tracks(file_paths, max_failures=max_failures)
-    assoc_df = matching.read_associations(file_paths, max_failures=max_failures)
+    reco_df = reco.read_reco_tracks(file_paths, max_failures=max_failures, shared_failures=shared)
+    assoc_df = matching.read_associations(
+        file_paths, max_failures=max_failures, shared_failures=shared
+    )
 
     pairs = matching.build_matched_pairs(truth_df, reco_df, assoc_df, weight_threshold)
     matched = pairs[pairs["is_matched"]].copy()
     if matched.empty:
-        return pd.DataFrame()
+        out = pd.DataFrame()
+        out.attrs["skipped_files"] = sorted(shared.get("skipped", []))
+        out.attrs["run_params"] = {"weight_threshold": weight_threshold, "species": species}
+        return out
 
     matched["reco_species"] = matched["reco_pdg"].map(config.PDG_TO_SPECIES).fillna("unknown")
 
@@ -96,4 +104,7 @@ def compute_pid_confusion(
     )
 
     merged = merged.rename(columns={"species": "truth_species"})
-    return merged.drop(columns=["n_bin_total"])
+    merged = merged.drop(columns=["n_bin_total"])
+    merged.attrs["skipped_files"] = sorted(shared.get("skipped", []))
+    merged.attrs["run_params"] = {"weight_threshold": weight_threshold, "species": species}
+    return merged

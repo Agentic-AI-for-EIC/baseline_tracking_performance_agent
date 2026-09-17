@@ -142,6 +142,7 @@ def read_flat_multi(
     max_failures: int = 0,
     cache_dir: str | None = None,
     per_file_filter: callable | None = None,
+    shared_failures: dict | None = None,
 ) -> pd.DataFrame:
     """Read the same flat table from many files and concatenate the result.
 
@@ -171,6 +172,17 @@ def read_flat_multi(
         set this for flaky xrootd endpoints where intermittent network errors
         are expected.  The total number of skipped files is reported in the
         warning banner so the user knows whether the result is trustworthy.
+    shared_failures:
+        Optional caller-owned dict for sharing one failure budget across the
+        several reads of a metric run (truth + hit collections + reco +
+        associations). When given, failed paths accumulate in
+        ``shared_failures["skipped"]``: the budget applies to their shared
+        total (not per call), and a path that already failed is skipped
+        immediately by later reads without retrying or consuming more budget.
+        This keeps every joined table covering the same file subset - without
+        it, each read would tolerate its own failures and the truth-only
+        denominators would silently cover files whose reco data is missing.
+        Each metric run must pass a fresh dict.
     cache_dir:
         If set, per-file results are stashed here (pickled DataFrame, keyed
         on URL + branches) the first time they are read successfully, and a
@@ -186,15 +198,20 @@ def read_flat_multi(
         Whatever uproot/awkward raises, with the offending file path
         prepended - per AGENTS.md, trkperf never silently swallows an error.
     RuntimeError
-        More than ``max_failures`` files failed to read.
-    """
+        More than ``max_failures`` files failed to read.    """
     import sys
     import time
 
     cache_dir = cache_dir if cache_dir is not None else _CACHE_DIR
     frames = []
     skipped: list[str] = []
+    if shared_failures is not None:
+        skipped = shared_failures.setdefault("skipped", [])
     for file_id, path in enumerate(file_paths):
+        if path in skipped:
+            # Failed earlier in this run: skip immediately so every table
+            # covers the same files, without retrying or spending budget.
+            continue
         cache_path: str | None = None
         if cache_dir:
             cache_path = os.path.join(
@@ -269,6 +286,109 @@ def read_flat_multi(
 def file_id_to_path_map(file_paths: list[str]) -> dict[int, str]:
     """Return the {file_id: path} mapping used by read_flat_multi, for provenance."""
     return dict(enumerate(file_paths))
+
+
+# ---------------------------------------------------------------------------
+# Nested (per-object vector / relation) access.
+#
+# ``read_flat`` covers the common case in this project - several members of ONE
+# collection, all jagged with the same per-event length, flattened to one row
+# per object. EDM4eic also stores two shapes that that model cannot express:
+#
+#   * inline vectors sized per *object* (``Cluster.shapeParameters``,
+#     ``CherenkovParticleID.hypotheses``), held as a flat ``std::vector<T>`` per
+#     event plus ``<field>_begin`` / ``<field>_end`` offset columns on the object
+#     table, and
+#   * ToOne/ToMany relations (``_EcalEndcapPClusters_hits``), held the same way
+#     (flat list of ``podio::ObjectID`` + begin/end on the object table).
+#
+# The helpers below unpack those two shapes generically, so consumers (e.g. the
+# PID feature builder) never re-implement podio's offset arithmetic. They are
+# deliberately physics-free, exactly like :func:`read_flat`.
+# ---------------------------------------------------------------------------
+
+
+def read_nested(
+    path_or_url: str,
+    columns: dict[str, str],
+    tree_name: str = "events",
+    *,
+    entry_start: int | None = None,
+    entry_stop: int | None = None,
+):
+    """Read arbitrary branches from ONE file as (jagged) awkward arrays.
+
+    Unlike :func:`read_flat` this performs no flattening and imposes no
+    alignment requirement between the requested branches - it hands back the
+    raw per-event structure so the caller can slice it with
+    :func:`expand_by_offsets`. Use it for per-object vector members and
+    relation lists; use :func:`read_flat`/``read_flat_multi`` for ordinary
+    collection members.
+
+    Parameters
+    ----------
+    path_or_url:
+        Local path or ``root://`` URL (see :func:`open_tree`).
+    columns:
+        ``{output_name: full_branch_path}`` - same convention as
+        :func:`read_flat`, e.g.
+        ``{"shape": "_EcalEndcapPClusters_shapeParameters",
+          "shape_begin": "EcalEndcapPClusters.shapeParameters_begin",
+          "shape_end":   "EcalEndcapPClusters.shapeParameters_end"}``.
+    entry_start, entry_stop:
+        Optional Python-style entry slice (useful for smoke tests over a few
+        events instead of the whole file).
+
+    Returns
+    -------
+    ``dict`` mapping each key of `columns` to its awkward array (one entry per
+    event). Branches that uproot delivers as records keep their record layout.
+    """
+    tree = open_tree(path_or_url, tree_name=tree_name)
+    arrays = tree.arrays(
+        list(columns.values()), library="ak", entry_start=entry_start, entry_stop=entry_stop
+    )
+    out = {}
+    for name, path in columns.items():
+        out[name] = arrays[path]
+    return out
+
+
+def event_count(path_or_url: str, tree_name: str = "events") -> int:
+    """Number of entries in `tree_name`, metadata-only (no branch decompression)."""
+    return int(open_tree(path_or_url, tree_name=tree_name).num_entries)
+
+
+def expand_by_offsets(flat, begin, end):
+    """Gather a per-event flat vector into per-object lists using begin/end.
+
+    Parameters
+    ----------
+    flat:
+        Jagged array of depth ``event * value`` (e.g.
+        ``_EcalEndcapPClusters_shapeParameters``).
+    begin, end:
+        Depth ``event * object`` offset columns from the object table (e.g.
+        ``EcalEndcapPClusters.shapeParameters_{begin,end}``).
+
+    Returns
+    -------
+    Jagged array of depth ``event * object * value``. Empty ranges stay empty.
+
+    Notes
+    -----
+    This is the generic form of "slice the inline vector / relation list that
+    podio flattened across the objects of one event". Pure array arithmetic, no
+    physics, no assumptions about what the values mean.
+    """
+    out = []
+    flat_list = flat.tolist()
+    begin_list = begin.tolist()
+    end_list = end.tolist()
+    for ev_vals, ev_b, ev_e in zip(flat_list, begin_list, end_list):
+        ev_vals = ev_vals if ev_vals is not None else []
+        out.append([ev_vals[b:e] for b, e in zip(ev_b, ev_e)])
+    return ak.Array(out)
 
 
 def _stash_pickle(df: pd.DataFrame, cache_path: str) -> None:

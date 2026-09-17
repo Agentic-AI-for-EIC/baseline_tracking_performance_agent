@@ -1,5 +1,5 @@
 # Tracking Performance Analysis — Project Plan
-Location: /home/wxie/eic/tracking_performance/
+Location: /home/wxie/eic/baseline_tracking_performance_agent/
 
 Status: implemented — metric package + clean (Type 1) results done; the
 +background (Type 2) grid runs for all five metrics (200 files, minQ2=1) are
@@ -19,7 +19,7 @@ the primary deliverable per metric is the comparison (ratio + difference)
 between them, quantifying the impact of beam-induced background.
 
 ## 1. opencode setup
-- Self-contained /home/wxie/eic/tracking_performance/opencode.jsonc:
+- Self-contained /home/wxie/eic/baseline_tracking_performance_agent/opencode.jsonc:
   - "model": "github-copilot/claude-sonnet-5"
   - "small_model": "github-copilot/claude-haiku-4.5"
   - mcp block: uproot/xrootd/rucio remote servers on 127.0.0.1:9101-9103
@@ -30,11 +30,11 @@ between them, quantifying the impact of beam-induced background.
 - Rationale: opencode discovers AGENTS.md/opencode.json by walking UP from
   cwd, not down — so this directory needs its own copies rather than relying
   on inheritance from /home/wxie/eic. Launch opencode with
-  tracking_performance itself as the root.
+  baseline_tracking_performance_agent itself as the root.
 
 ## 2. Project layout
 ```
-/home/wxie/eic/tracking_performance/
+/home/wxie/eic/baseline_tracking_performance_agent/
 ├── AGENTS.md
 ├── PLAN.md                             # this file
 ├── opencode.jsonc
@@ -65,9 +65,9 @@ between them, quantifying the impact of beam-induced background.
 │   ├── pid/                # empty placeholder package + docstring showing how a future
 │   │                       # particle-ID module would consume matching.py's output
 │   ├── report.py          # JSON + markdown-table + plot writers
-│   └── cli.py              # `python -m trkperf <metric|compare> ...`
+│   └── cli.py              # `python -m trkperf <metric|compare|plot> ...`
 ├── tests/                   # unittest smoke tests against data/dataset_small (no network)
-└── output/                  # JSON/plots/tables (gitignored)
+└── output/                  # JSON/plots/tables (committed run artifacts)
 ```
 
 ## 3. Datasets
@@ -111,7 +111,9 @@ a built-in cross-check.
   .pdg, .chi2, .ndf, plus measurements/tracks/trajectory relations
 - CentralCKFTrackParameters (edm4eic::TrackParametersData): .type, .surface,
   .loc.a/b, .theta, .phi, .qOverP, .time, .pdg, .covariance.covariance[21]
-  (available for future lower-level studies; not used for pT/eta here)
+  (the ONLY source of reconstructed momentum here: CentralCKFTracks.momentum
+  is all zeros in these productions, so p = 1/|qOverP| with px/py/pz from
+  theta/phi - see trkperf/reco.py)
 - CentralCKFTrackAssociations (edm4eic::MCRecoTrackParticleAssociationData):
   .weight + relations _..._rec (-> CentralCKFTracks), _..._sim (-> MCParticles)
 - Truth tracking hits (edm4hep::SimTrackerHitData), each with a
@@ -130,7 +132,7 @@ Momentum resolution is defined on pT specifically: Delta(pT)/pT =
 All four: discover files for the current tier via `rucio` MCP -> run
 `python -m trkperf <metric> --file-list ... --species ... --dataset-tag
 {clean,bkg_mixed} --min-q2-tier ...` on Type 1 AND Type 2 -> escalate per the
-order above if under-populated -> run `python -m trkperf compare <metric>
+order above if under-populated -> run `python -m trkperf compare --metric <metric>
 --clean ... --bkg ...` -> report JSON/table/plot with provenance.
 
 ## 6. Environment/tooling already confirmed working
@@ -163,7 +165,7 @@ order above if under-populated -> run `python -m trkperf compare <metric>
 
 Type 1 (clean) results for all five metrics are final and live in `output/`
 (150 files, minQ2=1, matching threshold 0.5; per-metric JSON + markdown +
-plots, ROOT TNtuple for fake-rate and pid-confusion):
+plots + ROOT TNtuple for every metric):
 `acceptance_clean`, `efficiency_clean` (absolute + within-acceptance),
 `resolution_clean`, `fake-rate_clean`, `pid-confusion_clean`.
 
@@ -186,7 +188,7 @@ it (`Terminating squashfuse_ll after timeout`). No `_bkg_mixed` output was
 produced; nothing was recoverable. Two responses: (1) `scripts/launch_bkg.sh`
 now launches each job with `setsid` + `nohup` + `</dev/null` so it is in its
 own session and attached to no terminal; (2) `trkperf` gained a per-file
-**read cache** (`--cache-dir`, default `cache/bkg_files`) that pickles every
+**read cache** (opt-in `--cache-dir`; bkg runs use `cache/bkg_files`) that pickles every
 successfully read (file, branch-set) table and re-stamps `file_id` on load —
 so a job interrupted mid-list restarts for free over the files it already
 read (local pickle instead of the flaky network) and only downloads the

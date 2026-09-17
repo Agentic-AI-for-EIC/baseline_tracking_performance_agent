@@ -29,6 +29,18 @@ impact of beam-induced background on tracking performance.
   only for quick ad hoc single-file checks.
 - Do NOT write bespoke one-off file I/O outside trkperf; extend the package
   instead so the next person benefits from it too.
+- The ML PID pipeline lives in `pid/` (`python -m pid <command>`) and **imports
+  trkperf** for all ROOT I/O, truth/reco reading and matching — it adds PID schema,
+  joins, features, models and metrics, never a second reader. Plan + as-built
+  record: `PLAN_pid.md`; runbook: `pid/README.md`. Classifiers (lightgbm, xgboost,
+  scikit-learn) come from `/home/wxie/.eic_python_pkgs`, already first on
+  `PYTHONPATH` inside eic-shell — nothing is installed by this project.
+  Performance quantification is `pid evaluate` (fixed-fake-rate merits, n-sigma),
+  `pid performance` (max-significance working points + 13-figure manifest), and
+  `pid compare` (clean-vs-bkg) — mechanics: the `pid-performance` skill. Grid
+  runs go through `pid/scripts/run_pid.sh` (detached, cached, trains all three
+  learner libraries, ends with the advisory `check_learners.py` agreement gate);
+  smoke is `python -m pid all --relax-gates` on the local pair.
 
 ## When something fails
 - Never install software and never bypass trkperf with a hand-rolled script.
@@ -43,12 +55,15 @@ impact of beam-induced background on tracking performance.
   with a printed warning instead of aborting the whole run. Use
   `--max-file-failures N` on bkg runs (a small N, e.g. 5-20, is enough to
   ride out transient drops while keeping the result trustworthy); keep clean
-  (JLab) runs strict with the default 0.
+  (JLab) runs strict with the default 0. One failure budget is shared across
+  all reads of a metric run (truth + hit collections + reco + associations
+  share one skip set), so joined tables always cover the same files; skipped
+  files are recorded in each output's metadata, not just the log.
 - Sessions here run inside an Apptainer container that is torn down when the
   session ends, killing background jobs with it, so a multi-hour bkg run may
   need several relaunches to finish. Two mechanisms make that cheap:
   `scripts/launch_bkg.sh` detaches each job with `setsid`+`nohup`, and bkg
-  runs pass `--cache-dir` (default `cache/bkg_files`) — `read_flat_multi`
+  runs pass `--cache-dir` (no default — bkg runs use `cache/bkg_files`) — `read_flat_multi`
   pickles every successfully read (file, branch-set) table and re-stamps
   `file_id` on load, so a relaunched run replays already-read files from
   local disk instead of the network and only downloads the unfinished tail.
@@ -114,6 +129,46 @@ impact of beam-induced background on tracking performance.
 - Species: keyed by `MCParticles.PDG`; `trkperf/config.py` is the single
   source of truth for which species are in scope.
 
+## PID data model (verified live; full evidence in PLAN_pid.md §3)
+Machine-learning PID (`pid/`) depends on which links actually work. These facts
+were measured on both local reference files — re-run `python -m pid schema-check
+--dataset <tag> --file <root>` to confirm them on a new production before trusting
+any PID number.
+- **Working joins into `CentralCKFTracks`** (collectionID `530999115`):
+  `EcalEndcap{N,P}/HcalEndcapN/LFHCALTrackClusterMatches`, `CalorimeterTrackProjections`
+  (~every track; per-surface projection points → ΔR matching), `DRICH{Gas,Aerogel}Tracks`
+  (radiator path length), `ReconstructedChargedRealPIDParticles` (1:1 with tracks),
+  `CentralCKFTracks.measurements → CentralTrackerMeasurements → *_RecHits.edep`.
+  Resolve `collectionID → name` via `podio_metadata.events___CollectionTypeInfo`;
+  never assume a collection name from its parent.
+- **Broken / unusable — do NOT build features on these:** every
+  `edm4hep::ParticleIDData` (`DIRC/DRICH/RICHEndcapN/CombinedTOF/RealPID ParticleIDs`)
+  has `particle.index == -2` (null relation, empty `parameters`), so the
+  pre-computed PID likelihoods cannot be attached to a track;
+  `*TrackClusterMatches.weight` is 0.0 for every entry in both campaigns (recompute
+  ΔR instead); the dRICH IRT `chargedParticle` collectionID (`1290518152`) is absent
+  from the registry (dangling) → IRT photon/hypothesis info is event-level only.
+- **Detector granularity limits:** the endcap ECALs are single-plane here
+  (`EcalEndcapN/PRecHits.position.z` is one constant, `layer == -1`,
+  `subdetectorEnergies` empty) → no longitudinal shower profile for them; transverse
+  shapes must be computed from the cluster's hits (`Σ E_hit == E_cluster` exactly).
+  Only barrel ScFi (12 layers), barrel imaging/presampler and LFHCAL (7) are layered.
+  `TrackerHitData` has no `pathLength` and no per-track dE/dx collection exists →
+  ionisation is an optional `edep` proxy, never Bethe-Bloch dE/dx.
+- **Electrons and hadrons live in different legs of this sample** (measured): truth
+  e⁻ mean η = −2.50 with 93.6 % matched to `EcalEndcapN`, truth π/K/p mean η ≈ +2.3
+  with ~47 % matched to `EcalEndcapP`/LFHCAL. Hence leg-scoped PID models in
+  `pid/config.py`; a single pooled classifier mostly learns the hemisphere.
+- **Never model inputs:** truth-derived quantities (including the tempting
+  `SiBarrelHits.eDep / pathLength`), `CentralCKFTracks.pdg`,
+  `ReconstructedChargedRealPIDParticles.goodnessOfPID`, the signed track `charge`
+  (a beam-charge tag in NC DIS), and track `p/pT/η` (the DIS flux shortcut — these
+  are the *binning* variables of the performance tables instead). `pid.dataset`
+  blocks them by family and by name pattern (`_idx/_row/_begin/_end`), and
+  `pid.dataset.assert_no_leakage` + the `pid train` gates fail the run if any
+  survives. `pid/train` gates additionally require E/p to lead the SHAP ranking and
+  the model to beat a balanced label-permutation control.
+
 ## Conventions
 - Bin in truth pT (log-spaced) and truth eta (bins of ~0.5), per species.
 - Acceptance: >= N_min=4 of the 7 central-tracking truth-hit collections have
@@ -123,7 +178,8 @@ impact of beam-induced background on tracking performance.
   in this project); Gaussian fit to the core, done with **ROOT**
   (`TH1F.Fit(TF1("gaus"))`, not scipy) — see the "ROOT" note below.
 - Efficiency: report both within-acceptance (matched / in-acceptance truth)
-  and absolute (matched / all generated truth) efficiency; binomial errors.
+  and absolute (matched / all generated truth) efficiency; Wilson score-interval
+  errors (conservative half-width, never zero-width at eff = 1, NaN at n = 0).
 - Fake rate: reconstructed tracks with no valid truth match / all
   reconstructed tracks, binned in the track's own (pT, eta) — not species (a
   fake has no true species). Always name the dataset/minQ2 tier(s) used.
@@ -163,6 +219,8 @@ impact of beam-induced background on tracking performance.
 ## Definition of done
 - Every quoted bin has enough entries to trust it, or is explicitly reported
   as insufficient statistics with the escalation tier already attempted.
+  Metric tables contain the full bin grid, so empty bins appear as explicit
+  insufficient_stats rows, never silent gaps.
 - Momentum-resolution fits: chi2/ndf of order 1.
 - Momentum-resolution sigma is always within [0, 1] (the physical maximum on
   Delta(pT)/pT); a bin whose raw width exceeds that is flagged non-converged,
@@ -170,7 +228,9 @@ impact of beam-induced background on tracking performance.
 - Trends are physically sensible; a wildly non-monotonic point is flagged, not
   silently reported.
 - Always state dataset(s), minQ2 tier(s), file counts, matching threshold, and
-  the trkperf command used, so the run is reproducible.
+  the trkperf command used, so the run is reproducible. The CLI records all of
+  these — plus layers/species selection, skipped files, and the command line —
+  in each output's metadata automatically.
 
 ## Extending this project (e.g. particle identification)
 `trkperf/matching.py` is the single choke point producing a truth<->reco
