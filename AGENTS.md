@@ -164,9 +164,11 @@ any PID number.
   `ReconstructedChargedRealPIDParticles.goodnessOfPID`, the signed track `charge`
   (a beam-charge tag in NC DIS), and track `p/pT/η` (the DIS flux shortcut — these
   are the *binning* variables of the performance tables instead). `pid.dataset`
-  blocks them by family and by name pattern (`_idx/_row/_begin/_end`), and
-  `pid.dataset.assert_no_leakage` + the `pid train` gates fail the run if any
-  survives. `pid/train` gates additionally require E/p to lead the SHAP ranking and
+  blocks them by explicit NEVER-model patterns (`mc_`/`true_`/`gen_`, weights,
+  event/run/file ids), family and name rules, and selects only from an explicit
+  allowlist — unlisted numeric columns are dropped with a loud warning, never
+  silently trained. `pid.dataset.assert_no_leakage` (> 0.95 halts with
+  `ValueError`) + the `pid train` gates fail the run if any survives. `pid/train` gates additionally require E/p to lead the SHAP ranking and
   the model to beat a balanced label-permutation control.
 
 ## Conventions

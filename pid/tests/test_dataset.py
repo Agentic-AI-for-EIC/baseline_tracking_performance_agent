@@ -29,8 +29,9 @@ def synthetic_table(n=600, seed=0):
         "truth_eta": 2.0, "assoc_weight": 1.0, "is_matched": True, "is_fake": False,
         "e_over_p_backward": ep, "log_e_over_p_backward": np.log10(np.clip(ep, 1e-3, None)),
         "e_over_p_forward": 0.3 + 0.01 * rng.normal(size=n),
-        "ecal_backward_rms_r": rng.uniform(1, 5, n), "has_ecal_backward": 1,
-        "shape_0": rng.uniform(0, 100, n), "irt_gas_npe_tot_evt": rng.uniform(0, 50, n),
+        "ecal_backward_shape_1": rng.uniform(1, 5, n), "has_ecal_backward": 1,
+        "ecal_backward_shape_0": rng.uniform(0, 100, n),
+        "irt_gas_npe_tot_evt": rng.uniform(0, 50, n),
         "n_tracks_evt": rng.integers(2, 20, n), "drich_gas_pathlength": rng.uniform(0, 1, n),
         "edep_si_mean": rng.uniform(0, 1, n), "has_ionisation": 1,
         # Present in the real tables; excluded by default because in these
@@ -146,6 +147,40 @@ class TestFeatureSelection(unittest.TestCase):
         self.assertNotIn("cluster_N_e_hit_over_e_clu", cols)
         self.assertNotIn("cluster_P_e_hit_over_e_clu", cols)
 
+    def test_never_patterns_block_truth_weights_and_ids(self):
+        # PLAN: DEFINITIVE FEATURE SEPARATION - MC truth, generator branches,
+        # weights and unique identifiers are excluded by explicit name rules,
+        # independent of every other blocking mechanism.
+        for col in ("mc_pt", "true_energy", "gen_pid", "truth_foo", "reco_bar",
+                    "proba_baz", "event_weight", "gen_weight", "weight",
+                    "file_id", "event", "run_number", "lumi", "entry", "index"):
+            self.assertTrue(dataset._is_blocked(col), col)
+        df = synthetic_table()
+        for col in ("mc_pt", "true_energy", "event_weight", "run_number"):
+            df[col] = 1.0
+        cols = dataset.model_columns(df, task="eid")
+        for col in ("mc_pt", "true_energy", "event_weight", "run_number"):
+            self.assertNotIn(col, cols)
+
+    def test_allowlist_is_fail_closed_with_loud_warning(self):
+        # A numeric column nobody allowlisted must not train - and must be
+        # named loudly rather than silently dropped.
+        import contextlib
+        import io as stdlib_io
+
+        df = synthetic_table()
+        df["sneaky_new_feature"] = 1.0
+        buf = stdlib_io.StringIO()
+        with contextlib.redirect_stderr(buf):
+            cols = dataset.model_columns(df, task="eid")
+        self.assertNotIn("sneaky_new_feature", cols)
+        self.assertIn("sneaky_new_feature", buf.getvalue())
+
+    def test_charge_opt_in_still_works(self):
+        df = synthetic_table()
+        self.assertNotIn("charge", dataset.model_columns(df, task="eid"))
+        self.assertIn("charge", dataset.model_columns(df, task="eid", exclude=()))
+
     def test_single_class_measured_column_fails_loudly(self):
         # A column measured only for electrons has a missingness pattern that
         # perfectly predicts the label; corrcoef returns NaN there, which must
@@ -154,7 +189,7 @@ class TestFeatureSelection(unittest.TestCase):
         rng = np.random.default_rng(0)
         df = pd.DataFrame({"x": np.r_[rng.normal(size=n // 2), [np.nan] * (n // 2)]})
         y = np.r_[np.ones(n // 2, dtype=int), np.zeros(n // 2, dtype=int)]
-        with self.assertRaises(AssertionError):
+        with self.assertRaises(ValueError):
             dataset.assert_no_leakage(df, y)
 
     def test_ionisation_is_off_unless_requested(self):
@@ -228,7 +263,8 @@ class TestLeakageGate(unittest.TestCase):
         cols = dataset.model_columns(prep, task="eid")
         table = dataset.assert_no_leakage(dataset.design_matrix(prep, cols),
                                          prep["label"].to_numpy())
-        self.assertLess(abs(float(table.iloc[0]["corr_with_label"])), 0.99)
+        self.assertLess(abs(float(table.iloc[0]["corr_with_label"])),
+                        config.LEAKAGE_MAX_LABEL_CORRELATION)
 
     def test_injected_truth_column_is_caught(self):
         df = synthetic_table()
@@ -237,7 +273,7 @@ class TestLeakageGate(unittest.TestCase):
         X = dataset.design_matrix(prep, cols)
         # A truth-derived column copied into the matrix must trip the gate.
         X["oops_truth_label"] = prep["label"].to_numpy(dtype=float)
-        with self.assertRaises(AssertionError):
+        with self.assertRaises(ValueError):
             dataset.assert_no_leakage(X, prep["label"].to_numpy())
 
     def test_single_class_input_is_rejected(self):

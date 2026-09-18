@@ -307,6 +307,65 @@ LEAKAGE_BLOCKED_FAMILIES: tuple[str, ...] = ("truth", "producer_pid", "truth_ded
 # would be worthless under a positron beam. --use-charge re-enables it.
 EXCLUDE_COLUMNS_DEFAULT: tuple[str, ...] = ("charge",)
 
+#: Explicit never-model patterns (defense in depth over KEY_COLUMNS and the
+#: prefix rules in pid.dataset: Monte-Carlo truth, generator-level branches,
+#: per-event weights, and unique row/file/event/run identifiers must never
+#: train, whatever their names). Checked FIRST in pid.dataset._is_blocked, so
+#: a renamed truth column still cannot slip through when its family does not
+#: match a blocked one.
+NEVER_MODEL_PREFIXES: tuple[str, ...] = ("mc_", "true_", "gen_", "truth_", "reco_", "proba_")
+NEVER_MODEL_EXACT: frozenset[str] = frozenset({
+    "file_id", "event", "event_id", "event_number", "run", "run_id",
+    "run_number", "lumi", "lumiblock", "lumi_block", "entry", "index",
+    "weight", "event_weight", "gen_weight", "mc_weight",
+})
+
+#: Explicit model-input allowlist (fail-closed): pid.dataset.model_columns
+#: keeps a column ONLY if no block rule fires AND it is named here (or in one
+#: of the flag-gated sets below). Adding a feature requires adding its name
+#: here plus a test - that friction is the point. Curated 2026-09-18 from the
+#: trained matrices (52-53 columns, zero truth-derived): every entry below was
+#: read off real feature tables, not invented.
+ALLOWED_BASELINE_COLUMNS: frozenset[str] = frozenset({
+    "chi2", "chi2_per_ndf", "ndf", "proj_pathlength", "leg",
+    "e_over_p_backward", "e_over_p_forward",
+    "log_e_over_p_backward", "log_e_over_p_forward",
+    "ecal_backward_E", "ecal_backward_n", "ecal_backward_t",
+    "ecal_backward_delta_r", "ecal_backward_has_shape",
+    "ecal_backward_shape_0", "ecal_backward_shape_1", "ecal_backward_shape_2",
+    "ecal_backward_shape_3", "ecal_backward_shape_4", "ecal_backward_shape_5",
+    "ecal_backward_shape_6",
+    "ecal_forward_E", "ecal_forward_n", "ecal_forward_t",
+    "ecal_forward_delta_r", "ecal_forward_has_shape",
+    "ecal_forward_shape_0", "ecal_forward_shape_1", "ecal_forward_shape_2",
+    "ecal_forward_shape_3", "ecal_forward_shape_4", "ecal_forward_shape_5",
+    "ecal_forward_shape_6",
+    "hcal_backward_E", "hcal_backward_n", "hcal_backward_t",
+    "hcal_backward_delta_r",
+    "hcal_forward_E", "hcal_forward_n", "hcal_forward_t",
+    "hcal_forward_delta_r",
+    "e_hcal_backward", "e_hcal_forward",
+    "leakage_backward", "leakage_forward",
+    "has_drich_gas", "has_drich_aerogel",
+    "drich_gas_pathlength", "drich_aerogel_pathlength",
+    "has_ecal_backward", "has_ecal_forward",
+    "has_hcal_backward", "has_hcal_forward",
+})
+#: Event-level ablation vocabulary (measured 2026-09-18; `--include-event-level`).
+ALLOWED_EVENT_COLUMNS: frozenset[str] = frozenset({
+    "e_ecal_n_sum_evt", "e_ecal_p_sum_evt", "e_hcal_n_sum_evt",
+    "e_lfhcal_sum_evt", "has_irt_aerogel_evt", "has_irt_gas_evt",
+    "irt_aerogel_nobj_evt", "irt_aerogel_npe_max_evt", "irt_aerogel_npe_tot_evt",
+    "irt_gas_nobj_evt", "irt_gas_npe_max_evt", "irt_gas_npe_tot_evt",
+    "n_ecal_n_clusters_evt", "n_ecal_p_clusters_evt", "n_hcal_n_clusters_evt",
+    "n_lfhcal_clusters_evt", "n_tracks_evt",
+})
+#: Ionisation ablation vocabulary (`--enable-ionisation` + `--include-ionisation`;
+#: names produced by pid.features.ionisation_proxy).
+ALLOWED_IONISATION_COLUMNS: frozenset[str] = frozenset({
+    "edep_si_mean", "edep_si_n", "edep_mpgd_mean", "edep_mpgd_n", "has_ionisation",
+})
+
 # Event-level / non-per-track columns excluded from the headline model by default.
 #
 # Two independent reasons, both measured on the reference files:
@@ -387,6 +446,11 @@ TEST_SIZE: float = 0.25  # fraction of FILES held out (never events)
 
 # Gates (PLAN_pid.md 7) - a violation is a hard failure, not a warning.
 MAX_TRAIN_TEST_AUC_GAP: float = 0.02
+# Per-feature label correlation above this halts training immediately
+# (PLAN: KINEMATIC & SMEARING SANITY CHECKS). 0.95 with wide margin: the
+# strongest legitimate single-variable correlation measured on grid-scale
+# data is 0.71 (backward ECAL energy on ehad); E/p sits near 0.5-0.6.
+LEAKAGE_MAX_LABEL_CORRELATION: float = 0.95
 # The balanced label-shuffle control is a small model on a small sample, so its
 # AUC fluctuates by a few percent around chance; the real model must beat the
 # control by at least this much for the result to count as a usable

@@ -379,8 +379,8 @@ it is a `pid` roadmap item, not a current deliverable.
 |---|---|---|
 | overfitting | `AUC_train − AUC_test ≤ 0.02` | file-grouped split; violation = memorisation |
 | permutation control | real `AUC_test` beats the mean of **5 balanced label-permuted refits** by `z ≥ 3` **and** `ΔAUC ≥ 0.10` | the control's own spread (~0.14 with 10 test electrons) is why a fixed tolerance about 0.5 was the wrong test |
-| physical attribution | `e_over_p` must lead the **SHAP** ranking for `eid`/`ehad`/`pooled`; top-3 by gain must be a detector-response family | gain counts usage, SHAP measures decision; the plan's claim is about the latter. Advisory for `hadpid`, where no single observable should dominate |
-| leakage | no feature with `abs(corr(feature, label)) > 0.99`; structural block-list by family **and** name pattern (`_idx`, `_row`, `_begin`, `_end`) | `rec_idx`, a join artefact, once out-ranked E/p — hence the pattern rule, not a list |
+| physical attribution | `e_over_p` must lead the **SHAP** ranking for `eid`/`ehad`/`pooled` (measured on held-out rows; missing/unmeasurable E/p refuses training up front); top-3 by gain must be a detector-response family | gain counts usage, SHAP measures decision; the plan's claim is about the latter. Advisory for `hadpid`, where no single observable should dominate |
+| leakage | no feature with `abs(corr(feature, label)) > 0.95` (`ValueError` halt); fail-closed allowlist (unlisted numeric columns dropped with a loud warning) + explicit NEVER-model patterns (`mc_`/`true_`/`gen_`, weights, event/run/file ids); single-class-measured columns reported as perfect correlation | `rec_idx`, a join artefact, once out-ranked E/p — hence the pattern rule, not a list |
 
 ### What to quote for which claim
 
@@ -567,7 +567,7 @@ background fakes).
 
 ## 9. Standing safeguards
 Gun samples for efficiency calibration **only** (never for fake rate — AGENTS.md);
-a leakage tripwire test failing if any feature correlates > 0.99 with the label;
+a leakage tripwire test failing if any feature correlates > 0.95 with the label;
 `CentralCKFTracks.pdg` / `ReconstructedChargedRealPIDParticles.goodnessOfPID` kept
 as baselines, never as model inputs; region-normalised
 `E/p / median(E/p | leg, p-bin)` variant so campaign drift cannot masquerade as a
@@ -584,7 +584,7 @@ background effect; matching-threshold sensitivity (0.5 vs 0.8) as a systematic.
 
 ## 11. As-built record (this session)
 
-**Delivered** (`pid/`: 20 code modules (7,607 lines) + 13 test modules (2,815 lines) = 10,422 lines):
+**Delivered** (`pid/`: 20 code modules (7,777 lines) + 13 test modules (2,960 lines) = 10,737 lines):
 
 | module | role |
 |---|---|
@@ -592,9 +592,9 @@ background effect; matching-threshold sensitivity (0.5 vs 0.8) as a systematic.
 | `schema.py` | 97-entry `FEATURE → {campaign: branch}` table, 15 documented dead ends with measurements, `assert_ml_env()` |
 | `links.py` | `podio_metadata` collectionID registry, relation audit, vectorised offset/relation unpacking, ΔR matcher |
 | `features.py` | per-file feature builder (+ per-file disk cache, `max_failures`), shower shapes from hits, ionisation proxy, IRT event summary |
-| `dataset.py` | label policy, structural block-list, NaN-preserving design matrix, file-grouped splits, leakage tripwire |
+| `dataset.py` | label policy, NEVER-model patterns + fail-closed allowlist, NaN-preserving design matrix, file-grouped splits, leakage tripwire (> 0.95 halts) |
 | `models/` | LightGBM / XGBoost / sklearn-HGB adapters: `estimator/gain/shap` (binary-exact SHAP; multiclass returns the first class block, diagnostic only) |
-| `train.py` | grouped `RandomizedSearchCV`, balanced class weights, permutation control, 4 gates, artifacts (`model.joblib` calibrated + `booster.joblib` unwrapped for importance) |
+| `train.py` | grouped `RandomizedSearchCV` (groups reach the splitter), balanced class weights, E/p-presence precondition, test-set SHAP, permutation control, 4 gates, artifacts (`model.joblib` calibrated + `booster.joblib` unwrapped for importance) |
 | `significance.py` | FOM(c) threshold scan (score-ordered weights), `optimal_cut` + per-bin c\* on one grid, exact per-row yields; limits count-based |
 | `performance.py` | max-significance working-point package: global + per-bin c\*, at-cut tables, maps, nσ vs p, confusion, overtraining, 13-figure manifest with reasons |
 | `evaluate.py` | ROOT Gaussian fits, nσ, Garwood intervals, working points, binned tables, confusion (with decision rule), ROC, calibration |
@@ -612,7 +612,45 @@ found no keys and raised, and guessing would compare an electron row against a p
 
 **Second audit round (fixes, all covered by new tests):** `pid importance` crashed or went empty on calibrated models — `train` now persists the unwrapped booster as `booster.joblib` and importance prefers it; `python -m pid all` crashed on a hand-built Namespace missing `include_event_level`/`include_track_time`/`relax_gates`/`n_jobs` (all forwarded now, `--no-calibrate`/`--n-jobs` added); `--min-q2-tier` was silently ignored (forwarded + recorded); a leg-prefixed diagnostic escaped the leakage blocklist (substring block); missing calorimeter pathlengths were filled with theta values (NaN now); SHAP attribution matched by substring (exact observable match now); `optimal_cut_in_bins` misaligned weights with NaN inputs, dropped per-bin cautions, and used a different grid than the drawn curves (all fixed + threaded); per-class cuts ignored `bkg_scale`; `pid compare --artifact all` never found its inputs with default `--model ""` (stem rule shared with `compare_artifact`); ROC comparison was a cartesian product (refused with a message); comparison summaries read meta keys `evaluate` never wrote (`*_scored` now); `vs_*`/`calibration` joins moved from float centres to string bins; `at_cut_table` folded NaN kinematics into the last bin and skipped empty bins (filtered + explicit NaN rows); `run_pid.sh` expanded to nothing inside its detached shell (rewritten with outer-shell expansion + third learner + seed + advisory cross-learner check `pid/scripts/check_learners.py`); confusion `threshold=0.0` collapsed to NaN; TRK side: shared failure budget per metric run, Wilson errors, full-grid explicit insufficient rows, string-bin compare joins, `validate="one_to_one"` reco merge. Two audit claims were refuted by measurement (LightGBM `pred_contrib` works; NaN join keys do compare) and are recorded as such in the session log.
 
-**Third audit round (new items only; round-2 items above):** the matcher never returned the winning cluster so shapes and E/p could describe different clusters (winner `cluster_idx` now, shapes joined on it — 9/1089 incoherent + 56 shape-NaN tracks fixed on the local file); `has_drich` lied on missing lengths; absent IRT photons coded 0.0 (NaN + flags now); NaN-eta tracks filed as `"central"` (NaN leg now); single-class-measured columns auto-passed the leakage tripwire (reported as perfect correlation now); exact attribution match, per-bin caution propagation, one-grid threading, `figure_notes` for both bases, alias-aware sharing, string-bin `pid compare` joins with one-sided-pair attribution, `at_cut` NaN filtering + explicit empty rows, `booster.joblib` loader preference; new `pid-performance` skill covers evaluate/working-points/compare mechanics. Refuted this round: NaN compare keys join fine; `test_scores` fallback is test-only by construction.
+**Third audit round (new items only; round-2 items above):** the matcher never returned the winning cluster so shapes and E/p could describe different clusters (winner `cluster_idx` now, shapes joined on it — 9/1089 incoherent + 56 shape-NaN tracks fixed on the local file); `has_drich` lied on missing lengths; absent IRT photons coded 0.0 (NaN + flags now); NaN-eta tracks filed as `"central"` (NaN leg now); single-class-measured columns auto-passed the leakage tripwire (reported as perfect correlation now); exact attribution match, per-bin caution propagation, one-grid threading, `figure_notes` for both bases, alias-aware sharing, string-bin `pid compare` joins with one-sided-pair attribution, `at_cut` NaN filtering + explicit empty rows, `booster.joblib` loader preference; new `pid-performance` skill covers evaluate/working-points/compare mechanics.
+
+**Fourth round (external compliance checklist):** feature selection inverted from
+blocklist to fail-closed allowlist (curated from real matrices; unlisted numerics
+dropped with a loud warning; `mc_`/`true_`/`gen_` + weights + ids in explicit
+NEVER patterns, zero collisions on the 110-column table); tripwire 0.99 → 0.95
+(measured max legit 0.71) halting with `ValueError`; electron tasks refuse training
+without measurable E/p; gate SHAP and `pid importance` restricted to held-out
+files/rows; fold-disjointness asserted on the splitter the search actually uses.
+All verified against grid-scale data with zero matrix changes.
+
+Deployed-note (2026-09-18): this round landed while the clean/bkg grid jobs were
+training. No restart was needed: the allowlist reproduces the production matrices
+exactly (52/52/52/53, zero warnings), the tightened tripwire cannot trip (max legit
+0.71, no NaN-correlation columns in any task — all four gates PASS on real data),
+E/p is present everywhere, and fitting is seeded/deterministic, so model weights,
+scores and AUCs are identical under old and new code. Only gate-verdict internals
+(mixed- vs held-out-row SHAP) can differ in close cases; pending `importance` runs
+uniformly use the stricter held-out restriction.
+
+**Grid-launch finding (critical):** the first multi-file training attempt (clean_150)
+crashed every task with `n_splits=3 greater than the number of groups: 1` —
+`cross_validate` built a `StratifiedGroupKFold` but `search.fit()` never received
+`groups=`, so the splitter saw one pseudo-group. Single-file smoke always dodged it
+via the `StratifiedKFold` branch, which means **grouped CV never actually ran before**:
+all previously reported models are single-file smoke fits (unaffected), and no
+multi-file number was ever published. Fixed by passing `groups=groups` (regression
+test: 3 file groups complete a grouped search), verified live on the relaunched
+clean run. `run_pid.sh` for bkg_mixed was still on features when found, so it was killed
+and relaunched cleanly onto the fixed code (cache replayed, no state lost).
+
+**First grid training (clean_150, post-fix):** eid/lightgbm trained on 150 files
+with grouped CV — 161,195 rows, AUC train 0.9986 / test 0.9978, control z = 16.7 —
+but the physics gate FAILED: gain and SHAP both rank `ecal_backward_E` above E/p
+itself on full statistics. Not a code bug (artifacts written, failure loud and
+recorded): with 161k rows raw cluster energy competes with E/p, and the gate's
+"E/p leads" premise may be too strict at grid scale, or it may be flagging real
+shortcut learning. Do not quote the eid working point until this is adjudicated;
+the gate exists for exactly this moment. Refuted this round: NaN compare keys join fine; `test_scores` fallback is test-only by construction.
 
 **Test suite:** `python -m unittest discover -s pid/tests` → **238 tests, 0 failures**, network-free (13 modules incl. `test_significance.py` with brute-force agreement of the FOM scan — including per-row weights travelling with their score — and closed-form Clopper-Pearson checks, `test_performance.py` with the two independent optimum-finding paths cross-checked against each other, `test_cli.py` pinning the `pid all` → `train` flag forwarding, `test_importance.py` pinning the booster-artifact preference, and `test_features.py` pinning the dRICH presence flag); `ruff check pid --select F,E9` clean; the existing `python -m unittest discover -s tests` (41) still passes. The offset/relation tests pin the event-boundary arithmetic (a wrong base silently reads another event's hits) and the fixtures' hit sums reproduce stored cluster energies exactly (`max|ΣE_hit − E_cluster| = 0.0` over 12,184 clusters / 198,335 hits).
 

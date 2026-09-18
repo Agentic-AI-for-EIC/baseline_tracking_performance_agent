@@ -20,6 +20,7 @@ Three responsibilities, all of them safety-critical rather than cosmetic:
 
 from __future__ import annotations
 
+import sys
 import warnings
 
 import numpy as np
@@ -85,6 +86,12 @@ BOOKKEEPING_EXACT: frozenset[str] = frozenset(
 
 
 def _is_blocked(column: str) -> bool:
+    # Explicit never-model patterns FIRST (PLAN: DEFINITIVE FEATURE
+    # SEPARATION): Monte-Carlo truth, generator branches, weights and unique
+    # identifiers are excluded by name, independent of every other rule, so a
+    # renamed truth column cannot slip through on family mismatch.
+    if column.startswith(config.NEVER_MODEL_PREFIXES) or column in config.NEVER_MODEL_EXACT:
+        return True
     if column in KEY_COLUMNS or column in BOOKKEEPING_EXACT:
         return True
     if column.startswith(("truth_", "reco_", "proba_")):
@@ -119,25 +126,62 @@ def model_columns(df: pd.DataFrame, *, task: str,
     ``include_kinematics=False`` (the default) drops p/pT/eta/phi/px/py/pz; see
     :data:`pid.config.KINEMATIC_COLUMNS` for why those are binning variables here
     rather than model inputs.
+
+    Selection is fail-closed on top of the block-list: a column trains ONLY if
+    it is named in the explicit allowlist (baseline plus whichever ablation
+    flags are on). Anything else numeric-but-unlisted is dropped with a loud
+    warning - adding a feature requires adding its name to
+    :data:`pid.config.ALLOWED_BASELINE_COLUMNS` (or a flag-gated set) plus a
+    test,     never silent auto-admission.
     """
     blocked = set(exclude)
+    allowed = set(config.ALLOWED_BASELINE_COLUMNS)
+    if include_kinematics:
+        allowed |= set(config.KINEMATIC_COLUMNS)
+    if include_track_time:
+        allowed |= set(config.TRACK_TIME_COLUMNS)
+    if include_event_level:
+        allowed |= set(config.ALLOWED_EVENT_COLUMNS)
+    if include_ionisation:
+        allowed |= set(config.ALLOWED_IONISATION_COLUMNS)
+    if "charge" not in blocked:
+        # Explicit opt-in (--use-charge) re-admits the beam-charge tag; the
+        # default exclude list keeps it out.
+        allowed.add("charge")
+    # Documented ablation opt-outs stay silent: these columns are excluded by
+    # flag, not by surprise, so they must not trip the fail-closed warning.
+    silent = set()
     if not include_kinematics:
-        blocked |= set(config.KINEMATIC_COLUMNS)
+        silent |= set(config.KINEMATIC_COLUMNS)
     if not include_track_time:
-        blocked |= set(config.TRACK_TIME_COLUMNS)
+        silent |= set(config.TRACK_TIME_COLUMNS)
+    if not include_event_level:
+        silent |= {c for c in df.columns if c.endswith(config.EVENT_LEVEL_SUFFIX)}
+    if not include_ionisation:
+        silent |= {c for c in df.columns if family_of(c) == "ionisation"}
     cols: list[str] = []
+    dropped: list[str] = []
     for c in df.columns:
-        if _is_blocked(c) or c in blocked:
+        if _is_blocked(c) or c in blocked or c in silent:
             continue
         if c == "leg":  # admitted for the pooled task only, see below
             cols.append(c)
             continue
+        if c not in allowed:
+            # Strings could never train; warn only on numeric columns, where a
+            # dropped name means a measurable quantity the model will not see.
+            if pd.api.types.is_numeric_dtype(df[c]):
+                dropped.append(c)
+            continue
         if pd.api.types.is_numeric_dtype(df[c]):
             cols.append(c)
-    if not include_event_level:
-        cols = [c for c in cols if not c.endswith(config.EVENT_LEVEL_SUFFIX)]
-    if not include_ionisation:
-        cols = [c for c in cols if family_of(c) != "ionisation"]
+    if dropped:
+        print(f"[dataset] WARNING: {len(dropped)} numeric column(s) excluded by "
+              f"the feature allowlist (not model inputs): {sorted(dropped)}",
+              file=sys.stderr)
+    # NOTE: no event-level / ionisation post-filters here on purpose - the
+    # allowlist above already admits those families only under their flags,
+    # so a second filter would be dead code hiding the single source of truth.
     if task != "pooled":
         # `leg` distinguishes the two hemispheres. Inside a single-leg task it is
         # constant; in a pooled task it is exactly the shortcut the model must not
@@ -272,11 +316,12 @@ def assert_no_leakage(X: pd.DataFrame, y: np.ndarray, *,
     A |point-biserial correlation| above `threshold` on a boosted-tree input
     means something truth-derived slipped into the matrix (the classic mistakes
     are ``truth_*`` kinematics, the producer's ``*_ParticleIDs``, or
-    ``CentralCKFTracks.pdg``). Returns the per-column correlation table so the
-    offending column is named in the failure message.
+    ``CentralCKFTracks.pdg``). Raises ``ValueError`` and halts the caller -
+    this gate must be impossible to sail past quietly. Returns the per-column
+    correlation table so the offending column is named in the failure message.
 
     Empty by construction on a legitimate PID feature set; the largest genuine
-    single-variable correlations here are E/p at ~0.6.
+    single-variable correlations here are ECAL energy at ~0.71 and E/p at ~0.6.
     """
     yv = np.asarray(y, dtype=float)
     if np.unique(yv[~np.isnan(yv)]).size < 2:
@@ -309,7 +354,7 @@ def assert_no_leakage(X: pd.DataFrame, y: np.ndarray, *,
                                           key=lambda s: s.abs(), ascending=False)
     top = table.iloc[0]
     if abs(top["corr_with_label"]) > threshold:
-        raise AssertionError(
+        raise ValueError(
             f"pid.dataset.assert_no_leakage: feature {top['column']!r} correlates "
             f"{top['corr_with_label']:+.3f} with the label (threshold "
             f"{threshold}). This is a leakage bug, not a good result - the column "

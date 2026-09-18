@@ -86,7 +86,10 @@ python -m pid train --task eid --model xgboost --dataset-tag clean \
 Gates: train−test AUC gap < 0.02; the model must beat a **balanced
 label-permutation control** (z ≥ 3 *and* ΔAUC ≥ 0.1 — with ~10 minority
 candidates in test the control AUC fluctuates by ≈0.14, so a fixed tolerance about
-0.5 is the wrong test); no single feature may correlate > 0.99 with the label; and
+0.5 is the wrong test); no single feature may correlate > 0.95 with the label
+(`ValueError` halt — wide margin: strongest legitimate is 0.71); SHAP attribution
+measured on held-out rows only, and electron tasks refuse to train without
+measurable E/p; and
 for the electron tasks **E/p must lead the SHAP attribution**. `hadpid`'s
 attribution gate is advisory (no per-track Cherenkov/timing exists to lead with).
 `--relax-gates` inspects without blocking — never quote a relaxed run silently.
@@ -159,7 +162,10 @@ Row-identity rules, refused artifacts, and the grid launcher live in the
   `CentralCKFTracks.pdg`, `ReconstructedChargedRealPIDParticles.goodnessOfPID`,
   signed `charge` (beam-charge tag in NC DIS; ρ(label) = −0.74 measured), and
   `p/pT/η/φ` (DIS flux shortcut — with them in, `pt` outranks E/p in gain). They
-  are blocked by family *and* by name pattern in `pid/dataset.py`; kinematics are
+  are blocked by explicit NEVER-model patterns (`mc_`/`true_`/`gen_`, weights,
+  event/run/file ids) *and* by family/name rules in `pid/dataset.py`, and
+  selection is fail-closed on an explicit allowlist — unlisted numeric columns
+  are dropped with a loud warning, never silently trained; kinematics are
   the **binning** variables of the result tables instead. Opt-ins exist
   (`--use-charge`, `--include-kinematics`, `--include-event-level`) for labelled
   ablations only.

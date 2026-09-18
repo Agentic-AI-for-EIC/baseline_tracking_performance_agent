@@ -14,6 +14,7 @@ import tempfile
 import unittest
 
 import joblib
+import pandas as pd
 
 from pid.importance import load_model_artifact
 
@@ -33,6 +34,32 @@ class TestLoadModelArtifact(unittest.TestCase):
             obj, name = load_model_artifact(d)
             self.assertEqual(name, "model.joblib")
             self.assertEqual(obj, {"kind": "model"})
+
+
+class TestRestrictToTestFiles(unittest.TestCase):
+    def test_keeps_only_held_out_files(self):
+        from pid.importance import restrict_to_test_files
+
+        df = pd.DataFrame({"file_id": [0, 0, 1, 1, 2, 2], "x": range(6)})
+        out, scope = restrict_to_test_files(df, ["1", "2"])
+        self.assertEqual(len(out), 4)
+        self.assertIn("held-out", scope)
+        self.assertTrue((out["file_id"] != 0).all())
+
+    def test_no_match_falls_back_loudly(self):
+        from pid.importance import restrict_to_test_files
+
+        df = pd.DataFrame({"file_id": [0, 0], "x": [1, 2]})
+        out, scope = restrict_to_test_files(df, ["9"])
+        self.assertEqual(len(out), 2)
+        self.assertIn("all rows", scope)
+
+    def test_missing_record_keeps_everything(self):
+        from pid.importance import restrict_to_test_files
+
+        df = pd.DataFrame({"file_id": [0, 1], "x": [1, 2]})
+        out, scope = restrict_to_test_files(df, None)
+        self.assertEqual(len(out), 2)
 
 
 if __name__ == "__main__":

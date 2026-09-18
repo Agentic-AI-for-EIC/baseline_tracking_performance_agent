@@ -118,6 +118,88 @@ class TestAllAdapters(unittest.TestCase):
         np.testing.assert_allclose(scores[0], scores[1], rtol=0, atol=1e-12)
 
 
+class TestGroupedSearch(unittest.TestCase):
+    def test_file_groups_reach_the_splitter(self):
+        # Regression: search.fit() once omitted groups=groups, so every
+        # multi-file run died in _iter_test_indices ("number of groups: 1")
+        # while single-file smoke silently passed via the StratifiedKFold
+        # branch. Three file groups must complete a grouped search.
+        from sklearn.linear_model import LogisticRegression
+
+        from pid.train import cross_validate
+
+        rng = np.random.default_rng(0)
+        X = pd.DataFrame({"f": rng.normal(size=90)})
+        # Interleaved labels so every file group holds both classes.
+        y = np.tile([1, 0], 45).astype(int)
+        groups = np.repeat([0, 1, 2], 30)
+        search = cross_validate(lambda: LogisticRegression(), X, y, groups,
+                                n_splits=2, n_iter=1, space={"C": [0.1, 1.0]},
+                                seed=0, scoring="roc_auc")
+        self.assertEqual(search.cv_kind_, "grouped_by_file")
+        self.assertTrue(np.isfinite(search.best_score_))
+
+    def test_single_group_falls_back_loudly(self):
+        from sklearn.linear_model import LogisticRegression
+
+        from pid.train import cross_validate
+
+        rng = np.random.default_rng(1)
+        X = pd.DataFrame({"f": rng.normal(size=60)})
+        y = np.r_[np.ones(30, dtype=int), np.zeros(30, dtype=int)]
+        with self.assertWarns(UserWarning):
+            search = cross_validate(lambda: LogisticRegression(), X, y,
+                                    np.zeros(60, dtype=int),
+                                    n_splits=2, n_iter=1, space={"C": [1.0]},
+                                    seed=0, scoring="roc_auc")
+        self.assertEqual(search.cv_kind_, "single_file_event_split_NOT_leak_safe")
+
+    def test_no_group_spans_train_and_validation(self):
+        # The point of grouped CV: no file (group) may appear on both sides of
+        # any fold. Asserted on the splitter the search actually used.
+        from sklearn.linear_model import LogisticRegression
+
+        from pid.train import cross_validate
+
+        rng = np.random.default_rng(2)
+        X = pd.DataFrame({"f": rng.normal(size=120)})
+        y = np.tile([1, 0], 60).astype(int)
+        groups = np.repeat([0, 1, 2, 3, 4, 5], 20)
+        search = cross_validate(lambda: LogisticRegression(), X, y, groups,
+                                n_splits=3, n_iter=1, space={"C": [1.0]},
+                                seed=0, scoring="roc_auc")
+        from sklearn.model_selection import StratifiedGroupKFold
+
+        self.assertIsInstance(search.cv, StratifiedGroupKFold)
+        all_groups = set(np.unique(groups))
+        n_folds = 0
+        for tr, te in search.cv.split(X, y, groups):
+            self.assertTrue(set(groups[tr]).isdisjoint(set(groups[te])),
+                            "a file group is on both sides of a fold")
+            self.assertEqual(set(groups[tr]) | set(groups[te]), all_groups)
+            n_folds += 1
+        self.assertEqual(n_folds, 3)
+
+
+class TestMissingEOverP(unittest.TestCase):
+    def test_present_and_measurable_passes(self):
+        from pid.train import missing_e_over_p_columns
+
+        df = pd.DataFrame({"e_over_p_backward": [0.9, 0.2, np.nan]})
+        self.assertEqual(missing_e_over_p_columns(df, "eid"), [])
+        self.assertEqual(missing_e_over_p_columns(df, "hadpid"), [])
+
+    def test_missing_or_all_nan_column_is_reported(self):
+        from pid.train import missing_e_over_p_columns
+
+        df = pd.DataFrame({"e_over_p_backward": [np.nan, np.nan]})
+        self.assertEqual(missing_e_over_p_columns(df, "eid"), ["e_over_p_backward"])
+        df2 = pd.DataFrame({"other": [1.0, 2.0]})
+        self.assertEqual(missing_e_over_p_columns(df2, "ehad"), ["e_over_p_backward"])
+        self.assertEqual(missing_e_over_p_columns(df2, "pooled"),
+                         ["e_over_p_backward", "e_over_p_forward"])
+
+
 class TestObjectiveHelpers(unittest.TestCase):
     def test_objective_names(self):
         from pid.models.base import objective

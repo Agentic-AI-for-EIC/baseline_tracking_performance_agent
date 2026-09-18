@@ -1,2 +1,443 @@
 + python -m pid features --file-list filelists/clean_150.txt --dataset-tag clean --max-file-failures 0 --cache-dir cache/pid_features --out output/pid-features_clean.pkl
-[features] 10/150 files
+[features] wrote output/pid-features_clean.pkl: 627688 rows x 112 cols from 150 files (0 skipped)
+
+[features] feature summary (family / NaN fraction):
+family
+bookkeeping       5
+calorimeter      40
+cherenkov         4
+event_context    17
+other            32
+timing            2
+tracker          12
+[features] median e_over_p_backward by truth class: {'K': 0.144, 'e': 0.991, 'p': 0.14, 'pi': 0.172}  (n={'e': 153380, 'pi': 11550, 'K': 1953, 'p': 1103})
+[features] median e_over_p_forward by truth class: {'K': 0.282, 'e': 0.996, 'p': 0.217, 'pi': 0.289}  (n={'pi': 255269, 'K': 26472, 'p': 25620, 'e': 1738})
+[gate:PASS] feature-table sanity (E/p peaks where physics expects them)
+++ echo eid,ehad,hadpid,pooled
+++ tr , ' '
++ for task in $(echo "eid,ehad,hadpid,pooled" | tr ',' ' ')
++ for lib in lightgbm xgboost sklearn_hgb
++ python -m pid train --task eid --model lightgbm --dataset-tag clean --features output/pid-features_clean.pkl --seed 1234 --n-iter 24
+[train] feature table output/pid-features_clean.pkl: 627688 rows, 112 cols
+[train/eid/lightgbm/clean] 161195 rows, 52 features, 2 classes -> AUC train 0.9986 / test 0.9978 (label-shuffle control 0.4632) in 319.5s
+[train] top gain features: ['ecal_backward_E', 'log_e_over_p_backward', 'e_over_p_backward']
+[gate:PASS] train_test_auc_gap: 0.0008192820787602528 | requires 0.02
+[gate:PASS] label_shuffle_control: {"control_auc_mean": 0.46324481645900245, "control_auc_std": 0.03203013378602568, "control_auc_max": 0.5073879723788335, "model_auc_test": 0.9978305656410399, "z": 16.69008792636608} | requires {"min_z": 3.0, "min_auc_margin": 0.1}  [5 balanced permutations, 6012/class; AUCs [0.4423, 0.4698, 0.5074, 0.4236, 0.4732]]
+[gate:FAIL] top_feature_is_physical: {"gain_top3": ["ecal_backward_E", "log_e_over_p_backward", "e_over_p_backward"], "shap_top3": ["ecal_backward_E", "ecal_backward_n", "log_e_over_p_backward"]} | requires {"gain_patterns": ["e_over_p", "log_e_over_p", "ecal_"], "shap_must_lead": "e_over_p"}
+[gate:PASS] no_single_feature_label_correlation: 0.6648324640811905 | requires 0.99
+[train] artifacts -> output/models/eid_lightgbm_clean/
+pid.train: gates failed for eid/lightgbm/clean: ['top_feature_is_physical']. Re-run with --relax-gates to inspect the result anyway, and record the failure if the number is ever quoted.
++ echo '[run_pid] train eid/lightgbm failed (statistics?)'
+[run_pid] train eid/lightgbm failed (statistics?)
++ '[' -f output/models/eid_lightgbm_clean/test_scores.pkl ']'
++ python -m pid evaluate --task eid --model lightgbm --dataset-tag clean --scores output/models/eid_lightgbm_clean/test_scores.pkl --by pt,eta --plot
+[report] wrote output/pid-eid_lightgbm_clean-overall.json, output/pid-eid_lightgbm_clean-overall.md, output/pid-eid_lightgbm_clean-overall.root (8 rows)
+[report] wrote output/pid-eid_lightgbm_clean-vs_pt.json, output/pid-eid_lightgbm_clean-vs_pt.md, output/pid-eid_lightgbm_clean-vs_pt.root (7 rows)
+[report] wrote output/pid-eid_lightgbm_clean-vs_eta.json, output/pid-eid_lightgbm_clean-vs_eta.md, output/pid-eid_lightgbm_clean-vs_eta.root (5 rows)
+[report] wrote output/pid-eid_lightgbm_clean-confusion.json, output/pid-eid_lightgbm_clean-confusion.md, output/pid-eid_lightgbm_clean-confusion.root (4 rows)
+[report] wrote output/pid-eid_lightgbm_clean-roc.json, output/pid-eid_lightgbm_clean-roc.md, output/pid-eid_lightgbm_clean-roc.root (200 rows)
+[report] wrote output/pid-eid_lightgbm_clean-calibration.json, output/pid-eid_lightgbm_clean-calibration.md, output/pid-eid_lightgbm_clean-calibration.root (10 rows)
+[evaluate/eid_lightgbm_clean] scored sample: 38 file(s), 1083 event(s), 40369 tracks (38314 signal / 2055 background)
+[evaluate/eid_lightgbm_clean] auc              0.9978305656410399
+[evaluate/eid_lightgbm_clean] signal_peak      6.809637274736326
+[evaluate/eid_lightgbm_clean] background_peak  -5.711493414669755
+[evaluate/eid_lightgbm_clean] n_sigma_lower_limit nan  [NOT COMPUTABLE: too few candidates to fit]
+[evaluate/eid_lightgbm_clean] n_sigma          4.033921154211279
+[evaluate/eid_lightgbm_clean] efficiency       0.9686015555671557 (target fake 0.01)
+[evaluate/eid_lightgbm_clean] efficiency       0.9470167562770788 (target fake 0.001)
+[evaluate/eid_lightgbm_clean] efficiency       0.8836456647700579 (target fake 0.0001)
+[plot] wrote output/plots/pid-eid_lightgbm_clean-roc.png
+[plot] wrote output/plots/pid-eid_lightgbm_clean-eff_vs_fake.png
+[plot] wrote output/plots/pid-eid_lightgbm_clean-auc_vs_pt.png
+[plot] wrote output/plots/pid-eid_lightgbm_clean-auc_vs_eta.png
++ python -m pid importance --dir output/models/eid_lightgbm_clean --task eid --model lightgbm --dataset-tag clean --plot
+[importance] gains/SHAP read from booster.joblib (unwrapped booster)
+[report] wrote output/pid-eid_lightgbm_clean-importance-gain.json, output/pid-eid_lightgbm_clean-importance-gain.md, output/pid-eid_lightgbm_clean-importance-gain.root (52 rows)
+[report] wrote output/pid-eid_lightgbm_clean-importance-shap.json, output/pid-eid_lightgbm_clean-importance-shap.md, output/pid-eid_lightgbm_clean-importance-shap.root (52 rows)
+[report] wrote output/pid-eid_lightgbm_clean-importance-permutation.json, output/pid-eid_lightgbm_clean-importance-permutation.md, output/pid-eid_lightgbm_clean-importance-permutation.root (52 rows)
+
+[importance] leading feature: {'kind': 'shap', 'column': 'ecal_backward_E', 'family': 'calorimeter'}
+[plot] wrote output/plots/pid-eid_lightgbm_clean-importance.png
++ for lib in lightgbm xgboost sklearn_hgb
++ python -m pid train --task eid --model xgboost --dataset-tag clean --features output/pid-features_clean.pkl --seed 1234 --n-iter 24
+[train] feature table output/pid-features_clean.pkl: 627688 rows, 112 cols
+[train/eid/xgboost/clean] 161195 rows, 52 features, 2 classes -> AUC train 0.9986 / test 0.9978 (label-shuffle control 0.4692) in 267.0s
+[train] top gain features: ['ecal_backward_E', 'e_over_p_backward', 'log_e_over_p_backward']
+[gate:PASS] train_test_auc_gap: 0.0007754973186566705 | requires 0.02
+[gate:PASS] label_shuffle_control: {"control_auc_mean": 0.4692329371576423, "control_auc_std": 0.022966567915195434, "control_auc_max": 0.498726022022913, "model_auc_test": 0.9977789496371828, "z": 23.013713430374466} | requires {"min_z": 3.0, "min_auc_margin": 0.1}  [5 balanced permutations, 6012/class; AUCs [0.4604, 0.4769, 0.4987, 0.4363, 0.4738]]
+[gate:FAIL] top_feature_is_physical: {"gain_top3": ["ecal_backward_E", "e_over_p_backward", "log_e_over_p_backward"], "shap_top3": ["ecal_backward_E", "ecal_backward_n", "log_e_over_p_backward"]} | requires {"gain_patterns": ["e_over_p", "log_e_over_p", "ecal_"], "shap_must_lead": "e_over_p"}
+[gate:PASS] no_single_feature_label_correlation: 0.6648324640811905 | requires 0.99
+[train] artifacts -> output/models/eid_xgboost_clean/
+pid.train: gates failed for eid/xgboost/clean: ['top_feature_is_physical']. Re-run with --relax-gates to inspect the result anyway, and record the failure if the number is ever quoted.
++ echo '[run_pid] train eid/xgboost failed (statistics?)'
+[run_pid] train eid/xgboost failed (statistics?)
++ '[' -f output/models/eid_xgboost_clean/test_scores.pkl ']'
++ python -m pid evaluate --task eid --model xgboost --dataset-tag clean --scores output/models/eid_xgboost_clean/test_scores.pkl --by pt,eta --plot
+[report] wrote output/pid-eid_xgboost_clean-overall.json, output/pid-eid_xgboost_clean-overall.md, output/pid-eid_xgboost_clean-overall.root (8 rows)
+[report] wrote output/pid-eid_xgboost_clean-vs_pt.json, output/pid-eid_xgboost_clean-vs_pt.md, output/pid-eid_xgboost_clean-vs_pt.root (7 rows)
+[report] wrote output/pid-eid_xgboost_clean-vs_eta.json, output/pid-eid_xgboost_clean-vs_eta.md, output/pid-eid_xgboost_clean-vs_eta.root (5 rows)
+[report] wrote output/pid-eid_xgboost_clean-confusion.json, output/pid-eid_xgboost_clean-confusion.md, output/pid-eid_xgboost_clean-confusion.root (4 rows)
+[report] wrote output/pid-eid_xgboost_clean-roc.json, output/pid-eid_xgboost_clean-roc.md, output/pid-eid_xgboost_clean-roc.root (200 rows)
+[report] wrote output/pid-eid_xgboost_clean-calibration.json, output/pid-eid_xgboost_clean-calibration.md, output/pid-eid_xgboost_clean-calibration.root (10 rows)
+[evaluate/eid_xgboost_clean] scored sample: 38 file(s), 1083 event(s), 40369 tracks (38314 signal / 2055 background)
+[evaluate/eid_xgboost_clean] auc              0.9977789496371828
+[evaluate/eid_xgboost_clean] signal_peak      3.830242604520351
+[evaluate/eid_xgboost_clean] background_peak  -5.299453757790702
+[evaluate/eid_xgboost_clean] n_sigma_lower_limit nan  [NOT COMPUTABLE: too few candidates to fit]
+[evaluate/eid_xgboost_clean] n_sigma          4.023340381145712
+[evaluate/eid_xgboost_clean] efficiency       0.9688886568878217 (target fake 0.01)
+[evaluate/eid_xgboost_clean] efficiency       0.953828887612883 (target fake 0.001)
+[evaluate/eid_xgboost_clean] efficiency       0.9050999634598319 (target fake 0.0001)
+[plot] wrote output/plots/pid-eid_xgboost_clean-roc.png
+[plot] wrote output/plots/pid-eid_xgboost_clean-eff_vs_fake.png
+[plot] wrote output/plots/pid-eid_xgboost_clean-auc_vs_pt.png
+[plot] wrote output/plots/pid-eid_xgboost_clean-auc_vs_eta.png
++ python -m pid importance --dir output/models/eid_xgboost_clean --task eid --model xgboost --dataset-tag clean --plot
+[importance] gains/SHAP read from booster.joblib (unwrapped booster)
+[report] wrote output/pid-eid_xgboost_clean-importance-gain.json, output/pid-eid_xgboost_clean-importance-gain.md, output/pid-eid_xgboost_clean-importance-gain.root (52 rows)
+[report] wrote output/pid-eid_xgboost_clean-importance-shap.json, output/pid-eid_xgboost_clean-importance-shap.md, output/pid-eid_xgboost_clean-importance-shap.root (52 rows)
+[report] wrote output/pid-eid_xgboost_clean-importance-permutation.json, output/pid-eid_xgboost_clean-importance-permutation.md, output/pid-eid_xgboost_clean-importance-permutation.root (52 rows)
+
+[importance] leading feature: {'kind': 'shap', 'column': 'ecal_backward_E', 'family': 'calorimeter'}
+[plot] wrote output/plots/pid-eid_xgboost_clean-importance.png
++ for lib in lightgbm xgboost sklearn_hgb
++ python -m pid train --task eid --model sklearn_hgb --dataset-tag clean --features output/pid-features_clean.pkl --seed 1234 --n-iter 24
+[train] feature table output/pid-features_clean.pkl: 627688 rows, 112 cols
+joblib.externals.loky.process_executor._RemoteTraceback: 
+"""
+Traceback (most recent call last):
+  File "/home/wxie/.eic_python_pkgs/joblib/_utils.py", line 109, in __call__
+    return self.func(**kwargs)
+           ~~~~~~~~~^^^^^^^^^^
+  File "/home/wxie/.eic_python_pkgs/joblib/parallel.py", line 607, in __call__
+    return [func(*args, **kwargs) for func, args, kwargs in self.items]
+            ~~~~^^^^^^^^^^^^^^^^^
+  File "/home/wxie/.eic_python_pkgs/sklearn/utils/parallel.py", line 184, in __call__
+    return self.function(*args, **kwargs)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/home/wxie/.eic_python_pkgs/sklearn/ensemble/_hist_gradient_boosting/binning.py", line 82, in _find_binning_thresholds
+    bin_thresholds = sliding_window_view(distinct_values, 2).mean(axis=1)
+                     ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^
+  File "/home/wxie/.eic_python_pkgs/numpy/lib/_stride_tricks_impl.py", line 365, in sliding_window_view
+    raise ValueError(
+        'window shape cannot be larger than input array shape')
+ValueError: window shape cannot be larger than input array shape
+"""
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/home/wxie/eic/baseline_tracking_performance_agent/pid/__main__.py", line 10, in <module>
+    sys.exit(main())
+             ~~~~^^
+  File "/home/wxie/eic/baseline_tracking_performance_agent/pid/cli.py", line 476, in main
+    return int(args.func(args) or 0)
+               ~~~~~~~~~^^^^^^
+  File "/home/wxie/eic/baseline_tracking_performance_agent/pid/cli.py", line 162, in cmd_train
+    pid_train.train(args.task, model=args.model, features=args.features, files=files or None,
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                    dataset_tag=args.dataset_tag, legs=tuple(args.legs.split(",")),
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<9 lines>...
+                    include_track_time=args.include_track_time,
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                    min_q2_tier=args.min_q2_tier)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/wxie/eic/baseline_tracking_performance_agent/pid/train.py", line 296, in train
+    search = cross_validate(factory, X.iloc[tr_idx], y[tr_idx], groups[tr_idx],
+                            n_splits=n_splits, n_iter=n_iter,
+                            space={k: v for k, v in config.SEARCH_SPACES[model].items()},
+                            seed=seed, scoring=scoring, n_jobs=n_jobs,
+                            sample_weight=w_tr)
+  File "/home/wxie/eic/baseline_tracking_performance_agent/pid/train.py", line 161, in cross_validate
+    search.fit(X, y, groups=groups, sample_weight=sample_weight)
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/wxie/.eic_python_pkgs/sklearn/base.py", line 1403, in wrapper
+    return fit_method(estimator, *args, **kwargs)
+  File "/home/wxie/.eic_python_pkgs/sklearn/model_selection/_search.py", line 1134, in fit
+    self._run_search(evaluate_candidates, callback_ctx=root_callback_ctx)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/wxie/.eic_python_pkgs/sklearn/model_selection/_search.py", line 2124, in _run_search
+    evaluate_candidates(candidate_params, callback_ctx=search_ctx)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/wxie/.eic_python_pkgs/sklearn/model_selection/_search.py", line 1083, in evaluate_candidates
+    out = parallel(
+        delayed(_fit_and_score)(
+    ...<15 lines>...
+        ) in zip(candidate_split_pairs, evaluation_contexts)
+    )
+  File "/home/wxie/.eic_python_pkgs/sklearn/utils/parallel.py", line 91, in __call__
+    return super().__call__(iterable_with_config_and_warning_filters)
+           ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/wxie/.eic_python_pkgs/joblib/parallel.py", line 2012, in __call__
+    return output if self.return_generator else list(output)
+                                                ~~~~^^^^^^^^
+  File "/home/wxie/.eic_python_pkgs/joblib/parallel.py", line 1940, in _get_sequential_output
+    res = func(*args, **kwargs)
+  File "/home/wxie/.eic_python_pkgs/sklearn/utils/parallel.py", line 184, in __call__
+    return self.function(*args, **kwargs)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/home/wxie/.eic_python_pkgs/sklearn/model_selection/_validation.py", line 855, in _fit_and_score
+    estimator.fit(X_train, y_train, **fit_params)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/wxie/.eic_python_pkgs/sklearn/base.py", line 1403, in wrapper
+    return fit_method(estimator, *args, **kwargs)
+  File "/home/wxie/.eic_python_pkgs/sklearn/ensemble/_hist_gradient_boosting/gradient_boosting.py", line 603, in fit
+    X_binned_train = self._bin_data(
+        X_train, sample_weight_train, is_training_data=True
+    )
+  File "/home/wxie/.eic_python_pkgs/sklearn/ensemble/_hist_gradient_boosting/gradient_boosting.py", line 1122, in _bin_data
+    X_binned = self._bin_mapper.fit_transform(
+        X, sample_weight=sample_weight
+    )  # F-aligned array
+  File "/home/wxie/.eic_python_pkgs/sklearn/utils/_set_output.py", line 327, in wrapped
+    data_to_wrap = f(self, X, *args, **kwargs)
+  File "/home/wxie/.eic_python_pkgs/sklearn/base.py", line 969, in fit_transform
+    return self.fit(X, **fit_params).transform(X)
+           ~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/home/wxie/.eic_python_pkgs/sklearn/ensemble/_hist_gradient_boosting/binning.py", line 287, in fit
+    non_cat_thresholds = Parallel(n_jobs=self.n_threads, backend="threading")(
+        delayed(_find_binning_thresholds)(
+    ...<3 lines>...
+        if not self.is_categorical_[f_idx]
+    )
+  File "/home/wxie/.eic_python_pkgs/sklearn/utils/parallel.py", line 91, in __call__
+    return super().__call__(iterable_with_config_and_warning_filters)
+           ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/wxie/.eic_python_pkgs/joblib/parallel.py", line 2098, in __call__
+    return output if self.return_generator else list(output)
+                                                ~~~~^^^^^^^^
+  File "/home/wxie/.eic_python_pkgs/joblib/parallel.py", line 1704, in _get_outputs
+    yield from self._retrieve()
+  File "/home/wxie/.eic_python_pkgs/joblib/parallel.py", line 1806, in _retrieve
+    self._raise_error_fast()
+    ~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/wxie/.eic_python_pkgs/joblib/parallel.py", line 1885, in _raise_error_fast
+    error_job.get_result(self.timeout)
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^
+  File "/home/wxie/.eic_python_pkgs/joblib/parallel.py", line 780, in get_result
+    return self._return_or_raise()
+           ~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/wxie/.eic_python_pkgs/joblib/parallel.py", line 795, in _return_or_raise
+    raise self._result
+ValueError: window shape cannot be larger than input array shape
++ echo '[run_pid] train eid/sklearn_hgb failed (statistics?)'
+[run_pid] train eid/sklearn_hgb failed (statistics?)
++ '[' -f output/models/eid_sklearn_hgb_clean/test_scores.pkl ']'
++ for task in $(echo "eid,ehad,hadpid,pooled" | tr ',' ' ')
++ for lib in lightgbm xgboost sklearn_hgb
++ python -m pid train --task ehad --model lightgbm --dataset-tag clean --features output/pid-features_clean.pkl --seed 1234 --n-iter 24
+[train] feature table output/pid-features_clean.pkl: 627688 rows, 112 cols
+[train/ehad/lightgbm/clean] 163701 rows, 52 features, 2 classes -> AUC train 0.9987 / test 0.9978 (label-shuffle control 0.4902) in 338.1s
+[train] top gain features: ['ecal_backward_E', 'log_e_over_p_backward', 'e_over_p_backward']
+[gate:PASS] train_test_auc_gap: 0.0008732639406504594 | requires 0.02
+[gate:PASS] label_shuffle_control: {"control_auc_mean": 0.4901823978378942, "control_auc_std": 0.01007729656831576, "control_auc_max": 0.5036434917695283, "model_auc_test": 0.9977828338373855, "z": 50.370695410061515} | requires {"min_z": 3.0, "min_auc_margin": 0.1}  [5 balanced permutations, 7932/class; AUCs [0.5036, 0.496, 0.486, 0.4881, 0.4772]]
+[gate:FAIL] top_feature_is_physical: {"gain_top3": ["ecal_backward_E", "log_e_over_p_backward", "e_over_p_backward"], "shap_top3": ["ecal_backward_E", "ecal_backward_n", "e_over_p_backward"]} | requires {"gain_patterns": ["e_over_p", "log_e_over_p", "ecal_"], "shap_must_lead": "e_over_p"}
+[gate:PASS] no_single_feature_label_correlation: 0.710722354017111 | requires 0.99
+[train] artifacts -> output/models/ehad_lightgbm_clean/
+pid.train: gates failed for ehad/lightgbm/clean: ['top_feature_is_physical']. Re-run with --relax-gates to inspect the result anyway, and record the failure if the number is ever quoted.
++ echo '[run_pid] train ehad/lightgbm failed (statistics?)'
+[run_pid] train ehad/lightgbm failed (statistics?)
++ '[' -f output/models/ehad_lightgbm_clean/test_scores.pkl ']'
++ python -m pid evaluate --task ehad --model lightgbm --dataset-tag clean --scores output/models/ehad_lightgbm_clean/test_scores.pkl --by pt,eta --plot
+[report] wrote output/pid-ehad_lightgbm_clean-overall.json, output/pid-ehad_lightgbm_clean-overall.md, output/pid-ehad_lightgbm_clean-overall.root (8 rows)
+[report] wrote output/pid-ehad_lightgbm_clean-vs_pt.json, output/pid-ehad_lightgbm_clean-vs_pt.md, output/pid-ehad_lightgbm_clean-vs_pt.root (7 rows)
+[report] wrote output/pid-ehad_lightgbm_clean-vs_eta.json, output/pid-ehad_lightgbm_clean-vs_eta.md, output/pid-ehad_lightgbm_clean-vs_eta.root (5 rows)
+[report] wrote output/pid-ehad_lightgbm_clean-confusion.json, output/pid-ehad_lightgbm_clean-confusion.md, output/pid-ehad_lightgbm_clean-confusion.root (4 rows)
+[report] wrote output/pid-ehad_lightgbm_clean-roc.json, output/pid-ehad_lightgbm_clean-roc.md, output/pid-ehad_lightgbm_clean-roc.root (200 rows)
+[report] wrote output/pid-ehad_lightgbm_clean-calibration.json, output/pid-ehad_lightgbm_clean-calibration.md, output/pid-ehad_lightgbm_clean-calibration.root (10 rows)
+[evaluate/ehad_lightgbm_clean] scored sample: 38 file(s), 1083 event(s), 40955 tracks (38314 signal / 2641 background)
+[evaluate/ehad_lightgbm_clean] auc              0.9977828338373855
+[evaluate/ehad_lightgbm_clean] signal_peak      6.8774164271816005
+[evaluate/ehad_lightgbm_clean] background_peak  -5.863523981987241
+[evaluate/ehad_lightgbm_clean] n_sigma_lower_limit nan  [NOT COMPUTABLE: too few candidates to fit]
+[evaluate/ehad_lightgbm_clean] n_sigma          4.024128807614651
+[evaluate/ehad_lightgbm_clean] efficiency       0.9671660489638252 (target fake 0.01)
+[evaluate/ehad_lightgbm_clean] efficiency       0.9459205512345357 (target fake 0.001)
+[evaluate/ehad_lightgbm_clean] efficiency       0.8949209166362165 (target fake 0.0001)
+[plot] wrote output/plots/pid-ehad_lightgbm_clean-roc.png
+[plot] wrote output/plots/pid-ehad_lightgbm_clean-eff_vs_fake.png
+[plot] wrote output/plots/pid-ehad_lightgbm_clean-auc_vs_pt.png
+[plot] wrote output/plots/pid-ehad_lightgbm_clean-auc_vs_eta.png
++ python -m pid importance --dir output/models/ehad_lightgbm_clean --task ehad --model lightgbm --dataset-tag clean --plot
+[importance] gains/SHAP read from booster.joblib (unwrapped booster)
+[report] wrote output/pid-ehad_lightgbm_clean-importance-gain.json, output/pid-ehad_lightgbm_clean-importance-gain.md, output/pid-ehad_lightgbm_clean-importance-gain.root (52 rows)
+[report] wrote output/pid-ehad_lightgbm_clean-importance-shap.json, output/pid-ehad_lightgbm_clean-importance-shap.md, output/pid-ehad_lightgbm_clean-importance-shap.root (52 rows)
+[report] wrote output/pid-ehad_lightgbm_clean-importance-permutation.json, output/pid-ehad_lightgbm_clean-importance-permutation.md, output/pid-ehad_lightgbm_clean-importance-permutation.root (52 rows)
+
+[importance] leading feature: {'kind': 'shap', 'column': 'ecal_backward_E', 'family': 'calorimeter'}
+[plot] wrote output/plots/pid-ehad_lightgbm_clean-importance.png
++ for lib in lightgbm xgboost sklearn_hgb
++ python -m pid train --task ehad --model xgboost --dataset-tag clean --features output/pid-features_clean.pkl --seed 1234 --n-iter 24
+[train] feature table output/pid-features_clean.pkl: 627688 rows, 112 cols
+[train/ehad/xgboost/clean] 163701 rows, 52 features, 2 classes -> AUC train 0.9986 / test 0.9978 (label-shuffle control 0.4884) in 300.3s
+[train] top gain features: ['ecal_backward_E', 'log_e_over_p_backward', 'e_over_p_backward']
+[gate:PASS] train_test_auc_gap: 0.0007237398857115052 | requires 0.02
+[gate:PASS] label_shuffle_control: {"control_auc_mean": 0.4884289500673771, "control_auc_std": 0.010731721466776882, "control_auc_max": 0.5055755084379484, "model_auc_test": 0.9978480940202026, "z": 47.46853946311208} | requires {"min_z": 3.0, "min_auc_margin": 0.1}  [5 balanced permutations, 7932/class; AUCs [0.5056, 0.4906, 0.4867, 0.4782, 0.4811]]
+[gate:FAIL] top_feature_is_physical: {"gain_top3": ["ecal_backward_E", "log_e_over_p_backward", "e_over_p_backward"], "shap_top3": ["ecal_backward_E", "log_e_over_p_backward", "ecal_backward_n"]} | requires {"gain_patterns": ["e_over_p", "log_e_over_p", "ecal_"], "shap_must_lead": "e_over_p"}
+[gate:PASS] no_single_feature_label_correlation: 0.710722354017111 | requires 0.99
+[train] artifacts -> output/models/ehad_xgboost_clean/
+pid.train: gates failed for ehad/xgboost/clean: ['top_feature_is_physical']. Re-run with --relax-gates to inspect the result anyway, and record the failure if the number is ever quoted.
++ echo '[run_pid] train ehad/xgboost failed (statistics?)'
+[run_pid] train ehad/xgboost failed (statistics?)
++ '[' -f output/models/ehad_xgboost_clean/test_scores.pkl ']'
++ python -m pid evaluate --task ehad --model xgboost --dataset-tag clean --scores output/models/ehad_xgboost_clean/test_scores.pkl --by pt,eta --plot
+[report] wrote output/pid-ehad_xgboost_clean-overall.json, output/pid-ehad_xgboost_clean-overall.md, output/pid-ehad_xgboost_clean-overall.root (8 rows)
+[report] wrote output/pid-ehad_xgboost_clean-vs_pt.json, output/pid-ehad_xgboost_clean-vs_pt.md, output/pid-ehad_xgboost_clean-vs_pt.root (7 rows)
+[report] wrote output/pid-ehad_xgboost_clean-vs_eta.json, output/pid-ehad_xgboost_clean-vs_eta.md, output/pid-ehad_xgboost_clean-vs_eta.root (5 rows)
+[report] wrote output/pid-ehad_xgboost_clean-confusion.json, output/pid-ehad_xgboost_clean-confusion.md, output/pid-ehad_xgboost_clean-confusion.root (4 rows)
+[report] wrote output/pid-ehad_xgboost_clean-roc.json, output/pid-ehad_xgboost_clean-roc.md, output/pid-ehad_xgboost_clean-roc.root (200 rows)
+[report] wrote output/pid-ehad_xgboost_clean-calibration.json, output/pid-ehad_xgboost_clean-calibration.md, output/pid-ehad_xgboost_clean-calibration.root (10 rows)
+[evaluate/ehad_xgboost_clean] scored sample: 38 file(s), 1083 event(s), 40955 tracks (38314 signal / 2641 background)
+[evaluate/ehad_xgboost_clean] auc              0.9978480940202026
+[evaluate/ehad_xgboost_clean] signal_peak      3.9334188617077115
+[evaluate/ehad_xgboost_clean] background_peak  -5.150505741729935
+[evaluate/ehad_xgboost_clean] n_sigma_lower_limit nan  [NOT COMPUTABLE: too few candidates to fit]
+[evaluate/ehad_xgboost_clean] n_sigma          4.03756625096462
+[evaluate/ehad_xgboost_clean] efficiency       0.9663308451218876 (target fake 0.01)
+[evaluate/ehad_xgboost_clean] efficiency       0.9471994571175028 (target fake 0.001)
+[evaluate/ehad_xgboost_clean] efficiency       0.9077360755859477 (target fake 0.0001)
+[plot] wrote output/plots/pid-ehad_xgboost_clean-roc.png
+[plot] wrote output/plots/pid-ehad_xgboost_clean-eff_vs_fake.png
+[plot] wrote output/plots/pid-ehad_xgboost_clean-auc_vs_pt.png
+[plot] wrote output/plots/pid-ehad_xgboost_clean-auc_vs_eta.png
++ python -m pid importance --dir output/models/ehad_xgboost_clean --task ehad --model xgboost --dataset-tag clean --plot
+[importance] gains/SHAP read from booster.joblib (unwrapped booster)
+[report] wrote output/pid-ehad_xgboost_clean-importance-gain.json, output/pid-ehad_xgboost_clean-importance-gain.md, output/pid-ehad_xgboost_clean-importance-gain.root (52 rows)
+[report] wrote output/pid-ehad_xgboost_clean-importance-shap.json, output/pid-ehad_xgboost_clean-importance-shap.md, output/pid-ehad_xgboost_clean-importance-shap.root (52 rows)
+[report] wrote output/pid-ehad_xgboost_clean-importance-permutation.json, output/pid-ehad_xgboost_clean-importance-permutation.md, output/pid-ehad_xgboost_clean-importance-permutation.root (52 rows)
+
+[importance] leading feature: {'kind': 'shap', 'column': 'ecal_backward_E', 'family': 'calorimeter'}
+[plot] wrote output/plots/pid-ehad_xgboost_clean-importance.png
++ for lib in lightgbm xgboost sklearn_hgb
++ python -m pid train --task ehad --model sklearn_hgb --dataset-tag clean --features output/pid-features_clean.pkl --seed 1234 --n-iter 24
+[train] feature table output/pid-features_clean.pkl: 627688 rows, 112 cols
+joblib.externals.loky.process_executor._RemoteTraceback: 
+"""
+Traceback (most recent call last):
+  File "/home/wxie/.eic_python_pkgs/joblib/_utils.py", line 109, in __call__
+    return self.func(**kwargs)
+           ~~~~~~~~~^^^^^^^^^^
+  File "/home/wxie/.eic_python_pkgs/joblib/parallel.py", line 607, in __call__
+    return [func(*args, **kwargs) for func, args, kwargs in self.items]
+            ~~~~^^^^^^^^^^^^^^^^^
+  File "/home/wxie/.eic_python_pkgs/sklearn/utils/parallel.py", line 184, in __call__
+    return self.function(*args, **kwargs)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/home/wxie/.eic_python_pkgs/sklearn/ensemble/_hist_gradient_boosting/binning.py", line 82, in _find_binning_thresholds
+    bin_thresholds = sliding_window_view(distinct_values, 2).mean(axis=1)
+                     ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^
+  File "/home/wxie/.eic_python_pkgs/numpy/lib/_stride_tricks_impl.py", line 365, in sliding_window_view
+    raise ValueError(
+        'window shape cannot be larger than input array shape')
+ValueError: window shape cannot be larger than input array shape
+"""
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/home/wxie/eic/baseline_tracking_performance_agent/pid/__main__.py", line 10, in <module>
+    sys.exit(main())
+             ~~~~^^
+  File "/home/wxie/eic/baseline_tracking_performance_agent/pid/cli.py", line 476, in main
+    return int(args.func(args) or 0)
+               ~~~~~~~~~^^^^^^
+  File "/home/wxie/eic/baseline_tracking_performance_agent/pid/cli.py", line 162, in cmd_train
+    pid_train.train(args.task, model=args.model, features=args.features, files=files or None,
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                    dataset_tag=args.dataset_tag, legs=tuple(args.legs.split(",")),
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<9 lines>...
+                    include_track_time=args.include_track_time,
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                    min_q2_tier=args.min_q2_tier)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/wxie/eic/baseline_tracking_performance_agent/pid/train.py", line 321, in train
+    search = cross_validate(factory, X.iloc[tr_idx], y[tr_idx], groups[tr_idx],
+                            n_splits=n_splits, n_iter=n_iter,
+                            space={k: v for k, v in config.SEARCH_SPACES[model].items()},
+                            seed=seed, scoring=scoring, n_jobs=n_jobs,
+                            sample_weight=w_tr)
+  File "/home/wxie/eic/baseline_tracking_performance_agent/pid/train.py", line 179, in cross_validate
+    search.fit(X, y, groups=groups, sample_weight=sample_weight)
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/wxie/.eic_python_pkgs/sklearn/base.py", line 1403, in wrapper
+    return fit_method(estimator, *args, **kwargs)
+  File "/home/wxie/.eic_python_pkgs/sklearn/model_selection/_search.py", line 1134, in fit
+    self._run_search(evaluate_candidates, callback_ctx=root_callback_ctx)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/wxie/.eic_python_pkgs/sklearn/model_selection/_search.py", line 2124, in _run_search
+    evaluate_candidates(candidate_params, callback_ctx=search_ctx)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/wxie/.eic_python_pkgs/sklearn/model_selection/_search.py", line 1083, in evaluate_candidates
+    out = parallel(
+        delayed(_fit_and_score)(
+    ...<15 lines>...
+        ) in zip(candidate_split_pairs, evaluation_contexts)
+    )
+  File "/home/wxie/.eic_python_pkgs/sklearn/utils/parallel.py", line 91, in __call__
+    return super().__call__(iterable_with_config_and_warning_filters)
+           ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/wxie/.eic_python_pkgs/joblib/parallel.py", line 2012, in __call__
+    return output if self.return_generator else list(output)
+                                                ~~~~^^^^^^^^
+  File "/home/wxie/.eic_python_pkgs/joblib/parallel.py", line 1940, in _get_sequential_output
+    res = func(*args, **kwargs)
+  File "/home/wxie/.eic_python_pkgs/sklearn/utils/parallel.py", line 184, in __call__
+    return self.function(*args, **kwargs)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/home/wxie/.eic_python_pkgs/sklearn/model_selection/_validation.py", line 855, in _fit_and_score
+    estimator.fit(X_train, y_train, **fit_params)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/wxie/.eic_python_pkgs/sklearn/base.py", line 1403, in wrapper
+    return fit_method(estimator, *args, **kwargs)
+  File "/home/wxie/.eic_python_pkgs/sklearn/ensemble/_hist_gradient_boosting/gradient_boosting.py", line 603, in fit
+    X_binned_train = self._bin_data(
+        X_train, sample_weight_train, is_training_data=True
+    )
+  File "/home/wxie/.eic_python_pkgs/sklearn/ensemble/_hist_gradient_boosting/gradient_boosting.py", line 1122, in _bin_data
+    X_binned = self._bin_mapper.fit_transform(
+        X, sample_weight=sample_weight
+    )  # F-aligned array
+  File "/home/wxie/.eic_python_pkgs/sklearn/utils/_set_output.py", line 327, in wrapped
+    data_to_wrap = f(self, X, *args, **kwargs)
+  File "/home/wxie/.eic_python_pkgs/sklearn/base.py", line 969, in fit_transform
+    return self.fit(X, **fit_params).transform(X)
+           ~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/home/wxie/.eic_python_pkgs/sklearn/ensemble/_hist_gradient_boosting/binning.py", line 287, in fit
+    non_cat_thresholds = Parallel(n_jobs=self.n_threads, backend="threading")(
+        delayed(_find_binning_thresholds)(
+    ...<3 lines>...
+        if not self.is_categorical_[f_idx]
+    )
+  File "/home/wxie/.eic_python_pkgs/sklearn/utils/parallel.py", line 91, in __call__
+    return super().__call__(iterable_with_config_and_warning_filters)
+           ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/wxie/.eic_python_pkgs/joblib/parallel.py", line 2098, in __call__
+    return output if self.return_generator else list(output)
+                                                ~~~~^^^^^^^^
+  File "/home/wxie/.eic_python_pkgs/joblib/parallel.py", line 1704, in _get_outputs
+    yield from self._retrieve()
+  File "/home/wxie/.eic_python_pkgs/joblib/parallel.py", line 1806, in _retrieve
+    self._raise_error_fast()
+    ~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/wxie/.eic_python_pkgs/joblib/parallel.py", line 1885, in _raise_error_fast
+    error_job.get_result(self.timeout)
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^
+  File "/home/wxie/.eic_python_pkgs/joblib/parallel.py", line 780, in get_result
+    return self._return_or_raise()
+           ~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/wxie/.eic_python_pkgs/joblib/parallel.py", line 795, in _return_or_raise
+    raise self._result
+ValueError: window shape cannot be larger than input array shape
++ echo '[run_pid] train ehad/sklearn_hgb failed (statistics?)'
+[run_pid] train ehad/sklearn_hgb failed (statistics?)
++ '[' -f output/models/ehad_sklearn_hgb_clean/test_scores.pkl ']'
++ for task in $(echo "eid,ehad,hadpid,pooled" | tr ',' ' ')
++ for lib in lightgbm xgboost sklearn_hgb
++ python -m pid train --task hadpid --model lightgbm --dataset-tag clean --features output/pid-features_clean.pkl --seed 1234 --n-iter 24
+[train] feature table output/pid-features_clean.pkl: 627688 rows, 112 cols

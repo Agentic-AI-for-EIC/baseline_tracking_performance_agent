@@ -87,6 +87,24 @@ SCORED_COLUMNS = ("file_id", "event", "track_idx", "label", "truth_class", "leg"
                   "assoc_weight", "is_matched", "is_fake")
 
 
+def missing_e_over_p_columns(prep: pd.DataFrame, task: str) -> list[str]:
+    """E/p columns an electron task requires to be present and measurable.
+
+    The SHAP gate requires E/p to LEAD, which is vacuous if E/p was never
+    computed (e.g. a production without ECAL clusters leaves it all-NaN and
+    the model quietly promotes a proxy). Returns the missing/unusable names
+    (empty = usable E/p available); the caller refuses to train on a
+    non-empty list.
+    """
+    if task not in ("eid", "ehad", "pooled"):
+        return []
+    legs = ("backward", "forward") if task == "pooled" else (config.TASKS[task]["leg"],)
+    return [f"e_over_p_{leg}" for leg in legs
+            if f"e_over_p_{leg}" not in prep.columns or not bool(
+                pd.to_numeric(prep[f"e_over_p_{leg}"],
+                              errors="coerce").notna().any())]
+
+
 def load_or_build(*, features: str | None, files: list[str] | None, dataset_tag: str,
                   legs: tuple[str, ...], limit_files: int | None, max_failures: int,
                   cache_dir: str | None, enable_ionisation: bool):
@@ -155,7 +173,10 @@ def cross_validate(estimator_factory, X, y, groups, *, n_splits, n_iter, space, 
         estimator_factory(), param_distributions=dict(space), n_iter=n_iter,
         scoring=scoring, cv=cv, random_state=seed, n_jobs=n_jobs, refit=True,
         error_score="raise")
-    search.fit(X, y, sample_weight=sample_weight)
+    # Groups MUST ride along: without them a grouped splitter sees groups=None
+    # (one pseudo-group) and every multi-file run dies in _iter_test_indices,
+    # while single-file smoke silently passes via the StratifiedKFold branch.
+    search.fit(X, y, groups=groups, sample_weight=sample_weight)
     search.cv_kind_ = kind
     return search
 
@@ -266,6 +287,13 @@ def train(task: str, *, model: str = config.MODEL_LIBRARY_DEFAULT,
                                     include_track_time=include_track_time)
     if not columns:
         raise SystemExit(f"train: no usable feature columns for task {task!r}")
+    if task in ("eid", "ehad", "pooled"):
+        missing = missing_e_over_p_columns(prep, task)
+        if missing:
+            raise SystemExit(
+                f"pid.train: electron task {task!r} has no usable E/p column(s) "
+                f"{missing} in this sample - train without an E/p check would "
+                "certify a proxy. Fix the ECAL cluster join first.")
     X = dataset.design_matrix(prep, columns)
     y = prep["label"].to_numpy(dtype=int)
     groups = prep["file_id"].to_numpy()
@@ -387,7 +415,11 @@ def train(task: str, *, model: str = config.MODEL_LIBRARY_DEFAULT,
     # (cluster energy, hit multiplicity) is legitimate but is not what we claim.
     shap_top: list[str] = []
     try:
-        values = adapter.shap(best, X.head(min(2000, len(X))))
+        # Attribution is measured on HELD-OUT rows only: the gate asks what
+        # drives decisions where it matters, and train rows would flatter
+        # memorised splits.
+        gate_rows = X.iloc[te_idx].head(min(2000, len(te_idx)))
+        values = adapter.shap(best, gate_rows)
         mean_abs = np.nanmean(np.abs(values), axis=0)
         order = np.argsort(-np.nan_to_num(mean_abs))
         shap_top = [columns[i] for i in order[:3]]

@@ -40,211 +40,195 @@
     "physics_check_passed": true,
     "physics_check_notes": "",
     "campaign": "26.02.0",
-    "written_at_utc": "2026-09-17T19:06:22.101565+00:00"
+    "written_at_utc": "2026-09-18T12:57:51.238065+00:00"
   },
   "data": [
     {
-      "column": "e_over_p_backward",
-      "family": "calorimeter",
-      "mean_abs_shap": 1.6191284989,
-      "mean_shap": -0.001590036,
-      "shap_std": 2.9123040946,
-      "importance_kind": "shap"
-    },
-    {
-      "column": "hcal_backward_t",
-      "family": "other",
-      "mean_abs_shap": 0.974798829,
-      "mean_shap": 0.0975559334,
-      "shap_std": 1.3072915857,
-      "importance_kind": "shap"
-    },
-    {
-      "column": "ecal_backward_delta_r",
-      "family": "calorimeter",
-      "mean_abs_shap": 0.8348965418,
-      "mean_shap": -0.0054159033,
-      "shap_std": 1.3826101983,
-      "importance_kind": "shap"
-    },
-    {
-      "column": "chi2_per_ndf",
-      "family": "tracker",
-      "mean_abs_shap": 0.6701966786,
-      "mean_shap": -0.0135595755,
-      "shap_std": 0.9820171607,
-      "importance_kind": "shap"
-    },
-    {
       "column": "ecal_backward_E",
       "family": "calorimeter",
-      "mean_abs_shap": 0.5806577254,
-      "mean_shap": -0.0085207873,
-      "shap_std": 0.9142766204,
-      "importance_kind": "shap"
-    },
-    {
-      "column": "e_hcal_backward",
-      "family": "calorimeter",
-      "mean_abs_shap": 0.5707544317,
-      "mean_shap": -0.1145693791,
-      "shap_std": 0.896861244,
-      "importance_kind": "shap"
-    },
-    {
-      "column": "hcal_backward_n",
-      "family": "other",
-      "mean_abs_shap": 0.329196703,
-      "mean_shap": 0.0418380429,
-      "shap_std": 0.3831316776,
-      "importance_kind": "shap"
-    },
-    {
-      "column": "chi2",
-      "family": "tracker",
-      "mean_abs_shap": 0.2950737889,
-      "mean_shap": 0.0339047022,
-      "shap_std": 0.5610592634,
-      "importance_kind": "shap"
-    },
-    {
-      "column": "hcal_backward_delta_r",
-      "family": "other",
-      "mean_abs_shap": 0.2936316216,
-      "mean_shap": -0.016473476,
-      "shap_std": 0.4177793108,
+      "mean_abs_shap": 1.946876566,
+      "mean_shap": -0.1116933726,
+      "shap_std": 2.8186649009,
       "importance_kind": "shap"
     },
     {
       "column": "ecal_backward_n",
       "family": "calorimeter",
-      "mean_abs_shap": 0.2322116182,
-      "mean_shap": 0.0318738575,
-      "shap_std": 0.3565465899,
-      "importance_kind": "shap"
-    },
-    {
-      "column": "proj_pathlength",
-      "family": "tracker",
-      "mean_abs_shap": 0.1837124797,
-      "mean_shap": -0.0001905735,
-      "shap_std": 0.3807492281,
-      "importance_kind": "shap"
-    },
-    {
-      "column": "ecal_backward_shape_0",
-      "family": "calorimeter",
-      "mean_abs_shap": 0.1157879699,
-      "mean_shap": -0.0015588735,
-      "shap_std": 0.235786895,
-      "importance_kind": "shap"
-    },
-    {
-      "column": "ecal_backward_shape_6",
-      "family": "calorimeter",
-      "mean_abs_shap": 0.0996264336,
-      "mean_shap": 0.0043344171,
-      "shap_std": 0.1132461759,
+      "mean_abs_shap": 0.4244000341,
+      "mean_shap": -0.0069890457,
+      "shap_std": 0.6661008851,
       "importance_kind": "shap"
     },
     {
       "column": "log_e_over_p_backward",
       "family": "calorimeter",
-      "mean_abs_shap": 0.0849618204,
-      "mean_shap": 0.0246364569,
-      "shap_std": 0.1932691014,
+      "mean_abs_shap": 0.3691875941,
+      "mean_shap": 0.0485041357,
+      "shap_std": 0.5136371186,
       "importance_kind": "shap"
     },
     {
-      "column": "ecal_backward_shape_2",
+      "column": "e_over_p_backward",
       "family": "calorimeter",
-      "mean_abs_shap": 0.0760779264,
-      "mean_shap": -0.0047264474,
-      "shap_std": 0.1011290327,
-      "importance_kind": "shap"
-    },
-    {
-      "column": "ecal_backward_shape_5",
-      "family": "calorimeter",
-      "mean_abs_shap": 0.0362073623,
-      "mean_shap": -0.001364966,
-      "shap_std": 0.0754421839,
+      "mean_abs_shap": 0.3639569989,
+      "mean_shap": 0.0490175741,
+      "shap_std": 0.5670328014,
       "importance_kind": "shap"
     },
     {
       "column": "ndf",
       "family": "tracker",
-      "mean_abs_shap": 0.034884458,
-      "mean_shap": -0.0078377605,
-      "shap_std": 0.0724673368,
-      "importance_kind": "shap"
-    },
-    {
-      "column": "ecal_backward_shape_4",
-      "family": "calorimeter",
-      "mean_abs_shap": 0.0245001487,
-      "mean_shap": 0.0001963648,
-      "shap_std": 0.0365435891,
-      "importance_kind": "shap"
-    },
-    {
-      "column": "ecal_backward_shape_3",
-      "family": "calorimeter",
-      "mean_abs_shap": 0.0223743661,
-      "mean_shap": -2.90019e-05,
-      "shap_std": 0.060475592,
-      "importance_kind": "shap"
-    },
-    {
-      "column": "leakage_backward",
-      "family": "calorimeter",
-      "mean_abs_shap": 0.0191982066,
-      "mean_shap": -0.002782961,
-      "shap_std": 0.0240855899,
-      "importance_kind": "shap"
-    },
-    {
-      "column": "ecal_backward_t",
-      "family": "calorimeter",
-      "mean_abs_shap": 0.0101043979,
-      "mean_shap": 0.0001696627,
-      "shap_std": 0.0189242217,
+      "mean_abs_shap": 0.2245281723,
+      "mean_shap": -0.0011980894,
+      "shap_std": 0.2494895608,
       "importance_kind": "shap"
     },
     {
       "column": "ecal_backward_shape_1",
       "family": "calorimeter",
-      "mean_abs_shap": 0.0057698723,
-      "mean_shap": -0.0011349329,
-      "shap_std": 0.0213083539,
+      "mean_abs_shap": 0.2029197008,
+      "mean_shap": 0.032777283,
+      "shap_std": 0.2530683155,
       "importance_kind": "shap"
     },
     {
-      "column": "has_ecal_backward",
+      "column": "ecal_backward_shape_0",
       "family": "calorimeter",
-      "mean_abs_shap": 0.0056138507,
-      "mean_shap": 0.0010206932,
-      "shap_std": 0.0140370979,
+      "mean_abs_shap": 0.1789583059,
+      "mean_shap": -0.001618179,
+      "shap_std": 0.2681361734,
       "importance_kind": "shap"
     },
     {
-      "column": "ecal_backward_has_shape",
+      "column": "hcal_backward_t",
+      "family": "other",
+      "mean_abs_shap": 0.1442811257,
+      "mean_shap": 0.0122877776,
+      "shap_std": 0.2554320441,
+      "importance_kind": "shap"
+    },
+    {
+      "column": "proj_pathlength",
+      "family": "tracker",
+      "mean_abs_shap": 0.1337879449,
+      "mean_shap": -0.038836674,
+      "shap_std": 0.2510435768,
+      "importance_kind": "shap"
+    },
+    {
+      "column": "ecal_backward_shape_2",
       "family": "calorimeter",
-      "mean_abs_shap": 0.0035590699,
-      "mean_shap": -0.0004910438,
-      "shap_std": 0.0118569337,
+      "mean_abs_shap": 0.1084060147,
+      "mean_shap": -0.0010894553,
+      "shap_std": 0.1339620038,
+      "importance_kind": "shap"
+    },
+    {
+      "column": "e_hcal_backward",
+      "family": "calorimeter",
+      "mean_abs_shap": 0.1063012024,
+      "mean_shap": -0.0012017658,
+      "shap_std": 0.1982224713,
+      "importance_kind": "shap"
+    },
+    {
+      "column": "ecal_backward_shape_3",
+      "family": "calorimeter",
+      "mean_abs_shap": 0.1018915112,
+      "mean_shap": -0.0171860819,
+      "shap_std": 0.1329712104,
+      "importance_kind": "shap"
+    },
+    {
+      "column": "hcal_backward_delta_r",
+      "family": "other",
+      "mean_abs_shap": 0.0930284399,
+      "mean_shap": -0.0041311007,
+      "shap_std": 0.1446332422,
+      "importance_kind": "shap"
+    },
+    {
+      "column": "chi2_per_ndf",
+      "family": "tracker",
+      "mean_abs_shap": 0.0914355329,
+      "mean_shap": 0.0333924223,
+      "shap_std": 0.1233980102,
+      "importance_kind": "shap"
+    },
+    {
+      "column": "ecal_backward_delta_r",
+      "family": "calorimeter",
+      "mean_abs_shap": 0.0814343327,
+      "mean_shap": -0.0119359732,
+      "shap_std": 0.1724112633,
+      "importance_kind": "shap"
+    },
+    {
+      "column": "chi2",
+      "family": "tracker",
+      "mean_abs_shap": 0.0813785778,
+      "mean_shap": -0.0337320671,
+      "shap_std": 0.1042077874,
+      "importance_kind": "shap"
+    },
+    {
+      "column": "ecal_backward_shape_6",
+      "family": "calorimeter",
+      "mean_abs_shap": 0.0510193,
+      "mean_shap": -0.0028048487,
+      "shap_std": 0.0717556087,
+      "importance_kind": "shap"
+    },
+    {
+      "column": "ecal_backward_shape_5",
+      "family": "calorimeter",
+      "mean_abs_shap": 0.0491169348,
+      "mean_shap": -0.0071818368,
+      "shap_std": 0.0586186336,
+      "importance_kind": "shap"
+    },
+    {
+      "column": "leakage_backward",
+      "family": "calorimeter",
+      "mean_abs_shap": 0.0395049942,
+      "mean_shap": 0.002451522,
+      "shap_std": 0.0552926308,
+      "importance_kind": "shap"
+    },
+    {
+      "column": "hcal_backward_E",
+      "family": "other",
+      "mean_abs_shap": 0.0370681038,
+      "mean_shap": 0.0014623007,
+      "shap_std": 0.0670890543,
+      "importance_kind": "shap"
+    },
+    {
+      "column": "ecal_backward_shape_4",
+      "family": "calorimeter",
+      "mean_abs_shap": 0.0314789278,
+      "mean_shap": -0.0018948942,
+      "shap_std": 0.0477036623,
+      "importance_kind": "shap"
+    },
+    {
+      "column": "hcal_backward_n",
+      "family": "other",
+      "mean_abs_shap": 0.0281707268,
+      "mean_shap": 0.0055345956,
+      "shap_std": 0.0840651551,
+      "importance_kind": "shap"
+    },
+    {
+      "column": "ecal_backward_t",
+      "family": "calorimeter",
+      "mean_abs_shap": 0.0097889161,
+      "mean_shap": 0.0001764881,
+      "shap_std": 0.0435467697,
       "importance_kind": "shap"
     },
     {
       "column": "e_over_p_forward",
-      "family": "calorimeter",
-      "mean_abs_shap": 0.0,
-      "mean_shap": 0.0,
-      "shap_std": 0.0,
-      "importance_kind": "shap"
-    },
-    {
-      "column": "e_hcal_forward",
       "family": "calorimeter",
       "mean_abs_shap": 0.0,
       "mean_shap": 0.0,
@@ -260,6 +244,22 @@
       "importance_kind": "shap"
     },
     {
+      "column": "e_hcal_forward",
+      "family": "calorimeter",
+      "mean_abs_shap": 0.0,
+      "mean_shap": 0.0,
+      "shap_std": 0.0,
+      "importance_kind": "shap"
+    },
+    {
+      "column": "ecal_backward_has_shape",
+      "family": "calorimeter",
+      "mean_abs_shap": 0.0,
+      "mean_shap": 0.0,
+      "shap_std": 0.0,
+      "importance_kind": "shap"
+    },
+    {
       "column": "drich_gas_pathlength",
       "family": "cherenkov",
       "mean_abs_shap": 0.0,
@@ -268,7 +268,7 @@
       "importance_kind": "shap"
     },
     {
-      "column": "ecal_forward_shape_3",
+      "column": "ecal_forward_E",
       "family": "calorimeter",
       "mean_abs_shap": 0.0,
       "mean_shap": 0.0,
@@ -276,7 +276,7 @@
       "importance_kind": "shap"
     },
     {
-      "column": "ecal_forward_E",
+      "column": "ecal_forward_delta_r",
       "family": "calorimeter",
       "mean_abs_shap": 0.0,
       "mean_shap": 0.0,
@@ -292,7 +292,7 @@
       "importance_kind": "shap"
     },
     {
-      "column": "ecal_forward_delta_r",
+      "column": "ecal_forward_n",
       "family": "calorimeter",
       "mean_abs_shap": 0.0,
       "mean_shap": 0.0,
@@ -324,7 +324,7 @@
       "importance_kind": "shap"
     },
     {
-      "column": "ecal_forward_n",
+      "column": "ecal_forward_shape_3",
       "family": "calorimeter",
       "mean_abs_shap": 0.0,
       "mean_shap": 0.0,
@@ -333,6 +333,14 @@
     },
     {
       "column": "has_ecal_forward",
+      "family": "calorimeter",
+      "mean_abs_shap": 0.0,
+      "mean_shap": 0.0,
+      "shap_std": 0.0,
+      "importance_kind": "shap"
+    },
+    {
+      "column": "has_ecal_backward",
       "family": "calorimeter",
       "mean_abs_shap": 0.0,
       "mean_shap": 0.0,
@@ -364,14 +372,6 @@
       "importance_kind": "shap"
     },
     {
-      "column": "ecal_forward_shape_5",
-      "family": "calorimeter",
-      "mean_abs_shap": 0.0,
-      "mean_shap": 0.0,
-      "shap_std": 0.0,
-      "importance_kind": "shap"
-    },
-    {
       "column": "ecal_forward_shape_6",
       "family": "calorimeter",
       "mean_abs_shap": 0.0,
@@ -380,7 +380,7 @@
       "importance_kind": "shap"
     },
     {
-      "column": "ecal_forward_shape_4",
+      "column": "ecal_forward_shape_5",
       "family": "calorimeter",
       "mean_abs_shap": 0.0,
       "mean_shap": 0.0,
@@ -388,7 +388,7 @@
       "importance_kind": "shap"
     },
     {
-      "column": "has_hcal_backward",
+      "column": "ecal_forward_shape_4",
       "family": "calorimeter",
       "mean_abs_shap": 0.0,
       "mean_shap": 0.0,
@@ -420,8 +420,8 @@
       "importance_kind": "shap"
     },
     {
-      "column": "hcal_backward_E",
-      "family": "other",
+      "column": "has_hcal_backward",
+      "family": "calorimeter",
       "mean_abs_shap": 0.0,
       "mean_shap": 0.0,
       "shap_std": 0.0,

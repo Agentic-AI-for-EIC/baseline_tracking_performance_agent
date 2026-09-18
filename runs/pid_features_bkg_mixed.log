@@ -1,1 +1,12 @@
 + python -m pid features --file-list filelists/bkg_200.txt --dataset-tag bkg_mixed --max-file-failures 20 --cache-dir cache/pid_features --out output/pid-features_bkg_mixed.pkl
+[io] WARNING: skipping file (1/21 allowed failures): root://hpceph-xrootd.twgrid.org:1094//cephfs/epic//RECO/26.07.1/epic_craterlake/Bkg_Exact1S_2us/GoldCt/10um/DIS/NC/10x100/minQ2=1/pythia8NCDIS_10x100_minQ2=1_beamEffects_xAngle=-0.025_hiDiv_1.0008.eicrecon.edm4eic.root
+  File did not vector_read properly: [ERROR] Operation expired
+[io] WARNING: 1/1 files skipped due to I/O errors — results may have reduced statistics.
+[features] 10/200 files
+[io] WARNING: skipping file (1/21 allowed failures): root://hpceph-xrootd.twgrid.org:1094//cephfs/epic//RECO/26.07.1/epic_craterlake/Bkg_Exact1S_2us/GoldCt/10um/DIS/NC/10x100/minQ2=1/pythia8NCDIS_10x100_minQ2=1_beamEffects_xAngle=-0.025_hiDiv_1.0028.eicrecon.edm4eic.root
+  File did not vector_read properly: [ERROR] Operation expired
+[io] WARNING: 1/1 files skipped due to I/O errors — results may have reduced statistics.
+[features] 20/200 files
+[io] WARNING: skipping file (1/21 allowed failures): root://hpceph-xrootd.twgrid.org:1094//cephfs/epic//RECO/26.07.1/epic_craterlake/Bkg_Exact1S_2us/GoldCt/10um/DIS/NC/10x100/minQ2=1/pythia8NCDIS_10x100_minQ2=1_beamEffects_xAngle=-0.025_hiDiv_1.0035.eicrecon.edm4eic.root
+  File did not vector_read properly: [ERROR] Operation expired
+[io] WARNING: 1/1 files skipped due to I/O errors — results may have reduced statistics.

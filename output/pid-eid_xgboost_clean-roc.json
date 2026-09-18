@@ -1,0 +1,1451 @@
+{
+  "meta": {
+    "pipeline": "pid",
+    "schema_version": "pid-v1",
+    "campaigns": {
+      "clean": "26.02.0",
+      "bkg_mixed": "26.07.1"
+    },
+    "match_weight_threshold": 0.5,
+    "min_track_p": 1.0,
+    "delta_r_max": 0.3,
+    "min_entries_per_bin": 50,
+    "fake_rate_targets": [
+      0.01,
+      0.001,
+      0.0001
+    ],
+    "excluded_columns": [
+      "charge"
+    ],
+    "n_jobs": 1,
+    "random_seed": 1234,
+    "libraries": {
+      "lightgbm": "4.7.0",
+      "xgboost": "3.4.1",
+      "sklearn": "1.9.1",
+      "numpy": "2.4.6",
+      "pandas": "3.0.3",
+      "awkward": "2.9.0",
+      "uproot": "5.7.1",
+      "torch": "2.12.0",
+      "ROOT": "6.40.04",
+      "problems": "none"
+    },
+    "numpy_path": "/home/wxie/.eic_python_pkgs/numpy/__init__.py",
+    "artifact": "roc",
+    "task": "eid",
+    "model": "xgboost",
+    "dataset_tag": "clean",
+    "scores_table": "output/models/eid_xgboost_clean/test_scores.pkl",
+    "n_files_scored": 38,
+    "n_events_scored": 1083,
+    "n_rows_scored": 40369,
+    "n_signal": 38314,
+    "n_background": 2055,
+    "campaign": "26.02.0",
+    "written_at_utc": "2026-09-18T13:02:28.928125+00:00"
+  },
+  "data": [
+    {
+      "fake_rate": 0.0,
+      "efficiency": 0.0,
+      "threshold": null,
+      "signal": "e",
+      "against": "pi"
+    },
+    {
+      "fake_rate": 0.0,
+      "efficiency": 0.0004959023,
+      "threshold": 0.9796861152,
+      "signal": "e",
+      "against": "pi"
+    },
+    {
+      "fake_rate": 0.0,
+      "efficiency": 0.0026361121,
+      "threshold": 0.9796859878,
+      "signal": "e",
+      "against": "pi"
+    },
+    {
+      "fake_rate": 0.0,
+      "efficiency": 0.0102312471,
+      "threshold": 0.97968581,
+      "signal": "e",
+      "against": "pi"
+    },
+    {
+      "fake_rate": 0.0,
+      "efficiency": 0.0129456596,
+      "threshold": 0.9796857676,
+      "signal": "e",
+      "against": "pi"
+    },
+    {
+      "fake_rate": 0.0,
+      "efficiency": 0.0142767657,
+      "threshold": 0.9796857479,
+      "signal": "e",
+      "against": "pi"
+    },
+    {
+      "fake_rate": 0.0,
+      "efficiency": 0.0250300151,
+      "threshold": 0.9796856185,
+      "signal": "e",
+      "against": "pi"
+    },
+    {
+      "fake_rate": 0.0,
+      "efficiency": 0.033251553,
+      "threshold": 0.9796855463,
+      "signal": "e",
+      "against": "pi"
+    },
+    {
+      "fake_rate": 0.0,
+      "efficiency": 0.0397504829,
+      "threshold": 0.9796854952,
+      "signal": "e",
+      "against": "pi"
+    },
+    {
+      "fake_rate": 0.0,
+      "efficiency": 0.0505037323,
+      "threshold": 0.9796854072,
+      "signal": "e",
+      "against": "pi"
+    },
+    {
+      "fake_rate": 0.0,
+      "efficiency": 0.054575351,
+      "threshold": 0.9796853798,
+      "signal": "e",
+      "against": "pi"
+    },
+    {
+      "fake_rate": 0.0,
+      "efficiency": 0.057394164,
+      "threshold": 0.9796853588,
+      "signal": "e",
+      "against": "pi"
+    },
+    {
+      "fake_rate": 0.0,
+      "efficiency": 0.0679125124,
+      "threshold": 0.9796852913,
+      "signal": "e",
+      "against": "pi"
+    },
+    {
+      "fake_rate": 0.0,
+      "efficiency": 0.0802056689,
+      "threshold": 0.979685217,
+      "signal": "e",
+      "against": "pi"
+    },
+    {
+      "fake_rate": 0.0,
+      "efficiency": 0.0891841102,
+      "threshold": 0.9796851692,
+      "signal": "e",
+      "against": "pi"
+    },
+    {
+      "fake_rate": 0.0,
+      "efficiency": 0.1029910738,
+      "threshold": 0.9796850824,
+      "signal": "e",
+      "against": "pi"
+    },
+    {
+      "fake_rate": 0.0,
+      "efficiency": 0.1175027405,
+      "threshold": 0.9796850073,
+      "signal": "e",
+      "against": "pi"
+    },
+    {
+      "fake_rate": 0.0,
+      "efficiency": 0.1237928694,
+      "threshold": 0.9796849718,
+      "signal": "e",
+      "against": "pi"
+    },
+    {
+      "fake_rate": 0.0,
+      "efficiency": 0.1246280733,
+      "threshold": 0.9796849676,
+      "signal": "e",
+      "against": "pi"
+    },
+    {
+      "fake_rate": 0.0,
+      "efficiency": 0.1412799499,
+      "threshold": 0.9796848835,
+      "signal": "e",
+      "against": "pi"
+    },
+    {
+      "fake_rate": 0.0,
+      "efficiency": 0.1556350159,
+      "threshold": 0.9796848056,
+      "signal": "e",
+      "against": "pi"
+    },
+    {
+      "fake_rate": 0.0,
+      "efficiency": 0.1791512241,
+      "threshold": 0.9796846884,
+      "signal": "e",
+      "against": "pi"
+    },
+    {
+      "fake_rate": 0.0,
+      "efficiency": 0.1977867098,
+      "threshold": 0.9796845917,
+      "signal": "e",
+      "against": "pi"
+    },
+    {
+      "fake_rate": 0.0,
+      "efficiency": 0.2239651302,
+      "threshold": 0.9796844588,
+      "signal": "e",
+      "against": "pi"
+    },
+    {
+      "fake_rate": 0.0,
+      "efficiency": 0.3476535992,
+      "threshold": 0.9796837595,
+      "signal": "e",
+      "against": "pi"
+    },
+    {
+      "fake_rate": 0.0,
+      "efficiency": 0.4950931774,
+      "threshold": 0.9796826451,
+      "signal": "e",
+      "against": "pi"
+    },
+    {
+      "fake_rate": 0.0,
+      "efficiency": 0.572610534,
+      "threshold": 0.979681743,
+      "signal": "e",
+      "against": "pi"
+    },
+    {
+      "fake_rate": 0.000973236,
+      "efficiency": 0.9528109829,
+      "threshold": 0.9733302339,
+      "signal": "e",
+      "against": "pi"
+    },
+    {
+      "fake_rate": 0.001459854,
+      "efficiency": 0.957822206,
+      "threshold": 0.9678681749,
+      "signal": "e",
+      "against": "pi"
+    },
+    {
+      "fake_rate": 0.00243309,
+      "efficiency": 0.9582398079,
+      "threshold": 0.9672883081,
+      "signal": "e",
+      "against": "pi"
+    },
+    {
+      "fake_rate": 0.003406326,
+      "efficiency": 0.9601451167,
+      "threshold": 0.9635319764,
+      "signal": "e",
+      "against": "pi"
+    },
+    {
+      "fake_rate": 0.004379562,
+      "efficiency": 0.9617633241,
+      "threshold": 0.9590955002,
+      "signal": "e",
+      "against": "pi"
+    },
+    {
+      "fake_rate": 0.0053527981,
+      "efficiency": 0.9623114266,
+      "threshold": 0.9575181673,
+      "signal": "e",
+      "against": "pi"
+    },
+    {
+      "fake_rate": 0.0058394161,
+      "efficiency": 0.9632771311,
+      "threshold": 0.9547482026,
+      "signal": "e",
+      "against": "pi"
+    },
+    {
+      "fake_rate": 0.0068126521,
+      "efficiency": 0.9646343373,
+      "threshold": 0.9496313875,
+      "signal": "e",
+      "against": "pi"
+    },
+    {
+      "fake_rate": 0.0077858881,
+      "efficiency": 0.9653129404,
+      "threshold": 0.9456196271,
+      "signal": "e",
+      "against": "pi"
+    },
+    {
+      "fake_rate": 0.0087591241,
+      "efficiency": 0.9660698439,
+      "threshold": 0.9431615484,
+      "signal": "e",
+      "against": "pi"
+    },
+    {
+      "fake_rate": 0.0092457421,
+      "efficiency": 0.9672704494,
+      "threshold": 0.933583092,
+      "signal": "e",
+      "against": "pi"
+    },
+    {
+      "fake_rate": 0.0102189781,
+      "efficiency": 0.9692018583,
+      "threshold": 0.9128034963,
+      "signal": "e",
+      "against": "pi"
+    },
+    {
+      "fake_rate": 0.0111922141,
+      "efficiency": 0.9694628595,
+      "threshold": 0.9092514353,
+      "signal": "e",
+      "against": "pi"
+    },
+    {
+      "fake_rate": 0.0121654501,
+      "efficiency": 0.9709766665,
+      "threshold": 0.8858729667,
+      "signal": "e",
+      "against": "pi"
+    },
+    {
+      "fake_rate": 0.0126520681,
+      "efficiency": 0.9717596701,
+      "threshold": 0.871557227,
+      "signal": "e",
+      "against": "pi"
+    },
+    {
+      "fake_rate": 0.0136253041,
+      "efficiency": 0.9726992744,
+      "threshold": 0.8543269094,
+      "signal": "e",
+      "against": "pi"
+    },
+    {
+      "fake_rate": 0.0150851582,
+      "efficiency": 0.972829775,
+      "threshold": 0.8475389697,
+      "signal": "e",
+      "against": "pi"
+    },
+    {
+      "fake_rate": 0.0155717762,
+      "efficiency": 0.9730907762,
+      "threshold": 0.8381128424,
+      "signal": "e",
+      "against": "pi"
+    },
+    {
+      "fake_rate": 0.0160583942,
+      "efficiency": 0.9732473769,
+      "threshold": 0.8305609805,
+      "signal": "e",
+      "against": "pi"
+    },
+    {
+      "fake_rate": 0.0165450122,
+      "efficiency": 0.9740564807,
+      "threshold": 0.809353057,
+      "signal": "e",
+      "against": "pi"
+    },
+    {
+      "fake_rate": 0.0175182482,
+      "efficiency": 0.9748394843,
+      "threshold": 0.7717002101,
+      "signal": "e",
+      "against": "pi"
+    },
+    {
+      "fake_rate": 0.0184914842,
+      "efficiency": 0.9753353865,
+      "threshold": 0.7534275931,
+      "signal": "e",
+      "against": "pi"
+    },
+    {
+      "fake_rate": 0.0199513382,
+      "efficiency": 0.9760139897,
+      "threshold": 0.7254812136,
+      "signal": "e",
+      "against": "pi"
+    },
+    {
+      "fake_rate": 0.0204379562,
+      "efficiency": 0.9763271911,
+      "threshold": 0.7098857377,
+      "signal": "e",
+      "against": "pi"
+    },
+    {
+      "fake_rate": 0.0214111922,
+      "efficiency": 0.9772406953,
+      "threshold": 0.6691152265,
+      "signal": "e",
+      "against": "pi"
+    },
+    {
+      "fake_rate": 0.0223844282,
+      "efficiency": 0.9772667954,
+      "threshold": 0.6629848815,
+      "signal": "e",
+      "against": "pi"
+    },
+    {
+      "fake_rate": 0.0233576642,
+      "efficiency": 0.9785457013,
+      "threshold": 0.5938244946,
+      "signal": "e",
+      "against": "pi"
+    },
+    {
+      "fake_rate": 0.0238442822,
+      "efficiency": 0.9788589028,
+      "threshold": 0.5848264536,
+      "signal": "e",
+      "against": "pi"
+    },
+    {
+      "fake_rate": 0.0248175182,
+      "efficiency": 0.9789633032,
+      "threshold": 0.5798924726,
+      "signal": "e",
+      "against": "pi"
+    },
+    {
+      "fake_rate": 0.0257907543,
+      "efficiency": 0.9790155035,
+      "threshold": 0.5760942415,
+      "signal": "e",
+      "against": "pi"
+    },
+    {
+      "fake_rate": 0.0272506083,
+      "efficiency": 0.9791982043,
+      "threshold": 0.5660988254,
+      "signal": "e",
+      "against": "pi"
+    },
+    {
+      "fake_rate": 0.0282238443,
+      "efficiency": 0.9796158062,
+      "threshold": 0.5339794075,
+      "signal": "e",
+      "against": "pi"
+    },
+    {
+      "fake_rate": 0.0296836983,
+      "efficiency": 0.9798507073,
+      "threshold": 0.523335621,
+      "signal": "e",
+      "against": "pi"
+    },
+    {
+      "fake_rate": 0.0306569343,
+      "efficiency": 0.9801117085,
+      "threshold": 0.5129606914,
+      "signal": "e",
+      "against": "pi"
+    },
+    {
+      "fake_rate": 0.0316301703,
+      "efficiency": 0.9804510101,
+      "threshold": 0.4937728983,
+      "signal": "e",
+      "against": "pi"
+    },
+    {
+      "fake_rate": 0.0326034063,
+      "efficiency": 0.9814428146,
+      "threshold": 0.4159350862,
+      "signal": "e",
+      "against": "pi"
+    },
+    {
+      "fake_rate": 0.0330900243,
+      "efficiency": 0.982173618,
+      "threshold": 0.3889377096,
+      "signal": "e",
+      "against": "pi"
+    },
+    {
+      "fake_rate": 0.0345498783,
+      "efficiency": 0.9825651198,
+      "threshold": 0.3683541934,
+      "signal": "e",
+      "against": "pi"
+    },
+    {
+      "fake_rate": 0.0355231144,
+      "efficiency": 0.98261732,
+      "threshold": 0.3628829472,
+      "signal": "e",
+      "against": "pi"
+    },
+    {
+      "fake_rate": 0.0369829684,
+      "efficiency": 0.9828783212,
+      "threshold": 0.3495188744,
+      "signal": "e",
+      "against": "pi"
+    },
+    {
+      "fake_rate": 0.0374695864,
+      "efficiency": 0.9832176228,
+      "threshold": 0.333421514,
+      "signal": "e",
+      "against": "pi"
+    },
+    {
+      "fake_rate": 0.0384428224,
+      "efficiency": 0.9834264238,
+      "threshold": 0.326879831,
+      "signal": "e",
+      "against": "pi"
+    },
+    {
+      "fake_rate": 0.0399026764,
+      "efficiency": 0.9835830245,
+      "threshold": 0.3154891738,
+      "signal": "e",
+      "against": "pi"
+    },
+    {
+      "fake_rate": 0.0408759124,
+      "efficiency": 0.9838701258,
+      "threshold": 0.3028862132,
+      "signal": "e",
+      "against": "pi"
+    },
+    {
+      "fake_rate": 0.0413625304,
+      "efficiency": 0.9840267265,
+      "threshold": 0.2963071054,
+      "signal": "e",
+      "against": "pi"
+    },
+    {
+      "fake_rate": 0.0423357664,
+      "efficiency": 0.9847314298,
+      "threshold": 0.2742853897,
+      "signal": "e",
+      "against": "pi"
+    },
+    {
+      "fake_rate": 0.0447688564,
+      "efficiency": 0.9848358302,
+      "threshold": 0.2664344506,
+      "signal": "e",
+      "against": "pi"
+    },
+    {
+      "fake_rate": 0.0457420925,
+      "efficiency": 0.985227332,
+      "threshold": 0.2371019252,
+      "signal": "e",
+      "against": "pi"
+    },
+    {
+      "fake_rate": 0.0462287105,
+      "efficiency": 0.9855405335,
+      "threshold": 0.2233383506,
+      "signal": "e",
+      "against": "pi"
+    },
+    {
+      "fake_rate": 0.0472019465,
+      "efficiency": 0.9858537349,
+      "threshold": 0.2103587979,
+      "signal": "e",
+      "against": "pi"
+    },
+    {
+      "fake_rate": 0.0481751825,
+      "efficiency": 0.9859581354,
+      "threshold": 0.1994209206,
+      "signal": "e",
+      "against": "pi"
+    },
+    {
+      "fake_rate": 0.0491484185,
+      "efficiency": 0.9860103356,
+      "threshold": 0.1966590726,
+      "signal": "e",
+      "against": "pi"
+    },
+    {
+      "fake_rate": 0.0501216545,
+      "efficiency": 0.9862713368,
+      "threshold": 0.1807338803,
+      "signal": "e",
+      "against": "pi"
+    },
+    {
+      "fake_rate": 0.0520681265,
+      "efficiency": 0.9864801378,
+      "threshold": 0.1690974885,
+      "signal": "e",
+      "against": "pi"
+    },
+    {
+      "fake_rate": 0.0535279805,
+      "efficiency": 0.9867150389,
+      "threshold": 0.1627948566,
+      "signal": "e",
+      "against": "pi"
+    },
+    {
+      "fake_rate": 0.0549878345,
+      "efficiency": 0.9868977397,
+      "threshold": 0.1595392118,
+      "signal": "e",
+      "against": "pi"
+    },
+    {
+      "fake_rate": 0.0559610706,
+      "efficiency": 0.9870282403,
+      "threshold": 0.1531615519,
+      "signal": "e",
+      "against": "pi"
+    },
+    {
+      "fake_rate": 0.0564476886,
+      "efficiency": 0.9871848411,
+      "threshold": 0.1446043115,
+      "signal": "e",
+      "against": "pi"
+    },
+    {
+      "fake_rate": 0.0574209246,
+      "efficiency": 0.987393642,
+      "threshold": 0.1387685138,
+      "signal": "e",
+      "against": "pi"
+    },
+    {
+      "fake_rate": 0.0583941606,
+      "efficiency": 0.9875502427,
+      "threshold": 0.1347564706,
+      "signal": "e",
+      "against": "pi"
+    },
+    {
+      "fake_rate": 0.0593673966,
+      "efficiency": 0.9877329436,
+      "threshold": 0.1255664158,
+      "signal": "e",
+      "against": "pi"
+    },
+    {
+      "fake_rate": 0.0613138686,
+      "efficiency": 0.9877851438,
+      "threshold": 0.1216351713,
+      "signal": "e",
+      "against": "pi"
+    },
+    {
+      "fake_rate": 0.0627737226,
+      "efficiency": 0.9878895443,
+      "threshold": 0.1171051526,
+      "signal": "e",
+      "against": "pi"
+    },
+    {
+      "fake_rate": 0.0637469586,
+      "efficiency": 0.9879678447,
+      "threshold": 0.1137721738,
+      "signal": "e",
+      "against": "pi"
+    },
+    {
+      "fake_rate": 0.0652068127,
+      "efficiency": 0.9882288459,
+      "threshold": 0.1042456443,
+      "signal": "e",
+      "against": "pi"
+    },
+    {
+      "fake_rate": 0.0661800487,
+      "efficiency": 0.9884898471,
+      "threshold": 0.0929157734,
+      "signal": "e",
+      "against": "pi"
+    },
+    {
+      "fake_rate": 0.0666666667,
+      "efficiency": 0.9887508483,
+      "threshold": 0.0873540015,
+      "signal": "e",
+      "against": "pi"
+    },
+    {
+      "fake_rate": 0.0676399027,
+      "efficiency": 0.9888291486,
+      "threshold": 0.0854834563,
+      "signal": "e",
+      "against": "pi"
+    },
+    {
+      "fake_rate": 0.0690997567,
+      "efficiency": 0.9888552487,
+      "threshold": 0.0838898193,
+      "signal": "e",
+      "against": "pi"
+    },
+    {
+      "fake_rate": 0.0700729927,
+      "efficiency": 0.9892467505,
+      "threshold": 0.0781424214,
+      "signal": "e",
+      "against": "pi"
+    },
+    {
+      "fake_rate": 0.0705596107,
+      "efficiency": 0.9895860521,
+      "threshold": 0.0706030445,
+      "signal": "e",
+      "against": "pi"
+    },
+    {
+      "fake_rate": 0.0715328467,
+      "efficiency": 0.9897426528,
+      "threshold": 0.0662493006,
+      "signal": "e",
+      "against": "pi"
+    },
+    {
+      "fake_rate": 0.0725060827,
+      "efficiency": 0.9897687529,
+      "threshold": 0.0640909172,
+      "signal": "e",
+      "against": "pi"
+    },
+    {
+      "fake_rate": 0.0729927007,
+      "efficiency": 0.9900558543,
+      "threshold": 0.059443244,
+      "signal": "e",
+      "against": "pi"
+    },
+    {
+      "fake_rate": 0.0739659367,
+      "efficiency": 0.9901602547,
+      "threshold": 0.058806974,
+      "signal": "e",
+      "against": "pi"
+    },
+    {
+      "fake_rate": 0.0749391727,
+      "efficiency": 0.9902646552,
+      "threshold": 0.0579401116,
+      "signal": "e",
+      "against": "pi"
+    },
+    {
+      "fake_rate": 0.0754257908,
+      "efficiency": 0.9904212559,
+      "threshold": 0.0550701363,
+      "signal": "e",
+      "against": "pi"
+    },
+    {
+      "fake_rate": 0.0763990268,
+      "efficiency": 0.9910998591,
+      "threshold": 0.0480806267,
+      "signal": "e",
+      "against": "pi"
+    },
+    {
+      "fake_rate": 0.0773722628,
+      "efficiency": 0.9911259592,
+      "threshold": 0.0473593101,
+      "signal": "e",
+      "against": "pi"
+    },
+    {
+      "fake_rate": 0.0788321168,
+      "efficiency": 0.9915435611,
+      "threshold": 0.0444515406,
+      "signal": "e",
+      "against": "pi"
+    },
+    {
+      "fake_rate": 0.0793187348,
+      "efficiency": 0.9915957613,
+      "threshold": 0.0443275097,
+      "signal": "e",
+      "against": "pi"
+    },
+    {
+      "fake_rate": 0.0802919708,
+      "efficiency": 0.9916479616,
+      "threshold": 0.043693361,
+      "signal": "e",
+      "against": "pi"
+    },
+    {
+      "fake_rate": 0.0812652068,
+      "efficiency": 0.9921438639,
+      "threshold": 0.0395065193,
+      "signal": "e",
+      "against": "pi"
+    },
+    {
+      "fake_rate": 0.0822384428,
+      "efficiency": 0.992169964,
+      "threshold": 0.0390711749,
+      "signal": "e",
+      "against": "pi"
+    },
+    {
+      "fake_rate": 0.0832116788,
+      "efficiency": 0.9924048651,
+      "threshold": 0.0369963743,
+      "signal": "e",
+      "against": "pi"
+    },
+    {
+      "fake_rate": 0.0836982968,
+      "efficiency": 0.9925353657,
+      "threshold": 0.0355487734,
+      "signal": "e",
+      "against": "pi"
+    },
+    {
+      "fake_rate": 0.0846715328,
+      "efficiency": 0.9927702667,
+      "threshold": 0.0338297773,
+      "signal": "e",
+      "against": "pi"
+    },
+    {
+      "fake_rate": 0.0861313869,
+      "efficiency": 0.9928485671,
+      "threshold": 0.0334053102,
+      "signal": "e",
+      "against": "pi"
+    },
+    {
+      "fake_rate": 0.0871046229,
+      "efficiency": 0.9931095683,
+      "threshold": 0.0311208469,
+      "signal": "e",
+      "against": "pi"
+    },
+    {
+      "fake_rate": 0.0890510949,
+      "efficiency": 0.9932139688,
+      "threshold": 0.0303725282,
+      "signal": "e",
+      "against": "pi"
+    },
+    {
+      "fake_rate": 0.0900243309,
+      "efficiency": 0.9933183693,
+      "threshold": 0.0301824753,
+      "signal": "e",
+      "against": "pi"
+    },
+    {
+      "fake_rate": 0.0909975669,
+      "efficiency": 0.9933444694,
+      "threshold": 0.0300348338,
+      "signal": "e",
+      "against": "pi"
+    },
+    {
+      "fake_rate": 0.0929440389,
+      "efficiency": 0.99347497,
+      "threshold": 0.0291423236,
+      "signal": "e",
+      "against": "pi"
+    },
+    {
+      "fake_rate": 0.0939172749,
+      "efficiency": 0.9936054706,
+      "threshold": 0.0283542681,
+      "signal": "e",
+      "against": "pi"
+    },
+    {
+      "fake_rate": 0.0948905109,
+      "efficiency": 0.9938142715,
+      "threshold": 0.0275938777,
+      "signal": "e",
+      "against": "pi"
+    },
+    {
+      "fake_rate": 0.095863747,
+      "efficiency": 0.9938925719,
+      "threshold": 0.0269427375,
+      "signal": "e",
+      "against": "pi"
+    },
+    {
+      "fake_rate": 0.097323601,
+      "efficiency": 0.9939969724,
+      "threshold": 0.0263377697,
+      "signal": "e",
+      "against": "pi"
+    },
+    {
+      "fake_rate": 0.099270073,
+      "efficiency": 0.9943362739,
+      "threshold": 0.0239888606,
+      "signal": "e",
+      "against": "pi"
+    },
+    {
+      "fake_rate": 0.099756691,
+      "efficiency": 0.9943884742,
+      "threshold": 0.023538424,
+      "signal": "e",
+      "against": "pi"
+    },
+    {
+      "fake_rate": 0.101216545,
+      "efficiency": 0.9945450749,
+      "threshold": 0.0227609554,
+      "signal": "e",
+      "against": "pi"
+    },
+    {
+      "fake_rate": 0.103163017,
+      "efficiency": 0.9946494754,
+      "threshold": 0.0220825816,
+      "signal": "e",
+      "against": "pi"
+    },
+    {
+      "fake_rate": 0.1051094891,
+      "efficiency": 0.9948582763,
+      "threshold": 0.0212419864,
+      "signal": "e",
+      "against": "pi"
+    },
+    {
+      "fake_rate": 0.1065693431,
+      "efficiency": 0.9949104766,
+      "threshold": 0.0207241762,
+      "signal": "e",
+      "against": "pi"
+    },
+    {
+      "fake_rate": 0.1085158151,
+      "efficiency": 0.9950148771,
+      "threshold": 0.0203737997,
+      "signal": "e",
+      "against": "pi"
+    },
+    {
+      "fake_rate": 0.1094890511,
+      "efficiency": 0.9950931774,
+      "threshold": 0.0198803987,
+      "signal": "e",
+      "against": "pi"
+    },
+    {
+      "fake_rate": 0.1104622871,
+      "efficiency": 0.9951975779,
+      "threshold": 0.0194237777,
+      "signal": "e",
+      "against": "pi"
+    },
+    {
+      "fake_rate": 0.1114355231,
+      "efficiency": 0.9954063789,
+      "threshold": 0.0186254197,
+      "signal": "e",
+      "against": "pi"
+    },
+    {
+      "fake_rate": 0.1133819951,
+      "efficiency": 0.9955107793,
+      "threshold": 0.0179372001,
+      "signal": "e",
+      "against": "pi"
+    },
+    {
+      "fake_rate": 0.1143552311,
+      "efficiency": 0.9955368795,
+      "threshold": 0.0174469489,
+      "signal": "e",
+      "against": "pi"
+    },
+    {
+      "fake_rate": 0.1153284672,
+      "efficiency": 0.9956673801,
+      "threshold": 0.0169031946,
+      "signal": "e",
+      "against": "pi"
+    },
+    {
+      "fake_rate": 0.1158150852,
+      "efficiency": 0.9957978807,
+      "threshold": 0.0166169767,
+      "signal": "e",
+      "against": "pi"
+    },
+    {
+      "fake_rate": 0.1177615572,
+      "efficiency": 0.9959022812,
+      "threshold": 0.0157950086,
+      "signal": "e",
+      "against": "pi"
+    },
+    {
+      "fake_rate": 0.1182481752,
+      "efficiency": 0.9960066816,
+      "threshold": 0.0156665768,
+      "signal": "e",
+      "against": "pi"
+    },
+    {
+      "fake_rate": 0.1201946472,
+      "efficiency": 0.9960327818,
+      "threshold": 0.0152627593,
+      "signal": "e",
+      "against": "pi"
+    },
+    {
+      "fake_rate": 0.1211678832,
+      "efficiency": 0.9961632824,
+      "threshold": 0.0148150781,
+      "signal": "e",
+      "against": "pi"
+    },
+    {
+      "fake_rate": 0.1226277372,
+      "efficiency": 0.9963720833,
+      "threshold": 0.0141808164,
+      "signal": "e",
+      "against": "pi"
+    },
+    {
+      "fake_rate": 0.1255474453,
+      "efficiency": 0.9964764838,
+      "threshold": 0.0136890282,
+      "signal": "e",
+      "against": "pi"
+    },
+    {
+      "fake_rate": 0.1265206813,
+      "efficiency": 0.9965025839,
+      "threshold": 0.0135304712,
+      "signal": "e",
+      "against": "pi"
+    },
+    {
+      "fake_rate": 0.1289537713,
+      "efficiency": 0.9966852848,
+      "threshold": 0.0127308265,
+      "signal": "e",
+      "against": "pi"
+    },
+    {
+      "fake_rate": 0.1323600973,
+      "efficiency": 0.9967896852,
+      "threshold": 0.011771315,
+      "signal": "e",
+      "against": "pi"
+    },
+    {
+      "fake_rate": 0.1333333333,
+      "efficiency": 0.9968940857,
+      "threshold": 0.0116084604,
+      "signal": "e",
+      "against": "pi"
+    },
+    {
+      "fake_rate": 0.1362530414,
+      "efficiency": 0.9969201858,
+      "threshold": 0.0113150253,
+      "signal": "e",
+      "against": "pi"
+    },
+    {
+      "fake_rate": 0.1406326034,
+      "efficiency": 0.9970245863,
+      "threshold": 0.0107999971,
+      "signal": "e",
+      "against": "pi"
+    },
+    {
+      "fake_rate": 0.1406326034,
+      "efficiency": 0.9972072872,
+      "threshold": 0.0104676849,
+      "signal": "e",
+      "against": "pi"
+    },
+    {
+      "fake_rate": 0.1430656934,
+      "efficiency": 0.9972855875,
+      "threshold": 0.0102773746,
+      "signal": "e",
+      "against": "pi"
+    },
+    {
+      "fake_rate": 0.1445255474,
+      "efficiency": 0.9973638879,
+      "threshold": 0.0100325125,
+      "signal": "e",
+      "against": "pi"
+    },
+    {
+      "fake_rate": 0.1459854015,
+      "efficiency": 0.9974160881,
+      "threshold": 0.0097940947,
+      "signal": "e",
+      "against": "pi"
+    },
+    {
+      "fake_rate": 0.1493917275,
+      "efficiency": 0.9974943885,
+      "threshold": 0.0095224926,
+      "signal": "e",
+      "against": "pi"
+    },
+    {
+      "fake_rate": 0.1523114355,
+      "efficiency": 0.997598789,
+      "threshold": 0.0090779495,
+      "signal": "e",
+      "against": "pi"
+    },
+    {
+      "fake_rate": 0.1547445255,
+      "efficiency": 0.9976509892,
+      "threshold": 0.0088387808,
+      "signal": "e",
+      "against": "pi"
+    },
+    {
+      "fake_rate": 0.1557177616,
+      "efficiency": 0.9977292896,
+      "threshold": 0.0086635173,
+      "signal": "e",
+      "against": "pi"
+    },
+    {
+      "fake_rate": 0.1591240876,
+      "efficiency": 0.9977814898,
+      "threshold": 0.0085290596,
+      "signal": "e",
+      "against": "pi"
+    },
+    {
+      "fake_rate": 0.1596107056,
+      "efficiency": 0.9978597902,
+      "threshold": 0.0083817736,
+      "signal": "e",
+      "against": "pi"
+    },
+    {
+      "fake_rate": 0.1625304136,
+      "efficiency": 0.9979380905,
+      "threshold": 0.0082168684,
+      "signal": "e",
+      "against": "pi"
+    },
+    {
+      "fake_rate": 0.1722627737,
+      "efficiency": 0.9979641906,
+      "threshold": 0.0077129906,
+      "signal": "e",
+      "against": "pi"
+    },
+    {
+      "fake_rate": 0.1737226277,
+      "efficiency": 0.9980163909,
+      "threshold": 0.0075907615,
+      "signal": "e",
+      "against": "pi"
+    },
+    {
+      "fake_rate": 0.1746958637,
+      "efficiency": 0.9980685911,
+      "threshold": 0.0075442709,
+      "signal": "e",
+      "against": "pi"
+    },
+    {
+      "fake_rate": 0.1761557178,
+      "efficiency": 0.9981207914,
+      "threshold": 0.0074793119,
+      "signal": "e",
+      "against": "pi"
+    },
+    {
+      "fake_rate": 0.1790754258,
+      "efficiency": 0.9981990917,
+      "threshold": 0.0073109529,
+      "signal": "e",
+      "against": "pi"
+    },
+    {
+      "fake_rate": 0.1800486618,
+      "efficiency": 0.998251292,
+      "threshold": 0.00723596,
+      "signal": "e",
+      "against": "pi"
+    },
+    {
+      "fake_rate": 0.1863746959,
+      "efficiency": 0.9983034922,
+      "threshold": 0.0070329323,
+      "signal": "e",
+      "against": "pi"
+    },
+    {
+      "fake_rate": 0.202919708,
+      "efficiency": 0.9983817926,
+      "threshold": 0.0065012675,
+      "signal": "e",
+      "against": "pi"
+    },
+    {
+      "fake_rate": 0.2092457421,
+      "efficiency": 0.9984339928,
+      "threshold": 0.0062975482,
+      "signal": "e",
+      "against": "pi"
+    },
+    {
+      "fake_rate": 0.2102189781,
+      "efficiency": 0.9985122932,
+      "threshold": 0.006272111,
+      "signal": "e",
+      "against": "pi"
+    },
+    {
+      "fake_rate": 0.2180048662,
+      "efficiency": 0.9985905935,
+      "threshold": 0.0061069609,
+      "signal": "e",
+      "against": "pi"
+    },
+    {
+      "fake_rate": 0.2214111922,
+      "efficiency": 0.9986166936,
+      "threshold": 0.0060058938,
+      "signal": "e",
+      "against": "pi"
+    },
+    {
+      "fake_rate": 0.2262773723,
+      "efficiency": 0.9986688939,
+      "threshold": 0.0059179538,
+      "signal": "e",
+      "against": "pi"
+    },
+    {
+      "fake_rate": 0.2306569343,
+      "efficiency": 0.9987210941,
+      "threshold": 0.0058206251,
+      "signal": "e",
+      "against": "pi"
+    },
+    {
+      "fake_rate": 0.2491484185,
+      "efficiency": 0.9987993945,
+      "threshold": 0.0056015906,
+      "signal": "e",
+      "against": "pi"
+    },
+    {
+      "fake_rate": 0.2608272506,
+      "efficiency": 0.9988515947,
+      "threshold": 0.0054775543,
+      "signal": "e",
+      "against": "pi"
+    },
+    {
+      "fake_rate": 0.2744525547,
+      "efficiency": 0.998903795,
+      "threshold": 0.0053396995,
+      "signal": "e",
+      "against": "pi"
+    },
+    {
+      "fake_rate": 0.2773722628,
+      "efficiency": 0.9989559952,
+      "threshold": 0.0053075968,
+      "signal": "e",
+      "against": "pi"
+    },
+    {
+      "fake_rate": 0.2822384428,
+      "efficiency": 0.9990081954,
+      "threshold": 0.0052583393,
+      "signal": "e",
+      "against": "pi"
+    },
+    {
+      "fake_rate": 0.2880778589,
+      "efficiency": 0.9990603957,
+      "threshold": 0.0051995231,
+      "signal": "e",
+      "against": "pi"
+    },
+    {
+      "fake_rate": 0.2934306569,
+      "efficiency": 0.9991125959,
+      "threshold": 0.0051715438,
+      "signal": "e",
+      "against": "pi"
+    },
+    {
+      "fake_rate": 0.2948905109,
+      "efficiency": 0.9991647962,
+      "threshold": 0.005159298,
+      "signal": "e",
+      "against": "pi"
+    },
+    {
+      "fake_rate": 0.303163017,
+      "efficiency": 0.9992169964,
+      "threshold": 0.0051199162,
+      "signal": "e",
+      "against": "pi"
+    },
+    {
+      "fake_rate": 0.3153284672,
+      "efficiency": 0.9992691966,
+      "threshold": 0.0050654522,
+      "signal": "e",
+      "against": "pi"
+    },
+    {
+      "fake_rate": 0.3216545012,
+      "efficiency": 0.9992952968,
+      "threshold": 0.0050450919,
+      "signal": "e",
+      "against": "pi"
+    },
+    {
+      "fake_rate": 0.3284671533,
+      "efficiency": 0.999347497,
+      "threshold": 0.0050148233,
+      "signal": "e",
+      "against": "pi"
+    },
+    {
+      "fake_rate": 0.3299270073,
+      "efficiency": 0.9994257974,
+      "threshold": 0.0050107958,
+      "signal": "e",
+      "against": "pi"
+    },
+    {
+      "fake_rate": 0.3493917275,
+      "efficiency": 0.9994779976,
+      "threshold": 0.0049555822,
+      "signal": "e",
+      "against": "pi"
+    },
+    {
+      "fake_rate": 0.3610705596,
+      "efficiency": 0.9995040977,
+      "threshold": 0.0049218933,
+      "signal": "e",
+      "against": "pi"
+    },
+    {
+      "fake_rate": 0.3810218978,
+      "efficiency": 0.999556298,
+      "threshold": 0.0048803294,
+      "signal": "e",
+      "against": "pi"
+    },
+    {
+      "fake_rate": 0.3824817518,
+      "efficiency": 0.9996345983,
+      "threshold": 0.0048761977,
+      "signal": "e",
+      "against": "pi"
+    },
+    {
+      "fake_rate": 0.4277372263,
+      "efficiency": 0.9996867986,
+      "threshold": 0.0047985721,
+      "signal": "e",
+      "against": "pi"
+    },
+    {
+      "fake_rate": 0.4700729927,
+      "efficiency": 0.9997128987,
+      "threshold": 0.0047590082,
+      "signal": "e",
+      "against": "pi"
+    },
+    {
+      "fake_rate": 0.5075425791,
+      "efficiency": 0.9997650989,
+      "threshold": 0.0047307324,
+      "signal": "e",
+      "against": "pi"
+    },
+    {
+      "fake_rate": 0.5133819951,
+      "efficiency": 0.9998172992,
+      "threshold": 0.0047263132,
+      "signal": "e",
+      "against": "pi"
+    },
+    {
+      "fake_rate": 0.5897810219,
+      "efficiency": 0.9998694994,
+      "threshold": 0.0046971426,
+      "signal": "e",
+      "against": "pi"
+    },
+    {
+      "fake_rate": 0.6141119221,
+      "efficiency": 0.9998955995,
+      "threshold": 0.0046897225,
+      "signal": "e",
+      "against": "pi"
+    },
+    {
+      "fake_rate": 0.7766423358,
+      "efficiency": 0.9999477998,
+      "threshold": 0.0046523502,
+      "signal": "e",
+      "against": "pi"
+    },
+    {
+      "fake_rate": 1.0,
+      "efficiency": 1.0,
+      "threshold": 0.0046316025,
+      "signal": "e",
+      "against": "pi"
+    }
+  ]
+}

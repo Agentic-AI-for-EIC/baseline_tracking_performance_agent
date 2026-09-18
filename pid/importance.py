@@ -24,6 +24,8 @@ variable, a leaking truth column) is not measuring what it claims to.
 
 from __future__ import annotations
 
+import sys
+
 import numpy as np
 import pandas as pd
 
@@ -136,6 +138,29 @@ def physics_check(tables: dict[str, pd.DataFrame], task: str) -> dict:
     return {"passed": len(notes) == 0, "top": best, "notes": notes}
 
 
+def restrict_to_test_files(prep: pd.DataFrame, test_files) -> tuple[pd.DataFrame, str]:
+    """Restrict an attribution frame to held-out files, with a scope label.
+
+    Returns ``(frame, scope)`` where scope documents what was measured, so a
+    table built over train+test rows can never be mistaken for a held-out
+    measurement. Falls back to all rows (loudly) when the report names no
+    files or none match.
+    """
+    scope = "all rows (no test_files recorded in report)"
+    if not test_files or "file_id" not in prep.columns:
+        return prep, scope
+    try:
+        wanted = {int(g) for g in test_files}
+    except (TypeError, ValueError):
+        wanted = set()
+    scoped = prep[prep["file_id"].astype(int).isin(wanted)]
+    if len(scoped):
+        return scoped, f"held-out files {sorted(wanted)}"
+    print("[importance] WARNING: test_files from report.json match no "
+          "rows - attributing all rows instead", file=sys.stderr)
+    return prep, scope
+
+
 def load_model_artifact(scores_or_model_dir: str):
     """Load the estimator gains/SHAP are read from, and which file it came from.
 
@@ -186,6 +211,10 @@ def importance(scores_or_model_dir: str, *, model_name: str, task: str,
         features_path = guess
     df = dataset.load_table(features_path)
     prep = dataset.prepare(df, task, require_matched=True)
+    # SHAP/permutation attributions are measured on HELD-OUT files only: the
+    # report records which files trained models were tested on, so restrict to
+    # them instead of mixing train rows into the attribution.
+    prep, rows_scope = restrict_to_test_files(prep, rep.get("test_files"))
     missing = [c for c in columns if c not in prep.columns]
     if missing:
         raise SystemExit(f"pid.importance: feature table is missing trained columns "
@@ -219,4 +248,4 @@ def importance(scores_or_model_dir: str, *, model_name: str, task: str,
                                    "model": model_name, "dataset_tag": dataset_tag,
                                    "physics_check_passed": check["passed"],
                                    "physics_check_notes": "; ".join(check["notes"])})
-    return {"tables": tables, "check": check, "report": rep}
+    return {"tables": tables, "check": check, "report": rep, "rows_scope": rows_scope}
