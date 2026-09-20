@@ -19,7 +19,11 @@ def synthetic_table(n=600, seed=0):
     # a fixture where leg == (cls == "e") makes every task single-class.
     eta = rng.choice([-2.4, 2.4], size=n, p=[0.45, 0.55])
     leg = np.where(eta < 0, "backward", "forward")
-    ep = np.where(cls == "e", rng.normal(0.95, 0.08, n), rng.normal(0.28, 0.12, n))
+    # Realistic overlap: production E/p separates (max legit single-variable
+    # correlation ~0.71) without perfectly predicting the label - a fixture
+    # cleaner than the 0.95 leakage tripwire would trip the very gate under
+    # test instead of exercising the pass path.
+    ep = np.where(cls == "e", rng.normal(0.90, 0.18, n), rng.normal(0.32, 0.20, n))
     return pd.DataFrame({
         "file_id": rng.integers(0, 4, n), "event": rng.integers(0, 200, n),
         "track_idx": np.arange(n), "p": rng.uniform(1, 20, n),
@@ -147,6 +151,17 @@ class TestFeatureSelection(unittest.TestCase):
         self.assertNotIn("cluster_N_e_hit_over_e_clu", cols)
         self.assertNotIn("cluster_P_e_hit_over_e_clu", cols)
 
+    def test_allowlisted_but_unmeasurable_columns_are_dropped(self):
+        # An allowlisted column with no finite values (opposite-leg
+        # calorimetry on a leg-scoped task is the real case) is not a usable
+        # feature. Keeping its name would misalign positional SHAP indexing
+        # downstream, so it must go here, loudly.
+        df = synthetic_table()
+        df["e_over_p_forward"] = np.nan
+        cols = dataset.model_columns(df, task="eid")
+        self.assertNotIn("e_over_p_forward", cols)
+        self.assertIn("e_over_p_backward", cols)
+
     def test_never_patterns_block_truth_weights_and_ids(self):
         # PLAN: DEFINITIVE FEATURE SEPARATION - MC truth, generator branches,
         # weights and unique identifiers are excluded by explicit name rules,
@@ -224,6 +239,22 @@ class TestDesignMatrix(unittest.TestCase):
         self.assertEqual(int(X["e_over_p_backward"].isna().sum()), 20)
         self.assertNotEqual(float(np.nanmin(X["e_over_p_backward"])), 0.0)
 
+    def test_all_nan_columns_are_dropped_loudly(self):
+        # A column with no measurable values carries zero splittable
+        # information, but crashes learners without native-missing binning
+        # (observed: sklearn HGB aborts). Drop with a note, never feed.
+        import contextlib
+        import io as stdlib_io
+
+        df = synthetic_table()
+        df["dead_column"] = np.nan
+        buf = stdlib_io.StringIO()
+        with contextlib.redirect_stderr(buf):
+            X = dataset.design_matrix(df, ["e_over_p_backward", "dead_column"])
+        self.assertNotIn("dead_column", X.columns)
+        self.assertIn("e_over_p_backward", X.columns)
+        self.assertIn("dead_column", buf.getvalue())
+
     def test_column_names_survive_into_the_matrix(self):
         df = synthetic_table()
         cols = dataset.model_columns(df, task="eid")
@@ -257,6 +288,11 @@ class TestSplitting(unittest.TestCase):
 
 
 class TestLeakageGate(unittest.TestCase):
+    def test_config_threshold_is_the_documented_095(self):
+        # Regression: a duplicate assignment briefly shadowed this to 0.99,
+        # silently loosening every production gate. The value is the contract.
+        self.assertEqual(config.LEAKAGE_MAX_LABEL_CORRELATION, 0.95)
+
     def test_clean_matrix_passes(self):
         df = synthetic_table()
         prep = dataset.prepare(df, "eid")

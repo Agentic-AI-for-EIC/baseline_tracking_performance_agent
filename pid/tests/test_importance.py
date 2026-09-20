@@ -62,5 +62,24 @@ class TestRestrictToTestFiles(unittest.TestCase):
         self.assertEqual(len(out), 2)
 
 
+class TestAlignToTrainedColumns(unittest.TestCase):
+    def test_readds_dropped_columns_as_nan_in_order(self):
+        from pid.importance import align_to_trained_columns
+
+        X = pd.DataFrame({"b": [1.0, 2.0], "a": [3.0, 4.0]})
+        out = align_to_trained_columns(X, ["a", "junk", "b"])
+        self.assertEqual(list(out.columns), ["a", "junk", "b"])
+        self.assertTrue(out["junk"].isna().all())
+        self.assertEqual(list(out["a"]), [3.0, 4.0])
+
+    def test_already_aligned_is_a_no_op(self):
+        from pid.importance import align_to_trained_columns
+
+        X = pd.DataFrame({"a": [1.0], "b": [2.0]})
+        out = align_to_trained_columns(X, ["a", "b"])
+        self.assertEqual(list(out.columns), ["a", "b"])
+        self.assertFalse(out.isna().any().any())
+
+
 if __name__ == "__main__":
     unittest.main()

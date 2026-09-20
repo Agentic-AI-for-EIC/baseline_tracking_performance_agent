@@ -58,7 +58,7 @@ def _best_association(assoc_df: pd.DataFrame, group_cols: list[str]) -> pd.DataF
     if assoc_df.empty:
         return assoc_df
     return (
-        assoc_df.sort_values("weight", ascending=False)
+        assoc_df.sort_values("weight", ascending=False, kind="stable")
         .drop_duplicates(subset=group_cols, keep="first")
     )
 

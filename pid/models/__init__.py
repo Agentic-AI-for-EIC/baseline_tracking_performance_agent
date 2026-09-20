@@ -7,7 +7,7 @@ of the *features and sample*, not of one optimiser's quirks (PLAN_pid.md M4).
 
 from __future__ import annotations
 
-from .base import ModelAdapter, objective
+from .base import ModelAdapter, as_sample_feature_matrix, objective
 from .lightgbm_model import LightGBMAdapter
 from .sklearn_hgb import SklearnHGBAdapter
 from .xgboost_model import XGBoostAdapter
@@ -32,4 +32,5 @@ def available() -> list[str]:
 
 
 __all__ = ["get_adapter", "available", "ModelAdapter", "objective",
+           "as_sample_feature_matrix",
            "LightGBMAdapter", "XGBoostAdapter", "SklearnHGBAdapter"]

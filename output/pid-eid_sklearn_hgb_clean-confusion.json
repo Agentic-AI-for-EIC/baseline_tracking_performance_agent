@@ -1,0 +1,115 @@
+{
+  "meta": {
+    "pipeline": "pid",
+    "schema_version": "pid-v1",
+    "campaigns": {
+      "clean": "26.02.0",
+      "bkg_mixed": "26.07.1"
+    },
+    "match_weight_threshold": 0.5,
+    "min_track_p": 1.0,
+    "delta_r_max": 0.3,
+    "min_entries_per_bin": 50,
+    "fake_rate_targets": [
+      0.01,
+      0.001,
+      0.0001
+    ],
+    "excluded_columns": [
+      "charge"
+    ],
+    "n_jobs": 1,
+    "random_seed": 1234,
+    "libraries": {
+      "lightgbm": "4.7.0",
+      "xgboost": "3.4.1",
+      "sklearn": "1.9.1",
+      "numpy": "2.4.6",
+      "pandas": "3.0.3",
+      "awkward": "2.9.0",
+      "uproot": "5.7.1",
+      "torch": "2.12.0",
+      "ROOT": "6.40.04",
+      "problems": "none"
+    },
+    "numpy_path": "/home/wxie/.eic_python_pkgs/numpy/__init__.py",
+    "artifact": "confusion",
+    "task": "eid",
+    "model": "sklearn_hgb",
+    "dataset_tag": "clean",
+    "scores_table": "output/models/eid_sklearn_hgb_clean/test_scores.pkl",
+    "n_files_scored": 38,
+    "n_events_scored": 1083,
+    "n_rows_scored": 40369,
+    "n_signal": 38314,
+    "n_background": 2055,
+    "campaign": "26.02.0",
+    "written_at_utc": "2026-09-19T10:08:47.823363+00:00"
+  },
+  "data": [
+    {
+      "truth_class": "e",
+      "pred_class": "e",
+      "n": 34985,
+      "row_fraction": 0.9131127003,
+      "row_fraction_err_lo": 0.910247847,
+      "row_fraction_err_hi": 0.9159147592,
+      "row_fraction_err": 0.0028334561,
+      "col_fraction": 1.0,
+      "n_truth": 38314,
+      "n_pred": 34985,
+      "decision": "threshold@0.0001",
+      "threshold": 0.9856087132,
+      "target_fake_rate": 0.0001,
+      "insufficient_stats": false
+    },
+    {
+      "truth_class": "e",
+      "pred_class": "pi",
+      "n": 3329,
+      "row_fraction": 0.0868872997,
+      "row_fraction_err_lo": 0.0840852408,
+      "row_fraction_err_hi": 0.089752153,
+      "row_fraction_err": 0.0028334561,
+      "col_fraction": 0.6183135215,
+      "n_truth": 38314,
+      "n_pred": 5384,
+      "decision": "threshold@0.0001",
+      "threshold": 0.9856087132,
+      "target_fake_rate": 0.0001,
+      "insufficient_stats": false
+    },
+    {
+      "truth_class": "pi",
+      "pred_class": "e",
+      "n": 0,
+      "row_fraction": 0.0,
+      "row_fraction_err_lo": 0.0,
+      "row_fraction_err_hi": 0.001793465,
+      "row_fraction_err": 0.0008967325,
+      "col_fraction": 0.0,
+      "n_truth": 2055,
+      "n_pred": 34985,
+      "decision": "threshold@0.0001",
+      "threshold": 0.9856087132,
+      "target_fake_rate": 0.0001,
+      "insufficient_stats": false
+    },
+    {
+      "truth_class": "pi",
+      "pred_class": "pi",
+      "n": 2055,
+      "row_fraction": 1.0,
+      "row_fraction_err_lo": 0.998206535,
+      "row_fraction_err_hi": 1.0,
+      "row_fraction_err": 0.0008967325,
+      "col_fraction": 0.3816864785,
+      "n_truth": 2055,
+      "n_pred": 5384,
+      "decision": "threshold@0.0001",
+      "threshold": 0.9856087132,
+      "target_fake_rate": 0.0001,
+      "insufficient_stats": false
+    }
+  ]
+}

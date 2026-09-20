@@ -20,13 +20,14 @@ between them, quantifying the impact of beam-induced background.
 
 ## 1. opencode setup
 - Self-contained /home/wxie/eic/baseline_tracking_performance_agent/opencode.jsonc:
-  - "model": "github-copilot/claude-sonnet-5"
-  - "small_model": "github-copilot/claude-haiku-4.5"
+  - "model": "nrp/Qwen3"
+  - "small_model": "nrp/gemma-small"
+  - providers: NRP LLM (OpenAI-compatible) + Google, tokens via
+    ~/.nrp-llm-token and ~/.gemini-token
   - mcp block: uproot/xrootd/rucio remote servers on 127.0.0.1:9101-9103
     (same eic-mcp instance already running for /home/wxie/eic)
-- /home/wxie/eic/tracking_performance/.github/copilot-instructions.md:
+- .github/copilot-instructions.md:
   one line, "Follow the project rules in AGENTS.md."
-- GitHub Copilot provider: already authenticated (oauth), no action needed.
 - Rationale: opencode discovers AGENTS.md/opencode.json by walking UP from
   cwd, not down — so this directory needs its own copies rather than relying
   on inheritance from /home/wxie/eic. Launch opencode with
@@ -43,7 +44,11 @@ between them, quantifying the impact of beam-induced background.
 │   ├── acceptance/SKILL.md
 │   ├── momentum-resolution/SKILL.md
 │   ├── track-efficiency/SKILL.md
-│   └── fake-rate/SKILL.md
+│   ├── fake-rate/SKILL.md
+│   ├── pid-confusion/SKILL.md
+│   ├── pid-ml/SKILL.md
+│   ├── pid-performance/SKILL.md
+│   └── trkperf-grid-workflow/SKILL.md
 ├── data/dataset_small/                 # symlinks -> existing local files
 │   ├── signal/{GEANT4,RECO}/...        # campaign 26.02.0, clean
 │   └── signal_BKG_mix/{GEANT4,RECO}/...# campaign 26.07.1, +background
@@ -60,13 +65,21 @@ between them, quantifying the impact of beam-induced background.
 │   ├── binning.py         # bin-edge assignment, Gaussian-core fit helper
 │   ├── metrics/
 │   │   ├── acceptance.py, resolution.py, efficiency.py, fake_rate.py
+│   │   # (pid-confusion lives in pid/confusion.py below; the ML PID pipeline
+│   │   # itself is the top-level pid/ package, documented in PLAN_pid.md)
 │   ├── compare.py         # reads two same-metric JSON results (clean, bkg), aligns bins,
 │   │                      # emits per-bin ratio + difference (+propagated uncertainty)
-│   ├── pid/                # empty placeholder package + docstring showing how a future
-│   │                       # particle-ID module would consume matching.py's output
+│   ├── pid/                # PID-confusion metric (consumes matching.py's
+│   │                       # matched-pairs table) + pointer to the top-level
+│   │                       # pid/ ML package
 │   ├── report.py          # JSON + markdown-table + plot writers
 │   └── cli.py              # `python -m trkperf <metric|compare|plot> ...`
 ├── tests/                   # unittest smoke tests against data/dataset_small (no network)
+├── filelists/               # frozen file lists for grid runs (clean_150, bkg_200, full tiers)
+├── scripts/                 # launch_bkg.sh, run_metric.sh, run_comparisons.sh, job_report.sh, watch_jobs.sh
+├── runs/                    # per-job logs + pidfiles (not committed)
+├── cache/                   # per-file read-cache pickles for flaky-endpoint runs (not committed)
+├── pid/                     # ML particle-ID pipeline (see PLAN_pid.md)
 └── output/                  # JSON/plots/tables (committed run artifacts)
 ```
 
@@ -94,8 +107,8 @@ Adaptive escalation strategy:
    matching file COUNTS between types does not mean matching statistics.
 3. If a (pT,eta,species) bin is still below the ~50-entry floor: (a) add more
    files from the current minQ2 tier first; (b) only once all files in that
-   tier are used, add the next minQ2 tier (1 -> 10 -> 100 -> 1000) for Type 2
-   only. Type 1 stays at minQ2=1 (matches how it was produced).
+    tier are used, add the next minQ2 tier (1 -> 10 -> 100 -> 1000) for Type 2
+    only. Type 1 stays at minQ2=1 (matches how it was produced).
 4. Every result records which tier was actually reached.
 
 Caveat (methodological honesty): Type 1 (26.02.0) and Type 2 (26.07.1) are
@@ -129,7 +142,9 @@ Momentum resolution is defined on pT specifically: Delta(pT)/pT =
 (pT_reco - pT_truth) / pT_truth, consistent with binning everything in pT/eta.
 
 ## 5. Skills (.opencode/skills/<name>/SKILL.md)
-All four: discover files for the current tier via `rucio` MCP -> run
+The four tracking skills (acceptance, momentum-resolution, track-efficiency,
+fake-rate) plus pid-confusion share one workflow: discover files for the
+current tier via `rucio` MCP -> run
 `python -m trkperf <metric> --file-list ... --species ... --dataset-tag
 {clean,bkg_mixed} --min-q2-tier ...` on Type 1 AND Type 2 -> escalate per the
 order above if under-populated -> run `python -m trkperf compare --metric <metric>
@@ -165,7 +180,9 @@ order above if under-populated -> run `python -m trkperf compare --metric <metri
 
 Type 1 (clean) results for all five metrics are final and live in `output/`
 (150 files, minQ2=1, matching threshold 0.5; per-metric JSON + markdown +
-plots + ROOT TNtuple for every metric):
+ROOT TNtuple for every metric, plus PNG plots for the four binnable metrics —
+pid-confusion has no plots by design, its two-species-axis matrix is delivered
+as JSON/markdown):
 `acceptance_clean`, `efficiency_clean` (absolute + within-acceptance),
 `resolution_clean`, `fake-rate_clean`, `pid-confusion_clean`.
 
@@ -223,7 +240,7 @@ and the job may need re-launching across sessions per the teardown note
     after reading. New tests in `tests/test_synthetic.py`
     (`TestPerFileFilter`): filter applied to returned rows, cache stashes RAW
     not filtered, and the truth wiring; `python -m unittest discover -s tests -v`
-    passes 30/30. `efficiency` still peaked at ~18 GB during its compute/merge
+    passes 41/41 (re-verified 2026-09-20). `efficiency` still peaked at ~18 GB during its compute/merge
     (pd.concat on the full association tables) and was OOM-killed once (empty
     log) — it completed on the second launch once the earlier
     acceptance/comparison jobs had freed RAM (peak RSS 18.2 GB, all 200 files
@@ -261,9 +278,12 @@ signal_BKG_mix}/RECO. `tests/test_local_data.py` (12 tests) passes again
 ## 9. Outstanding decision (step 15 outcome)
 
 - [ ] 17. Open decision: whether to deepen Type 2 statistics for the flagged
-   bins (efficiency 545/606, acceptance 390/606, resolution 376/546,
-   pid-confusion 377/546, fake-rate 34/110 are currently flagged
-   insufficient). The wise escalation order is: (a) more minQ2=1 files — only
+    bins (efficiency 545/606, acceptance 390/606, resolution 376/546,
+    pid-confusion 377/546, fake-rate 34/110 are currently flagged
+    insufficient). Discovery lists for the escalation are already staged
+    (`filelists/clean_full.txt`, `filelists/bkg_full_minQ2_1.txt`,
+    `filelists/bkg_full.txt`) but no escalation run has been launched.
+    The wise escalation order is: (a) more minQ2=1 files — only
    200 of 1,463 used; then (b) minQ2 tiers 10 -> 100 -> 1000 for Type 2 only,
    as section 3 prescribes. Cost note: minQ2=1 files read ~3.5-7 min each at
    ~1-3 pickles/min and the compute peak is ~18 GB for efficiency — every

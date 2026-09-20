@@ -50,7 +50,10 @@ class LightGBMAdapter(ModelAdapter):
         """Exact TreeSHAP values, shape ``(n_samples, n_features)``.
 
         ``pred_contrib=True`` is LightGBM's built-in TreeSHAP; the last column it
-        returns is the bias term and is dropped.
+        returns is the bias term and is dropped. Multiclass objectives return one
+        block per class and only the first block is kept (diagnostic-grade: the
+        hadpid gate is vacuous by design) - see the XGBoost adapter, which
+        averages over classes, for the documented asymmetry.
         """
         contrib = np.asarray(estimator.predict(X, pred_contrib=True))
         return contrib[:, : X.shape[1]]

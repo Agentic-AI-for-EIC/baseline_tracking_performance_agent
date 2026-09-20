@@ -173,11 +173,18 @@ def model_columns(df: pd.DataFrame, *, task: str,
             if pd.api.types.is_numeric_dtype(df[c]):
                 dropped.append(c)
             continue
-        if pd.api.types.is_numeric_dtype(df[c]):
-            cols.append(c)
+        if not pd.api.types.is_numeric_dtype(df[c]):
+            continue
+        if int(df[c].notna().sum()) == 0:
+            # Unmeasurable here (e.g. opposite-leg calorimeters on a leg-scoped
+            # task): not a usable feature, and keeping the name would misalign
+            # every positional consumer downstream (SHAP indices).
+            dropped.append(c)
+            continue
+        cols.append(c)
     if dropped:
-        print(f"[dataset] WARNING: {len(dropped)} numeric column(s) excluded by "
-              f"the feature allowlist (not model inputs): {sorted(dropped)}",
+        print(f"[dataset] WARNING: {len(dropped)} numeric column(s) excluded "
+              f"(not allowlisted, or all-NaN here): {sorted(dropped)}",
               file=sys.stderr)
     # NOTE: no event-level / ionisation post-filters here on purpose - the
     # allowlist above already admits those families only under their flags,
@@ -287,7 +294,7 @@ def split_by_file(df: pd.DataFrame, *, test_size: float = config.TEST_SIZE,
 
 
 def design_matrix(df: pd.DataFrame, columns: list[str]) -> pd.DataFrame:
-    """X as a DataFrame (names preserved; categorical kept as ``category``).
+    """    X as a DataFrame (names preserved; categorical kept as ``category``).
 
     DataFrames - not raw ndarrays - are passed to the learners on purpose: the
     column names then survive into gain and SHAP reports, and a misordered
@@ -304,6 +311,14 @@ def design_matrix(df: pd.DataFrame, columns: list[str]) -> pd.DataFrame:
                 f"pid.dataset.design_matrix: column {c!r} holds non-numeric "
                 "values that coerce to NaN - a string column must never "
                 "silently become missing data")
+    # All-NaN columns carry zero information no learner can split on, but they
+    # crash learners without native-missing binning (observed: sklearn HGB
+    # aborts inside its threshold search). Drop them loudly instead.
+    empty = [c for c in X.columns if X[c].notna().sum() == 0]
+    if empty:
+        print(f"[dataset] NOTE: dropping {len(empty)} all-NaN column(s) with no "
+              f"measurable values: {sorted(empty)}", file=sys.stderr)
+        X = X.drop(columns=empty)
     for c in categorical_columns(df, columns):
         X[c] = X[c].astype("category")
     return X

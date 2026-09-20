@@ -14,3 +14,9 @@ __pycache__/
 # project, so they are deliberately NOT ignored here.
 runs/*.pid
 runs/*.start
+
+# Concatenated PID feature tables: too big for GitHub (>100 MB) and fully
+# regenerable offline from the tracked per-file cache via
+#   python -m pid features --file-list filelists/clean_150.txt --dataset-tag clean --max-file-failures 0 --cache-dir cache/pid_features --out output/pid-features_clean.pkl
+#   python -m pid features --file-list filelists/bkg_200.txt --dataset-tag bkg_mixed --max-file-failures 20 --cache-dir cache/pid_features --out output/pid-features_bkg_mixed.pkl
+output/pid-features_*.pkl

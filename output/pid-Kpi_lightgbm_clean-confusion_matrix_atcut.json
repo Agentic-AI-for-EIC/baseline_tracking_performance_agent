@@ -39,38 +39,38 @@
     "dataset_tag": "clean",
     "decision": "thresholds_at_c*",
     "class_cuts": {
-      "pi": 0.1625,
-      "K": 0.23750000000000002,
-      "p": 0.2525
+      "pi": 0.0925,
+      "K": 0.1575,
+      "p": 0.3125
     },
     "campaign": "26.02.0",
-    "written_at_utc": "2026-09-17T19:10:56.131076+00:00"
+    "written_at_utc": "2026-09-19T10:04:28.604666+00:00"
   },
   "data": [
     {
       "truth_class": "pi",
       "pred_class": "pi",
-      "n": 178,
-      "row_fraction": 0.5189504373,
-      "n_truth": 343,
+      "n": 31859,
+      "row_fraction": 0.5416815438,
+      "n_truth": 58815,
       "decision": "thresholds_at_c*",
       "insufficient_stats": false
     },
     {
       "truth_class": "pi",
       "pred_class": "K",
-      "n": 95,
-      "row_fraction": 0.27696793,
-      "n_truth": 343,
+      "n": 11144,
+      "row_fraction": 0.1894754739,
+      "n_truth": 58815,
       "decision": "thresholds_at_c*",
       "insufficient_stats": false
     },
     {
       "truth_class": "pi",
       "pred_class": "p",
-      "n": 70,
-      "row_fraction": 0.2040816327,
-      "n_truth": 343,
+      "n": 15812,
+      "row_fraction": 0.2688429822,
+      "n_truth": 58815,
       "decision": "thresholds_at_c*",
       "insufficient_stats": false
     },
@@ -79,81 +79,81 @@
       "pred_class": "none",
       "n": 0,
       "row_fraction": 0.0,
-      "n_truth": 343,
+      "n_truth": 58815,
       "decision": "thresholds_at_c*",
       "insufficient_stats": false
     },
     {
       "truth_class": "K",
       "pred_class": "pi",
-      "n": 11,
-      "row_fraction": 0.4230769231,
-      "n_truth": 26,
+      "n": 2149,
+      "row_fraction": 0.3360437842,
+      "n_truth": 6395,
       "decision": "thresholds_at_c*",
-      "insufficient_stats": true
+      "insufficient_stats": false
     },
     {
       "truth_class": "K",
       "pred_class": "K",
-      "n": 7,
-      "row_fraction": 0.2692307692,
-      "n_truth": 26,
+      "n": 1944,
+      "row_fraction": 0.3039874902,
+      "n_truth": 6395,
       "decision": "thresholds_at_c*",
-      "insufficient_stats": true
+      "insufficient_stats": false
     },
     {
       "truth_class": "K",
       "pred_class": "p",
-      "n": 8,
-      "row_fraction": 0.3076923077,
-      "n_truth": 26,
+      "n": 2302,
+      "row_fraction": 0.3599687256,
+      "n_truth": 6395,
       "decision": "thresholds_at_c*",
-      "insufficient_stats": true
+      "insufficient_stats": false
     },
     {
       "truth_class": "K",
       "pred_class": "none",
       "n": 0,
       "row_fraction": 0.0,
-      "n_truth": 26,
+      "n_truth": 6395,
       "decision": "thresholds_at_c*",
-      "insufficient_stats": true
+      "insufficient_stats": false
     },
     {
       "truth_class": "p",
       "pred_class": "pi",
-      "n": 16,
-      "row_fraction": 0.3555555556,
-      "n_truth": 45,
+      "n": 994,
+      "row_fraction": 0.1572287251,
+      "n_truth": 6322,
       "decision": "thresholds_at_c*",
-      "insufficient_stats": true
+      "insufficient_stats": false
     },
     {
       "truth_class": "p",
       "pred_class": "K",
-      "n": 15,
-      "row_fraction": 0.3333333333,
-      "n_truth": 45,
+      "n": 1175,
+      "row_fraction": 0.1858589054,
+      "n_truth": 6322,
       "decision": "thresholds_at_c*",
-      "insufficient_stats": true
+      "insufficient_stats": false
     },
     {
       "truth_class": "p",
       "pred_class": "p",
-      "n": 14,
-      "row_fraction": 0.3111111111,
-      "n_truth": 45,
+      "n": 4153,
+      "row_fraction": 0.6569123695,
+      "n_truth": 6322,
       "decision": "thresholds_at_c*",
-      "insufficient_stats": true
+      "insufficient_stats": false
     },
     {
       "truth_class": "p",
       "pred_class": "none",
       "n": 0,
       "row_fraction": 0.0,
-      "n_truth": 45,
+      "n_truth": 6322,
       "decision": "thresholds_at_c*",
-      "insufficient_stats": true
+      "insufficient_stats": false
     }
   ]
 }

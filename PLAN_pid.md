@@ -1,9 +1,13 @@
 # ML Particle Identification pipeline — project plan (PLAN_pid.md)
 
-Status: **code delivered and tested** (M0–M5 machinery complete, end-to-end on the
-local reference pair; §11 is the as-built record, §12 the remaining work). The plan
+Status: **delivered, tested, and run at grid scale** (M0–M5 machinery complete;
+grid runs M6/M8 done — clean-150 + bkg-200 features, all learners trained,
+`pid performance` manifests 104/104 clean + 26/26 bkg, clean-vs-bkg comparisons
+written; §11 is the as-built record, §12 the remaining work). The plan
 was agreed in the planning conversation; §3's data-model facts were verified live
-against the two local reference files, not assumed.
+against the two local reference files, not assumed. Headline physics numbers stay
+gated: the `top_feature_is_physical` gate FAILs at grid scale (raw `ecal_*_E`
+outranks E/p), so working points exist but are not quotable until adjudicated.
 
 ## 0. Goal
 Extend this project from tracking performance into a **machine-learning Particle
@@ -147,7 +151,8 @@ pid/
   plots.py      # ROC, eff-vs-fake, n_sigma vs p, SHAP, FOM(c) per bin (overlay+panels),
                   #  2D maps, confusion heatmap, train-vs-test score dist
   tests/        # unittest suite, network-free
-  scripts/run_pid.sh
+   scripts/run_pid.sh
+   scripts/check_learners.py  # cross-learner AUC-agreement gate (advisory)
   README.md
 ```
 
@@ -234,7 +239,7 @@ Figures per channel (in `output/plots/`, named as requested):
 `significance_vs_cut`, `significance_vs_cut_by_pt` (FOM(c) for every pT bin, absolute
 + self-normalised), `significance_vs_cut_panels` (one panel per bin with c*, FOM, ε,
 fake), `optimal_cut_vs_pt`, `roc`, `eff_vs_pt`, `misid_vs_pt`, `purity_vs_pt`,
-`eff_map_pt_vs_eta`, `fake_map_pt_vs_eta`, `pion_rejection_vs_p` (e-ID),
+`nsigma_vs_p`, `eff_map_pt_vs_eta`, `fake_map_pt_vs_eta`, `pion_rejection_vs_p` (e-ID),
 `rejection_vs_p`, `score_dist_train_vs_test` (with a KS statistic per class), plus
 task-level `pid-hadpid_nsigma_vs_p` (K/π and p/K) and `pid-hadpid_confusion_matrix`
 (held-out rows only). The two task-level figures are extras outside the 13
@@ -550,11 +555,11 @@ clean-vs-bkg ratio/difference tables.
 | M0 | `schema.py`, `links.py`, `cli.py schema-check` | `python -m pid schema-check --dataset clean --file data/dataset_small/signal` | every admitted feature present **and** non-degenerate in both campaigns; unresolved cid families reported, not silently dropped; `assert_ml_env()` passes |
 | M1 | `features.py`, `dataset.py`, `cli features` | `python -m pid features --file <local> --dataset-tag clean --limit-files 1` | rows == candidate tracks; backward-e median E/p > 0.8 and forward-π < 0.4; no all-NaN column kept; `--cache-dir` + `--max-file-failures` behave |
 | M2 | cut-based baseline (as-built: fixed-fake-rate working points from `evaluate`) | `python -m pid evaluate --task eid --model lightgbm --dataset-tag clean --scores <test_scores.pkl>` | baseline AUC/nσ recorded as the bar ML must beat |
-| M3 | Stage-1 e/π (LightGBM) | `python -m pid train --task eid --model lightgbm …` | held-out AUC; train−test gap < 0.02; **E/p top-1 by gain and SHAP**; label-shuffle control → AUC 0.50 ± 0.01 |
-| M4 | Stage-2 π/K/p + pooled | `python -m pid train --task hadpid --model xgboost …` | 3 learners within ΔAUC 0.02 (checked automatically, advisory, by `pid/scripts/check_learners.py` at the end of every grid run); nσ(K/π) monotonic in p |
+| M3 | Stage-1 e/π (LightGBM) | `python -m pid train --task eid --model lightgbm …` | held-out AUC; train−test gap < 0.02; **E/p top-1 by gain and SHAP (smoke scale; FAILs at grid scale — see the §11 grid-training note)**; label-shuffle control → AUC 0.50 ± 0.01 |
+| M4 | Stage-2 π/K/p + pooled | `python -m pid train --task hadpid --model xgboost …` | 3 learners within ΔAUC 0.02 (checked automatically, advisory, by `pid/scripts/check_learners.py` at the end of every grid run); nσ(K/π) monotonic in p (manual check — not enforced in code) |
 | M5 | physics report | `python -m pid evaluate … && python -m pid importance … && python -m pid performance …` | χ²/ndf ≈ 1, ≥50 entries/bin or flagged, provenance complete |
 | M6 | background impact | `python -m pid scripts/run_pid.sh` bkg run, then `python -m pid compare …` | cross-application (clean→bkg, bkg→clean) reported; skew features excluded from headline arm |
-| M7 | skills + docs | dry-run on 5 files | `.opencode/skills/pid-electron-id/`, `pid-hadron-id/`; AGENTS.md gains §3 facts |
+| M7 | skills + docs | dry-run on 5 files | `.opencode/skills/pid-ml/`, `pid-performance/`; AGENTS.md gains §3 facts |
 | M8 | statistics escalation | tier runs | each quoted fake rate at its stated precision, or reported statistic-limited |
 
 ## 8. Statistics budget
@@ -584,7 +589,7 @@ background effect; matching-threshold sensitivity (0.5 vs 0.8) as a systematic.
 
 ## 11. As-built record (this session)
 
-**Delivered** (`pid/`: 20 code modules (7,777 lines) + 13 test modules (2,960 lines) = 10,737 lines):
+**Delivered** (`pid/`: 21 files (7,855 lines) + 13 test modules (3,071 lines) = 10,926 lines; re-verified 2026-09-20):
 
 | module | role |
 |---|---|
@@ -593,7 +598,7 @@ background effect; matching-threshold sensitivity (0.5 vs 0.8) as a systematic.
 | `links.py` | `podio_metadata` collectionID registry, relation audit, vectorised offset/relation unpacking, ΔR matcher |
 | `features.py` | per-file feature builder (+ per-file disk cache, `max_failures`), shower shapes from hits, ionisation proxy, IRT event summary |
 | `dataset.py` | label policy, NEVER-model patterns + fail-closed allowlist, NaN-preserving design matrix, file-grouped splits, leakage tripwire (> 0.95 halts) |
-| `models/` | LightGBM / XGBoost / sklearn-HGB adapters: `estimator/gain/shap` (binary-exact SHAP; multiclass returns the first class block, diagnostic only) |
+| `models/` | LightGBM / XGBoost / sklearn-HGB adapters: `estimator/gain/shap` (binary-exact SHAP; multiclass XGBoost averages attribution over classes via `as_sample_feature_matrix`, LightGBM keeps the first class block — documented asymmetry, diagnostic only) |
 | `train.py` | grouped `RandomizedSearchCV` (groups reach the splitter), balanced class weights, E/p-presence precondition, test-set SHAP, permutation control, 4 gates, artifacts (`model.joblib` calibrated + `booster.joblib` unwrapped for importance) |
 | `significance.py` | FOM(c) threshold scan (score-ordered weights), `optimal_cut` + per-bin c\* on one grid, exact per-row yields; limits count-based |
 | `performance.py` | max-significance working-point package: global + per-bin c\*, at-cut tables, maps, nσ vs p, confusion, overtraining, 13-figure manifest with reasons |
@@ -623,6 +628,14 @@ without measurable E/p; gate SHAP and `pid importance` restricted to held-out
 files/rows; fold-disjointness asserted on the splitter the search actually uses.
 All verified against grid-scale data with zero matrix changes.
 
+Follow-up found by the suite (not by review): the all-NaN drop in
+`design_matrix` left `model_columns` naming dropped columns, so the gate's
+SHAP indices mislabeled onto wrong features (forward junk "leading" electron
+SHAP). Fixed at both layers — `model_columns` drops unmeasurable columns so
+`feature_columns` is honest (eid: 52 → 30 real inputs), and the gate indexes
+`X.columns` ground truth. Provably model-neutral for tree learners (a column
+no split can use changes no tree); the full suite caught it, now guards it.
+
 Deployed-note (2026-09-18): this round landed while the clean/bkg grid jobs were
 training. No restart was needed: the allowlist reproduces the production matrices
 exactly (52/52/52/53, zero warnings), the tightened tripwire cannot trip (max legit
@@ -643,16 +656,20 @@ test: 3 file groups complete a grouped search), verified live on the relaunched
 clean run. `run_pid.sh` for bkg_mixed was still on features when found, so it was killed
 and relaunched cleanly onto the fixed code (cache replayed, no state lost).
 
-**First grid training (clean_150, post-fix):** eid/lightgbm trained on 150 files
-with grouped CV — 161,195 rows, AUC train 0.9986 / test 0.9978, control z = 16.7 —
-but the physics gate FAILED: gain and SHAP both rank `ecal_backward_E` above E/p
-itself on full statistics. Not a code bug (artifacts written, failure loud and
-recorded): with 161k rows raw cluster energy competes with E/p, and the gate's
-"E/p leads" premise may be too strict at grid scale, or it may be flagging real
-shortcut learning. Do not quote the eid working point until this is adjudicated;
-the gate exists for exactly this moment. Refuted this round: NaN compare keys join fine; `test_scores` fallback is test-only by construction.
+**Grid training, final state (2026-09-19):** all 12 clean models
+(eid/ehad/hadpid/pooled × lightgbm/xgboost/sklearn_hgb) and all 6 bkg electron
+models trained with grouped CV, evaluates and importance; `check_learners.py`
+PASS on every task/tag (clean spreads: eid/ehad 0.0001, hadpid 0.0063, pooled
+0.0022; bkg eid 0.0009, ehad 0.0000). The physics gate still FAILs on every
+electron model at scale — gain and SHAP both rank raw `ecal_backward_E` (and
+`chi2` on some arms) above E/p itself. Not a code bug (artifacts written,
+failure loud and recorded): with 161k rows raw cluster energy competes with
+E/p, and the gate's "E/p leads" premise may be too strict at grid scale, or it
+may be flagging real shortcut learning. Do not quote any working point until
+this is adjudicated; the gate exists for exactly this moment. Refuted this round:
+NaN compare keys join fine; `test_scores` fallback is test-only by construction.
 
-**Test suite:** `python -m unittest discover -s pid/tests` → **238 tests, 0 failures**, network-free (13 modules incl. `test_significance.py` with brute-force agreement of the FOM scan — including per-row weights travelling with their score — and closed-form Clopper-Pearson checks, `test_performance.py` with the two independent optimum-finding paths cross-checked against each other, `test_cli.py` pinning the `pid all` → `train` flag forwarding, `test_importance.py` pinning the booster-artifact preference, and `test_features.py` pinning the dRICH presence flag); `ruff check pid --select F,E9` clean; the existing `python -m unittest discover -s tests` (41) still passes. The offset/relation tests pin the event-boundary arithmetic (a wrong base silently reads another event's hits) and the fixtures' hit sums reproduce stored cluster energies exactly (`max|ΣE_hit − E_cluster| = 0.0` over 12,184 clusters / 198,335 hits).
+**Test suite:** `python -m unittest discover -s pid/tests` → **258 tests, 0 failures** (re-verified 2026-09-20), network-free (13 modules incl. `test_significance.py` with brute-force agreement of the FOM scan — including per-row weights travelling with their score — and closed-form Clopper-Pearson checks, `test_performance.py` with the two independent optimum-finding paths cross-checked against each other, `test_cli.py` pinning the `pid all` → `train` flag forwarding, `test_importance.py` pinning the booster-artifact preference, and `test_features.py` pinning the dRICH presence flag); `ruff check pid --select F,E9` clean; the existing `python -m unittest discover -s tests` (41) still passes. The offset/relation tests pin the event-boundary arithmetic (a wrong base silently reads another event's hits) and the fixtures' hit sums reproduce stored cluster energies exactly (`max|ΣE_hit − E_cluster| = 0.0` over 12,184 clusters / 198,335 hits).
 
 **Measured on the local reference files** (one file each; event-split CV, so *not* quotable performance — see the warning the pipeline itself prints):
 
@@ -668,12 +685,14 @@ the gate exists for exactly this moment. Refuted this round: NaN compare keys jo
 | `pooled` (with `leg`) | test AUC 0.786, but `leg` **leads SHAP** → attribution gate FAIL: the hemisphere shortcut, measured rather than asserted | — |
 | `compare` | runs once both tags are evaluated; refuses (naming the file) when one side is missing | — |
 
-**Sample actually run so far: 1,182 events, 2 files (the local reference pair), zero grid
-files.** Held-out `eid` evaluation = 207 events / 214 tracks / **10 pions**, so nothing in
-`output/` from this session is quotable; every metric row is labelled either
-`[below the 50-entry floor]` or `[NOT COMPUTABLE]`, and every JSON's `meta` carries the
-sample size (files, events, rows, signal/background counts) plus campaign, matching
-threshold and ΔR window, so a number cannot travel without its provenance.
+**Grid sample actually run (2026-09-19; the one-file smoke figures below are kept
+as the historical record):** clean-150 features = 627,688 rows; bkg-200 features =
+92,502 rows (~19.8k events). Headline held-out evaluations: eid clean 161,195-row
+matrix (AUC 0.9978 on all three learners), bkg eid 14,221 rows (AUC 0.9943–0.9947);
+every JSON's `meta` carries the sample size (files, events, rows,
+signal/background counts) plus campaign, matching threshold and ΔR window, so a
+number cannot travel without its provenance. Nothing is quotable until the
+physics-gate adjudication (§12.1) is resolved.
 
 Two bugs the harness found in itself while building, both fixed structurally rather
 than by patching the symptom: an association-table leftover (`rec_idx`) entered the
@@ -709,7 +728,7 @@ A third, uglier catch: `rec_idx` — a column left behind by the association mer
 **Gate design note:** the label-shuffle control is a **permutation distribution**, not a single number. With 10 electrons in the held-out set an uninformative model's AUC fluctuates by ≈0.137 (measured over 5 balanced permutations), so any fixed tolerance about 0.5 is wrong in both directions; the gate requires z ≥ 3 **and** an absolute AUC margin ≥ 0.1.
 
 ## 12. Remaining work
-1. **Grid runs (M8)** — the numbers above are one-file smoke tests. Run `pid/scripts/run_pid.sh clean filelists/clean_150.txt 0` and `... bkg_mixed filelists/bkg_200.txt 20`, then `pid compare`. Expect the bkg pion-side ceiling near 10⁻³ unless escalated to minQ2 100/1000 (§8).
+1. **Grid runs (M8)** — **done** (2026-09-19): `pid/scripts/run_pid.sh clean filelists/clean_150.txt 0` and `... bkg_mixed filelists/bkg_200.txt 20`, plus backfill jobs for the learners the first pass missed (hadpid/pooled xgboost, eid/ehad sklearn_hgb on both tags). All 12 clean + 6 bkg models trained with evaluates and importance; `pid performance` manifests 104/104 (clean) + 26/26 (bkg); `pid compare` eid/ehad written; `check_learners.py` PASS on every task/tag (spreads ≤ 0.0063). Open: physics-gate adjudication (E/p outranked at scale) and any minQ2 100/1000 escalation for the bkg pion-side ceiling near 10⁻³ (§8).
 2. **Hadron ID needs per-track Cherenkov/timing** (and is currently labelled
    `exploratory` in `config.CHANNELS` for exactly this reason — the calorimeter-only
    K/π and p/K results are baselines to be beaten, not deliverables). Three concrete routes, in cost order: (a) decode `DRICH*RawHits` cellIDs against the compact geometry to attach photons to the extrapolated `DRICH*Tracks` segment (AGENTS.md currently scopes cellID decoding out — a deliberate decision to revisit); (b) recover the `*_ParticleIDs` likelihoods by establishing the entry order of those collections (their `particle` relation is null, but the *multiplicity* pattern — 4 hypotheses/particle — may be alignable; time-box it); (c) request a production where the IRT `chargedParticle` relation is written (cid `1290518152` is not in the file).

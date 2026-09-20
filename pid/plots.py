@@ -204,9 +204,10 @@ def score_distributions(fits: dict[str, dict], path: str, *, title: str = "") ->
 def significance_vs_cut(scan: pd.DataFrame, optimum: dict, path: str, *, title: str = "") -> str:
     """FOM(c) = S/sqrt(S+B) vs threshold, with the maximum marked.
 
-    Both significance variants are drawn: the requested one, and the Kish
-    effective-count version, which diverges as soon as the classes are weighted
-    differently. Where they differ, the naive form is overstating the reach.
+    Both significance variants are drawn: the requested one, and the
+    variance-corrected form using sum(w^2) under the root, which diverges
+    from the naive form as soon as the classes are weighted differently.
+    Where they differ, the naive form is overstating the reach.
     """
     tab = scan.dropna(subset=["significance"])
     fig, (ax, ax2) = plt.subplots(1, 2, figsize=(9.6, 4.0))
@@ -468,9 +469,9 @@ def score_dist_train_vs_test(over: dict, path: str, *, title: str = "",
 
     A large gap is memorisation: the training sample contains the very structures
     the model fitted. The KS statistic per class is printed on the figure so the
-    judgement is quantitative, not eyeballed. Train counts are drawn +0.3 so the
-    two step histograms never sit exactly on top of each other (display offset
-    only - the legend quotes the true n).
+    judgement is quantitative, not eyeballed. Counts are drawn +0.3 (both
+    histograms equally) so empty bins stay visible on the log y axis -
+    display offset only, the legend quotes the true n.
     """
     fig, axes = plt.subplots(1, 2, figsize=(9.0, 3.9), squeeze=False)
     for ax, (cls, per) in zip(axes[0], over["classes"].items()):

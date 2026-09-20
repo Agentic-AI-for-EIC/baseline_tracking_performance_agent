@@ -105,6 +105,23 @@ def missing_e_over_p_columns(prep: pd.DataFrame, task: str) -> list[str]:
                               errors="coerce").notna().any())]
 
 
+def _attribution_ok(task: str, top: list[str], shap_top: list[str],
+                      shap_unsupported: bool) -> bool:
+    """Does the attribution satisfy the physics gate for `task`?
+
+    The SHAP leg is authoritative when it exists. When the learner has no
+    exact SHAP (sklearn HGB), the gain leg must carry the full weight: gain
+    top-1 has to BE the required observable, not merely a detector-response
+    family member (a looser family check would let any calorimeter proxy
+    certify the model).
+    """
+    primary = PRIMARY_ATTRIBUTION.get(task)
+    ok = (not primary) or (bool(shap_top) and _attribution_matches(shap_top[0], primary))
+    if not ok and shap_unsupported and primary and top:
+        ok = bool(_attribution_matches(top[0], primary))
+    return bool(ok)
+
+
 def load_or_build(*, features: str | None, files: list[str] | None, dataset_tag: str,
                   legs: tuple[str, ...], limit_files: int | None, max_failures: int,
                   cache_dir: str | None, enable_ionisation: bool):
@@ -176,7 +193,20 @@ def cross_validate(estimator_factory, X, y, groups, *, n_splits, n_iter, space, 
     # Groups MUST ride along: without them a grouped splitter sees groups=None
     # (one pseudo-group) and every multi-file run dies in _iter_test_indices,
     # while single-file smoke silently passes via the StratifiedKFold branch.
-    search.fit(X, y, groups=groups, sample_weight=sample_weight)
+    try:
+        search.fit(X, y, groups=groups, sample_weight=sample_weight)
+    except ValueError as exc:
+        # Fail LOUDLY, never cryptically: observed in the wild as sklearn's
+        # HistGradientBoosting binning collapsing on a fold with a constant
+        # column (tiny samples), surfacing as a loky _RemoteTraceback. A
+        # SystemExit keeps the message + nonzero exit for both CLI users and
+        # the run_pid.sh `|| echo failed` path, with the original chained.
+        raise SystemExit(
+            f"pid.train.cross_validate: hyperparameter search failed ({len(X)} "
+            f"rows, {int(pd.Series(groups).nunique())} file groups): {exc}. "
+            "On tiny samples this is usually a learner data floor (e.g. HGB "
+            "binning needs >= 2 distinct values per fold) - escalate "
+            "statistics or drop the library for this task.") from exc
     search.cv_kind_ = kind
     return search
 
@@ -351,20 +381,24 @@ def train(task: str, *, model: str = config.MODEL_LIBRARY_DEFAULT,
         from sklearn.calibration import CalibratedClassifierCV
 
         # Calibrating a *fresh* estimator on a data subset, with the same weights
-        # the main model saw: the base model itself is never refit here, so the
-        # train AUC above still describes the model that produced the gains.
+        # the main model saw. The reported train/test AUCs below come from this
+        # calibrated ensemble (`final`), not from `best`: calibration only
+        # reshapes scores monotonically, so rankings (AUC) barely move while
+        # the score scale becomes comparable across samples - which is what
+        # the fixed-fake-rate working points need. Gains/SHAP still come from
+        # `best`, which is never refit here.
         sub = np.arange(len(tr_idx))
         rng = np.random.default_rng(seed)
         rng.shuffle(sub)
-        half = sub[: max(50, len(sub) // 2)]
-        sub2 = sub
+        # Bound the calibration cost: at most CALIBRATION_MAX_TRAIN rows (but
+        # always >= 50 so the transform is still measured, not guessed).
+        half = sub[: max(50, min(len(sub) // 2, config.CALIBRATION_MAX_TRAIN))]
         full_idx = tr_idx[half]
         cal = CalibratedClassifierCV(
             adapter.estimator(search.best_params_, n_classes=n_classes, seed=seed),
             method=config.CALIBRATION_METHOD, cv=3)
         cal.fit(X.iloc[full_idx], y[full_idx],
-                sample_weight=(None if w_tr is None
-                               else np.asarray(w_tr)[sub2[: max(50, len(sub) // 2)]]))
+                sample_weight=(None if w_tr is None else np.asarray(w_tr)[half]))
         final = cal
     else:
         final = best
@@ -414,19 +448,24 @@ def train(task: str, *, model: str = config.MODEL_LIBRARY_DEFAULT,
     # the one that must be E/p for the electron tasks. Skimming a correlated proxy
     # (cluster energy, hit multiplicity) is legitimate but is not what we claim.
     shap_top: list[str] = []
+    shap_unsupported = False
     try:
         # Attribution is measured on HELD-OUT rows only: the gate asks what
         # drives decisions where it matters, and train rows would flatter
         # memorised splits.
         gate_rows = X.iloc[te_idx].head(min(2000, len(te_idx)))
-        values = adapter.shap(best, gate_rows)
+        values = models.as_sample_feature_matrix(adapter.shap(best, gate_rows))
         mean_abs = np.nanmean(np.abs(values), axis=0)
         order = np.argsort(-np.nan_to_num(mean_abs))
-        shap_top = [columns[i] for i in order[:3]]
+        # Index into X.columns, never the pre-drop `columns` list: if the two
+        # ever diverged the SHAP names would silently shift onto wrong features.
+        shap_top = [list(X.columns)[i] for i in order[:3]]
     except NotImplementedError:
-        shap_top = []  # sklearn HGB has no exact SHAP; gain ranking stands alone
+        # No exact SHAP for this learner (sklearn HGB): the gain ranking
+        # stands alone below, held to the stricter exact-observable bar.
+        shap_unsupported = True
     primary = PRIMARY_ATTRIBUTION.get(task)
-    attribution_ok = (not primary) or (bool(shap_top) and _attribution_matches(shap_top[0], primary))
+    attribution_ok = _attribution_ok(task, top, shap_top, shap_unsupported)
     physics_ok = (all(_require(c, EXPECTED_TOP_FEATURES.get(task, ())) for c in top[:1])
                   and attribution_ok)
 

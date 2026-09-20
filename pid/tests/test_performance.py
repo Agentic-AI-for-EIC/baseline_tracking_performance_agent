@@ -186,6 +186,24 @@ class TestMaps(unittest.TestCase):
         with self.assertRaises(ValueError):
             perf.map_2d(self.fr, "eid", cut=0.5, quantity="vibes")
 
+    def test_weights_rescale_purity_but_not_efficiency_or_fake(self):
+        # Up-weighting the background 3x must leave efficiency and fake rate
+        # (ratios within one class) unchanged while lowering purity: this pins
+        # the weight plumbing against wiring w into the wrong numerator.
+        y = self.fr["y"].to_numpy()
+        w = np.where(y == 0, 3.0, 1.0)
+        eff0 = perf.map_2d(self.fr, "eid", cut=0.5, quantity="efficiency")
+        eff3 = perf.map_2d(self.fr, "eid", cut=0.5, quantity="efficiency", weights=w)
+        np.testing.assert_allclose(np.nan_to_num(eff0["value"], nan=-1.0),
+                                   np.nan_to_num(eff3["value"], nan=-1.0),
+                                   rtol=0, atol=1e-12)
+        pur0 = perf.map_2d(self.fr, "eid", cut=0.5, quantity="purity")
+        pur3 = perf.map_2d(self.fr, "eid", cut=0.5, quantity="purity", weights=w)
+        both = np.isfinite(pur0["value"]) & np.isfinite(pur3["value"])
+        self.assertTrue(bool(both.any()))
+        self.assertTrue(bool((pur3["value"][both] <= pur0["value"][both]).all()))
+        self.assertTrue(bool((pur3["value"][both] < pur0["value"][both]).any()))
+
 
 class TestConfusionMatrix(unittest.TestCase):
     def test_row_normalised_and_counts_conserved(self):

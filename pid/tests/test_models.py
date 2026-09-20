@@ -180,6 +180,31 @@ class TestGroupedSearch(unittest.TestCase):
             n_folds += 1
         self.assertEqual(n_folds, 3)
 
+    def test_search_value_error_becomes_loud_system_exit(self):
+        # Observed in the wild: HGB binning collapses on degenerate folds of
+        # tiny samples, surfacing as a loky-wrapped traceback that kills grid
+        # jobs cryptically. cross_validate must convert any search-time
+        # ValueError into a chained SystemExit instead.
+        from sklearn.base import BaseEstimator, ClassifierMixin
+
+        from pid.train import cross_validate
+
+        class _BoomClassifier(ClassifierMixin, BaseEstimator):
+            def fit(self, X, y, sample_weight=None):
+                raise ValueError("window shape cannot be larger than input array shape")
+
+            def predict(self, X):
+                return np.zeros(len(X), dtype=int)
+
+        rng = np.random.default_rng(4)
+        X = pd.DataFrame({"f": rng.normal(size=60)})
+        y = np.tile([1, 0], 30).astype(int)
+        groups = np.repeat([0, 1, 2], 20)
+        with self.assertRaises(SystemExit) as ctx:
+            cross_validate(_BoomClassifier, X, y, groups, n_splits=2, n_iter=1,
+                           space={}, seed=0, scoring="roc_auc")
+        self.assertIn("hyperparameter search failed", str(ctx.exception))
+
 
 class TestMissingEOverP(unittest.TestCase):
     def test_present_and_measurable_passes(self):
@@ -198,6 +223,65 @@ class TestMissingEOverP(unittest.TestCase):
         self.assertEqual(missing_e_over_p_columns(df2, "ehad"), ["e_over_p_backward"])
         self.assertEqual(missing_e_over_p_columns(df2, "pooled"),
                          ["e_over_p_backward", "e_over_p_forward"])
+
+
+class TestAttributionGate(unittest.TestCase):
+    def test_shap_path_unchanged(self):
+        from pid.train import _attribution_ok
+
+        self.assertTrue(_attribution_ok(
+            "eid", ["e_over_p_backward"], ["e_over_p_backward"], False))
+        self.assertFalse(_attribution_ok(
+            "eid", ["ecal_backward_E"], ["ecal_backward_E"], False))
+
+    def test_no_shap_falls_back_to_exact_gain_match(self):
+        # Learners without exact SHAP (sklearn HGB): gain top-1 must BE the
+        # required observable. chi2 leading fails; E/p leading passes.
+        from pid.train import _attribution_ok
+
+        self.assertFalse(_attribution_ok("eid", ["chi2"], [], True))
+        self.assertTrue(_attribution_ok(
+            "eid", ["e_over_p_backward"], [], True))
+
+    def test_hadpid_stays_vacuous(self):
+        from pid.train import _attribution_ok
+
+        self.assertTrue(_attribution_ok("hadpid", ["anything"], [], True))
+
+
+class TestSampleFeatureMatrix(unittest.TestCase):
+    def test_multiclass_shap_averages_over_classes(self):
+        # Regression: XGBoost multiclass pred_contribs arrive (n, F, C); the
+        # gate indexed a 2-D argsort into the column list and crashed, so no
+        # multiclass-xgboost model could ever finish training.
+        from pid.models.base import as_sample_feature_matrix
+
+        rng = np.random.default_rng(0)
+        v3 = rng.normal(size=(11, 4, 3))
+        out = as_sample_feature_matrix(v3)
+        self.assertEqual(out.shape, (11, 4))
+        np.testing.assert_allclose(out, np.nanmean(v3, axis=2))
+
+    def test_binary_passes_through(self):
+        from pid.models.base import as_sample_feature_matrix
+
+        v2 = np.arange(6, dtype=float).reshape(2, 3)
+        np.testing.assert_allclose(as_sample_feature_matrix(v2), v2)
+
+    def test_xgboost_multiclass_shap_matches_features(self):
+        # The production crash: multiclass pred_contribs arrive (n, C, F+1)
+        # and must come back (n, F) aligned with the feature columns.
+        from pid import models
+
+        rng = np.random.default_rng(6)
+        X = pd.DataFrame({"a": rng.normal(size=90), "b": rng.uniform(size=90)})
+        y = np.tile([0, 1, 2], 30)
+        adapter = models.get_adapter("xgboost")
+        est = adapter.estimator({"n_estimators": 5}, n_classes=3, seed=0)
+        est.fit(X, y)
+        out = np.asarray(adapter.shap(est, X))
+        self.assertEqual(out.shape, (len(X), X.shape[1]))
+        self.assertTrue(np.all(np.isfinite(out)))
 
 
 class TestObjectiveHelpers(unittest.TestCase):

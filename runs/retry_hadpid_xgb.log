@@ -1,0 +1,76 @@
++ PY=python3
++ python3 -m pid train --task hadpid --model xgboost --dataset-tag clean --features output/pid-features_clean.pkl --seed 1234 --n-iter 24
+[train] feature table output/pid-features_clean.pkl: 627688 rows, 112 cols
+[dataset] WARNING: 20 numeric column(s) excluded (not allowlisted, or all-NaN here): ['e_hcal_backward', 'e_over_p_backward', 'ecal_backward_E', 'ecal_backward_delta_r', 'ecal_backward_has_shape', 'ecal_backward_n', 'ecal_backward_shape_0', 'ecal_backward_shape_1', 'ecal_backward_shape_2', 'ecal_backward_shape_3', 'ecal_backward_shape_4', 'ecal_backward_shape_5', 'ecal_backward_shape_6', 'ecal_backward_t', 'hcal_backward_E', 'hcal_backward_delta_r', 'hcal_backward_n', 'hcal_backward_t', 'leakage_backward', 'log_e_over_p_backward']
+[train/hadpid/xgboost/clean] 285004 rows, 32 features, 3 classes -> AUC train 0.7622 / test 0.6959 (label-shuffle control 0.5016) in 2648.9s
+[train] top gain features: ['log_e_over_p_forward', 'ecal_forward_t', 'ecal_forward_E']
+[gate:FAIL] train_test_auc_gap: 0.06633667003708188 | requires 0.02
+[gate:PASS] label_shuffle_control: {"control_auc_mean": 0.5015799082415056, "control_auc_std": 0.006989389466647655, "control_auc_max": 0.5081529777254816, "model_auc_test": 0.6958713842771704, "z": 27.79806118442754} | requires {"min_z": 3.0, "min_auc_margin": 0.1}  [5 balanced permutations, 18850/class; AUCs [0.491, 0.5082, 0.5005, 0.5077, 0.5006]]
+[gate:PASS] top_feature_is_physical: {"gain_top3": ["log_e_over_p_forward", "ecal_forward_t", "ecal_forward_E"], "shap_top3": ["drich_aerogel_pathlength", "chi2", "chi2_per_ndf"]} | requires {"gain_patterns": ["shape_", "rms_", "irt_", "drich", "e_over_p", "leakage", "ecal_"], "shap_must_lead": null}
+[gate:PASS] no_single_feature_label_correlation: -0.06707129712294528 | requires 0.99
+[train] artifacts -> output/models/hadpid_xgboost_clean/
+pid.train: gates failed for hadpid/xgboost/clean: ['train_test_auc_gap']. Re-run with --relax-gates to inspect the result anyway, and record the failure if the number is ever quoted.
++ echo '[retry] train hadpid/xgboost failed (see log)'
+[retry] train hadpid/xgboost failed (see log)
++ '[' -f output/models/hadpid_xgboost_clean/test_scores.pkl ']'
++ python3 -m pid evaluate --task hadpid --model xgboost --dataset-tag clean --scores output/models/hadpid_xgboost_clean/test_scores.pkl --by pt,eta --plot
+[evaluate/hadpid_xgboost_clean] NOTE: no --signal given for multiclass task 'hadpid'; quoting 'pi' vs rest
+[report] wrote output/pid-hadpid_xgboost_clean-overall.json, output/pid-hadpid_xgboost_clean-overall.md, output/pid-hadpid_xgboost_clean-overall.root (8 rows)
+[report] wrote output/pid-hadpid_xgboost_clean-vs_pt.json, output/pid-hadpid_xgboost_clean-vs_pt.md, output/pid-hadpid_xgboost_clean-vs_pt.root (8 rows)
+[report] wrote output/pid-hadpid_xgboost_clean-vs_eta.json, output/pid-hadpid_xgboost_clean-vs_eta.md, output/pid-hadpid_xgboost_clean-vs_eta.root (5 rows)
+[report] wrote output/pid-hadpid_xgboost_clean-confusion.json, output/pid-hadpid_xgboost_clean-confusion.md, output/pid-hadpid_xgboost_clean-confusion.root (9 rows)
+[report] wrote output/pid-hadpid_xgboost_clean-roc.json, output/pid-hadpid_xgboost_clean-roc.md, output/pid-hadpid_xgboost_clean-roc.root (200 rows)
+[evaluate/hadpid_xgboost_clean] scored sample: 38 file(s), 1083 event(s), 71532 tracks (6395 signal / 58815 background)
+[evaluate/hadpid_xgboost_clean] auc              0.7070903576213958
+[evaluate/hadpid_xgboost_clean] signal_peak      -0.3835868806710836
+[evaluate/hadpid_xgboost_clean] background_peak  -0.9902474430807621
+[evaluate/hadpid_xgboost_clean] n_sigma_lower_limit nan  [NOT COMPUTABLE: too few candidates to fit]
+[evaluate/hadpid_xgboost_clean] n_sigma          0.7706111622017244
+[evaluate/hadpid_xgboost_clean] efficiency       0.10198078721414605 (target fake 0.01)
+[evaluate/hadpid_xgboost_clean] efficiency       0.029567287256652214 (target fake 0.001)
+[evaluate/hadpid_xgboost_clean] efficiency       0.01261582929524781 (target fake 0.0001)
+[plot] wrote output/plots/pid-hadpid_xgboost_clean-roc.png
+[plot] wrote output/plots/pid-hadpid_xgboost_clean-eff_vs_fake.png
+[plot] wrote output/plots/pid-hadpid_xgboost_clean-auc_vs_pt.png
+[plot] wrote output/plots/pid-hadpid_xgboost_clean-auc_vs_eta.png
++ python3 -m pid importance --dir output/models/hadpid_xgboost_clean --task hadpid --model xgboost --dataset-tag clean --plot
+[importance] gains/SHAP read from booster.joblib (unwrapped booster)
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/home/wxie/eic/baseline_tracking_performance_agent/pid/__main__.py", line 10, in <module>
+    sys.exit(main())
+             ~~~~^^
+  File "/home/wxie/eic/baseline_tracking_performance_agent/pid/cli.py", line 476, in main
+    return int(args.func(args) or 0)
+               ~~~~~~~~~^^^^^^
+  File "/home/wxie/eic/baseline_tracking_performance_agent/pid/cli.py", line 201, in cmd_importance
+    res = pid_importance.importance(args.dir, model_name=args.model, task=args.task,
+                                    kind=args.kind, out_dir=args.out_dir,
+                                    dataset_tag=args.dataset_tag, write=not args.no_write)
+  File "/home/wxie/eic/baseline_tracking_performance_agent/pid/importance.py", line 233, in importance
+    tables["shap"] = shap_table(model, X, model_name=model_name, max_rows=max_rows)
+                     ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/wxie/eic/baseline_tracking_performance_agent/pid/importance.py", line 59, in shap_table
+    return pd.DataFrame({
+           ~~~~~~~~~~~~^^
+        "column": cols,
+        ^^^^^^^^^^^^^^^
+    ...<3 lines>...
+        "shap_std": np.nanstd(values, axis=0),
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    }).sort_values("mean_abs_shap", ascending=False).reset_index(drop=True)
+    ^^
+  File "/opt/local/lib/python3.13/site-packages/pandas/core/frame.py", line 769, in __init__
+    mgr = dict_to_mgr(data, index, columns, dtype=dtype, copy=copy)
+  File "/opt/local/lib/python3.13/site-packages/pandas/core/internals/construction.py", line 460, in dict_to_mgr
+    return arrays_to_mgr(arrays, columns, index, dtype=dtype, consolidate=copy)
+  File "/opt/local/lib/python3.13/site-packages/pandas/core/internals/construction.py", line 113, in arrays_to_mgr
+    index = _extract_index(arrays)
+  File "/opt/local/lib/python3.13/site-packages/pandas/core/internals/construction.py", line 643, in _extract_index
+    raise ValueError("All arrays must be of the same length")
+ValueError: All arrays must be of the same length
++ echo '[retry] WARNING importance failed'
+[retry] WARNING importance failed
++ echo '[retry] done'
+[retry] done

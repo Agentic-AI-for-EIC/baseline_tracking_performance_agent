@@ -41,10 +41,10 @@
     "lumi_scale": 1.0,
     "bkg_scale": 1.0,
     "binning_basis": "truth",
-    "optimal_cut": 0.2575,
-    "n_rows_channel": 219,
+    "optimal_cut": 0.055,
+    "n_rows_channel": 40955,
     "campaign": "26.02.0",
-    "written_at_utc": "2026-09-17T19:10:49.715637+00:00"
+    "written_at_utc": "2026-09-19T10:04:18.032682+00:00"
   },
   "data": [
     {
@@ -53,16 +53,16 @@
       "bin_column": "truth_pt",
       "bin": "(0.5, 1.23077]",
       "bin_center": 0.8653846154,
-      "n_signal_bin": 88,
-      "n_background_bin": 14,
-      "threshold": 0.7,
-      "significance": 9.3273790531,
-      "efficiency": 0.9886363636,
-      "fake_rate": 0.0,
-      "purity": 1.0,
+      "n_signal_bin": 16606,
+      "n_background_bin": 2570,
+      "threshold": 0.29,
+      "significance": 127.8799134936,
+      "efficiency": 0.9887992292,
+      "fake_rate": 0.0260700389,
+      "purity": 0.9959361922,
       "valid": true,
       "reason": "",
-      "caution": "only 0 of 14 background candidates accepted: fake rate and purity are limited by the sample, use fake_rate_upper_limit / rejection_lower_limit"
+      "caution": ""
     },
     {
       "channel": "ehad",
@@ -70,16 +70,16 @@
       "bin_column": "truth_pt",
       "bin": "(1.23077, 1.96154]",
       "bin_center": 1.5961538462,
-      "n_signal_bin": 80,
-      "n_background_bin": 1,
-      "threshold": 0.015,
-      "significance": 8.8888888889,
-      "efficiency": 1.0,
-      "fake_rate": 1.0,
-      "purity": 0.987654321,
+      "n_signal_bin": 15225,
+      "n_background_bin": 65,
+      "threshold": 0.02,
+      "significance": 123.2559603706,
+      "efficiency": 0.9992775041,
+      "fake_rate": 0.3384615385,
+      "purity": 0.9985560515,
       "valid": true,
       "reason": "",
-      "caution": "degenerate: FOM is maximised by accepting every candidate (efficiency and fake rate both 1), i.e. the classifier does not separate these classes - no working point exists in this score space; only 1 of 1 background candidates accepted: fake rate and purity are limited by the sample, use fake_rate_upper_limit / rejection_lower_limit"
+      "caution": ""
     },
     {
       "channel": "ehad",
@@ -87,16 +87,16 @@
       "bin_column": "truth_pt",
       "bin": "(1.96154, 2.69231]",
       "bin_center": 2.3269230769,
-      "n_signal_bin": 24,
-      "n_background_bin": 0,
-      "threshold": null,
-      "significance": null,
-      "efficiency": null,
-      "fake_rate": null,
-      "purity": null,
-      "valid": false,
-      "reason": "pid.significance.scan_thresholds: class 1 has 24 and class 0 has 0 entries - a working point needs both",
-      "caution": ""
+      "n_signal_bin": 4303,
+      "n_background_bin": 6,
+      "threshold": 0.025,
+      "significance": 65.5744011799,
+      "efficiency": 1.0,
+      "fake_rate": 0.5,
+      "purity": 0.9993032977,
+      "valid": true,
+      "reason": "",
+      "caution": "only 3 of 6 background candidates accepted: fake rate and purity are limited by the sample, use fake_rate_upper_limit / rejection_lower_limit"
     },
     {
       "channel": "ehad",
@@ -104,7 +104,7 @@
       "bin_column": "truth_pt",
       "bin": "(2.69231, 3.42308]",
       "bin_center": 3.0576923077,
-      "n_signal_bin": 10,
+      "n_signal_bin": 1556,
       "n_background_bin": 0,
       "threshold": null,
       "significance": null,
@@ -112,7 +112,7 @@
       "fake_rate": null,
       "purity": null,
       "valid": false,
-      "reason": "bin has 10 candidates < 20",
+      "reason": "pid.significance.scan_thresholds: class 1 has 1556 and class 0 has 0 entries - a working point needs both",
       "caution": ""
     },
     {
@@ -121,7 +121,7 @@
       "bin_column": "truth_pt",
       "bin": "(3.42308, 4.15385]",
       "bin_center": 3.7884615385,
-      "n_signal_bin": 2,
+      "n_signal_bin": 565,
       "n_background_bin": 0,
       "threshold": null,
       "significance": null,
@@ -129,7 +129,7 @@
       "fake_rate": null,
       "purity": null,
       "valid": false,
-      "reason": "bin has 2 candidates < 20",
+      "reason": "pid.significance.scan_thresholds: class 1 has 565 and class 0 has 0 entries - a working point needs both",
       "caution": ""
     },
     {
@@ -138,7 +138,7 @@
       "bin_column": "truth_pt",
       "bin": "(4.15385, 4.88462]",
       "bin_center": 4.5192307692,
-      "n_signal_bin": 0,
+      "n_signal_bin": 59,
       "n_background_bin": 0,
       "threshold": null,
       "significance": null,
@@ -146,7 +146,7 @@
       "fake_rate": null,
       "purity": null,
       "valid": false,
-      "reason": "bin has 0 candidates < 20",
+      "reason": "pid.significance.scan_thresholds: class 1 has 59 and class 0 has 0 entries - a working point needs both",
       "caution": ""
     },
     {

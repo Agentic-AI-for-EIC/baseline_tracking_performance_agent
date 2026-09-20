@@ -50,7 +50,8 @@ def shap_table(model, X: pd.DataFrame, *, model_name: str,
     """Mean |SHAP| and signed mean SHAP per feature (exact, from the booster)."""
     adapter = models.get_adapter(model_name)
     try:
-        values = adapter.shap(model, X.head(max_rows))
+        values = models.as_sample_feature_matrix(
+            adapter.shap(model, X.head(max_rows)))
     except NotImplementedError as exc:
         print(f"[importance] {exc}")
         return pd.DataFrame(columns=["column", "mean_abs_shap", "mean_shap", "family"])
@@ -161,6 +162,26 @@ def restrict_to_test_files(prep: pd.DataFrame, test_files) -> tuple[pd.DataFrame
     return prep, scope
 
 
+def align_to_trained_columns(X: pd.DataFrame, columns: list[str]) -> pd.DataFrame:
+    """Reindex a design matrix to the width the booster was fitted on.
+
+    Models trained before the all-NaN drop in ``design_matrix`` were fitted
+    on all recorded `columns`; the current matrix omits the unmeasurable
+    ones, which crashes predict/SHAP on a width check. Re-add the missing
+    columns as NaN: an all-NaN column can own no split, hence no gain and no
+    SHAP mass either way, so measurable rankings are identical to a retrain
+    and predict sees exactly the training-time matrix.
+    """
+    dropped = [c for c in columns if c not in X.columns]
+    if dropped:
+        print(f"[importance] re-adding {len(dropped)} unmeasurable trained "
+              f"columns as NaN: {dropped[:6]}{'...' if len(dropped) > 6 else ''}")
+        for c in dropped:
+            X[c] = np.nan
+        X = X[list(columns)]
+    return X
+
+
 def load_model_artifact(scores_or_model_dir: str):
     """Load the estimator gains/SHAP are read from, and which file it came from.
 
@@ -219,7 +240,7 @@ def importance(scores_or_model_dir: str, *, model_name: str, task: str,
     if missing:
         raise SystemExit(f"pid.importance: feature table is missing trained columns "
                          f"{missing[:6]} - rebuild features before computing importance")
-    X = dataset.design_matrix(prep, columns)
+    X = align_to_trained_columns(dataset.design_matrix(prep, columns), columns)
     y = prep["label"].to_numpy(int)
     model, artifact = load_model_artifact(scores_or_model_dir)
     print(f"[importance] gains/SHAP read from {artifact} "

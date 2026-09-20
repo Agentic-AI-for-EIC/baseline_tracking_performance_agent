@@ -36,10 +36,15 @@ def compute_pid_confusion(
         pt_bin, eta_bin, pt_bin_center, eta_bin_center,
         truth_species, reco_species,
         n_matchedinbin,                        # matches of this (truth, reco)
-                                              # pair in this bin
-        confusion_frac, confusion_frac_err,   # row-normalised: n_ij / n_i
-        efficiency, efficiency_err,           # n_i / n_truth_total_in_bin
-        n_truth_total_in_bin,                 # denominator for efficiency
+                                               # pair in this bin
+        confusion_frac, confusion_frac_err,   # row-normalised: n_ij / n_i,
+                                               # i.e. P(reco=j | truth=i)
+        efficiency, efficiency_err,           # species share among matched
+                                               # tracks: n_i / n_bin_total,
+                                               # i.e. P(truth=i | bin) - context
+                                               # for reading the fractions, NOT
+                                               # the tracking efficiency
+        n_truth_total_in_bin,                 # row denominator
         insufficient_stats.
     """
     shared: dict = {}

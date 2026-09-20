@@ -54,7 +54,7 @@ gets noticed.
 
 ### 1. Smoke test on the local pair (no network)
 ```sh
-python -m unittest discover -s pid/tests -v     # 238 tests
+python -m unittest discover -s pid/tests -v     # 255 tests
 python -m pid all --dataset-tag clean --plot --relax-gates  # features→train→evaluate→importance (smoke checks plumbing; gates print but do not block — drop --relax-gates to enforce them)
 ```
 One file ⇒ the pipeline prints `NOT a quotable performance number` (splits cannot

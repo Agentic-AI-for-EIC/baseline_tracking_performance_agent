@@ -8,10 +8,13 @@ Every adapter exposes the same four things:
     the library's own split-gain importance,
 ``shap(estimator, X)``
     **exact** tree SHAP values (the ``shap`` package is not installed here, but
-    both boosting libraries compute exact TreeSHAP internally). Binary tasks
-    only: for multiclass objectives the booster returns one block per class
-    and the adapter keeps the first class block, so multiclass SHAP rankings
-    are diagnostic, not gating (the hadpid train gate is gain-only by design -
+    both boosting libraries compute exact TreeSHAP internally), collapsed to
+    one ``(n_samples, n_features)`` ranking by
+    :func:`as_sample_feature_matrix`. Binary tasks only for gating: the
+    LightGBM adapter keeps the first class block for multiclass objectives
+    while the XGBoost adapter averages attribution over classes (documented
+    asymmetry - see each adapter), so multiclass SHAP rankings are
+    diagnostic, not gating (the hadpid train gate is gain-only by design -
     see PRIMARY_ATTRIBUTION).
 ``space``
     the hyper-parameter search grid.
@@ -60,3 +63,16 @@ def objective(n_classes: int) -> tuple[str, str]:
     if n_classes <= 2:
         return ("binary", "auc")
     return ("multiclass", "mlogloss")
+
+
+def as_sample_feature_matrix(values) -> np.ndarray:
+    """Collapse a SHAP array to ``(n_samples, n_features)``.
+
+    Binary estimators return 2-D; multiclass ones may add a trailing class
+    axis, over which attribution mass is averaged so one ranking covers the
+    task. Callers must slice any bias column BEFORE calling (adapters do).
+    """
+    v = np.asarray(values, dtype=float)
+    if v.ndim == 3:
+        v = np.nanmean(v, axis=2)
+    return v

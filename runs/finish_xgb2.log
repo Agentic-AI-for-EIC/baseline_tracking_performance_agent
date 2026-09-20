@@ -1,0 +1,341 @@
++ PY=python3
++ python3 -m pid train --task pooled --model xgboost --dataset-tag clean --features output/pid-features_clean.pkl --seed 1234 --n-iter 24
+[train] feature table output/pid-features_clean.pkl: 627688 rows, 112 cols
+[train/pooled/xgboost/clean] 501703 rows, 53 features, 4 classes -> AUC train 0.8871 / test 0.8686 (label-shuffle control 0.5000) in 5295.9s
+[train] top gain features: ['leg', 'ecal_backward_E', 'e_over_p_backward']
+[gate:PASS] train_test_auc_gap: 0.01849993530992955 | requires 0.02
+[gate:PASS] label_shuffle_control: {"control_auc_mean": 0.4999694352149587, "control_auc_std": 0.0275078221551318, "control_auc_max": 0.5361076368957223, "model_auc_test": 0.8685712859520243, "z": 13.399892170972903} | requires {"min_z": 3.0, "min_auc_margin": 0.1}  [5 balanced permutations, 22699/class; AUCs [0.5361, 0.5144, 0.468, 0.5032, 0.4781]]
+[gate:FAIL] top_feature_is_physical: {"gain_top3": ["leg", "ecal_backward_E", "e_over_p_backward"], "shap_top3": ["ecal_backward_E", "leg", "e_over_p_forward"]} | requires {"gain_patterns": ["e_over_p", "log_e_over_p", "ecal_", "leg"], "shap_must_lead": "e_over_p"}
+[gate:PASS] no_single_feature_label_correlation: -0.6814532655630189 | requires 0.99
+[train] artifacts -> output/models/pooled_xgboost_clean/
+pid.train: gates failed for pooled/xgboost/clean: ['top_feature_is_physical']. Re-run with --relax-gates to inspect the result anyway, and record the failure if the number is ever quoted.
++ echo '[finish2] train pooled/xgboost failed (see log)'
+[finish2] train pooled/xgboost failed (see log)
++ '[' -f output/models/pooled_xgboost_clean/test_scores.pkl ']'
++ python3 -m pid evaluate --task pooled --model xgboost --dataset-tag clean --scores output/models/pooled_xgboost_clean/test_scores.pkl --by pt,eta --plot
+[evaluate/pooled_xgboost_clean] NOTE: no --signal given for multiclass task 'pooled'; quoting 'e' vs rest
+[report] wrote output/pid-pooled_xgboost_clean-overall.json, output/pid-pooled_xgboost_clean-overall.md, output/pid-pooled_xgboost_clean-overall.root (8 rows)
+[report] wrote output/pid-pooled_xgboost_clean-vs_pt.json, output/pid-pooled_xgboost_clean-vs_pt.md, output/pid-pooled_xgboost_clean-vs_pt.root (8 rows)
+[report] wrote output/pid-pooled_xgboost_clean-vs_eta.json, output/pid-pooled_xgboost_clean-vs_eta.md, output/pid-pooled_xgboost_clean-vs_eta.root (16 rows)
+[report] wrote output/pid-pooled_xgboost_clean-confusion.json, output/pid-pooled_xgboost_clean-confusion.md, output/pid-pooled_xgboost_clean-confusion.root (16 rows)
+[report] wrote output/pid-pooled_xgboost_clean-roc.json, output/pid-pooled_xgboost_clean-roc.md, output/pid-pooled_xgboost_clean-roc.root (200 rows)
+[evaluate/pooled_xgboost_clean] scored sample: 38 file(s), 1083 event(s), 125731 tracks (69372 signal / 40457 background)
+[evaluate/pooled_xgboost_clean] auc              0.9961774523927487
+[evaluate/pooled_xgboost_clean] signal_peak      1.9870264694445054
+[evaluate/pooled_xgboost_clean] background_peak  -4.673179705746771
+[evaluate/pooled_xgboost_clean] n_sigma_lower_limit nan  [NOT COMPUTABLE: too few candidates to fit]
+[evaluate/pooled_xgboost_clean] n_sigma          3.7722091092633177
+[evaluate/pooled_xgboost_clean] efficiency       0.9604518377536644 (target fake 0.01)
+[evaluate/pooled_xgboost_clean] efficiency       0.9217193563536594 (target fake 0.001)
+[evaluate/pooled_xgboost_clean] efficiency       0.8816274068764367 (target fake 0.0001)
+[plot] wrote output/plots/pid-pooled_xgboost_clean-roc.png
+[plot] wrote output/plots/pid-pooled_xgboost_clean-eff_vs_fake.png
+[plot] wrote output/plots/pid-pooled_xgboost_clean-auc_vs_pt.png
+[plot] wrote output/plots/pid-pooled_xgboost_clean-auc_vs_eta.png
++ python3 -m pid importance --dir output/models/pooled_xgboost_clean --task pooled --model xgboost --dataset-tag clean --plot
+[importance] gains/SHAP read from booster.joblib (unwrapped booster)
+[report] wrote output/pid-pooled_xgboost_clean-importance-gain.json, output/pid-pooled_xgboost_clean-importance-gain.md, output/pid-pooled_xgboost_clean-importance-gain.root (53 rows)
+[report] wrote output/pid-pooled_xgboost_clean-importance-shap.json, output/pid-pooled_xgboost_clean-importance-shap.md, output/pid-pooled_xgboost_clean-importance-shap.root (53 rows)
+[report] wrote output/pid-pooled_xgboost_clean-importance-permutation.json, output/pid-pooled_xgboost_clean-importance-permutation.md, output/pid-pooled_xgboost_clean-importance-permutation.root (53 rows)
+
+[importance] leading feature: {'kind': 'shap', 'column': 'ecal_backward_E', 'family': 'calorimeter'}
+[plot] wrote output/plots/pid-pooled_xgboost_clean-importance.png
++ python3 -m pid importance --dir output/models/hadpid_xgboost_clean --task hadpid --model xgboost --dataset-tag clean --plot
+[importance] gains/SHAP read from booster.joblib (unwrapped booster)
+[report] wrote output/pid-hadpid_xgboost_clean-importance-gain.json, output/pid-hadpid_xgboost_clean-importance-gain.md, output/pid-hadpid_xgboost_clean-importance-gain.root (32 rows)
+[report] wrote output/pid-hadpid_xgboost_clean-importance-shap.json, output/pid-hadpid_xgboost_clean-importance-shap.md, output/pid-hadpid_xgboost_clean-importance-shap.root (32 rows)
+[report] wrote output/pid-hadpid_xgboost_clean-importance-permutation.json, output/pid-hadpid_xgboost_clean-importance-permutation.md, output/pid-hadpid_xgboost_clean-importance-permutation.root (32 rows)
+
+[importance] leading feature: {'kind': 'shap', 'column': 'ecal_forward_E', 'family': 'calorimeter'}
+[plot] wrote output/plots/pid-hadpid_xgboost_clean-importance.png
++ python3 -m pid performance --dataset-tag clean --model lightgbm --bin-source both --require-figures
+[report] wrote output/pid-eid_lightgbm_clean-significance_vs_cut.json, output/pid-eid_lightgbm_clean-significance_vs_cut.md, output/pid-eid_lightgbm_clean-significance_vs_cut.root (401 rows)
+[report] wrote output/pid-eid_lightgbm_clean-optimal_cut_vs_pt.json, output/pid-eid_lightgbm_clean-optimal_cut_vs_pt.md, output/pid-eid_lightgbm_clean-optimal_cut_vs_pt.root (13 rows)
+[report] wrote output/pid-eid_lightgbm_clean-at_cut_global.json, output/pid-eid_lightgbm_clean-at_cut_global.md, output/pid-eid_lightgbm_clean-at_cut_global.root (13 rows)
+[report] wrote output/pid-eid_lightgbm_clean-at_cut_per_bin.json, output/pid-eid_lightgbm_clean-at_cut_per_bin.md, output/pid-eid_lightgbm_clean-at_cut_per_bin.root (13 rows)
+[report] wrote output/pid-eid_lightgbm_clean-rejection_vs_p.json, output/pid-eid_lightgbm_clean-rejection_vs_p.md, output/pid-eid_lightgbm_clean-rejection_vs_p.root (14 rows)
+[report] wrote output/pid-eid_lightgbm_clean-efficiency_vs_eta.json, output/pid-eid_lightgbm_clean-efficiency_vs_eta.md, output/pid-eid_lightgbm_clean-efficiency_vs_eta.root (16 rows)
+[report] wrote output/pid-eid_lightgbm_clean-nsigma_vs_p.json, output/pid-eid_lightgbm_clean-nsigma_vs_p.md, output/pid-eid_lightgbm_clean-nsigma_vs_p.root (14 rows)
+[report] wrote output/pid-eid_lightgbm_clean-significance_by_pt.json, output/pid-eid_lightgbm_clean-significance_by_pt.md, output/pid-eid_lightgbm_clean-significance_by_pt.root (613 rows)
+[report] wrote output/pid-eid_lightgbm_clean-eff_map_pt_vs_eta.json, output/pid-eid_lightgbm_clean-eff_map_pt_vs_eta.md, output/pid-eid_lightgbm_clean-eff_map_pt_vs_eta.root (208 rows)
+[report] wrote output/pid-eid_lightgbm_clean-fake_map_pt_vs_eta.json, output/pid-eid_lightgbm_clean-fake_map_pt_vs_eta.md, output/pid-eid_lightgbm_clean-fake_map_pt_vs_eta.root (208 rows)
+[plot] wrote output/plots/pid-eid_significance_vs_cut.png
+[plot] wrote output/plots/pid-eid_roc.png
+[plot] wrote output/plots/pid-eid_optimal_cut_vs_pt.png
+[plot] wrote output/plots/pid-eid_eff_vs_pt.png
+[plot] wrote output/plots/pid-eid_misid_vs_pt.png
+[plot] wrote output/plots/pid-eid_purity_vs_pt.png
+[plot] wrote output/plots/pid-eid_pion_rejection_vs_p.png
+[plot] wrote output/plots/pid-eid_nsigma_vs_p.png
+[plot] wrote output/plots/pid-eid_significance_vs_cut_by_pt.png
+[plot] wrote output/plots/pid-eid_significance_vs_cut_panels.png
+[plot] wrote output/plots/pid-eid_eff_map_pt_vs_eta.png
+[plot] wrote output/plots/pid-eid_fake_map_pt_vs_eta.png
+[plot] wrote output/plots/pid-eid_score_dist_train_vs_test.png
+[deliverables/eid] complete: 13/13 figures
+[report] wrote output/pid-eid_lightgbm_clean-significance_vs_cut_truthpt.json, output/pid-eid_lightgbm_clean-significance_vs_cut_truthpt.md, output/pid-eid_lightgbm_clean-significance_vs_cut_truthpt.root (401 rows)
+[report] wrote output/pid-eid_lightgbm_clean-optimal_cut_vs_pt_truthpt.json, output/pid-eid_lightgbm_clean-optimal_cut_vs_pt_truthpt.md, output/pid-eid_lightgbm_clean-optimal_cut_vs_pt_truthpt.root (13 rows)
+[report] wrote output/pid-eid_lightgbm_clean-at_cut_global_truthpt.json, output/pid-eid_lightgbm_clean-at_cut_global_truthpt.md, output/pid-eid_lightgbm_clean-at_cut_global_truthpt.root (13 rows)
+[report] wrote output/pid-eid_lightgbm_clean-at_cut_per_bin_truthpt.json, output/pid-eid_lightgbm_clean-at_cut_per_bin_truthpt.md, output/pid-eid_lightgbm_clean-at_cut_per_bin_truthpt.root (13 rows)
+[report] wrote output/pid-eid_lightgbm_clean-rejection_vs_p_truthpt.json, output/pid-eid_lightgbm_clean-rejection_vs_p_truthpt.md, output/pid-eid_lightgbm_clean-rejection_vs_p_truthpt.root (14 rows)
+[report] wrote output/pid-eid_lightgbm_clean-efficiency_vs_eta_truthpt.json, output/pid-eid_lightgbm_clean-efficiency_vs_eta_truthpt.md, output/pid-eid_lightgbm_clean-efficiency_vs_eta_truthpt.root (16 rows)
+[report] wrote output/pid-eid_lightgbm_clean-nsigma_vs_p_truthpt.json, output/pid-eid_lightgbm_clean-nsigma_vs_p_truthpt.md, output/pid-eid_lightgbm_clean-nsigma_vs_p_truthpt.root (14 rows)
+[report] wrote output/pid-eid_lightgbm_clean-significance_by_pt_truthpt.json, output/pid-eid_lightgbm_clean-significance_by_pt_truthpt.md, output/pid-eid_lightgbm_clean-significance_by_pt_truthpt.root (613 rows)
+[report] wrote output/pid-eid_lightgbm_clean-eff_map_pt_vs_eta_truthpt.json, output/pid-eid_lightgbm_clean-eff_map_pt_vs_eta_truthpt.md, output/pid-eid_lightgbm_clean-eff_map_pt_vs_eta_truthpt.root (208 rows)
+[report] wrote output/pid-eid_lightgbm_clean-fake_map_pt_vs_eta_truthpt.json, output/pid-eid_lightgbm_clean-fake_map_pt_vs_eta_truthpt.md, output/pid-eid_lightgbm_clean-fake_map_pt_vs_eta_truthpt.root (208 rows)
+[plot] wrote output/plots/pid-eid_optimal_cut_vs_pt_truthpt.png
+[plot] wrote output/plots/pid-eid_eff_vs_pt_truthpt.png
+[plot] wrote output/plots/pid-eid_misid_vs_pt_truthpt.png
+[plot] wrote output/plots/pid-eid_purity_vs_pt_truthpt.png
+[plot] wrote output/plots/pid-eid_pion_rejection_vs_p_truthpt.png
+[plot] wrote output/plots/pid-eid_nsigma_vs_p_truthpt.png
+[plot] wrote output/plots/pid-eid_significance_vs_cut_by_pt_truthpt.png
+[plot] wrote output/plots/pid-eid_significance_vs_cut_panels_truthpt.png
+[plot] wrote output/plots/pid-eid_eff_map_pt_vs_eta_truthpt.png
+[plot] wrote output/plots/pid-eid_fake_map_pt_vs_eta_truthpt.png
+[deliverables/eid_truthpt] complete: 13/13 figures (3 shared with the reconstructed basis)
+[report] wrote output/pid-ehad_lightgbm_clean-significance_vs_cut.json, output/pid-ehad_lightgbm_clean-significance_vs_cut.md, output/pid-ehad_lightgbm_clean-significance_vs_cut.root (401 rows)
+[report] wrote output/pid-ehad_lightgbm_clean-optimal_cut_vs_pt.json, output/pid-ehad_lightgbm_clean-optimal_cut_vs_pt.md, output/pid-ehad_lightgbm_clean-optimal_cut_vs_pt.root (13 rows)
+[report] wrote output/pid-ehad_lightgbm_clean-at_cut_global.json, output/pid-ehad_lightgbm_clean-at_cut_global.md, output/pid-ehad_lightgbm_clean-at_cut_global.root (13 rows)
+[report] wrote output/pid-ehad_lightgbm_clean-at_cut_per_bin.json, output/pid-ehad_lightgbm_clean-at_cut_per_bin.md, output/pid-ehad_lightgbm_clean-at_cut_per_bin.root (13 rows)
+[report] wrote output/pid-ehad_lightgbm_clean-rejection_vs_p.json, output/pid-ehad_lightgbm_clean-rejection_vs_p.md, output/pid-ehad_lightgbm_clean-rejection_vs_p.root (14 rows)
+[report] wrote output/pid-ehad_lightgbm_clean-efficiency_vs_eta.json, output/pid-ehad_lightgbm_clean-efficiency_vs_eta.md, output/pid-ehad_lightgbm_clean-efficiency_vs_eta.root (16 rows)
+[report] wrote output/pid-ehad_lightgbm_clean-nsigma_vs_p.json, output/pid-ehad_lightgbm_clean-nsigma_vs_p.md, output/pid-ehad_lightgbm_clean-nsigma_vs_p.root (14 rows)
+[report] wrote output/pid-ehad_lightgbm_clean-significance_by_pt.json, output/pid-ehad_lightgbm_clean-significance_by_pt.md, output/pid-ehad_lightgbm_clean-significance_by_pt.root (613 rows)
+[report] wrote output/pid-ehad_lightgbm_clean-eff_map_pt_vs_eta.json, output/pid-ehad_lightgbm_clean-eff_map_pt_vs_eta.md, output/pid-ehad_lightgbm_clean-eff_map_pt_vs_eta.root (208 rows)
+[report] wrote output/pid-ehad_lightgbm_clean-fake_map_pt_vs_eta.json, output/pid-ehad_lightgbm_clean-fake_map_pt_vs_eta.md, output/pid-ehad_lightgbm_clean-fake_map_pt_vs_eta.root (208 rows)
+[plot] wrote output/plots/pid-ehad_significance_vs_cut.png
+[plot] wrote output/plots/pid-ehad_roc.png
+[plot] wrote output/plots/pid-ehad_optimal_cut_vs_pt.png
+[plot] wrote output/plots/pid-ehad_eff_vs_pt.png
+[plot] wrote output/plots/pid-ehad_misid_vs_pt.png
+[plot] wrote output/plots/pid-ehad_purity_vs_pt.png
+[plot] wrote output/plots/pid-ehad_rejection_vs_p.png
+[plot] wrote output/plots/pid-ehad_nsigma_vs_p.png
+[plot] wrote output/plots/pid-ehad_significance_vs_cut_by_pt.png
+[plot] wrote output/plots/pid-ehad_significance_vs_cut_panels.png
+[plot] wrote output/plots/pid-ehad_eff_map_pt_vs_eta.png
+[plot] wrote output/plots/pid-ehad_fake_map_pt_vs_eta.png
+[plot] wrote output/plots/pid-ehad_score_dist_train_vs_test.png
+[deliverables/ehad] complete: 13/13 figures
+[report] wrote output/pid-ehad_lightgbm_clean-significance_vs_cut_truthpt.json, output/pid-ehad_lightgbm_clean-significance_vs_cut_truthpt.md, output/pid-ehad_lightgbm_clean-significance_vs_cut_truthpt.root (401 rows)
+[report] wrote output/pid-ehad_lightgbm_clean-optimal_cut_vs_pt_truthpt.json, output/pid-ehad_lightgbm_clean-optimal_cut_vs_pt_truthpt.md, output/pid-ehad_lightgbm_clean-optimal_cut_vs_pt_truthpt.root (13 rows)
+[report] wrote output/pid-ehad_lightgbm_clean-at_cut_global_truthpt.json, output/pid-ehad_lightgbm_clean-at_cut_global_truthpt.md, output/pid-ehad_lightgbm_clean-at_cut_global_truthpt.root (13 rows)
+[report] wrote output/pid-ehad_lightgbm_clean-at_cut_per_bin_truthpt.json, output/pid-ehad_lightgbm_clean-at_cut_per_bin_truthpt.md, output/pid-ehad_lightgbm_clean-at_cut_per_bin_truthpt.root (13 rows)
+[report] wrote output/pid-ehad_lightgbm_clean-rejection_vs_p_truthpt.json, output/pid-ehad_lightgbm_clean-rejection_vs_p_truthpt.md, output/pid-ehad_lightgbm_clean-rejection_vs_p_truthpt.root (14 rows)
+[report] wrote output/pid-ehad_lightgbm_clean-efficiency_vs_eta_truthpt.json, output/pid-ehad_lightgbm_clean-efficiency_vs_eta_truthpt.md, output/pid-ehad_lightgbm_clean-efficiency_vs_eta_truthpt.root (16 rows)
+[report] wrote output/pid-ehad_lightgbm_clean-nsigma_vs_p_truthpt.json, output/pid-ehad_lightgbm_clean-nsigma_vs_p_truthpt.md, output/pid-ehad_lightgbm_clean-nsigma_vs_p_truthpt.root (14 rows)
+[report] wrote output/pid-ehad_lightgbm_clean-significance_by_pt_truthpt.json, output/pid-ehad_lightgbm_clean-significance_by_pt_truthpt.md, output/pid-ehad_lightgbm_clean-significance_by_pt_truthpt.root (613 rows)
+[report] wrote output/pid-ehad_lightgbm_clean-eff_map_pt_vs_eta_truthpt.json, output/pid-ehad_lightgbm_clean-eff_map_pt_vs_eta_truthpt.md, output/pid-ehad_lightgbm_clean-eff_map_pt_vs_eta_truthpt.root (208 rows)
+[report] wrote output/pid-ehad_lightgbm_clean-fake_map_pt_vs_eta_truthpt.json, output/pid-ehad_lightgbm_clean-fake_map_pt_vs_eta_truthpt.md, output/pid-ehad_lightgbm_clean-fake_map_pt_vs_eta_truthpt.root (208 rows)
+[plot] wrote output/plots/pid-ehad_optimal_cut_vs_pt_truthpt.png
+[plot] wrote output/plots/pid-ehad_eff_vs_pt_truthpt.png
+[plot] wrote output/plots/pid-ehad_misid_vs_pt_truthpt.png
+[plot] wrote output/plots/pid-ehad_purity_vs_pt_truthpt.png
+[plot] wrote output/plots/pid-ehad_rejection_vs_p_truthpt.png
+[plot] wrote output/plots/pid-ehad_nsigma_vs_p_truthpt.png
+[plot] wrote output/plots/pid-ehad_significance_vs_cut_by_pt_truthpt.png
+[plot] wrote output/plots/pid-ehad_significance_vs_cut_panels_truthpt.png
+[plot] wrote output/plots/pid-ehad_eff_map_pt_vs_eta_truthpt.png
+[plot] wrote output/plots/pid-ehad_fake_map_pt_vs_eta_truthpt.png
+[deliverables/ehad_truthpt] complete: 13/13 figures (3 shared with the reconstructed basis)
+[report] wrote output/pid-Kpi_lightgbm_clean-significance_vs_cut.json, output/pid-Kpi_lightgbm_clean-significance_vs_cut.md, output/pid-Kpi_lightgbm_clean-significance_vs_cut.root (401 rows)
+[report] wrote output/pid-Kpi_lightgbm_clean-optimal_cut_vs_pt.json, output/pid-Kpi_lightgbm_clean-optimal_cut_vs_pt.md, output/pid-Kpi_lightgbm_clean-optimal_cut_vs_pt.root (13 rows)
+[report] wrote output/pid-Kpi_lightgbm_clean-at_cut_global.json, output/pid-Kpi_lightgbm_clean-at_cut_global.md, output/pid-Kpi_lightgbm_clean-at_cut_global.root (13 rows)
+[report] wrote output/pid-Kpi_lightgbm_clean-at_cut_per_bin.json, output/pid-Kpi_lightgbm_clean-at_cut_per_bin.md, output/pid-Kpi_lightgbm_clean-at_cut_per_bin.root (13 rows)
+[report] wrote output/pid-Kpi_lightgbm_clean-rejection_vs_p.json, output/pid-Kpi_lightgbm_clean-rejection_vs_p.md, output/pid-Kpi_lightgbm_clean-rejection_vs_p.root (14 rows)
+[report] wrote output/pid-Kpi_lightgbm_clean-efficiency_vs_eta.json, output/pid-Kpi_lightgbm_clean-efficiency_vs_eta.md, output/pid-Kpi_lightgbm_clean-efficiency_vs_eta.root (16 rows)
+[report] wrote output/pid-Kpi_lightgbm_clean-nsigma_vs_p.json, output/pid-Kpi_lightgbm_clean-nsigma_vs_p.md, output/pid-Kpi_lightgbm_clean-nsigma_vs_p.root (14 rows)
+[report] wrote output/pid-Kpi_lightgbm_clean-significance_by_pt.json, output/pid-Kpi_lightgbm_clean-significance_by_pt.md, output/pid-Kpi_lightgbm_clean-significance_by_pt.root (1413 rows)
+[report] wrote output/pid-Kpi_lightgbm_clean-eff_map_pt_vs_eta.json, output/pid-Kpi_lightgbm_clean-eff_map_pt_vs_eta.md, output/pid-Kpi_lightgbm_clean-eff_map_pt_vs_eta.root (208 rows)
+[report] wrote output/pid-Kpi_lightgbm_clean-fake_map_pt_vs_eta.json, output/pid-Kpi_lightgbm_clean-fake_map_pt_vs_eta.md, output/pid-Kpi_lightgbm_clean-fake_map_pt_vs_eta.root (208 rows)
+[report] wrote output/pid-Kpi_lightgbm_clean-confusion_matrix_atcut.json, output/pid-Kpi_lightgbm_clean-confusion_matrix_atcut.md, output/pid-Kpi_lightgbm_clean-confusion_matrix_atcut.root (12 rows)
+[plot] wrote output/plots/pid-Kpi_significance_vs_cut.png
+[plot] wrote output/plots/pid-Kpi_roc.png
+[plot] wrote output/plots/pid-Kpi_optimal_cut_vs_pt.png
+[plot] wrote output/plots/pid-Kpi_eff_vs_pt.png
+[plot] wrote output/plots/pid-Kpi_misid_vs_pt.png
+[plot] wrote output/plots/pid-Kpi_purity_vs_pt.png
+[plot] wrote output/plots/pid-Kpi_rejection_vs_p.png
+[plot] wrote output/plots/pid-Kpi_nsigma_vs_p.png
+[plot] wrote output/plots/pid-Kpi_significance_vs_cut_by_pt.png
+[plot] wrote output/plots/pid-Kpi_significance_vs_cut_panels.png
+[plot] wrote output/plots/pid-Kpi_eff_map_pt_vs_eta.png
+[plot] wrote output/plots/pid-Kpi_fake_map_pt_vs_eta.png
+[plot] wrote output/plots/pid-Kpi_score_dist_train_vs_test.png
+[plot] wrote output/plots/pid-hadpid_confusion_matrix.png
+[plot] wrote output/plots/pid-hadpid_confusion_matrix_atcut.png
+[deliverables/Kpi] complete: 13/13 figures
+[report] wrote output/pid-Kpi_lightgbm_clean-significance_vs_cut_truthpt.json, output/pid-Kpi_lightgbm_clean-significance_vs_cut_truthpt.md, output/pid-Kpi_lightgbm_clean-significance_vs_cut_truthpt.root (401 rows)
+[report] wrote output/pid-Kpi_lightgbm_clean-optimal_cut_vs_pt_truthpt.json, output/pid-Kpi_lightgbm_clean-optimal_cut_vs_pt_truthpt.md, output/pid-Kpi_lightgbm_clean-optimal_cut_vs_pt_truthpt.root (13 rows)
+[report] wrote output/pid-Kpi_lightgbm_clean-at_cut_global_truthpt.json, output/pid-Kpi_lightgbm_clean-at_cut_global_truthpt.md, output/pid-Kpi_lightgbm_clean-at_cut_global_truthpt.root (13 rows)
+[report] wrote output/pid-Kpi_lightgbm_clean-at_cut_per_bin_truthpt.json, output/pid-Kpi_lightgbm_clean-at_cut_per_bin_truthpt.md, output/pid-Kpi_lightgbm_clean-at_cut_per_bin_truthpt.root (13 rows)
+[report] wrote output/pid-Kpi_lightgbm_clean-rejection_vs_p_truthpt.json, output/pid-Kpi_lightgbm_clean-rejection_vs_p_truthpt.md, output/pid-Kpi_lightgbm_clean-rejection_vs_p_truthpt.root (14 rows)
+[report] wrote output/pid-Kpi_lightgbm_clean-efficiency_vs_eta_truthpt.json, output/pid-Kpi_lightgbm_clean-efficiency_vs_eta_truthpt.md, output/pid-Kpi_lightgbm_clean-efficiency_vs_eta_truthpt.root (16 rows)
+[report] wrote output/pid-Kpi_lightgbm_clean-nsigma_vs_p_truthpt.json, output/pid-Kpi_lightgbm_clean-nsigma_vs_p_truthpt.md, output/pid-Kpi_lightgbm_clean-nsigma_vs_p_truthpt.root (14 rows)
+[report] wrote output/pid-Kpi_lightgbm_clean-significance_by_pt_truthpt.json, output/pid-Kpi_lightgbm_clean-significance_by_pt_truthpt.md, output/pid-Kpi_lightgbm_clean-significance_by_pt_truthpt.root (1013 rows)
+[report] wrote output/pid-Kpi_lightgbm_clean-eff_map_pt_vs_eta_truthpt.json, output/pid-Kpi_lightgbm_clean-eff_map_pt_vs_eta_truthpt.md, output/pid-Kpi_lightgbm_clean-eff_map_pt_vs_eta_truthpt.root (208 rows)
+[report] wrote output/pid-Kpi_lightgbm_clean-fake_map_pt_vs_eta_truthpt.json, output/pid-Kpi_lightgbm_clean-fake_map_pt_vs_eta_truthpt.md, output/pid-Kpi_lightgbm_clean-fake_map_pt_vs_eta_truthpt.root (208 rows)
+[report] wrote output/pid-Kpi_lightgbm_clean-confusion_matrix_atcut.json, output/pid-Kpi_lightgbm_clean-confusion_matrix_atcut.md, output/pid-Kpi_lightgbm_clean-confusion_matrix_atcut.root (12 rows)
+[plot] wrote output/plots/pid-Kpi_optimal_cut_vs_pt_truthpt.png
+[plot] wrote output/plots/pid-Kpi_eff_vs_pt_truthpt.png
+[plot] wrote output/plots/pid-Kpi_misid_vs_pt_truthpt.png
+[plot] wrote output/plots/pid-Kpi_purity_vs_pt_truthpt.png
+[plot] wrote output/plots/pid-Kpi_rejection_vs_p_truthpt.png
+[plot] wrote output/plots/pid-Kpi_nsigma_vs_p_truthpt.png
+[plot] wrote output/plots/pid-Kpi_significance_vs_cut_by_pt_truthpt.png
+[plot] wrote output/plots/pid-Kpi_significance_vs_cut_panels_truthpt.png
+[plot] wrote output/plots/pid-Kpi_eff_map_pt_vs_eta_truthpt.png
+[plot] wrote output/plots/pid-Kpi_fake_map_pt_vs_eta_truthpt.png
+[deliverables/Kpi_truthpt] complete: 13/13 figures (3 shared with the reconstructed basis)
+[report] wrote output/pid-pK_lightgbm_clean-significance_vs_cut.json, output/pid-pK_lightgbm_clean-significance_vs_cut.md, output/pid-pK_lightgbm_clean-significance_vs_cut.root (401 rows)
+[report] wrote output/pid-pK_lightgbm_clean-optimal_cut_vs_pt.json, output/pid-pK_lightgbm_clean-optimal_cut_vs_pt.md, output/pid-pK_lightgbm_clean-optimal_cut_vs_pt.root (13 rows)
+[report] wrote output/pid-pK_lightgbm_clean-at_cut_global.json, output/pid-pK_lightgbm_clean-at_cut_global.md, output/pid-pK_lightgbm_clean-at_cut_global.root (13 rows)
+[report] wrote output/pid-pK_lightgbm_clean-at_cut_per_bin.json, output/pid-pK_lightgbm_clean-at_cut_per_bin.md, output/pid-pK_lightgbm_clean-at_cut_per_bin.root (13 rows)
+[report] wrote output/pid-pK_lightgbm_clean-rejection_vs_p.json, output/pid-pK_lightgbm_clean-rejection_vs_p.md, output/pid-pK_lightgbm_clean-rejection_vs_p.root (14 rows)
+[report] wrote output/pid-pK_lightgbm_clean-efficiency_vs_eta.json, output/pid-pK_lightgbm_clean-efficiency_vs_eta.md, output/pid-pK_lightgbm_clean-efficiency_vs_eta.root (16 rows)
+[report] wrote output/pid-pK_lightgbm_clean-nsigma_vs_p.json, output/pid-pK_lightgbm_clean-nsigma_vs_p.md, output/pid-pK_lightgbm_clean-nsigma_vs_p.root (14 rows)
+[report] wrote output/pid-pK_lightgbm_clean-significance_by_pt.json, output/pid-pK_lightgbm_clean-significance_by_pt.md, output/pid-pK_lightgbm_clean-significance_by_pt.root (1013 rows)
+[report] wrote output/pid-pK_lightgbm_clean-eff_map_pt_vs_eta.json, output/pid-pK_lightgbm_clean-eff_map_pt_vs_eta.md, output/pid-pK_lightgbm_clean-eff_map_pt_vs_eta.root (208 rows)
+[report] wrote output/pid-pK_lightgbm_clean-fake_map_pt_vs_eta.json, output/pid-pK_lightgbm_clean-fake_map_pt_vs_eta.md, output/pid-pK_lightgbm_clean-fake_map_pt_vs_eta.root (208 rows)
+[report] wrote output/pid-pK_lightgbm_clean-confusion_matrix_atcut.json, output/pid-pK_lightgbm_clean-confusion_matrix_atcut.md, output/pid-pK_lightgbm_clean-confusion_matrix_atcut.root (12 rows)
+[plot] wrote output/plots/pid-pK_significance_vs_cut.png
+[plot] wrote output/plots/pid-pK_roc.png
+[plot] wrote output/plots/pid-pK_optimal_cut_vs_pt.png
+[plot] wrote output/plots/pid-pK_eff_vs_pt.png
+[plot] wrote output/plots/pid-pK_misid_vs_pt.png
+[plot] wrote output/plots/pid-pK_purity_vs_pt.png
+[plot] wrote output/plots/pid-pK_rejection_vs_p.png
+[plot] wrote output/plots/pid-pK_nsigma_vs_p.png
+[plot] wrote output/plots/pid-pK_significance_vs_cut_by_pt.png
+[plot] wrote output/plots/pid-pK_significance_vs_cut_panels.png
+[plot] wrote output/plots/pid-pK_eff_map_pt_vs_eta.png
+[plot] wrote output/plots/pid-pK_fake_map_pt_vs_eta.png
+[plot] wrote output/plots/pid-pK_score_dist_train_vs_test.png
+[plot] wrote output/plots/pid-hadpid_confusion_matrix_atcut.png
+[deliverables/pK] complete: 13/13 figures
+[report] wrote output/pid-pK_lightgbm_clean-significance_vs_cut_truthpt.json, output/pid-pK_lightgbm_clean-significance_vs_cut_truthpt.md, output/pid-pK_lightgbm_clean-significance_vs_cut_truthpt.root (401 rows)
+[report] wrote output/pid-pK_lightgbm_clean-optimal_cut_vs_pt_truthpt.json, output/pid-pK_lightgbm_clean-optimal_cut_vs_pt_truthpt.md, output/pid-pK_lightgbm_clean-optimal_cut_vs_pt_truthpt.root (13 rows)
+[report] wrote output/pid-pK_lightgbm_clean-at_cut_global_truthpt.json, output/pid-pK_lightgbm_clean-at_cut_global_truthpt.md, output/pid-pK_lightgbm_clean-at_cut_global_truthpt.root (13 rows)
+[report] wrote output/pid-pK_lightgbm_clean-at_cut_per_bin_truthpt.json, output/pid-pK_lightgbm_clean-at_cut_per_bin_truthpt.md, output/pid-pK_lightgbm_clean-at_cut_per_bin_truthpt.root (13 rows)
+[report] wrote output/pid-pK_lightgbm_clean-rejection_vs_p_truthpt.json, output/pid-pK_lightgbm_clean-rejection_vs_p_truthpt.md, output/pid-pK_lightgbm_clean-rejection_vs_p_truthpt.root (14 rows)
+[report] wrote output/pid-pK_lightgbm_clean-efficiency_vs_eta_truthpt.json, output/pid-pK_lightgbm_clean-efficiency_vs_eta_truthpt.md, output/pid-pK_lightgbm_clean-efficiency_vs_eta_truthpt.root (16 rows)
+[report] wrote output/pid-pK_lightgbm_clean-nsigma_vs_p_truthpt.json, output/pid-pK_lightgbm_clean-nsigma_vs_p_truthpt.md, output/pid-pK_lightgbm_clean-nsigma_vs_p_truthpt.root (14 rows)
+[report] wrote output/pid-pK_lightgbm_clean-significance_by_pt_truthpt.json, output/pid-pK_lightgbm_clean-significance_by_pt_truthpt.md, output/pid-pK_lightgbm_clean-significance_by_pt_truthpt.root (1013 rows)
+[report] wrote output/pid-pK_lightgbm_clean-eff_map_pt_vs_eta_truthpt.json, output/pid-pK_lightgbm_clean-eff_map_pt_vs_eta_truthpt.md, output/pid-pK_lightgbm_clean-eff_map_pt_vs_eta_truthpt.root (208 rows)
+[report] wrote output/pid-pK_lightgbm_clean-fake_map_pt_vs_eta_truthpt.json, output/pid-pK_lightgbm_clean-fake_map_pt_vs_eta_truthpt.md, output/pid-pK_lightgbm_clean-fake_map_pt_vs_eta_truthpt.root (208 rows)
+[report] wrote output/pid-pK_lightgbm_clean-confusion_matrix_atcut.json, output/pid-pK_lightgbm_clean-confusion_matrix_atcut.md, output/pid-pK_lightgbm_clean-confusion_matrix_atcut.root (12 rows)
+[plot] wrote output/plots/pid-pK_optimal_cut_vs_pt_truthpt.png
+[plot] wrote output/plots/pid-pK_eff_vs_pt_truthpt.png
+[plot] wrote output/plots/pid-pK_misid_vs_pt_truthpt.png
+[plot] wrote output/plots/pid-pK_purity_vs_pt_truthpt.png
+[plot] wrote output/plots/pid-pK_rejection_vs_p_truthpt.png
+[plot] wrote output/plots/pid-pK_nsigma_vs_p_truthpt.png
+[plot] wrote output/plots/pid-pK_significance_vs_cut_by_pt_truthpt.png
+[plot] wrote output/plots/pid-pK_significance_vs_cut_panels_truthpt.png
+[plot] wrote output/plots/pid-pK_eff_map_pt_vs_eta_truthpt.png
+[plot] wrote output/plots/pid-pK_fake_map_pt_vs_eta_truthpt.png
+[deliverables/pK_truthpt] complete: 13/13 figures (3 shared with the reconstructed basis)
+[plot] wrote output/plots/pid-eid_nsigma_vs_p.png
+[plot] wrote output/plots/pid-eid_nsigma_vs_p_truthpt.png
+[plot] wrote output/plots/pid-ehad_nsigma_vs_p.png
+[plot] wrote output/plots/pid-ehad_nsigma_vs_p_truthpt.png
+[plot] wrote output/plots/pid-hadpid_nsigma_vs_p.png
+[plot] wrote output/plots/pid-hadpid_nsigma_vs_p_truthpt.png
+[report] wrote output/pid-deliverables_lightgbm_clean.json, output/pid-deliverables_lightgbm_clean.md, output/pid-deliverables_lightgbm_clean.root (104 rows)
+[report] wrote output/pid-working_points_lightgbm_clean.json, output/pid-working_points_lightgbm_clean.md, output/pid-working_points_lightgbm_clean.root (8 rows)
+
+[performance] maximum-significance working points
+channel      status binning_basis  threshold  significance  efficiency  fake_rate  purity  rejection  rejection_lower_limit  n_background_total                                                                                                                                                                                                  caution
+    eid    headline          reco     0.0475      194.7452      0.9965     0.1246  0.9933     8.0273                 7.2887                2055                                                                                                                                                                                                         
+    eid    headline         truth     0.0475      194.7452      0.9965     0.1246  0.9933     8.0273                 7.2887                2055                                                                                                                                                                                                         
+   ehad    headline          reco     0.0550      194.6382      0.9960     0.1056  0.9927     9.4659                 8.6210                2641                                                                                                                                                                                                         
+   ehad    headline         truth     0.0550      194.6382      0.9960     0.1056  0.9927     9.4659                 8.6210                2641                                                                                                                                                                                                         
+    Kpi exploratory          reco     0.3725       26.0043      0.9235     0.7766  0.1145     1.2877                 1.2830               58815 permissive optimum: fake rate 0.78 at c*, so the FOM gain comes from keeping signal rather than rejecting background - the separation power is poor (compare the AUC before quoting this as a selection)
+    Kpi exploratory         truth     0.3725       26.0043      0.9235     0.7766  0.1145     1.2877                 1.2830               58815 permissive optimum: fake rate 0.78 at c*, so the FOM gain comes from keeping signal rather than rejecting background - the separation power is poor (compare the AUC before quoting this as a selection)
+     pK exploratory          reco     0.3175       57.6585      0.9565     0.7744  0.5498     1.2914                 1.2772                6395 permissive optimum: fake rate 0.77 at c*, so the FOM gain comes from keeping signal rather than rejecting background - the separation power is poor (compare the AUC before quoting this as a selection)
+     pK exploratory         truth     0.3175       57.6585      0.9565     0.7744  0.5498     1.2914                 1.2772                6395 permissive optimum: fake rate 0.77 at c*, so the FOM gain comes from keeping signal rather than rejecting background - the separation power is poor (compare the AUC before quoting this as a selection)
+[performance] CAUTION Kpi: permissive optimum: fake rate 0.78 at c*, so the FOM gain comes from keeping signal rather than rejecting background - the separation power is poor (compare the AUC before quoting this as a selection)
+[performance] CAUTION Kpi: permissive optimum: fake rate 0.78 at c*, so the FOM gain comes from keeping signal rather than rejecting background - the separation power is poor (compare the AUC before quoting this as a selection)
+[performance] CAUTION pK: permissive optimum: fake rate 0.77 at c*, so the FOM gain comes from keeping signal rather than rejecting background - the separation power is poor (compare the AUC before quoting this as a selection)
+[performance] CAUTION pK: permissive optimum: fake rate 0.77 at c*, so the FOM gain comes from keeping signal rather than rejecting background - the separation power is poor (compare the AUC before quoting this as a selection)
++ python3 -m pid performance --dataset-tag bkg_mixed --model lightgbm --require-figures
+[report] wrote output/pid-eid_lightgbm_bkg_mixed-significance_vs_cut.json, output/pid-eid_lightgbm_bkg_mixed-significance_vs_cut.md, output/pid-eid_lightgbm_bkg_mixed-significance_vs_cut.root (401 rows)
+[report] wrote output/pid-eid_lightgbm_bkg_mixed-optimal_cut_vs_pt.json, output/pid-eid_lightgbm_bkg_mixed-optimal_cut_vs_pt.md, output/pid-eid_lightgbm_bkg_mixed-optimal_cut_vs_pt.root (13 rows)
+[report] wrote output/pid-eid_lightgbm_bkg_mixed-at_cut_global.json, output/pid-eid_lightgbm_bkg_mixed-at_cut_global.md, output/pid-eid_lightgbm_bkg_mixed-at_cut_global.root (13 rows)
+[report] wrote output/pid-eid_lightgbm_bkg_mixed-at_cut_per_bin.json, output/pid-eid_lightgbm_bkg_mixed-at_cut_per_bin.md, output/pid-eid_lightgbm_bkg_mixed-at_cut_per_bin.root (13 rows)
+[report] wrote output/pid-eid_lightgbm_bkg_mixed-rejection_vs_p.json, output/pid-eid_lightgbm_bkg_mixed-rejection_vs_p.md, output/pid-eid_lightgbm_bkg_mixed-rejection_vs_p.root (14 rows)
+[report] wrote output/pid-eid_lightgbm_bkg_mixed-efficiency_vs_eta.json, output/pid-eid_lightgbm_bkg_mixed-efficiency_vs_eta.md, output/pid-eid_lightgbm_bkg_mixed-efficiency_vs_eta.root (16 rows)
+[report] wrote output/pid-eid_lightgbm_bkg_mixed-nsigma_vs_p.json, output/pid-eid_lightgbm_bkg_mixed-nsigma_vs_p.md, output/pid-eid_lightgbm_bkg_mixed-nsigma_vs_p.root (14 rows)
+[report] wrote output/pid-eid_lightgbm_bkg_mixed-significance_by_pt.json, output/pid-eid_lightgbm_bkg_mixed-significance_by_pt.md, output/pid-eid_lightgbm_bkg_mixed-significance_by_pt.root (413 rows)
+[report] wrote output/pid-eid_lightgbm_bkg_mixed-eff_map_pt_vs_eta.json, output/pid-eid_lightgbm_bkg_mixed-eff_map_pt_vs_eta.md, output/pid-eid_lightgbm_bkg_mixed-eff_map_pt_vs_eta.root (208 rows)
+[report] wrote output/pid-eid_lightgbm_bkg_mixed-fake_map_pt_vs_eta.json, output/pid-eid_lightgbm_bkg_mixed-fake_map_pt_vs_eta.md, output/pid-eid_lightgbm_bkg_mixed-fake_map_pt_vs_eta.root (208 rows)
+[plot] wrote output/plots/pid-eid_significance_vs_cut.png
+[plot] wrote output/plots/pid-eid_roc.png
+[plot] wrote output/plots/pid-eid_optimal_cut_vs_pt.png
+[plot] wrote output/plots/pid-eid_eff_vs_pt.png
+[plot] wrote output/plots/pid-eid_misid_vs_pt.png
+[plot] wrote output/plots/pid-eid_purity_vs_pt.png
+[plot] wrote output/plots/pid-eid_pion_rejection_vs_p.png
+[plot] wrote output/plots/pid-eid_nsigma_vs_p.png
+[plot] wrote output/plots/pid-eid_significance_vs_cut_by_pt.png
+[plot] wrote output/plots/pid-eid_significance_vs_cut_panels.png
+[plot] wrote output/plots/pid-eid_eff_map_pt_vs_eta.png
+[plot] wrote output/plots/pid-eid_fake_map_pt_vs_eta.png
+[plot] wrote output/plots/pid-eid_score_dist_train_vs_test.png
+[deliverables/eid] complete: 13/13 figures
+[report] wrote output/pid-ehad_lightgbm_bkg_mixed-significance_vs_cut.json, output/pid-ehad_lightgbm_bkg_mixed-significance_vs_cut.md, output/pid-ehad_lightgbm_bkg_mixed-significance_vs_cut.root (401 rows)
+[report] wrote output/pid-ehad_lightgbm_bkg_mixed-optimal_cut_vs_pt.json, output/pid-ehad_lightgbm_bkg_mixed-optimal_cut_vs_pt.md, output/pid-ehad_lightgbm_bkg_mixed-optimal_cut_vs_pt.root (13 rows)
+[report] wrote output/pid-ehad_lightgbm_bkg_mixed-at_cut_global.json, output/pid-ehad_lightgbm_bkg_mixed-at_cut_global.md, output/pid-ehad_lightgbm_bkg_mixed-at_cut_global.root (13 rows)
+[report] wrote output/pid-ehad_lightgbm_bkg_mixed-at_cut_per_bin.json, output/pid-ehad_lightgbm_bkg_mixed-at_cut_per_bin.md, output/pid-ehad_lightgbm_bkg_mixed-at_cut_per_bin.root (13 rows)
+[report] wrote output/pid-ehad_lightgbm_bkg_mixed-rejection_vs_p.json, output/pid-ehad_lightgbm_bkg_mixed-rejection_vs_p.md, output/pid-ehad_lightgbm_bkg_mixed-rejection_vs_p.root (14 rows)
+[report] wrote output/pid-ehad_lightgbm_bkg_mixed-efficiency_vs_eta.json, output/pid-ehad_lightgbm_bkg_mixed-efficiency_vs_eta.md, output/pid-ehad_lightgbm_bkg_mixed-efficiency_vs_eta.root (16 rows)
+[report] wrote output/pid-ehad_lightgbm_bkg_mixed-nsigma_vs_p.json, output/pid-ehad_lightgbm_bkg_mixed-nsigma_vs_p.md, output/pid-ehad_lightgbm_bkg_mixed-nsigma_vs_p.root (14 rows)
+[report] wrote output/pid-ehad_lightgbm_bkg_mixed-significance_by_pt.json, output/pid-ehad_lightgbm_bkg_mixed-significance_by_pt.md, output/pid-ehad_lightgbm_bkg_mixed-significance_by_pt.root (413 rows)
+[report] wrote output/pid-ehad_lightgbm_bkg_mixed-eff_map_pt_vs_eta.json, output/pid-ehad_lightgbm_bkg_mixed-eff_map_pt_vs_eta.md, output/pid-ehad_lightgbm_bkg_mixed-eff_map_pt_vs_eta.root (208 rows)
+[report] wrote output/pid-ehad_lightgbm_bkg_mixed-fake_map_pt_vs_eta.json, output/pid-ehad_lightgbm_bkg_mixed-fake_map_pt_vs_eta.md, output/pid-ehad_lightgbm_bkg_mixed-fake_map_pt_vs_eta.root (208 rows)
+[plot] wrote output/plots/pid-ehad_significance_vs_cut.png
+[plot] wrote output/plots/pid-ehad_roc.png
+[plot] wrote output/plots/pid-ehad_optimal_cut_vs_pt.png
+[plot] wrote output/plots/pid-ehad_eff_vs_pt.png
+[plot] wrote output/plots/pid-ehad_misid_vs_pt.png
+[plot] wrote output/plots/pid-ehad_purity_vs_pt.png
+[plot] wrote output/plots/pid-ehad_rejection_vs_p.png
+[plot] wrote output/plots/pid-ehad_nsigma_vs_p.png
+[plot] wrote output/plots/pid-ehad_significance_vs_cut_by_pt.png
+[plot] wrote output/plots/pid-ehad_significance_vs_cut_panels.png
+[plot] wrote output/plots/pid-ehad_eff_map_pt_vs_eta.png
+[plot] wrote output/plots/pid-ehad_fake_map_pt_vs_eta.png
+[plot] wrote output/plots/pid-ehad_score_dist_train_vs_test.png
+[deliverables/ehad] complete: 13/13 figures
+[performance/Kpi] SKIPPED: no score table under output/models/hadpid_lightgbm_bkg_mixed (run `python -m pid train` for this channel)
+[performance/pK] SKIPPED: no score table under output/models/hadpid_lightgbm_bkg_mixed (run `python -m pid train` for this channel)
+[plot] wrote output/plots/pid-eid_nsigma_vs_p.png
+[plot] wrote output/plots/pid-ehad_nsigma_vs_p.png
+[report] wrote output/pid-deliverables_lightgbm_bkg_mixed.json, output/pid-deliverables_lightgbm_bkg_mixed.md, output/pid-deliverables_lightgbm_bkg_mixed.root (26 rows)
+[report] wrote output/pid-working_points_lightgbm_bkg_mixed.json, output/pid-working_points_lightgbm_bkg_mixed.md, output/pid-working_points_lightgbm_bkg_mixed.root (2 rows)
+
+[performance] maximum-significance working points
+channel   status binning_basis  threshold  significance  efficiency  fake_rate  purity  rejection  rejection_lower_limit  n_background_total caution
+    eid headline          reco     0.0475       57.8989      0.9956     0.1722  0.9909     5.8065                 4.4390                 180        
+   ehad headline          reco     0.0275       57.7138      0.9962     0.2183  0.9840     4.5818                 3.7676                 252        
++ python3 -m pid compare --task eid --model lightgbm --artifact all
+[compare/overall] wrote output/pid-eid_lightgbm_overall_comparison.json and .md (8 rows compared) + output/pid-eid_lightgbm_overall_comparison.summary.json
+[compare/vs_pt] wrote output/pid-eid_lightgbm_vs_pt_comparison.json and .md (7 rows compared) + output/pid-eid_lightgbm_vs_pt_comparison.summary.json
+[compare/vs_eta] wrote output/pid-eid_lightgbm_vs_eta_comparison.json and .md (5 rows compared) + output/pid-eid_lightgbm_vs_eta_comparison.summary.json
++ python3 -m pid compare --task ehad --model lightgbm --artifact all
+[compare/overall] wrote output/pid-ehad_lightgbm_overall_comparison.json and .md (8 rows compared) + output/pid-ehad_lightgbm_overall_comparison.summary.json
+[compare/vs_pt] wrote output/pid-ehad_lightgbm_vs_pt_comparison.json and .md (7 rows compared) + output/pid-ehad_lightgbm_vs_pt_comparison.summary.json
+[compare/vs_eta] wrote output/pid-ehad_lightgbm_vs_eta_comparison.json and .md (5 rows compared) + output/pid-ehad_lightgbm_vs_eta_comparison.summary.json
++ python3 pid/scripts/check_learners.py --dataset-tag clean --tasks eid,ehad,hadpid,pooled
+[check-learners] tag=clean agreement limit (max-min test AUC): 0.02
+[check-learners] PASS eid: lightgbm=0.9978, sklearn_hgb=0.9979, xgboost=0.9978 (spread 0.0001)
+[check-learners] PASS ehad: lightgbm=0.9978, sklearn_hgb=0.9979, xgboost=0.9978 (spread 0.0001)
+[check-learners] PASS hadpid: lightgbm=0.6901, sklearn_hgb=0.6896, xgboost=0.6959 (spread 0.0063)
+[check-learners] PASS pooled: lightgbm=0.8664, sklearn_hgb=0.8670, xgboost=0.8686 (spread 0.0022)
++ python3 pid/scripts/check_learners.py --dataset-tag bkg_mixed --tasks eid,ehad
+[check-learners] tag=bkg_mixed agreement limit (max-min test AUC): 0.02
+[check-learners] PASS eid: lightgbm=0.9943, sklearn_hgb=0.9937, xgboost=0.9947 (spread 0.0009)
+[check-learners] PASS ehad: lightgbm=0.9950, sklearn_hgb=0.9951, xgboost=0.9950 (spread 0.0000)
++ echo '[finish2] done'
+[finish2] done

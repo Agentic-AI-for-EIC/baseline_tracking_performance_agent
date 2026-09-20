@@ -1,12 +1,209 @@
 + python -m pid features --file-list filelists/bkg_200.txt --dataset-tag bkg_mixed --max-file-failures 20 --cache-dir cache/pid_features --out output/pid-features_bkg_mixed.pkl
-[io] WARNING: skipping file (1/21 allowed failures): root://hpceph-xrootd.twgrid.org:1094//cephfs/epic//RECO/26.07.1/epic_craterlake/Bkg_Exact1S_2us/GoldCt/10um/DIS/NC/10x100/minQ2=1/pythia8NCDIS_10x100_minQ2=1_beamEffects_xAngle=-0.025_hiDiv_1.0008.eicrecon.edm4eic.root
-  File did not vector_read properly: [ERROR] Operation expired
-[io] WARNING: 1/1 files skipped due to I/O errors — results may have reduced statistics.
-[features] 10/200 files
-[io] WARNING: skipping file (1/21 allowed failures): root://hpceph-xrootd.twgrid.org:1094//cephfs/epic//RECO/26.07.1/epic_craterlake/Bkg_Exact1S_2us/GoldCt/10um/DIS/NC/10x100/minQ2=1/pythia8NCDIS_10x100_minQ2=1_beamEffects_xAngle=-0.025_hiDiv_1.0028.eicrecon.edm4eic.root
-  File did not vector_read properly: [ERROR] Operation expired
-[io] WARNING: 1/1 files skipped due to I/O errors — results may have reduced statistics.
-[features] 20/200 files
-[io] WARNING: skipping file (1/21 allowed failures): root://hpceph-xrootd.twgrid.org:1094//cephfs/epic//RECO/26.07.1/epic_craterlake/Bkg_Exact1S_2us/GoldCt/10um/DIS/NC/10x100/minQ2=1/pythia8NCDIS_10x100_minQ2=1_beamEffects_xAngle=-0.025_hiDiv_1.0035.eicrecon.edm4eic.root
-  File did not vector_read properly: [ERROR] Operation expired
-[io] WARNING: 1/1 files skipped due to I/O errors — results may have reduced statistics.
+[features] wrote output/pid-features_bkg_mixed.pkl: 92502 rows x 112 cols from 200 files (0 skipped)
+
+[features] feature summary (family / NaN fraction):
+family
+bookkeeping       5
+calorimeter      40
+cherenkov         4
+event_context    17
+other            32
+timing            2
+tracker          12
+[features] median e_over_p_backward by truth class: {'K': 0.143, 'e': 0.994, 'p': 0.142, 'pi': 0.142}  (n={'e': 13517, 'pi': 998, 'K': 165, 'p': 101})
+[features] median e_over_p_forward by truth class: {'K': 0.272, 'e': 0.954, 'p': 0.217, 'pi': 0.279}  (n={'pi': 22525, 'K': 2312, 'p': 2205, 'e': 147})
+[gate:PASS] feature-table sanity (E/p peaks where physics expects them)
+++ echo eid,ehad
+++ tr , ' '
++ for task in $(echo "eid,ehad" | tr ',' ' ')
++ for lib in lightgbm xgboost sklearn_hgb
++ python -m pid train --task eid --model lightgbm --dataset-tag bkg_mixed --features output/pid-features_bkg_mixed.pkl --seed 1234 --n-iter 24
+[train] feature table output/pid-features_bkg_mixed.pkl: 92502 rows, 112 cols
+[train/eid/lightgbm/bkg_mixed] 14221 rows, 52 features, 2 classes -> AUC train 0.9974 / test 0.9943 (label-shuffle control 0.4790) in 60.2s
+[train] top gain features: ['ecal_backward_E', 'e_over_p_backward', 'log_e_over_p_backward']
+[gate:PASS] train_test_auc_gap: 0.003091597996581319 | requires 0.02
+[gate:PASS] label_shuffle_control: {"control_auc_mean": 0.4789930351186973, "control_auc_std": 0.08181367689401492, "control_auc_max": 0.5753302596298476, "model_auc_test": 0.9942686874632136, "z": 6.298160306522189} | requires {"min_z": 3.0, "min_auc_margin": 0.1}  [5 balanced permutations, 553/class; AUCs [0.4119, 0.4924, 0.3805, 0.5753, 0.5348]]
+[gate:FAIL] top_feature_is_physical: {"gain_top3": ["ecal_backward_E", "e_over_p_backward", "log_e_over_p_backward"], "shap_top3": ["ecal_backward_E", "ecal_backward_n", "e_over_p_backward"]} | requires {"gain_patterns": ["e_over_p", "log_e_over_p", "ecal_"], "shap_must_lead": "e_over_p"}
+[gate:PASS] no_single_feature_label_correlation: 0.568905878207845 | requires 0.99
+[train] artifacts -> output/models/eid_lightgbm_bkg_mixed/
+pid.train: gates failed for eid/lightgbm/bkg_mixed: ['top_feature_is_physical']. Re-run with --relax-gates to inspect the result anyway, and record the failure if the number is ever quoted.
++ echo '[run_pid] train eid/lightgbm failed (statistics?)'
+[run_pid] train eid/lightgbm failed (statistics?)
++ '[' -f output/models/eid_lightgbm_bkg_mixed/test_scores.pkl ']'
++ python -m pid evaluate --task eid --model lightgbm --dataset-tag bkg_mixed --scores output/models/eid_lightgbm_bkg_mixed/test_scores.pkl --by pt,eta --plot
+[report] wrote output/pid-eid_lightgbm_bkg_mixed-overall.json, output/pid-eid_lightgbm_bkg_mixed-overall.md, output/pid-eid_lightgbm_bkg_mixed-overall.root (8 rows)
+[report] wrote output/pid-eid_lightgbm_bkg_mixed-vs_pt.json, output/pid-eid_lightgbm_bkg_mixed-vs_pt.md, output/pid-eid_lightgbm_bkg_mixed-vs_pt.root (6 rows)
+[report] wrote output/pid-eid_lightgbm_bkg_mixed-vs_eta.json, output/pid-eid_lightgbm_bkg_mixed-vs_eta.md, output/pid-eid_lightgbm_bkg_mixed-vs_eta.root (4 rows)
+[report] wrote output/pid-eid_lightgbm_bkg_mixed-confusion.json, output/pid-eid_lightgbm_bkg_mixed-confusion.md, output/pid-eid_lightgbm_bkg_mixed-confusion.root (4 rows)
+[report] wrote output/pid-eid_lightgbm_bkg_mixed-roc.json, output/pid-eid_lightgbm_bkg_mixed-roc.md, output/pid-eid_lightgbm_bkg_mixed-roc.root (80 rows)
+[report] wrote output/pid-eid_lightgbm_bkg_mixed-calibration.json, output/pid-eid_lightgbm_bkg_mixed-calibration.md, output/pid-eid_lightgbm_bkg_mixed-calibration.root (10 rows)
+[evaluate/eid_lightgbm_bkg_mixed] scored sample: 36 file(s), 99 event(s), 3578 tracks (3398 signal / 180 background)
+[evaluate/eid_lightgbm_bkg_mixed] auc              0.9942686874632136
+[evaluate/eid_lightgbm_bkg_mixed] signal_peak      4.308584274231251
+[evaluate/eid_lightgbm_bkg_mixed] background_peak  -5.688139304583015
+[evaluate/eid_lightgbm_bkg_mixed] n_sigma_lower_limit nan  [NOT COMPUTABLE: too few candidates to fit]
+[evaluate/eid_lightgbm_bkg_mixed] n_sigma          3.575513343137845
+[evaluate/eid_lightgbm_bkg_mixed] efficiency       0.8934667451442024 (target fake 0.01)
+[evaluate/eid_lightgbm_bkg_mixed] efficiency       0.8713949381989405 (target fake 0.001)
+[evaluate/eid_lightgbm_bkg_mixed] efficiency       0.8713949381989405 (target fake 0.0001)
+[plot] wrote output/plots/pid-eid_lightgbm_bkg_mixed-roc.png
+[plot] wrote output/plots/pid-eid_lightgbm_bkg_mixed-eff_vs_fake.png
+[plot] wrote output/plots/pid-eid_lightgbm_bkg_mixed-auc_vs_pt.png
+[plot] wrote output/plots/pid-eid_lightgbm_bkg_mixed-auc_vs_eta.png
++ python -m pid importance --dir output/models/eid_lightgbm_bkg_mixed --task eid --model lightgbm --dataset-tag bkg_mixed --plot
+[importance] gains/SHAP read from booster.joblib (unwrapped booster)
+[report] wrote output/pid-eid_lightgbm_bkg_mixed-importance-gain.json, output/pid-eid_lightgbm_bkg_mixed-importance-gain.md, output/pid-eid_lightgbm_bkg_mixed-importance-gain.root (52 rows)
+[report] wrote output/pid-eid_lightgbm_bkg_mixed-importance-shap.json, output/pid-eid_lightgbm_bkg_mixed-importance-shap.md, output/pid-eid_lightgbm_bkg_mixed-importance-shap.root (52 rows)
+[report] wrote output/pid-eid_lightgbm_bkg_mixed-importance-permutation.json, output/pid-eid_lightgbm_bkg_mixed-importance-permutation.md, output/pid-eid_lightgbm_bkg_mixed-importance-permutation.root (52 rows)
+
+[importance] leading feature: {'kind': 'shap', 'column': 'ecal_backward_E', 'family': 'calorimeter'}
+[plot] wrote output/plots/pid-eid_lightgbm_bkg_mixed-importance.png
++ for lib in lightgbm xgboost sklearn_hgb
++ python -m pid train --task eid --model xgboost --dataset-tag bkg_mixed --features output/pid-features_bkg_mixed.pkl --seed 1234 --n-iter 24
+[train] feature table output/pid-features_bkg_mixed.pkl: 92502 rows, 112 cols
+[train/eid/xgboost/bkg_mixed] 14221 rows, 52 features, 2 classes -> AUC train 0.9972 / test 0.9947 (label-shuffle control 0.4764) in 50.7s
+[train] top gain features: ['ecal_backward_E', 'log_e_over_p_backward', 'e_over_p_backward']
+[gate:PASS] train_test_auc_gap: 0.002560092526857294 | requires 0.02
+[gate:PASS] label_shuffle_control: {"control_auc_mean": 0.4763519390491139, "control_auc_std": 0.06854084485402145, "control_auc_max": 0.539092439997384, "model_auc_test": 0.9946643450395657, "z": 7.562095376769217} | requires {"min_z": 3.0, "min_auc_margin": 0.1}  [5 balanced permutations, 553/class; AUCs [0.4054, 0.5053, 0.3997, 0.5391, 0.5322]]
+[gate:FAIL] top_feature_is_physical: {"gain_top3": ["ecal_backward_E", "log_e_over_p_backward", "e_over_p_backward"], "shap_top3": ["ecal_backward_E", "e_over_p_backward", "ecal_backward_n"]} | requires {"gain_patterns": ["e_over_p", "log_e_over_p", "ecal_"], "shap_must_lead": "e_over_p"}
+[gate:PASS] no_single_feature_label_correlation: 0.568905878207845 | requires 0.99
+[train] artifacts -> output/models/eid_xgboost_bkg_mixed/
+pid.train: gates failed for eid/xgboost/bkg_mixed: ['top_feature_is_physical']. Re-run with --relax-gates to inspect the result anyway, and record the failure if the number is ever quoted.
++ echo '[run_pid] train eid/xgboost failed (statistics?)'
+[run_pid] train eid/xgboost failed (statistics?)
++ '[' -f output/models/eid_xgboost_bkg_mixed/test_scores.pkl ']'
++ python -m pid evaluate --task eid --model xgboost --dataset-tag bkg_mixed --scores output/models/eid_xgboost_bkg_mixed/test_scores.pkl --by pt,eta --plot
+[report] wrote output/pid-eid_xgboost_bkg_mixed-overall.json, output/pid-eid_xgboost_bkg_mixed-overall.md, output/pid-eid_xgboost_bkg_mixed-overall.root (8 rows)
+[report] wrote output/pid-eid_xgboost_bkg_mixed-vs_pt.json, output/pid-eid_xgboost_bkg_mixed-vs_pt.md, output/pid-eid_xgboost_bkg_mixed-vs_pt.root (6 rows)
+[report] wrote output/pid-eid_xgboost_bkg_mixed-vs_eta.json, output/pid-eid_xgboost_bkg_mixed-vs_eta.md, output/pid-eid_xgboost_bkg_mixed-vs_eta.root (4 rows)
+[report] wrote output/pid-eid_xgboost_bkg_mixed-confusion.json, output/pid-eid_xgboost_bkg_mixed-confusion.md, output/pid-eid_xgboost_bkg_mixed-confusion.root (4 rows)
+[report] wrote output/pid-eid_xgboost_bkg_mixed-roc.json, output/pid-eid_xgboost_bkg_mixed-roc.md, output/pid-eid_xgboost_bkg_mixed-roc.root (84 rows)
+[report] wrote output/pid-eid_xgboost_bkg_mixed-calibration.json, output/pid-eid_xgboost_bkg_mixed-calibration.md, output/pid-eid_xgboost_bkg_mixed-calibration.root (10 rows)
+[evaluate/eid_xgboost_bkg_mixed] scored sample: 36 file(s), 99 event(s), 3578 tracks (3398 signal / 180 background)
+[evaluate/eid_xgboost_bkg_mixed] auc              0.9946643450395657
+[evaluate/eid_xgboost_bkg_mixed] signal_peak      2.7617162163276996
+[evaluate/eid_xgboost_bkg_mixed] background_peak  -4.246919642777981
+[evaluate/eid_xgboost_bkg_mixed] n_sigma_lower_limit nan  [NOT COMPUTABLE: too few candidates to fit]
+[evaluate/eid_xgboost_bkg_mixed] n_sigma          3.610885840288921
+[evaluate/eid_xgboost_bkg_mixed] efficiency       0.9243672748675692 (target fake 0.01)
+[evaluate/eid_xgboost_bkg_mixed] efficiency       0.9011183048852266 (target fake 0.001)
+[evaluate/eid_xgboost_bkg_mixed] efficiency       0.9011183048852266 (target fake 0.0001)
+[plot] wrote output/plots/pid-eid_xgboost_bkg_mixed-roc.png
+[plot] wrote output/plots/pid-eid_xgboost_bkg_mixed-eff_vs_fake.png
+[plot] wrote output/plots/pid-eid_xgboost_bkg_mixed-auc_vs_pt.png
+[plot] wrote output/plots/pid-eid_xgboost_bkg_mixed-auc_vs_eta.png
++ python -m pid importance --dir output/models/eid_xgboost_bkg_mixed --task eid --model xgboost --dataset-tag bkg_mixed --plot
+[importance] gains/SHAP read from booster.joblib (unwrapped booster)
+[report] wrote output/pid-eid_xgboost_bkg_mixed-importance-gain.json, output/pid-eid_xgboost_bkg_mixed-importance-gain.md, output/pid-eid_xgboost_bkg_mixed-importance-gain.root (52 rows)
+[report] wrote output/pid-eid_xgboost_bkg_mixed-importance-shap.json, output/pid-eid_xgboost_bkg_mixed-importance-shap.md, output/pid-eid_xgboost_bkg_mixed-importance-shap.root (52 rows)
+[report] wrote output/pid-eid_xgboost_bkg_mixed-importance-permutation.json, output/pid-eid_xgboost_bkg_mixed-importance-permutation.md, output/pid-eid_xgboost_bkg_mixed-importance-permutation.root (52 rows)
+
+[importance] leading feature: {'kind': 'shap', 'column': 'ecal_backward_E', 'family': 'calorimeter'}
+[plot] wrote output/plots/pid-eid_xgboost_bkg_mixed-importance.png
++ for lib in lightgbm xgboost sklearn_hgb
++ python -m pid train --task eid --model sklearn_hgb --dataset-tag bkg_mixed --features output/pid-features_bkg_mixed.pkl --seed 1234 --n-iter 24
+[train] feature table output/pid-features_bkg_mixed.pkl: 92502 rows, 112 cols
+pid.train.cross_validate: hyperparameter search failed (10643 rows, 108 file groups): window shape cannot be larger than input array shape. On tiny samples this is usually a learner data floor (e.g. HGB binning needs >= 2 distinct values per fold) - escalate statistics or drop the library for this task.
++ echo '[run_pid] train eid/sklearn_hgb failed (statistics?)'
+[run_pid] train eid/sklearn_hgb failed (statistics?)
++ '[' -f output/models/eid_sklearn_hgb_bkg_mixed/test_scores.pkl ']'
++ for task in $(echo "eid,ehad" | tr ',' ' ')
++ for lib in lightgbm xgboost sklearn_hgb
++ python -m pid train --task ehad --model lightgbm --dataset-tag bkg_mixed --features output/pid-features_bkg_mixed.pkl --seed 1234 --n-iter 24
+[train] feature table output/pid-features_bkg_mixed.pkl: 92502 rows, 112 cols
+[train/ehad/lightgbm/bkg_mixed] 14431 rows, 52 features, 2 classes -> AUC train 0.9976 / test 0.9950 (label-shuffle control 0.4856) in 62.9s
+[train] top gain features: ['ecal_backward_E', 'e_over_p_backward', 'log_e_over_p_backward']
+[gate:PASS] train_test_auc_gap: 0.002599049442245871 | requires 0.02
+[gate:PASS] label_shuffle_control: {"control_auc_mean": 0.48561420349972445, "control_auc_std": 0.05034081946025351, "control_auc_max": 0.5549914982669544, "model_auc_test": 0.9950496090137055, "z": 10.11972810486736} | requires {"min_z": 3.0, "min_auc_margin": 0.1}  [5 balanced permutations, 691/class; AUCs [0.4154, 0.4702, 0.4906, 0.4968, 0.555]]
+[gate:FAIL] top_feature_is_physical: {"gain_top3": ["ecal_backward_E", "e_over_p_backward", "log_e_over_p_backward"], "shap_top3": ["ecal_backward_E", "e_over_p_backward", "log_e_over_p_backward"]} | requires {"gain_patterns": ["e_over_p", "log_e_over_p", "ecal_"], "shap_must_lead": "e_over_p"}
+[gate:PASS] no_single_feature_label_correlation: 0.6138945556715817 | requires 0.99
+[train] artifacts -> output/models/ehad_lightgbm_bkg_mixed/
+pid.train: gates failed for ehad/lightgbm/bkg_mixed: ['top_feature_is_physical']. Re-run with --relax-gates to inspect the result anyway, and record the failure if the number is ever quoted.
++ echo '[run_pid] train ehad/lightgbm failed (statistics?)'
+[run_pid] train ehad/lightgbm failed (statistics?)
++ '[' -f output/models/ehad_lightgbm_bkg_mixed/test_scores.pkl ']'
++ python -m pid evaluate --task ehad --model lightgbm --dataset-tag bkg_mixed --scores output/models/ehad_lightgbm_bkg_mixed/test_scores.pkl --by pt,eta --plot
+[report] wrote output/pid-ehad_lightgbm_bkg_mixed-overall.json, output/pid-ehad_lightgbm_bkg_mixed-overall.md, output/pid-ehad_lightgbm_bkg_mixed-overall.root (8 rows)
+[report] wrote output/pid-ehad_lightgbm_bkg_mixed-vs_pt.json, output/pid-ehad_lightgbm_bkg_mixed-vs_pt.md, output/pid-ehad_lightgbm_bkg_mixed-vs_pt.root (6 rows)
+[report] wrote output/pid-ehad_lightgbm_bkg_mixed-vs_eta.json, output/pid-ehad_lightgbm_bkg_mixed-vs_eta.md, output/pid-ehad_lightgbm_bkg_mixed-vs_eta.root (5 rows)
+[report] wrote output/pid-ehad_lightgbm_bkg_mixed-confusion.json, output/pid-ehad_lightgbm_bkg_mixed-confusion.md, output/pid-ehad_lightgbm_bkg_mixed-confusion.root (4 rows)
+[report] wrote output/pid-ehad_lightgbm_bkg_mixed-roc.json, output/pid-ehad_lightgbm_bkg_mixed-roc.md, output/pid-ehad_lightgbm_bkg_mixed-roc.root (100 rows)
+[report] wrote output/pid-ehad_lightgbm_bkg_mixed-calibration.json, output/pid-ehad_lightgbm_bkg_mixed-calibration.md, output/pid-ehad_lightgbm_bkg_mixed-calibration.root (10 rows)
+[evaluate/ehad_lightgbm_bkg_mixed] scored sample: 36 file(s), 99 event(s), 3650 tracks (3398 signal / 252 background)
+[evaluate/ehad_lightgbm_bkg_mixed] auc              0.9950496090137055
+[evaluate/ehad_lightgbm_bkg_mixed] signal_peak      4.248181364574946
+[evaluate/ehad_lightgbm_bkg_mixed] background_peak  -6.547095595755893
+[evaluate/ehad_lightgbm_bkg_mixed] n_sigma_lower_limit nan  [NOT COMPUTABLE: too few candidates to fit]
+[evaluate/ehad_lightgbm_bkg_mixed] n_sigma          3.6476462466001225
+[evaluate/ehad_lightgbm_bkg_mixed] efficiency       0.9490876986462625 (target fake 0.01)
+[evaluate/ehad_lightgbm_bkg_mixed] efficiency       0.9293702177751618 (target fake 0.001)
+[evaluate/ehad_lightgbm_bkg_mixed] efficiency       0.9293702177751618 (target fake 0.0001)
+[plot] wrote output/plots/pid-ehad_lightgbm_bkg_mixed-roc.png
+[plot] wrote output/plots/pid-ehad_lightgbm_bkg_mixed-eff_vs_fake.png
+[plot] wrote output/plots/pid-ehad_lightgbm_bkg_mixed-auc_vs_pt.png
+[plot] wrote output/plots/pid-ehad_lightgbm_bkg_mixed-auc_vs_eta.png
++ python -m pid importance --dir output/models/ehad_lightgbm_bkg_mixed --task ehad --model lightgbm --dataset-tag bkg_mixed --plot
+[importance] gains/SHAP read from booster.joblib (unwrapped booster)
+[report] wrote output/pid-ehad_lightgbm_bkg_mixed-importance-gain.json, output/pid-ehad_lightgbm_bkg_mixed-importance-gain.md, output/pid-ehad_lightgbm_bkg_mixed-importance-gain.root (52 rows)
+[report] wrote output/pid-ehad_lightgbm_bkg_mixed-importance-shap.json, output/pid-ehad_lightgbm_bkg_mixed-importance-shap.md, output/pid-ehad_lightgbm_bkg_mixed-importance-shap.root (52 rows)
+[report] wrote output/pid-ehad_lightgbm_bkg_mixed-importance-permutation.json, output/pid-ehad_lightgbm_bkg_mixed-importance-permutation.md, output/pid-ehad_lightgbm_bkg_mixed-importance-permutation.root (52 rows)
+
+[importance] leading feature: {'kind': 'shap', 'column': 'ecal_backward_E', 'family': 'calorimeter'}
+[plot] wrote output/plots/pid-ehad_lightgbm_bkg_mixed-importance.png
++ for lib in lightgbm xgboost sklearn_hgb
++ python -m pid train --task ehad --model xgboost --dataset-tag bkg_mixed --features output/pid-features_bkg_mixed.pkl --seed 1234 --n-iter 24
+[train] feature table output/pid-features_bkg_mixed.pkl: 92502 rows, 112 cols
+[train/ehad/xgboost/bkg_mixed] 14431 rows, 52 features, 2 classes -> AUC train 0.9972 / test 0.9950 (label-shuffle control 0.4885) in 53.2s
+[train] top gain features: ['ecal_backward_E', 'e_over_p_backward', 'log_e_over_p_backward']
+[gate:PASS] train_test_auc_gap: 0.0021291101255275224 | requires 0.02
+[gate:PASS] label_shuffle_control: {"control_auc_mean": 0.4884689406466922, "control_auc_std": 0.062441066224996795, "control_auc_max": 0.5734325513607443, "model_auc_test": 0.9950373468987359, "z": 8.112744334420912} | requires {"min_z": 3.0, "min_auc_margin": 0.1}  [5 balanced permutations, 691/class; AUCs [0.3985, 0.4799, 0.4878, 0.5028, 0.5734]]
+[gate:FAIL] top_feature_is_physical: {"gain_top3": ["ecal_backward_E", "e_over_p_backward", "log_e_over_p_backward"], "shap_top3": ["ecal_backward_E", "e_over_p_backward", "ecal_backward_n"]} | requires {"gain_patterns": ["e_over_p", "log_e_over_p", "ecal_"], "shap_must_lead": "e_over_p"}
+[gate:PASS] no_single_feature_label_correlation: 0.6138945556715817 | requires 0.99
+[train] artifacts -> output/models/ehad_xgboost_bkg_mixed/
+pid.train: gates failed for ehad/xgboost/bkg_mixed: ['top_feature_is_physical']. Re-run with --relax-gates to inspect the result anyway, and record the failure if the number is ever quoted.
++ echo '[run_pid] train ehad/xgboost failed (statistics?)'
+[run_pid] train ehad/xgboost failed (statistics?)
++ '[' -f output/models/ehad_xgboost_bkg_mixed/test_scores.pkl ']'
++ python -m pid evaluate --task ehad --model xgboost --dataset-tag bkg_mixed --scores output/models/ehad_xgboost_bkg_mixed/test_scores.pkl --by pt,eta --plot
+[report] wrote output/pid-ehad_xgboost_bkg_mixed-overall.json, output/pid-ehad_xgboost_bkg_mixed-overall.md, output/pid-ehad_xgboost_bkg_mixed-overall.root (8 rows)
+[report] wrote output/pid-ehad_xgboost_bkg_mixed-vs_pt.json, output/pid-ehad_xgboost_bkg_mixed-vs_pt.md, output/pid-ehad_xgboost_bkg_mixed-vs_pt.root (6 rows)
+[report] wrote output/pid-ehad_xgboost_bkg_mixed-vs_eta.json, output/pid-ehad_xgboost_bkg_mixed-vs_eta.md, output/pid-ehad_xgboost_bkg_mixed-vs_eta.root (5 rows)
+[report] wrote output/pid-ehad_xgboost_bkg_mixed-confusion.json, output/pid-ehad_xgboost_bkg_mixed-confusion.md, output/pid-ehad_xgboost_bkg_mixed-confusion.root (4 rows)
+[report] wrote output/pid-ehad_xgboost_bkg_mixed-roc.json, output/pid-ehad_xgboost_bkg_mixed-roc.md, output/pid-ehad_xgboost_bkg_mixed-roc.root (102 rows)
+[report] wrote output/pid-ehad_xgboost_bkg_mixed-calibration.json, output/pid-ehad_xgboost_bkg_mixed-calibration.md, output/pid-ehad_xgboost_bkg_mixed-calibration.root (10 rows)
+[evaluate/ehad_xgboost_bkg_mixed] scored sample: 36 file(s), 99 event(s), 3650 tracks (3398 signal / 252 background)
+[evaluate/ehad_xgboost_bkg_mixed] auc              0.9950373468987359
+[evaluate/ehad_xgboost_bkg_mixed] signal_peak      3.0435404100399333
+[evaluate/ehad_xgboost_bkg_mixed] background_peak  -4.9649293668070165
+[evaluate/ehad_xgboost_bkg_mixed] n_sigma_lower_limit nan  [NOT COMPUTABLE: too few candidates to fit]
+[evaluate/ehad_xgboost_bkg_mixed] n_sigma          3.646437601721401
+[evaluate/ehad_xgboost_bkg_mixed] efficiency       0.9493819894055326 (target fake 0.01)
+[evaluate/ehad_xgboost_bkg_mixed] efficiency       0.8840494408475574 (target fake 0.001)
+[evaluate/ehad_xgboost_bkg_mixed] efficiency       0.8840494408475574 (target fake 0.0001)
+[plot] wrote output/plots/pid-ehad_xgboost_bkg_mixed-roc.png
+[plot] wrote output/plots/pid-ehad_xgboost_bkg_mixed-eff_vs_fake.png
+[plot] wrote output/plots/pid-ehad_xgboost_bkg_mixed-auc_vs_pt.png
+[plot] wrote output/plots/pid-ehad_xgboost_bkg_mixed-auc_vs_eta.png
++ python -m pid importance --dir output/models/ehad_xgboost_bkg_mixed --task ehad --model xgboost --dataset-tag bkg_mixed --plot
+[importance] gains/SHAP read from booster.joblib (unwrapped booster)
+[report] wrote output/pid-ehad_xgboost_bkg_mixed-importance-gain.json, output/pid-ehad_xgboost_bkg_mixed-importance-gain.md, output/pid-ehad_xgboost_bkg_mixed-importance-gain.root (52 rows)
+[report] wrote output/pid-ehad_xgboost_bkg_mixed-importance-shap.json, output/pid-ehad_xgboost_bkg_mixed-importance-shap.md, output/pid-ehad_xgboost_bkg_mixed-importance-shap.root (52 rows)
+[report] wrote output/pid-ehad_xgboost_bkg_mixed-importance-permutation.json, output/pid-ehad_xgboost_bkg_mixed-importance-permutation.md, output/pid-ehad_xgboost_bkg_mixed-importance-permutation.root (52 rows)
+
+[importance] leading feature: {'kind': 'shap', 'column': 'ecal_backward_E', 'family': 'calorimeter'}
+[plot] wrote output/plots/pid-ehad_xgboost_bkg_mixed-importance.png
++ for lib in lightgbm xgboost sklearn_hgb
++ python -m pid train --task ehad --model sklearn_hgb --dataset-tag bkg_mixed --features output/pid-features_bkg_mixed.pkl --seed 1234 --n-iter 24
+[train] feature table output/pid-features_bkg_mixed.pkl: 92502 rows, 112 cols
+pid.train.cross_validate: hyperparameter search failed (10781 rows, 108 file groups): window shape cannot be larger than input array shape. On tiny samples this is usually a learner data floor (e.g. HGB binning needs >= 2 distinct values per fold) - escalate statistics or drop the library for this task.
++ echo '[run_pid] train ehad/sklearn_hgb failed (statistics?)'
+[run_pid] train ehad/sklearn_hgb failed (statistics?)
++ '[' -f output/models/ehad_sklearn_hgb_bkg_mixed/test_scores.pkl ']'
++ python /home/wxie/eic/baseline_tracking_performance_agent/pid/scripts/check_learners.py --dataset-tag bkg_mixed --tasks eid,ehad
+[check-learners] tag=bkg_mixed agreement limit (max-min test AUC): 0.02
+[check-learners] eid: sklearn_hgb has no report.json (not trained?) - skipped
+[check-learners] PASS eid: lightgbm=0.9943, xgboost=0.9947 (spread 0.0004)
+[check-learners] ehad: sklearn_hgb has no report.json (not trained?) - skipped
+[check-learners] PASS ehad: lightgbm=0.9950, xgboost=0.9950 (spread 0.0000)
++ echo '[run_pid] done'
+[run_pid] done

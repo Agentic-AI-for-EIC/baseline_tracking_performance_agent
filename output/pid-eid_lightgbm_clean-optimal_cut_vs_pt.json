@@ -41,10 +41,10 @@
     "lumi_scale": 1.0,
     "bkg_scale": 1.0,
     "binning_basis": "reco",
-    "optimal_cut": 0.4275,
-    "n_rows_channel": 214,
+    "optimal_cut": 0.0475,
+    "n_rows_channel": 40369,
     "campaign": "26.02.0",
-    "written_at_utc": "2026-09-17T19:10:40.469324+00:00"
+    "written_at_utc": "2026-09-19T10:04:05.087481+00:00"
   },
   "data": [
     {
@@ -53,16 +53,16 @@
       "bin_column": "pt",
       "bin": "(0.5, 1.23077]",
       "bin_center": 0.8653846154,
-      "n_signal_bin": 88,
-      "n_background_bin": 10,
-      "threshold": 0.755,
-      "significance": 9.3273790531,
-      "efficiency": 0.9886363636,
-      "fake_rate": 0.0,
-      "purity": 1.0,
+      "n_signal_bin": 17340,
+      "n_background_bin": 2004,
+      "threshold": 0.145,
+      "significance": 130.7385005645,
+      "efficiency": 0.991349481,
+      "fake_rate": 0.0489021956,
+      "purity": 0.9943313281,
       "valid": true,
       "reason": "",
-      "caution": "only 0 of 10 background candidates accepted: fake rate and purity are limited by the sample, use fake_rate_upper_limit / rejection_lower_limit"
+      "caution": ""
     },
     {
       "channel": "eid",
@@ -70,15 +70,15 @@
       "bin_column": "pt",
       "bin": "(1.23077, 1.96154]",
       "bin_center": 1.5961538462,
-      "n_signal_bin": 82,
-      "n_background_bin": 0,
-      "threshold": null,
-      "significance": null,
-      "efficiency": null,
-      "fake_rate": null,
-      "purity": null,
-      "valid": false,
-      "reason": "pid.significance.scan_thresholds: class 1 has 82 and class 0 has 0 entries - a working point needs both",
+      "n_signal_bin": 14836,
+      "n_background_bin": 47,
+      "threshold": 0.025,
+      "significance": 121.6881968421,
+      "efficiency": 0.9991911566,
+      "fake_rate": 0.3404255319,
+      "purity": 0.9989218329,
+      "valid": true,
+      "reason": "",
       "caution": ""
     },
     {
@@ -87,16 +87,16 @@
       "bin_column": "pt",
       "bin": "(1.96154, 2.69231]",
       "bin_center": 2.3269230769,
-      "n_signal_bin": 22,
-      "n_background_bin": 0,
-      "threshold": null,
-      "significance": null,
-      "efficiency": null,
-      "fake_rate": null,
-      "purity": null,
-      "valid": false,
-      "reason": "pid.significance.scan_thresholds: class 1 has 22 and class 0 has 0 entries - a working point needs both",
-      "caution": ""
+      "n_signal_bin": 4098,
+      "n_background_bin": 4,
+      "threshold": 0.02,
+      "significance": 64.0078139289,
+      "efficiency": 1.0,
+      "fake_rate": 0.25,
+      "purity": 0.9997560381,
+      "valid": true,
+      "reason": "",
+      "caution": "only 1 of 4 background candidates accepted: fake rate and purity are limited by the sample, use fake_rate_upper_limit / rejection_lower_limit"
     },
     {
       "channel": "eid",
@@ -104,7 +104,7 @@
       "bin_column": "pt",
       "bin": "(2.69231, 3.42308]",
       "bin_center": 3.0576923077,
-      "n_signal_bin": 10,
+      "n_signal_bin": 1453,
       "n_background_bin": 0,
       "threshold": null,
       "significance": null,
@@ -112,7 +112,7 @@
       "fake_rate": null,
       "purity": null,
       "valid": false,
-      "reason": "bin has 10 candidates < 20",
+      "reason": "pid.significance.scan_thresholds: class 1 has 1453 and class 0 has 0 entries - a working point needs both",
       "caution": ""
     },
     {
@@ -121,7 +121,7 @@
       "bin_column": "pt",
       "bin": "(3.42308, 4.15385]",
       "bin_center": 3.7884615385,
-      "n_signal_bin": 2,
+      "n_signal_bin": 532,
       "n_background_bin": 0,
       "threshold": null,
       "significance": null,
@@ -129,7 +129,7 @@
       "fake_rate": null,
       "purity": null,
       "valid": false,
-      "reason": "bin has 2 candidates < 20",
+      "reason": "pid.significance.scan_thresholds: class 1 has 532 and class 0 has 0 entries - a working point needs both",
       "caution": ""
     },
     {
@@ -138,7 +138,7 @@
       "bin_column": "pt",
       "bin": "(4.15385, 4.88462]",
       "bin_center": 4.5192307692,
-      "n_signal_bin": 0,
+      "n_signal_bin": 52,
       "n_background_bin": 0,
       "threshold": null,
       "significance": null,
@@ -146,7 +146,7 @@
       "fake_rate": null,
       "purity": null,
       "valid": false,
-      "reason": "bin has 0 candidates < 20",
+      "reason": "pid.significance.scan_thresholds: class 1 has 52 and class 0 has 0 entries - a working point needs both",
       "caution": ""
     },
     {
@@ -155,7 +155,7 @@
       "bin_column": "pt",
       "bin": "(4.88462, 5.61538]",
       "bin_center": 5.25,
-      "n_signal_bin": 0,
+      "n_signal_bin": 1,
       "n_background_bin": 0,
       "threshold": null,
       "significance": null,
@@ -163,7 +163,7 @@
       "fake_rate": null,
       "purity": null,
       "valid": false,
-      "reason": "bin has 0 candidates < 20",
+      "reason": "bin has 1 candidates < 20",
       "caution": ""
     },
     {
@@ -189,7 +189,7 @@
       "bin_column": "pt",
       "bin": "(6.34615, 7.07692]",
       "bin_center": 6.7115384615,
-      "n_signal_bin": 0,
+      "n_signal_bin": 1,
       "n_background_bin": 0,
       "threshold": null,
       "significance": null,
@@ -197,7 +197,7 @@
       "fake_rate": null,
       "purity": null,
       "valid": false,
-      "reason": "bin has 0 candidates < 20",
+      "reason": "bin has 1 candidates < 20",
       "caution": ""
     },
     {
@@ -206,7 +206,7 @@
       "bin_column": "pt",
       "bin": "(7.07692, 7.80769]",
       "bin_center": 7.4423076923,
-      "n_signal_bin": 0,
+      "n_signal_bin": 1,
       "n_background_bin": 0,
       "threshold": null,
       "significance": null,
@@ -214,7 +214,7 @@
       "fake_rate": null,
       "purity": null,
       "valid": false,
-      "reason": "bin has 0 candidates < 20",
+      "reason": "bin has 1 candidates < 20",
       "caution": ""
     },
     {

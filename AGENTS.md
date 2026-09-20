@@ -234,6 +234,16 @@ any PID number.
   these — plus layers/species selection, skipped files, and the command line —
   in each output's metadata automatically.
 
+## Grid-job reporting (twice daily on request)
+`scripts/job_report.sh` prints the full status of both PID grid jobs in one
+command: process state, pipeline stage, feature progress, skipped files,
+per-task train outcomes with gate verdicts, errors/tracebacks,
+`check_learners.py` output, and deliverables-manifest completeness. It is
+read-only (never touches jobs, outputs, or the tree). Lead every status report
+with its output, then interpret: a `gate:FAIL` line names the failing gate and
+its measured values; a missing `[run_pid] done` with a dead PID means relaunch
+(feature cache makes it cheap); any `Traceback` names the crashed step.
+
 ## Extending this project (e.g. particle identification)
 `trkperf/matching.py` is the single choke point producing a truth<->reco
 matched-pairs table (truth PDG/pT/eta + reco track params + match weight). A

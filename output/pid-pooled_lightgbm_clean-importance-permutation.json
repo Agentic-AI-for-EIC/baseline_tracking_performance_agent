@@ -40,256 +40,319 @@
     "physics_check_passed": true,
     "physics_check_notes": "",
     "campaign": "26.02.0",
-    "written_at_utc": "2026-09-18T05:00:10.764085+00:00"
+    "written_at_utc": "2026-09-20T17:49:52.814155+00:00"
   },
   "data": [
     {
       "column": "e_over_p_forward",
       "family": "calorimeter",
-      "importance_mean": 0.0204612298,
-      "importance_std": 8.85938e-05,
-      "importance_kind": "permutation"
-    },
-    {
-      "column": "ecal_forward_E",
-      "family": "calorimeter",
-      "importance_mean": 0.0086203255,
-      "importance_std": 0.0001196444,
-      "importance_kind": "permutation"
-    },
-    {
-      "column": "e_over_p_backward",
-      "family": "calorimeter",
-      "importance_mean": 0.0054784881,
-      "importance_std": 4.96666e-05,
-      "importance_kind": "permutation"
-    },
-    {
-      "column": "leg",
-      "family": "other",
-      "importance_mean": 0.0038233132,
-      "importance_std": 3.52059e-05,
-      "importance_kind": "permutation"
-    },
-    {
-      "column": "proj_pathlength",
-      "family": "tracker",
-      "importance_mean": 0.003820944,
-      "importance_std": 0.0001535924,
-      "importance_kind": "permutation"
-    },
-    {
-      "column": "ecal_forward_t",
-      "family": "calorimeter",
-      "importance_mean": 0.003709406,
-      "importance_std": 0.0001002408,
-      "importance_kind": "permutation"
-    },
-    {
-      "column": "e_hcal_forward",
-      "family": "calorimeter",
-      "importance_mean": 0.0032525196,
-      "importance_std": 0.0001135088,
-      "importance_kind": "permutation"
-    },
-    {
-      "column": "ecal_backward_delta_r",
-      "family": "calorimeter",
-      "importance_mean": 0.0017498157,
-      "importance_std": 3.50745e-05,
-      "importance_kind": "permutation"
-    },
-    {
-      "column": "ecal_forward_delta_r",
-      "family": "calorimeter",
-      "importance_mean": 0.0015354566,
-      "importance_std": 0.0001647319,
-      "importance_kind": "permutation"
-    },
-    {
-      "column": "ecal_forward_n",
-      "family": "calorimeter",
-      "importance_mean": 0.0009583271,
-      "importance_std": 3.0916e-05,
-      "importance_kind": "permutation"
-    },
-    {
-      "column": "hcal_backward_t",
-      "family": "other",
-      "importance_mean": 0.0008562859,
-      "importance_std": 2.12986e-05,
-      "importance_kind": "permutation"
-    },
-    {
-      "column": "drich_aerogel_pathlength",
-      "family": "cherenkov",
-      "importance_mean": 0.0008220316,
-      "importance_std": 5.23228e-05,
-      "importance_kind": "permutation"
-    },
-    {
-      "column": "drich_gas_pathlength",
-      "family": "cherenkov",
-      "importance_mean": 0.0007944385,
-      "importance_std": 5.59518e-05,
+      "importance_mean": 0.0382845719,
+      "importance_std": 0.0006791137,
       "importance_kind": "permutation"
     },
     {
       "column": "ecal_backward_E",
       "family": "calorimeter",
-      "importance_mean": 0.0007571928,
-      "importance_std": 9.24596e-05,
+      "importance_mean": 0.0344936769,
+      "importance_std": 0.0004854297,
       "importance_kind": "permutation"
     },
     {
-      "column": "leakage_forward",
+      "column": "ecal_forward_E",
       "family": "calorimeter",
-      "importance_mean": 0.0006069705,
-      "importance_std": 4.24375e-05,
+      "importance_mean": 0.031422304,
+      "importance_std": 0.0004940058,
       "importance_kind": "permutation"
     },
     {
-      "column": "hcal_forward_delta_r",
+      "column": "ecal_forward_t",
+      "family": "calorimeter",
+      "importance_mean": 0.0215255712,
+      "importance_std": 0.0004872846,
+      "importance_kind": "permutation"
+    },
+    {
+      "column": "proj_pathlength",
+      "family": "tracker",
+      "importance_mean": 0.0158265359,
+      "importance_std": 0.0002771217,
+      "importance_kind": "permutation"
+    },
+    {
+      "column": "hcal_forward_t",
       "family": "other",
-      "importance_mean": 0.0004465056,
-      "importance_std": 8.56267e-05,
+      "importance_mean": 0.0074765458,
+      "importance_std": 0.0001803509,
+      "importance_kind": "permutation"
+    },
+    {
+      "column": "ecal_backward_t",
+      "family": "calorimeter",
+      "importance_mean": 0.007398905,
+      "importance_std": 0.0003811758,
+      "importance_kind": "permutation"
+    },
+    {
+      "column": "leg",
+      "family": "other",
+      "importance_mean": 0.0057509255,
+      "importance_std": 0.000148125,
+      "importance_kind": "permutation"
+    },
+    {
+      "column": "drich_gas_pathlength",
+      "family": "cherenkov",
+      "importance_mean": 0.0042943276,
+      "importance_std": 0.0003235016,
+      "importance_kind": "permutation"
+    },
+    {
+      "column": "ecal_backward_n",
+      "family": "calorimeter",
+      "importance_mean": 0.0037607581,
+      "importance_std": 0.0003258685,
+      "importance_kind": "permutation"
+    },
+    {
+      "column": "e_over_p_backward",
+      "family": "calorimeter",
+      "importance_mean": 0.0035598337,
+      "importance_std": 0.0003336838,
+      "importance_kind": "permutation"
+    },
+    {
+      "column": "ecal_forward_n",
+      "family": "calorimeter",
+      "importance_mean": 0.0034426797,
+      "importance_std": 0.0001753006,
+      "importance_kind": "permutation"
+    },
+    {
+      "column": "drich_aerogel_pathlength",
+      "family": "cherenkov",
+      "importance_mean": 0.0032337199,
+      "importance_std": 0.00014804,
       "importance_kind": "permutation"
     },
     {
       "column": "log_e_over_p_forward",
       "family": "calorimeter",
-      "importance_mean": 0.0003945953,
-      "importance_std": 2.17498e-05,
+      "importance_mean": 0.0030403516,
+      "importance_std": 0.000159,
       "importance_kind": "permutation"
     },
     {
-      "column": "e_hcal_backward",
+      "column": "ecal_forward_delta_r",
       "family": "calorimeter",
-      "importance_mean": 0.0003663304,
-      "importance_std": 4.1499e-06,
+      "importance_mean": 0.0028817042,
+      "importance_std": 0.0001489401,
       "importance_kind": "permutation"
     },
     {
-      "column": "ecal_backward_shape_4",
+      "column": "hcal_backward_t",
+      "family": "other",
+      "importance_mean": 0.002393404,
+      "importance_std": 0.0003013776,
+      "importance_kind": "permutation"
+    },
+    {
+      "column": "ndf",
+      "family": "tracker",
+      "importance_mean": 0.0021373859,
+      "importance_std": 9.29397e-05,
+      "importance_kind": "permutation"
+    },
+    {
+      "column": "log_e_over_p_backward",
       "family": "calorimeter",
-      "importance_mean": 0.0002797004,
-      "importance_std": 7.19781e-05,
+      "importance_mean": 0.001688604,
+      "importance_std": 5.51531e-05,
       "importance_kind": "permutation"
     },
     {
       "column": "hcal_forward_n",
       "family": "other",
-      "importance_mean": 0.0001986699,
-      "importance_std": 5.61741e-05,
+      "importance_mean": 0.0011707916,
+      "importance_std": 0.0001028676,
       "importance_kind": "permutation"
     },
     {
-      "column": "ecal_forward_shape_4",
+      "column": "hcal_forward_delta_r",
+      "family": "other",
+      "importance_mean": 0.0008781075,
+      "importance_std": 8.41277e-05,
+      "importance_kind": "permutation"
+    },
+    {
+      "column": "ecal_backward_delta_r",
       "family": "calorimeter",
-      "importance_mean": 0.0001576029,
-      "importance_std": 9.36805e-05,
+      "importance_mean": 0.000868318,
+      "importance_std": 0.0001248675,
+      "importance_kind": "permutation"
+    },
+    {
+      "column": "ecal_forward_shape_3",
+      "family": "calorimeter",
+      "importance_mean": 0.0006522853,
+      "importance_std": 7.11773e-05,
+      "importance_kind": "permutation"
+    },
+    {
+      "column": "ecal_forward_shape_0",
+      "family": "calorimeter",
+      "importance_mean": 0.0006480127,
+      "importance_std": 0.000119119,
+      "importance_kind": "permutation"
+    },
+    {
+      "column": "chi2_per_ndf",
+      "family": "tracker",
+      "importance_mean": 0.0006392885,
+      "importance_std": 0.0001840974,
+      "importance_kind": "permutation"
+    },
+    {
+      "column": "ecal_forward_shape_1",
+      "family": "calorimeter",
+      "importance_mean": 0.0006121824,
+      "importance_std": 5.12844e-05,
+      "importance_kind": "permutation"
+    },
+    {
+      "column": "ecal_backward_shape_3",
+      "family": "calorimeter",
+      "importance_mean": 0.0005345754,
+      "importance_std": 2.47501e-05,
+      "importance_kind": "permutation"
+    },
+    {
+      "column": "e_hcal_forward",
+      "family": "calorimeter",
+      "importance_mean": 0.0004835954,
+      "importance_std": 4.2428e-05,
       "importance_kind": "permutation"
     },
     {
       "column": "ecal_backward_shape_0",
       "family": "calorimeter",
-      "importance_mean": 0.000143397,
-      "importance_std": 7.4442e-06,
+      "importance_mean": 0.0003638517,
+      "importance_std": 0.0001276222,
       "importance_kind": "permutation"
     },
     {
-      "column": "ecal_forward_shape_5",
-      "family": "calorimeter",
-      "importance_mean": 8.77001e-05,
-      "importance_std": 3.77431e-05,
-      "importance_kind": "permutation"
-    },
-    {
-      "column": "hcal_backward_n",
-      "family": "other",
-      "importance_mean": 7.74449e-05,
-      "importance_std": 2.1065e-06,
-      "importance_kind": "permutation"
-    },
-    {
-      "column": "hcal_backward_delta_r",
-      "family": "other",
-      "importance_mean": 7.27864e-05,
-      "importance_std": 4.74483e-05,
-      "importance_kind": "permutation"
-    },
-    {
-      "column": "ecal_forward_shape_2",
-      "family": "calorimeter",
-      "importance_mean": 4.94542e-05,
-      "importance_std": 4.28896e-05,
-      "importance_kind": "permutation"
-    },
-    {
-      "column": "ecal_backward_shape_6",
-      "family": "calorimeter",
-      "importance_mean": 4.72088e-05,
-      "importance_std": 8.7202e-06,
+      "column": "chi2",
+      "family": "tracker",
+      "importance_mean": 0.0002916723,
+      "importance_std": 8.74932e-05,
       "importance_kind": "permutation"
     },
     {
       "column": "leakage_backward",
       "family": "calorimeter",
-      "importance_mean": 7.4341e-06,
-      "importance_std": 1.097e-06,
+      "importance_mean": 0.0002515964,
+      "importance_std": 1.65307e-05,
       "importance_kind": "permutation"
     },
     {
-      "column": "has_drich_aerogel",
-      "family": "cherenkov",
-      "importance_mean": 0.0,
-      "importance_std": 0.0,
-      "importance_kind": "permutation"
-    },
-    {
-      "column": "ecal_backward_has_shape",
+      "column": "ecal_forward_shape_4",
       "family": "calorimeter",
-      "importance_mean": 0.0,
-      "importance_std": 0.0,
+      "importance_mean": 0.0002072817,
+      "importance_std": 3.83572e-05,
       "importance_kind": "permutation"
     },
     {
-      "column": "ecal_forward_has_shape",
+      "column": "ecal_forward_shape_5",
       "family": "calorimeter",
-      "importance_mean": 0.0,
-      "importance_std": 0.0,
+      "importance_mean": 0.0002010475,
+      "importance_std": 3.49271e-05,
       "importance_kind": "permutation"
     },
     {
-      "column": "hcal_backward_E",
+      "column": "leakage_forward",
+      "family": "calorimeter",
+      "importance_mean": 0.0001734583,
+      "importance_std": 7.26137e-05,
+      "importance_kind": "permutation"
+    },
+    {
+      "column": "ecal_backward_shape_5",
+      "family": "calorimeter",
+      "importance_mean": 0.0001715836,
+      "importance_std": 4.12477e-05,
+      "importance_kind": "permutation"
+    },
+    {
+      "column": "e_hcal_backward",
+      "family": "calorimeter",
+      "importance_mean": 0.000157255,
+      "importance_std": 6.177e-05,
+      "importance_kind": "permutation"
+    },
+    {
+      "column": "ecal_backward_shape_1",
+      "family": "calorimeter",
+      "importance_mean": 0.0001349908,
+      "importance_std": 2.80356e-05,
+      "importance_kind": "permutation"
+    },
+    {
+      "column": "ecal_backward_shape_2",
+      "family": "calorimeter",
+      "importance_mean": 0.0001086808,
+      "importance_std": 4.20435e-05,
+      "importance_kind": "permutation"
+    },
+    {
+      "column": "ecal_forward_shape_2",
+      "family": "calorimeter",
+      "importance_mean": 6.74139e-05,
+      "importance_std": 4.03533e-05,
+      "importance_kind": "permutation"
+    },
+    {
+      "column": "hcal_backward_delta_r",
       "family": "other",
-      "importance_mean": 0.0,
-      "importance_std": 0.0,
+      "importance_mean": 6.68021e-05,
+      "importance_std": 4.14025e-05,
+      "importance_kind": "permutation"
+    },
+    {
+      "column": "ecal_forward_shape_6",
+      "family": "calorimeter",
+      "importance_mean": 6.66652e-05,
+      "importance_std": 0.0001102644,
+      "importance_kind": "permutation"
+    },
+    {
+      "column": "hcal_backward_n",
+      "family": "other",
+      "importance_mean": 5.57873e-05,
+      "importance_std": 2.90461e-05,
       "importance_kind": "permutation"
     },
     {
       "column": "has_hcal_forward",
       "family": "calorimeter",
-      "importance_mean": 0.0,
-      "importance_std": 0.0,
-      "importance_kind": "permutation"
-    },
-    {
-      "column": "hcal_forward_E",
-      "family": "other",
-      "importance_mean": 0.0,
-      "importance_std": 0.0,
+      "importance_mean": 3.39823e-05,
+      "importance_std": 8.4987e-06,
       "importance_kind": "permutation"
     },
     {
       "column": "has_drich_gas",
       "family": "cherenkov",
-      "importance_mean": 0.0,
-      "importance_std": 0.0,
+      "importance_mean": 1.50969e-05,
+      "importance_std": 6.6493e-06,
       "importance_kind": "permutation"
     },
     {
-      "column": "has_ecal_backward",
+      "column": "has_drich_aerogel",
+      "family": "cherenkov",
+      "importance_mean": 1.20638e-05,
+      "importance_std": 1.98784e-05,
+      "importance_kind": "permutation"
+    },
+    {
+      "column": "ecal_backward_has_shape",
       "family": "calorimeter",
       "importance_mean": 0.0,
       "importance_std": 0.0,
@@ -303,115 +366,52 @@
       "importance_kind": "permutation"
     },
     {
+      "column": "ecal_forward_has_shape",
+      "family": "calorimeter",
+      "importance_mean": 0.0,
+      "importance_std": 0.0,
+      "importance_kind": "permutation"
+    },
+    {
+      "column": "has_ecal_backward",
+      "family": "calorimeter",
+      "importance_mean": 0.0,
+      "importance_std": 0.0,
+      "importance_kind": "permutation"
+    },
+    {
       "column": "has_hcal_backward",
       "family": "calorimeter",
-      "importance_mean": -9.093e-07,
-      "importance_std": 1.1811e-06,
+      "importance_mean": -6.888e-07,
+      "importance_std": 1.1199e-06,
       "importance_kind": "permutation"
     },
     {
-      "column": "ecal_backward_shape_5",
+      "column": "ecal_backward_shape_6",
       "family": "calorimeter",
-      "importance_mean": -2.3961e-06,
-      "importance_std": 3.365e-07,
+      "importance_mean": -5.1836e-06,
+      "importance_std": 4.62008e-05,
       "importance_kind": "permutation"
     },
     {
-      "column": "ecal_backward_shape_3",
+      "column": "ecal_backward_shape_4",
       "family": "calorimeter",
-      "importance_mean": -6.3536e-06,
-      "importance_std": 4.606e-07,
+      "importance_mean": -1.44072e-05,
+      "importance_std": 3.77886e-05,
       "importance_kind": "permutation"
     },
     {
-      "column": "ecal_backward_t",
-      "family": "calorimeter",
-      "importance_mean": -6.4906e-06,
-      "importance_std": 1.5041e-06,
-      "importance_kind": "permutation"
-    },
-    {
-      "column": "hcal_forward_t",
+      "column": "hcal_backward_E",
       "family": "other",
-      "importance_mean": -2.50615e-05,
-      "importance_std": 3.78471e-05,
+      "importance_mean": -2.16904e-05,
+      "importance_std": 1.98297e-05,
       "importance_kind": "permutation"
     },
     {
-      "column": "log_e_over_p_backward",
-      "family": "calorimeter",
-      "importance_mean": -4.12848e-05,
-      "importance_std": 4.9626e-06,
-      "importance_kind": "permutation"
-    },
-    {
-      "column": "ecal_backward_n",
-      "family": "calorimeter",
-      "importance_mean": -4.82958e-05,
-      "importance_std": 7.9754e-06,
-      "importance_kind": "permutation"
-    },
-    {
-      "column": "ecal_backward_shape_1",
-      "family": "calorimeter",
-      "importance_mean": -7.12179e-05,
-      "importance_std": 1.61729e-05,
-      "importance_kind": "permutation"
-    },
-    {
-      "column": "ecal_forward_shape_0",
-      "family": "calorimeter",
-      "importance_mean": -0.0001163148,
-      "importance_std": 1.08464e-05,
-      "importance_kind": "permutation"
-    },
-    {
-      "column": "ecal_backward_shape_2",
-      "family": "calorimeter",
-      "importance_mean": -0.0001333891,
-      "importance_std": 2.47796e-05,
-      "importance_kind": "permutation"
-    },
-    {
-      "column": "ndf",
-      "family": "tracker",
-      "importance_mean": -0.0003104944,
-      "importance_std": 9.14898e-05,
-      "importance_kind": "permutation"
-    },
-    {
-      "column": "ecal_forward_shape_1",
-      "family": "calorimeter",
-      "importance_mean": -0.0003250656,
-      "importance_std": 3.84416e-05,
-      "importance_kind": "permutation"
-    },
-    {
-      "column": "chi2",
-      "family": "tracker",
-      "importance_mean": -0.0003257498,
-      "importance_std": 0.0001105978,
-      "importance_kind": "permutation"
-    },
-    {
-      "column": "chi2_per_ndf",
-      "family": "tracker",
-      "importance_mean": -0.0004847467,
-      "importance_std": 7.27557e-05,
-      "importance_kind": "permutation"
-    },
-    {
-      "column": "ecal_forward_shape_6",
-      "family": "calorimeter",
-      "importance_mean": -0.000519255,
-      "importance_std": 6.71277e-05,
-      "importance_kind": "permutation"
-    },
-    {
-      "column": "ecal_forward_shape_3",
-      "family": "calorimeter",
-      "importance_mean": -0.0013241677,
-      "importance_std": 0.0001162252,
+      "column": "hcal_forward_E",
+      "family": "other",
+      "importance_mean": -4.61445e-05,
+      "importance_std": 4.54188e-05,
       "importance_kind": "permutation"
     }
   ]

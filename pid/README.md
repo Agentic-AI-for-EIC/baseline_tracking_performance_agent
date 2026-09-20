@@ -15,7 +15,7 @@ Design and the verified data-model facts behind it: **`../PLAN_pid.md`**.
 cd /home/wxie/eic/baseline_tracking_performance_agent
 python -m pid schema-check --dataset clean \
     --file data/dataset_small/signal/RECO/*.root          # M0 gate: links + ML stack
-python -m unittest discover -s pid/tests -v                # 238 tests, ~3.5 min first run
+python -m unittest discover -s pid/tests -v                # 255 tests, ~3.5 min first run
 python -m pid all --dataset-tag clean --plot              # features -> train -> evaluate -> importance
 ```
 

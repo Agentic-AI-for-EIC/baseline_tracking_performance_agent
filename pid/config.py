@@ -242,10 +242,11 @@ BASIS_INDEPENDENT_FIGURES: tuple[str, ...] = (
     "significance_vs_cut", "roc", "score_dist_train_vs_test", "confusion_matrix",
 )
 
-#: Figures of merit. `s_over_sqrt` is the requested S/sqrt(S+B); the effective-count
-#: variant (Kish) is reported next to it because with class weights the Poisson
-#: variance of the *weighted* sums is sum(w^2), not sum(w), and quoting the naive
-#: form with weights would overstate significance.
+#: Figures of merit. `s_over_sqrt` is the requested S/sqrt(S+B); the
+#: effective-count variant is reported next to it because with class weights
+#: the Poisson variance of the *weighted* sums is sum(w^2), not sum(w), and
+#: quoting the naive form with weights would overstate significance. (It is
+#: deliberately NOT Kish's (sum w)^2/sum(w^2) - see pid.significance.)
 SIGNIFICANCE_MODES: tuple[str, ...] = ("s_over_sqrt", "s_over_sqrt_eff")
 #: Default luminosity/flux scaling: 1.0 = the composition actually measured in the
 #: test sample. Any other value must be stated with the resulting c* (FOM scales as
@@ -462,7 +463,6 @@ MIN_SIGNAL_OVER_CONTROL_AUC: float = 0.10
 # these sample sizes).
 N_CONTROL_PERMUTATIONS: int = 5
 MIN_CONTROL_Z_SCORE: float = 3.0
-LEAKAGE_MAX_LABEL_CORRELATION: float = 0.99
 CROSS_LEARNER_MAX_AUC_SPREAD: float = 0.02
 
 # ---------------------------------------------------------------------------

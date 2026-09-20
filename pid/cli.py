@@ -142,6 +142,11 @@ def cmd_features(args) -> int:
                     ok = False
                     print("[gate:FAIL] backward-leg E/p: expected electron peak > 0.8 "
                           "and pion < 0.4")
+            if leg == "forward" and "pi" in med:
+                if not (med["pi"] < 0.4):
+                    ok = False
+                    print("[gate:FAIL] forward-leg E/p: expected pion median < 0.4 "
+                          "(MIP-like)")
             if not ok and not args.relax_gates:
                 return 1
     print("[gate:PASS] feature-table sanity (E/p peaks where physics expects them)"

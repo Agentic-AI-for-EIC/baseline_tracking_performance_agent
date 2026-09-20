@@ -48,11 +48,22 @@ class XGBoostAdapter(ModelAdapter):
     def shap(self, estimator, X: pd.DataFrame) -> np.ndarray:
         """Exact TreeSHAP contributions (XGBoost's ``pred_contribs``).
 
-        The returned matrix has one extra final column (the bias), dropped here.
+        Binary: ``(n, F+1)`` with a trailing bias column, dropped here.
+        Multiclass: measured ``(n, C, F+1)`` - drop each class's bias column,
+        then average attribution mass over classes so one ranking covers the
+        task. Anything else raises rather than silently misattribute.
         """
         import xgboost as xgb
 
         booster = estimator.get_booster()
         dm = xgb.DMatrix(X, missing=np.nan, feature_names=list(X.columns))
-        contrib = booster.predict(dm, pred_contribs=True)
-        return np.asarray(contrib)[:, : X.shape[1]]
+        contrib = np.asarray(booster.predict(dm, pred_contribs=True))
+        n_features = X.shape[1]
+        if contrib.ndim == 3:
+            if contrib.shape[2] != n_features + 1:
+                raise ValueError(
+                    "pid.models.xgboost.shap: unexpected multiclass "
+                    f"pred_contribs shape {contrib.shape} for {n_features} "
+                    "features - refusing to guess the class axis")
+            return contrib[:, :, :n_features].mean(axis=1)
+        return contrib[:, :n_features]

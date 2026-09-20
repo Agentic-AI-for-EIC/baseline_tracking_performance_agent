@@ -146,11 +146,12 @@ def channel_frame(scores: pd.DataFrame, channel: str, *, model_dir: str = "") ->
         keep = df["truth_class"].isin([sig, *truth_bkg])
         if not keep.all():
             df = df[keep].copy()
-    df = df[np.isfinite(df["score"].to_numpy(dtype=float))].copy()
+    keep = np.isfinite(df["score"].to_numpy(dtype=float))
+    n_dropped_nonfinite = int((~keep).sum())
+    df = df[keep].copy()
     df.attrs.update({"channel": channel, "signal": sig, "background": bkg,
                      "pair": bool(spec["pair"]), "title": spec["title"],
-                     "n_dropped_nonfinite": int((~np.isfinite(
-                         scores["score"].to_numpy(dtype=float))).sum())})
+                     "n_dropped_nonfinite": n_dropped_nonfinite})
     return df
 
 
@@ -473,12 +474,17 @@ def map_tidy(m: dict) -> pd.DataFrame:
 
 def map_2d(df: pd.DataFrame, channel: str, *, cut: float, quantity: str = "efficiency",
            x_variable: str = "pt", y_variable: str = "eta",
-           pt_bins=None, eta_bins=None) -> dict:
+           pt_bins=None, eta_bins=None, weights: np.ndarray | None = None) -> dict:
     """(pT, η) matrix of ``efficiency`` / ``fake_rate`` / ``purity`` / counts.
 
     Empty and statistics-starved cells are NaN (masked, never zero) so a
     calorimeter transition shows up as a *hole or a dip* against populated
-    neighbours rather than as a fabricated 0 % efficiency.
+    neighbours rather than as a fabricated 0 % efficiency. ``weights`` (same
+    composition rule as the channel scans) enters the point estimates; the
+    masking counts stay raw.
+
+    Values outside the bin edges fold into the edge bins (clipped digitize);
+    rows with non-finite kinematics are dropped up front.
     """
     x_column, x_edges_default, x_label, x_basis = resolve_bin_variable(x_variable, df)
     y_column, y_edges_default, y_label, y_basis = resolve_bin_variable(y_variable, df)
@@ -490,6 +496,7 @@ def map_2d(df: pd.DataFrame, channel: str, *, cut: float, quantity: str = "effic
     eta = df[y_column].to_numpy(dtype=float)
     ok = np.isfinite(sc) & np.isfinite(pt) & np.isfinite(eta)
     y, sc, pt, eta = y[ok], sc[ok], pt[ok], eta[ok]
+    w = np.ones(len(y), dtype=float) if weights is None else np.asarray(weights, dtype=float)[ok]
     ib = np.clip(np.digitize(pt, pt_bins[1:-1], right=True), 0, len(pt_bins) - 2)
     je = np.clip(np.digitize(eta, eta_bins[1:-1], right=True), 0, len(eta_bins) - 2)
     value = np.full((len(pt_bins) - 1, len(eta_bins) - 1), np.nan)
@@ -502,16 +509,18 @@ def map_2d(df: pd.DataFrame, channel: str, *, cut: float, quantity: str = "effic
             counts[i, j] = n_sig + n_bkg
             if n_sig + n_bkg < config.MIN_CANDIDATES_PER_WP_BIN:
                 continue
-            k_sig = int((sel & pass_flag & (y == 1)).sum())
-            k_bkg = int((sel & pass_flag & (y == 0)).sum())
+            S = float(w[(sel & pass_flag & (y == 1))].sum())
+            B = float(w[(sel & pass_flag & (y == 0))].sum())
+            Stot = float(w[(sel & (y == 1))].sum())
+            Btot = float(w[(sel & (y == 0))].sum())
             if quantity == "efficiency":
-                value[i, j] = k_sig / n_sig if n_sig else np.nan
+                value[i, j] = S / Stot if Stot > 0 else np.nan
             elif quantity == "fake_rate":
-                value[i, j] = k_bkg / n_bkg if n_bkg else np.nan
+                value[i, j] = B / Btot if Btot > 0 else np.nan
             elif quantity == "purity":
-                value[i, j] = k_sig / (k_sig + k_bkg) if (k_sig + k_bkg) else np.nan
+                value[i, j] = S / (S + B) if (S + B) > 0 else np.nan
             elif quantity == "significance":
-                value[i, j] = (k_sig / np.sqrt(k_sig + k_bkg)) if (k_sig + k_bkg) else np.nan
+                value[i, j] = (S / np.sqrt(S + B)) if (S + B) > 0 else np.nan
             else:
                 raise ValueError(f"unknown map quantity {quantity!r}")
     return {"value": value, "counts": counts,
@@ -1121,10 +1130,12 @@ def run(*, channels: tuple[str, ...] = ("eid", "ehad", "Kpi", "pK"),
                             "channel": channel, "task": spec["task"],
                             "status": status, "status_note": status_note,
                             "nsigma_method": _methods_used(tables.get("nsigma_vs_p" + suffix)),
-                            "score_space": opt["score_space"],
-                            "binning_basis": basis,
-                            "n_files": int(pd.Series(frame["file_id"]).nunique())
-                            if "file_id" in frame else None,
+                             "score_space": opt["score_space"],
+                             "binning_basis": basis,
+                             # Files contributing HELD-OUT rows to this channel
+                             # (the merits' denominator), not the run's total.
+                             "n_files": int(pd.Series(frame["file_id"]).nunique())
+                             if "file_id" in frame else None,
                             "n_rows": int(len(frame)),
                             "n_bins_with_cut": int(per_bin["valid"].sum())
                             if "valid" in per_bin else 0,

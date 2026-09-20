@@ -260,8 +260,8 @@ def read_flat_multi(
         if last_exc is not None:
             skipped.append(path)
             print(
-                f"[io] WARNING: skipping file ({len(skipped)}/{max_failures + 1} "
-                f"allowed failures): {path}\n  {last_exc}",
+                f"[io] WARNING: skipping file ({len(skipped)} failed, "
+                f"max allowed = {max_failures}): {path}\n  {last_exc}",
                 file=sys.stderr,
             )
             if len(skipped) > max_failures:

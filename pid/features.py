@@ -115,15 +115,6 @@ def _flat(tree, campaign, keys):
     except ValueError as exc:  # ragged members of different lengths => not one collection
         _missing(keys[0], str(list(cols.values())), f"unreadable as one collection ({exc})")
         return pd.DataFrame()
-    if out.empty:
-        return out
-    # read_flat assumes every member has the same per-event length; when a
-    # production writes one collection empty and its sibling full, that assumption
-    # breaks silently, so check and degrade instead.
-    counts = {c: len(out) for c in cols}
-    if len(set(counts.values())) > 1:  # pragma: no cover - defensive
-        _missing(keys[0], str(list(cols.values())), "member branches disagree in length")
-        return pd.DataFrame()
     return out
 
 
@@ -448,7 +439,8 @@ def projection_direction(path, tree, campaign):
     by :func:`pid.links.audit_links`) and holds one point per crossed surface, so
     the *last* point gives the direction the cluster should be matched against -
     far better than the perigee direction, which ignores the bending field. The
-    first point and the total path length are kept as well.
+    first point's path length is kept as ``proj_pathlength`` (a per-surface
+    value, not the track total).
     """
     empty = pd.DataFrame(columns=["event", "track_idx"])
     trk = _flat(tree, campaign, ["proj_track"])
@@ -778,6 +770,9 @@ def build_features(files, *, dataset_tag, campaign=None, legs=("backward", "forw
                 df["file_id"] = i
                 df["source_file"] = path
                 frames.append(df.reset_index(drop=True))
+                if progress and (i + 1) % 10 == 0:
+                    print(f"[features] {i + 1}/{len(files)} files (cached)",
+                          file=sys.stderr)
                 continue
             except Exception as exc:  # noqa: BLE001 - a bad cache entry is not fatal
                 print(f"[features] WARNING: ignoring unusable cache {cp}: {exc}", file=sys.stderr)

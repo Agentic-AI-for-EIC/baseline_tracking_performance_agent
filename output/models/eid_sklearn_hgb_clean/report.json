@@ -1,0 +1,231 @@
+{
+  "task": "eid",
+  "model": "sklearn_hgb",
+  "dataset_tag": "clean",
+  "label_map": {
+    "e": 1,
+    "pi": 0
+  },
+  "class_order": [
+    "pi",
+    "e"
+  ],
+  "campaign": "26.02.0",
+  "min_q2_tier": null,
+  "n_files": 150,
+  "n_rows": 161195,
+  "allow_small_sample": false,
+  "class_counts": {
+    "0": 8067,
+    "1": 153128
+  },
+  "n_features": 30,
+  "classes": [
+    "e",
+    "pi"
+  ],
+  "test_files": [
+    "13",
+    "15",
+    "17",
+    "19",
+    "21",
+    "22",
+    "24",
+    "26",
+    "27",
+    "30",
+    "33",
+    "34",
+    "40",
+    "41",
+    "44",
+    "45",
+    "46",
+    "58",
+    "63",
+    "68",
+    "79",
+    "83",
+    "84",
+    "86",
+    "87",
+    "90",
+    "106",
+    "107",
+    "114",
+    "115",
+    "118",
+    "121",
+    "122",
+    "125",
+    "127",
+    "131",
+    "133",
+    "138"
+  ],
+  "auc_train": 0.9986876862633944,
+  "auc_test": 0.9979229511755024,
+  "auc_label_shuffle": 0.4691577319795817,
+  "auc_label_shuffle_std": 0.025338404709124154,
+  "auc_label_shuffle_max": 0.499551859033442,
+  "control_z_score": 20.868133778189936,
+  "class_weight": "balanced",
+  "label_shuffle_control": {
+    "auc_mean": 0.4691577319795817,
+    "auc_std": 0.025338404709124154,
+    "auc_max": 0.499551859033442,
+    "n_control": 5,
+    "n_per_class": 6012,
+    "z_vs_control": 20.868133778189936,
+    "note": "",
+    "aucs": [
+      0.4488,
+      0.4821,
+      0.4996,
+      0.4377,
+      0.4776
+    ]
+  },
+  "excluded_columns": [
+    "charge",
+    "eta",
+    "p",
+    "phi",
+    "pt",
+    "px",
+    "py",
+    "pz"
+  ],
+  "use_charge": false,
+  "include_kinematics": false,
+  "include_event_level": false,
+  "include_track_time": false,
+  "features_table": "output/pid-features_clean.pkl",
+  "artifact_dir": "output/models/eid_sklearn_hgb_clean",
+  "model_artifact": "model.joblib",
+  "booster_artifact": "booster.joblib",
+  "best_params": {
+    "min_samples_leaf": 50,
+    "max_leaf_nodes": 15,
+    "max_iter": 400,
+    "max_depth": null,
+    "learning_rate": 0.1,
+    "l2_regularization": 10.0
+  },
+  "cv_best_score": 0.998165370211678,
+  "top_gain_features": [
+    "chi2",
+    "chi2_per_ndf",
+    "e_hcal_backward"
+  ],
+  "gates": {
+    "train_test_auc_gap": {
+      "value": 0.0007647350878919879,
+      "limit": 0.02,
+      "passed": true
+    },
+    "label_shuffle_control": {
+      "value": {
+        "control_auc_mean": 0.4691577319795817,
+        "control_auc_std": 0.025338404709124154,
+        "control_auc_max": 0.499551859033442,
+        "model_auc_test": 0.9979229511755024,
+        "z": 20.868133778189936
+      },
+      "limit": {
+        "min_z": 3.0,
+        "min_auc_margin": 0.1
+      },
+      "evaluated": true,
+      "passed": true,
+      "detail": "5 balanced permutations, 6012/class; AUCs [0.4488, 0.4821, 0.4996, 0.4377, 0.4776]"
+    },
+    "top_feature_is_physical": {
+      "value": {
+        "gain_top3": [
+          "chi2",
+          "chi2_per_ndf",
+          "e_hcal_backward"
+        ],
+        "shap_top3": []
+      },
+      "limit": {
+        "gain_patterns": [
+          "e_over_p",
+          "log_e_over_p",
+          "ecal_"
+        ],
+        "shap_must_lead": "e_over_p"
+      },
+      "expected": [
+        "e_over_p",
+        "log_e_over_p",
+        "ecal_"
+      ],
+      "passed": false,
+      "advisory": false
+    },
+    "no_single_feature_label_correlation": {
+      "value": 0.6648324640811905,
+      "limit": 0.99,
+      "passed": true
+    }
+  },
+  "gates_passed": false,
+  "cv_folds": "grouped_by_file",
+  "calibrated": true,
+  "calibration_method": "sigmoid",
+  "calibration_skipped_reason": null,
+  "seed": 1234,
+  "n_jobs": 1,
+  "env_versions": {
+    "lightgbm": "4.7.0",
+    "xgboost": "3.4.1",
+    "sklearn": "1.9.1",
+    "numpy": "2.4.6",
+    "numpy_path": "/home/wxie/.eic_python_pkgs/numpy/__init__.py",
+    "pandas": "3.0.3",
+    "awkward": "2.9.0",
+    "uproot": "5.7.1",
+    "torch": "2.12.0",
+    "ROOT": "6.40.04",
+    "problems": "none"
+  },
+  "wall_seconds": 524.0,
+  "match_weight_threshold": 0.5,
+  "min_track_p": 1.0,
+  "delta_r_max": 0.3,
+  "feature_columns": [
+    "chi2",
+    "chi2_per_ndf",
+    "e_hcal_backward",
+    "e_over_p_backward",
+    "ecal_backward_E",
+    "ecal_backward_delta_r",
+    "ecal_backward_has_shape",
+    "ecal_backward_n",
+    "ecal_backward_shape_0",
+    "ecal_backward_shape_1",
+    "ecal_backward_shape_2",
+    "ecal_backward_shape_3",
+    "ecal_backward_shape_4",
+    "ecal_backward_shape_5",
+    "ecal_backward_shape_6",
+    "ecal_backward_t",
+    "has_drich_aerogel",
+    "has_drich_gas",
+    "has_ecal_backward",
+    "has_ecal_forward",
+    "has_hcal_backward",
+    "has_hcal_forward",
+    "hcal_backward_E",
+    "hcal_backward_delta_r",
+    "hcal_backward_n",
+    "hcal_backward_t",
+    "leakage_backward",
+    "log_e_over_p_backward",
+    "ndf",
+    "proj_pathlength"
+  ]
+}

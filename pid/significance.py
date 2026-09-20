@@ -294,6 +294,9 @@ def optimal_cut_in_bins(score, y, x, *, bins=None, weights=None,
     `thresholds` fixes the scan grid (callers plotting per-bin FOM curves must
     pass the same grid they draw, or the table optimum and the drawn star can
     disagree on flat plateaus).
+
+    Values outside the bin edges fold into the edge bins (clipped digitize);
+    NaN kinematics are dropped up front (see the weights note below).
     """
     score = np.asarray(score, dtype=float)
     y = np.asarray(y)

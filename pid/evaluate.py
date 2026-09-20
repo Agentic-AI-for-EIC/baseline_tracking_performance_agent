@@ -283,6 +283,12 @@ def measure_separation(score_signal, score_background, *, method: str | None = N
     y = np.r_[np.ones(s.size, int), np.zeros(b.size, int)]
     out["auc"] = auc(y, np.r_[s, b])
     out["n_sigma_quantile"] = nsigma_from_auc(out["auc"])
+    if out["auc"] == 0.0:
+        # Perfectly INVERTED scores: the quantile estimator is NaN by design
+        # (see nsigma_from_auc), so say so - otherwise a broken model reports
+        # a bare NaN with no reason attached.
+        out["reason"] = (out["reason"] + "; " if out["reason"] else "") + (
+            "AUC = 0: scores rank backgrounds above signal (inverted model)")
     if not np.isfinite(out["n_sigma_quantile"]):
         out["saturated"] = bool(out["auc"] >= 1.0)
         if out["saturated"]:
@@ -384,13 +390,21 @@ def working_point(y, score, fake_target: float) -> dict:
     fpr, tpr, thr = roc_curve(y, score)
     accept = np.where(fpr <= fake_target)[0]
     if accept.size == 0:
+        # Unreachable for any target >= 0 (roc_curve always starts at fpr =
+        # 0), kept so a future caller passing a negative target fails loudly
+        # instead of indexing garbage.
         idx, achieved, eff = int(np.argmin(fpr)), float(fpr.min()), float(tpr[int(np.argmin(fpr))])
     else:
         idx = int(accept.max())  # largest fpr still within target -> best efficiency
         achieved, eff = float(fpr[idx]), float(tpr[idx])
-    n_sig_pass = int(round(eff * n_sig))
-    n_bkg_pass = int(round(achieved * n_bkg))
-    return {"threshold": float(thr[idx]) if idx < len(thr) else np.nan,
+    # Count acceptances directly at the chosen cut: inverting the ROC
+    # fractions with round() can err by one, and the Garwood intervals below
+    # must describe observed counts, not reconstructed ones.
+    thr = float(thr[idx]) if idx < len(thr) else np.nan
+    passed = score >= thr if np.isfinite(thr) else np.zeros_like(score, dtype=bool)
+    n_sig_pass = int((passed & (y == 1)).sum())
+    n_bkg_pass = int((passed & (y == 0)).sum())
+    return {"threshold": thr,
             "efficiency": eff, "efficiency_err": garwood(n_sig_pass, n_sig),
             "fake_rate": achieved, "fake_rate_err": garwood(n_bkg_pass, n_bkg),
             "n_signal": n_sig, "n_background": n_bkg, "n_signal_pass": n_sig_pass,
@@ -567,6 +581,11 @@ def binned_table(df, *, task, by="pt", signal=None, targets=config.FAKE_RATE_TAR
             "truth-binned tables need a score table written by the current pid.train.")
     edges = config.ETA_BIN_EDGES if truth_col == "eta" else config.PT_BIN_EDGES
     work["_bin"] = pd.cut(work[column], bins=edges)
+    n_out_of_range = int(work["_bin"].isna().sum())
+    if n_out_of_range:
+        print(f"[evaluate/{task}] NOTE: {n_out_of_range} rows fall outside the "
+              f"{by} bin edges and are excluded from the binned table (the "
+              "global overall table still counts them)", file=sys.stderr)
     rows = []
     for b, sub in work.groupby("_bin", observed=True):
         yy, ss = sub["_y"].to_numpy(), sub["_score"].to_numpy()
@@ -716,12 +735,17 @@ def evaluate(scores_path: str, *, task: str, dataset_tag: str, model: str = "",
     # Provenance that must survive into every table: how many files and events the
     # quoted numbers came from. AGENTS.md requires stating this alongside any
     # number, and an AUC is meaningless without knowing it came from 214 tracks.
+    # Signal/background counts are only meaningful for binary (0/1-labelled)
+    # tables; multiclass tables carry per-class counts in each row instead, so
+    # reporting label==1/==0 here would silently quote one class pair.
+    labels = set(pd.Series(df["label"]).dropna().unique().tolist()) if "label" in df else set()
+    binary_labels = labels <= {0, 1}
     n_files = int(pd.Series(df["file_id"]).nunique()) if "file_id" in df else None
     n_events = int(pd.Series(df["event"]).nunique()) if "event" in df else None
     provenance = {"n_files_scored": n_files, "n_events_scored": n_events,
                   "n_rows_scored": int(len(df)),
-                  "n_signal": int((df["label"] == 1).sum()) if "label" in df else None,
-                  "n_background": int((df["label"] == 0).sum()) if "label" in df else None}
+                  "n_signal": int((df["label"] == 1).sum()) if binary_labels else None,
+                  "n_background": int((df["label"] == 0).sum()) if binary_labels else None}
 
     paths = {}
     for name, table in tables.items():
