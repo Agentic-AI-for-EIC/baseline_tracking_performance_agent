@@ -74,8 +74,8 @@ Figures written per channel into `output/plots/`:
 | `pid-<ch>_eff_vs_pt.png`, `_misid_vs_pt.png`, `_purity_vs_pt.png` | efficiency / fake rate / purity at c* |
 | `pid-<ch>_eff_map_pt_vs_eta.png`, `_fake_map_pt_vs_eta.png` | 2D maps (masked where statistics do not support them) |
 | `pid-eid_pion_rejection_vs_p.png`, `pid-<ch>_rejection_vs_p.png` | 1/fake vs p, log scale; 95 % CL **lower limits** where no background passed |
-| `pid-hadpid_nsigma_vs_p.png` | nσ(p) for K/π and p/K together |
-| `pid-hadpid_confusion_matrix.png` | row-normalised multi-class confusion (held-out rows only) |
+| `pid-hadpid_lightgbm_clean-nsigma_vs_p.png` | nσ(p) for K/π and p/K together (task-level names carry model_tag; per-tag plots live in `output/plots_<tag>/`) |
+| `pid-hadpid_lightgbm_clean-confusion_matrix.png` | row-normalised multi-class confusion (held-out rows only) |
 | `pid-<ch>_score_dist_train_vs_test.png` | overtraining check, log y, with a KS statistic per class |
 
 Two extra switches: `--bin-source reco|truth|both` (see below) and

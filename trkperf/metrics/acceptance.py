@@ -20,8 +20,9 @@ from .. import binning, config, truth
 def compute_acceptance(
     file_paths: list[str],
     species: list[str] | None = None,
-    min_layers: int = config.ACCEPTANCE_MIN_LAYERS,
+    min_layers: int | None = None,
     max_failures: int = 0,
+    region: str = "central",
 ) -> pd.DataFrame:
     """Compute the acceptance table for the given files.
 
@@ -43,7 +44,17 @@ def compute_acceptance(
         species, pt_bin, eta_bin, pt_bin_center, eta_bin_center,
         n_generated, n_in_acceptance, acceptance, acceptance_err,
         insufficient_stats.
+
+    `region` selects the detector region whose truth-hit collections define
+    "could be reconstructed" (see config.TRACKING_REGIONS); an explicit
+    `min_layers` overrides the region default.
     """
+    if region not in config.TRACKING_REGIONS:
+        raise ValueError(f"unknown tracking region {region!r}; "
+                         f"choices {sorted(config.TRACKING_REGIONS)}")
+    spec = config.TRACKING_REGIONS[region]
+    if min_layers is None:
+        min_layers = spec["min_layers"]
     truth_df = truth.read_truth_particles(
         file_paths, max_failures=max_failures, primary_only=True,
         shared_failures=(shared := {}),
@@ -51,7 +62,8 @@ def compute_acceptance(
     truth_df = truth.select_primary(truth_df, species=species)
 
     layer_counts = truth.read_truth_hit_layer_counts(
-        file_paths, max_failures=max_failures, shared_failures=shared
+        file_paths, max_failures=max_failures, shared_failures=shared,
+        collections=spec["collections"],
     )
     truth_df = truth.add_acceptance_flag(truth_df, layer_counts, min_layers=min_layers)
 
@@ -84,5 +96,7 @@ def compute_acceptance(
     )
     result["insufficient_stats"] = result["n_generated"] < config.MIN_ENTRIES_PER_BIN
     result.attrs["skipped_files"] = sorted(shared.get("skipped", []))
-    result.attrs["run_params"] = {"min_layers": min_layers, "species": species}
+    result.attrs["run_params"] = {"min_layers": min_layers, "species": species,
+                                  "region": region,
+                                  "collections": list(spec["collections"])}
     return result

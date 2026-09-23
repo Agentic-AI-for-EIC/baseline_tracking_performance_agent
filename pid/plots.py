@@ -464,7 +464,8 @@ def confusion_matrix_figure(conf: dict, path: str, *, title: str = "") -> str:
 
 
 def score_dist_train_vs_test(over: dict, path: str, *, title: str = "",
-                             cut: float | None = None) -> str:
+                             cut: float | None = None, density: bool = False,
+                             peak: bool = False) -> str:
     """Classifier score, training vs held-out sample, per class, log y.
 
     A large gap is memorisation: the training sample contains the very structures
@@ -472,6 +473,11 @@ def score_dist_train_vs_test(over: dict, path: str, *, title: str = "",
     judgement is quantitative, not eyeballed. Counts are drawn +0.3 (both
     histograms equally) so empty bins stay visible on the log y axis -
     display offset only, the legend quotes the true n.
+
+    With ``density=True`` each histogram is normalised to unit area (linear y):
+    shape agreement then reads at a glance instead of requiring the
+    train/test count-ratio mental math. With ``peak=True`` each histogram is
+    instead scaled to a maximum of 1.0 (linear y).
     """
     fig, axes = plt.subplots(1, 2, figsize=(9.0, 3.9), squeeze=False)
     for ax, (cls, per) in zip(axes[0], over["classes"].items()):
@@ -482,16 +488,30 @@ def score_dist_train_vs_test(over: dict, path: str, *, title: str = "",
                 continue
             edges = np.asarray(entry["edges"], dtype=float)
             centres = 0.5 * (edges[:-1] + edges[1:])
-            ax.step(centres, np.asarray(entry["counts"], dtype=float) + 0.3, style,
-                    where="mid", ms=4, lw=1.2, label=f"{label_text} (n={entry['n']})")
+            values = np.asarray(entry["counts"], dtype=float)
+            if density:
+                width = np.diff(edges)
+                norm = float(entry["n"]) * width
+                values = np.divide(values, norm, out=np.zeros_like(values),
+                                   where=norm > 0)
+                label = f"{label_text} (n={entry['n']}, density)"
+            elif peak:
+                top = float(values.max()) if values.size else 0.0
+                values = values / top if top > 0 else values
+                label = f"{label_text} (n={entry['n']}, peak = 1)"
+            else:
+                values = values + 0.3
+                label = f"{label_text} (n={entry['n']})"
+            ax.step(centres, values, style,
+                    where="mid", ms=4, lw=1.2, label=label)
         ks = over.get("ks", {}).get(cls, {})
         if cut is not None and np.isfinite(cut):
             ax.axvline(float(cut), ls="--", lw=0.9, color="crimson")
             ax.text(float(cut), ax.get_ylim()[1], f" $c^*$={float(cut):.3f}", fontsize=6.5,
                     color="crimson", ha="left", va="top")
-        ax.set_yscale("log")
+        ax.set_yscale("linear" if (density or peak) else "log")
         ax.set_xlabel("classifier score")
-        ax.set_ylabel("candidates (log)")
+        ax.set_ylabel("density" if density else ("fraction of max" if peak else "candidates (log)"))
         ax.grid(alpha=0.3, which="both")
         ax.legend(fontsize=7.5)
         ax.set_title(f"{cls}" + (f"   KS = {ks['statistic']:.3f} "
@@ -655,16 +675,29 @@ def performance_package(*, channel: str, scan: pd.DataFrame, optimum: dict,
                 overtraining, P("score_dist_train_vs_test"), cut=cut,
                 title=f"overtraining check {tag} (train n="
                       f"{overtraining['train_rows']}, test n={overtraining['test_rows']})"))
+        # Peak-normalised twin (max = 1): shape agreement reads at a glance,
+        # where the counts version above separates train/test by sample size.
+        # An extra figure, not a required deliverable (the manifest only keys
+        # on the names in config.REQUIRED_FIGURES).
+        written["score_dist_train_vs_test_peak"] = note(
+            "score_dist_train_vs_test_peak",
+            score_dist_train_vs_test(
+                overtraining, P("score_dist_train_vs_test_peak"), cut=cut,
+                peak=True,
+                title=f"overtraining check {tag} (train n="
+                      f"{overtraining['train_rows']}, test n={overtraining['test_rows']}) (peak = 1)"))
 
+    # Task-level figures carry model+tag: without them a bkg run silently
+    # overwrites the clean figure under the same stem.
     if write_basis_independent and confusion is not None and len(confusion.get("classes", [])):
         written["confusion_matrix"] = confusion_matrix_figure(
-            confusion, os.path.join(out_dir, f"pid-{spec['task']}_confusion_matrix.png"),
+            confusion, os.path.join(out_dir, f"pid-{spec['task']}_{model}_{dataset_tag}-confusion_matrix.png"),
             title=f"confusion, {confusion.get('decision', 'argmax')} rule {cap}")
     if (write_basis_independent and confusion_at_cut is not None
             and len(confusion_at_cut.get("classes", []))):
         written["confusion_matrix_at_cut"] = confusion_matrix_figure(
             confusion_at_cut, os.path.join(out_dir,
-                                 f"pid-{spec['task']}_confusion_matrix_atcut.png"),
+                                 f"pid-{spec['task']}_{model}_{dataset_tag}-confusion_matrix_atcut.png"),
             title=f"confusion at per-class $c^*$ {cap}")
     return written
 

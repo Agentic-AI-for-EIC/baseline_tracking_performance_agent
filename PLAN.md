@@ -18,6 +18,12 @@ All four metrics are computed for BOTH dataset types (clean / +background);
 the primary deliverable per metric is the comparison (ratio + difference)
 between them, quantifying the impact of beam-induced background.
 
+Tracking scope covers three detector regions — central, forward (hadron
+endcap) and backward (electron endcap) — see §4.1. Acceptance and the
+within-acceptance efficiency denominator are defined per region; resolution,
+fake rate and pid-confusion are region-agnostic (binned in η everywhere, so
+the endcap bins were always present but thin).
+
 ## 1. opencode setup
 - Self-contained /home/wxie/eic/baseline_tracking_performance_agent/opencode.jsonc:
   - "model": "nrp/Qwen3"
@@ -138,6 +144,39 @@ a built-in cross-check.
 from the particle (a collection-level proxy; not a decoded physical sensor
 layer number, which would need subsystem-specific cellID geometry decoding).
 
+### 4.1 Tracking regions: central, forward (hadron endcap), backward (electron endcap)
+
+There is no ForwardCKFTracks/BackwardCKFTracks collection in these
+productions: endcap tracks are reconstructed as `CentralCKFTracks` (the CKF
+extends through the endcap disks), so efficiency/resolution/fake-rate need no
+new reconstruction chain — but the central ≥4/7 acceptance rule calls nearly
+every endcap particle out-of-acceptance (backward e⁻: 0.002), which is
+correct yet useless. Acceptance and the within-acceptance efficiency
+denominator are therefore defined per region (`trkperf.config.TRACKING_REGIONS`,
+`--region` on the acceptance/efficiency CLI):
+
+| region | truth-hit collections (≥1 hit each) | N_min | measured joint acceptance (clean file) |
+|---|---|---|---|
+| central | the 7 collections above | 4 | unchanged behaviour |
+| backward (electron endcap) | BackwardMPGDEndcapHits, TrackerEndcapHits, TOFEndcapHits | 2 | backward e⁻: ≥1 = 1.000, ≥2 = 0.968, ≥3 = 0.002 |
+| forward (hadron endcap) | ForwardMPGDEndcapHits, TrackerEndcapHits, TOFEndcapHits, ForwardOffMTrackerHits, ForwardRomanPotHits | 2 | forward π/K/p: ≥1 = 0.519, ≥2 = 0.426, ≥3 = 0.271 |
+
+Rationale: N_min = 2 is the stereo minimum (two independent measurements make
+a segment); the joint fractions above are the measured justification, with
+≥1/≥3 as brackets. TOF endcap hits count: TOF cluster hits are folded into
+the track fit (26.07.1), so they are tracking-relevant space points, not
+calorimetry. A collection whose branch is absent in a campaign degrades to 0
+hits with a printed NOTE rather than aborting the run.
+
+Explicitly out of scope (measured, not assumed):
+- `B0TrackerCKFTracks` (+ its associations/parameters) exist but are EMPTY
+  (0 entries/event) in these DIS files — B0 sees diffractive far-forward
+  protons, absent here. B0 metrics need a diffractive sample, not code.
+- `TaggerTrackerHits` is likewise empty in DIS (beam tagger) and excluded
+  from the backward set for the same reason.
+- No `SiEndcapTrackerHits` truth relation exists under that name, so silicon
+  endcap disks enter only via `TrackerEndcapHits`.
+
 Momentum resolution is defined on pT specifically: Delta(pT)/pT =
 (pT_reco - pT_truth) / pT_truth, consistent with binning everything in pT/eta.
 
@@ -148,7 +187,10 @@ current tier via `rucio` MCP -> run
 `python -m trkperf <metric> --file-list ... --species ... --dataset-tag
 {clean,bkg_mixed} --min-q2-tier ...` on Type 1 AND Type 2 -> escalate per the
 order above if under-populated -> run `python -m trkperf compare --metric <metric>
---clean ... --bkg ...` -> report JSON/table/plot with provenance.
+--clean ... --bkg ...` -> report JSON/table/plot with provenance. Grouped
+plots (eta regions barrel/forward/backward endcap × merged species e±/π±/K±
+with p/pbar kept separate, recomputed from summed counts) re-render from any
+result JSON with `python -m trkperf plot --json ... --grouped`.
 
 ## 6. Environment/tooling already confirmed working
 - GitHub Copilot provider: authenticated (oauth); 17 models available.
@@ -267,13 +309,76 @@ and the job may need re-launching across sessions per the teardown note
    the remaining 1,263 minQ2=1 files and/or the minQ2 10/100/1000 tiers — has
    NOT been run; it remains an open decision (see step 17).
 - [x] 16. Restored the local `data/dataset_small/` reference files (the
-   `{signal,signal_BKG_mix}` symlinks previously dangled — targets under
-   /home/wxie/eic/data/ no longer existed). Re-downloaded byte-exact via
-   `xrdcp` (clean 187,481,964 B from `dtn-eic.jlab.org`, campaign 26.02.0
-   hiDiv_1.0004; bkg 554,148,903 B from `hpceph-xrootd.twgrid.org`, campaign
-   26.07.1 hiDiv_1.2631) into /home/wxie/eic/data/dataset_small/{signal,
+`{signal,signal_BKG_mix}` symlinks previously dangled — targets under
+/home/wxie/eic/data/ no longer existed). Re-downloaded byte-exact via
+`xrdcp` (clean 187,481,964 B from `dtn-eic.jlab.org`, campaign 26.02.0
+hiDiv_1.0004; bkg 554,148,903 B from `hpceph-xrootd.twgrid.org`, campaign
+26.07.1 hiDiv_1.2631) into /home/wxie/eic/data/dataset_small/{signal,
 signal_BKG_mix}/RECO. `tests/test_local_data.py` (12 tests) passes again
-    network-free.
+network-free.
+
+## 8.1 Endcap regions — implemented, local-pair results in hand
+
+`--region {central,backward,forward}` on the acceptance/efficiency CLI
+(`trkperf.config.TRACKING_REGIONS`; central keeps the legacy
+`<metric>_<tag>` names, endcaps write `<metric>_<region>_<tag>`).
+Resolution/fake-rate/pid-confusion are region-agnostic already. Local-pair
+smoke (1 file each, `python -m trkperf {acceptance,efficiency} --region
+{backward,forward}` + compares):
+
+- backward e⁻ (pT ~1.07, η −2.75): acceptance 1.000 clean (n=575) and 1.000
+  bkg (n=51) — vs 0.001 under the central rule; efficiency within 0.995/1.0.
+- forward π⁺ (pT ~2.08, η +2.75): n=11 clean / 0 bkg on one file —
+  insufficient statistics, as expected; endcap-hadron bins need grid files.
+- `tests/test_synthetic.py::TestTrackingRegions` (3 tests) pins the
+  registry, the region plumbing, and the unknown-region error.
+
+Grid follow-up (not yet run): acceptance/efficiency `--region
+backward/forward` on `filelists/clean_150.txt` (clean, strict) and
+`filelists/bkg_200.txt` (`--max-file-failures 60 --cache-dir
+cache/bkg_files`, as §8), then `trkperf compare --metric
+acceptance-backward` (etc.). B0/tagger stay excluded (empty in DIS).
+
+Per-region plots: `trkperf plot --json ... --grouped [--eta-region
+{barrel,"forward endcap","backward endcap"}]` draws species-group curves
+for one detector region (or all three); pair the barrel plot with central
+JSONs and each endcap plot with its `<region>`-rule JSON.
+
+## 8.2 Eta-region-grouped plots (2026-09-22, no grid access)
+
+The 16-eta-bin vs-pT plots were unreadable when overlaid (up to 120
+series/panel). `trkperf` gained eta-region grouping for plotting only
+(no recomputation, no new numbers):
+- `report.eta_region()` + `report.SPECIES_GROUPS`: barrel (|eta| < 1),
+  backward/forward endcap beyond; boundaries at +-1.0 so no 0.5-grid bin
+  straddles. Species merge e+/e-, pi+/pi-, K+/K- pairs with proton and
+  antiproton kept separate (beam-charge asymmetry).
+- `report.aggregate_eta_species(df, value, err, count_cols)`: exact
+  re-aggregation for count ratios (summed numerators/denominators, Wilson
+  errors recomputed, 50-entry floor re-applied; a kept numerator column
+  missing from older JSONs is recovered as sum(value*denom) with a loud
+  NOTE); inverse-variance-weighted mean for resolution sigmas
+  (approximate, non-converged fits excluded).
+- `python -m trkperf plot --json ... --grouped --eta-region
+  {barrel,"forward endcap","backward endcap"}` writes one plot per detector
+  region (`<base>_<suffix>_grouped_<region>.png`, spaces slugged to
+  underscores): 5 curves (e+/e-, pi+/pi-, K+/K- merged pairs + proton +
+  antiproton separate), region-restricted bins only — never mixed-region
+  points. Pair barrel plots with central JSONs, endcap plots with the
+  matching `<region>`-rule JSONs (acceptance/efficiency); resolution and
+  fake-rate have no region rule so all three region plots slice the single
+  central JSON. Rendered 2026-09-23: acceptance 4 (clean x3 regions + bkg
+  barrel), efficiency 8 (absolute + within x same), resolution 12, fake-rate
+  12 (both datasets x3 regions x lin/logy); bkg endcap acceptance/efficiency
+  plots pending the §8.1 grid jobs. Stale mixed-region `*_grouped.png`
+  files were deleted.
+- Covered by `tests/test_synthetic.py::TestEtaRegions` (7 tests).
+- Interpretation caveat (verified on acceptance_clean): region curves at the
+  barrel-endcap transition can be driven by a single edge bin — e.g. the
+  backward e- point at pT 7.82 (acc 0.821, n=771) is entirely the eta=-1.25
+  bin; deeper backward bins have no high-pT electrons. Stiff transition
+  tracks cross many central layers, so acceptance there rises steeply with
+  pT while the deep endcap stays ~0 under the central >=4/7 rule.
 
 ## 9. Outstanding decision (step 15 outcome)
 

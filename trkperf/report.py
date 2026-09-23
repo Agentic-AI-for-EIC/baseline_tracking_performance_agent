@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import json
 import os
+import sys
 from datetime import datetime, timezone
 
 import matplotlib
@@ -17,6 +18,8 @@ matplotlib.use("Agg")  # headless - this project never assumes a display
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+
+from . import config
 
 #: Columns holding pandas Interval objects, which are not JSON-serialisable.
 #: They are stringified for JSON/markdown output; the *_center columns carry
@@ -189,6 +192,120 @@ _MARKER_STYLES = [
 ]
 
 
+#: eta-bin-center -> detector region. Bin centres fall at +-0.25, +-0.75,
+#: +-1.25, ... so +-1.0 splits cleanly between bins: barrel |eta| < 1,
+#: endcaps beyond.
+def eta_region(center: float) -> str:
+    """Detector region (barrel / forward endcap / backward endcap) for an eta-bin centre."""
+    if not np.isfinite(center):
+        return "unknown"
+    if abs(center) < 1.0:
+        return "barrel"
+    return "forward endcap" if center > 0 else "backward endcap"
+
+
+#: Species groups for the per-region grouped plots: charge-conjugate pairs
+#: merge into one curve (e+/e- etc.); proton and antiproton stay separate
+#: curves. Labels are plot-only; JSON tables keep the full species axis.
+SPECIES_GROUPS: dict[str, str] = {
+    "e-": "e+/e-", "e+": "e+/e-",
+    "pi+": "pi+/pi-", "pi-": "pi+/pi-",
+    "K+": "K+/K-", "K-": "K+/K-",
+    "proton": "proton", "antiproton": "antiproton",
+}
+
+
+def aggregate_eta_species(
+    df: pd.DataFrame, value_col: str, err_col: str | None,
+    count_cols: tuple[str, str] | None = None,
+    eta_region_filter: str | None = None,
+) -> pd.DataFrame:
+    """Aggregate a metric table over eta regions x species groups, recomputing
+    the value from summed counts (exact for count-based metrics).
+
+    Parameters
+    ----------
+    count_cols:
+        ``(numerator, denominator)`` count columns to sum within each
+        (species group, eta region, pT bin), e.g. ``("n_in_acceptance",
+        "n_generated")``. The value becomes numerator/denominator with a
+        Wilson error. If None (resolution sigmas), the value is the
+        inverse-variance weighted mean over the group and `err_col` its
+        propagated error instead.
+
+    Returns a DataFrame with ``species_group``, ``eta_region``,
+    ``pt_bin_center``, the value/err columns, summed ``n`` and a recomputed
+    ``insufficient_stats`` flag (summed n < 50) - shaped so
+    :func:`plot_metric_vs_pt` draws it with ``group_col="species_group"``
+    and ``marker_col="eta_region"``.
+    """
+    from . import binning
+
+    work = df.copy()
+    work["species_group"] = work["species"].map(
+        lambda s: SPECIES_GROUPS.get(s, s)) if "species" in work.columns else "all"
+    work["eta_region"] = work["eta_bin_center"].map(eta_region)
+    if eta_region_filter is not None:
+        # One plot per detector region (barrel/forward/backward endcap):
+        # keep only that region's bins. Pair with the region-correct rule
+        # (central JSONs for barrel, <region>-rule JSONs for endcaps).
+        work = work[work["eta_region"] == eta_region_filter]
+        if work.empty:
+            return pd.DataFrame(
+                columns=["species_group", "eta_region", "pt_bin_center",
+                         value_col, err_col or "err", "n", "insufficient_stats"])
+    group_keys = ["species_group", "eta_region", "pt_bin_center"]
+    rows = []
+    for keys, sub in work.groupby(group_keys, observed=True):
+        row = dict(zip(group_keys, keys))
+        n = 0
+        if count_cols is not None:
+            num_col, den_col = count_cols
+            n_total = float(sub[den_col].sum())
+            n = n_total
+            if num_col in sub.columns:
+                k = float(sub[num_col].sum())
+            else:
+                # Older result files predate the kept numerator column: the
+                # value IS numerator/denominator (NaN only where the
+                # denominator is 0), so sum(value * denom) recovers it exactly.
+                if not getattr(aggregate_eta_species, "_warned_recovery", False):
+                    print("[report] NOTE: numerator column "
+                          f"{num_col!r} absent - recovering it as "
+                          "sum(value * denominator); exact wherever the value "
+                          "is numerator/denominator", file=sys.stderr)
+                    aggregate_eta_species._warned_recovery = True
+                k = float((sub[value_col].fillna(0).astype(float)
+                           * sub[den_col].fillna(0).astype(float)).sum())
+            with np.errstate(divide="ignore", invalid="ignore"):
+                row[value_col] = k / n_total if n_total > 0 else np.nan
+            if err_col:
+                row[err_col] = float(binning.binomial_error(k, n_total))
+        else:
+            vals = sub[value_col].to_numpy(dtype=float)
+            errs = (sub[err_col].to_numpy(dtype=float) if err_col and err_col in sub.columns
+                    else np.full_like(vals, np.nan))
+            ok = np.isfinite(vals) & np.isfinite(errs) & (errs > 0)
+            if "fit_converged" in sub.columns:
+                # A non-converged fit carries no meaningful width even when a
+                # number is present: exclude it rather than averaging it in.
+                ok = ok & (sub["fit_converged"].to_numpy() == True)  # noqa: E712
+            if ok.sum() > 0:
+                w = 1.0 / errs[ok]**2
+                row[value_col] = float(np.sum(vals[ok] * w) / w.sum())
+                if err_col:
+                    row[err_col] = float(1.0 / np.sqrt(w.sum()))
+            else:
+                row[value_col] = np.nan
+                if err_col:
+                    row[err_col] = np.nan
+            n = float(sub["n_matched"].sum()) if "n_matched" in sub.columns else 0
+        row["n"] = n
+        row["insufficient_stats"] = bool(n < config.MIN_ENTRIES_PER_BIN)
+        rows.append(row)
+    return pd.DataFrame(rows)
+
+
 def _markers_for(values: list) -> dict:
     """Map each sorted `values` entry to a distinct marker style, cycling the
     built-in list if there are more values than styles."""
@@ -233,9 +350,10 @@ def plot_metric_vs_pt(
     simply absent rather than drawn at an invented floor value. ``ymin`` sets
     the y-axis lower limit explicitly (e.g. 1e-5 so very small fake rates stay
     readable while the axis still spans the physical range); it only makes
-    sense to use it with ``log_y=True``. The colour legend (species) is
-    top-left and the marker-shape legend (eta bin) sits at
-    ``marker_legend_loc`` (default top-right).
+    sense to use it with ``log_y=True``. Both legends sit OUTSIDE the axes
+    (species top-right, markers bottom-right) so legend boxes never cover
+    data points; ``marker_legend_loc`` is kept for signature compatibility
+    only.
     """
     os.makedirs(os.path.dirname(path) or ".", exist_ok=True)
     plot_df = df
@@ -301,7 +419,9 @@ def plot_metric_vs_pt(
             for g in groups
         ]
         labels = [str(g) if g is not None else "all" for g in groups]
-        ax.legend(handles, labels, loc="upper left", fontsize=7, title=group_col)
+        # Outside the axes (top right) so the box never covers data points.
+        ax.legend(handles, labels, loc="upper left", bbox_to_anchor=(1.02, 1.0),
+                  fontsize=7, title=group_col, borderaxespad=0.0)
     if marker_map:
         mhandles = [
             plt.Line2D([0], [0], color="#333333" if group_color is None else group_color,
@@ -310,27 +430,20 @@ def plot_metric_vs_pt(
             for m in markers
         ]
         mlabels = [
-            f"eta={m:+.2f}" if str(marker_col).startswith("eta") else f"{marker_col}={m}"
+            f"{m}" if str(marker_col) == "eta_region"
+            else (f"eta={m:+.2f}" if str(marker_col).startswith("eta") else f"{marker_col}={m}")
             for m in markers
         ]
-        # Drawn at figure level (not ax.legend) so it coexists with the
-        # species-colour legend: ax.legend would replace the previous legend.
-        # The bbox anchor is derived from the requested corner so the legend
-        # box sits at that corner (upper left for a colour legend, otherwise
-        # `marker_legend_loc`).
-        corner_anchor = {
-            "upper right": (1.0, 1.0),
-            "upper left": (0.0, 1.0),
-            "lower right": (1.0, 0.0),
-            "lower left": (0.0, 0.0),
-        }
-        anchor = corner_anchor.get(marker_legend_loc, (1.0, 1.0))
+        # Drawn at figure level, outside the axes (bottom right), so it
+        # coexists with the species-colour legend and never covers data.
+        # marker_legend_loc is kept for signature compatibility but the box
+        # always sits outside the axes now.
         fig.legend(
-            mhandles, mlabels, loc=marker_legend_loc, bbox_to_anchor=anchor,
+            mhandles, mlabels, loc="lower left", bbox_to_anchor=(1.02, 0.0),
             bbox_transform=ax.transAxes, fontsize=7, title=marker_col,
-            ncol=2 if len(markers) > 8 else 1,
+            ncol=2 if len(markers) > 8 else 1, borderaxespad=0.0,
         )
     ax.grid(True, alpha=0.3)
     fig.tight_layout()
-    fig.savefig(path, dpi=150)
+    fig.savefig(path, dpi=150, bbox_inches="tight")
     plt.close(fig)

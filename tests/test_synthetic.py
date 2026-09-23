@@ -653,5 +653,169 @@ class TestReadCache(unittest.TestCase):
         self.assertEqual(calls["count"], 1, "set_cache_dir default was not honoured")
 
 
+class TestTrackingRegions(unittest.TestCase):
+    """Endcap acceptance regions use their own collections/threshold (PLAN.md 4.1)."""
+
+    def test_region_registry_is_sane(self):
+        from trkperf import config
+
+        for region, spec in config.TRACKING_REGIONS.items():
+            self.assertTrue(len(spec["collections"]) >= 2, region)
+            self.assertGreaterEqual(spec["min_layers"], 1, region)
+            self.assertLessEqual(spec["min_layers"], len(spec["collections"]), region)
+        self.assertEqual(config.TRACKING_REGIONS["central"]["min_layers"],
+                         config.ACCEPTANCE_MIN_LAYERS)
+
+    def test_unknown_region_raises(self):
+        from trkperf.metrics import acceptance, efficiency
+
+        with self.assertRaises(ValueError):
+            acceptance.compute_acceptance([], region="nosecone")
+        with self.assertRaises(ValueError):
+            efficiency.compute_efficiency([], region="nosecone")
+
+    def test_backward_acceptance_counts_endcap_hits(self):
+        # Two backward electrons: one with BackwardMPGD+TrackerEndcap hits
+        # (in), one with nothing (out). Central rule would reject both.
+        from trkperf import config
+        from trkperf.metrics import acceptance
+
+        truth = pd.DataFrame({
+            "file_id": [0, 0], "event": [0, 0], "idx": [0, 1],
+            "generator_status": [1, 1], "species": ["e-", "e-"],
+            "pt": [1.0, 1.0], "eta": [-2.75, -2.75],
+        })
+        layers = pd.DataFrame({
+            "file_id": [0], "event": [0], "idx": [0],
+            "n_layers_hit": [2],
+        })
+        with mock.patch("trkperf.truth.read_truth_particles", return_value=truth), \
+             mock.patch("trkperf.truth.read_truth_hit_layer_counts",
+                        return_value=layers) as rl:
+            result = acceptance.compute_acceptance(["f.root"], region="backward")
+        _, kwargs = rl.call_args
+        self.assertEqual(list(kwargs["collections"]),
+                         list(config.TRACKING_REGIONS["backward"]["collections"]))
+        got = result[(result["species"] == "e-") & (result["n_generated"] > 0)]
+        self.assertEqual(int(got["n_generated"].iloc[0]), 2)
+        self.assertEqual(int(got["n_in_acceptance"].iloc[0]), 1)
+        self.assertEqual(result.attrs["run_params"]["region"], "backward")
+
+
+class TestEtaRegions(unittest.TestCase):
+    def _ratio_df(self):
+        # Two eta bins in barrel (-0.75, +0.75), one backward:
+        # regional acceptance must equal summed counts, never mean of ratios.
+        return pd.DataFrame([
+            {"species": "e-", "pt_bin_center": 1.0, "eta_bin_center": -0.75,
+             "acceptance": 0.5, "acceptance_err": 0.1, "n_generated": 100,
+             "n_in_acceptance": 50, "insufficient_stats": False},
+            {"species": "e-", "pt_bin_center": 1.0, "eta_bin_center": 0.75,
+             "acceptance": 1.0, "acceptance_err": 0.0, "n_generated": 300,
+             "n_in_acceptance": 300, "insufficient_stats": False},
+            {"species": "e-", "pt_bin_center": 1.0, "eta_bin_center": -2.75,
+             "acceptance": 0.0, "acceptance_err": 0.0, "n_generated": 1000,
+             "n_in_acceptance": 0, "insufficient_stats": False},
+        ])
+
+    def test_region_assignment(self):
+        from trkperf import report
+
+        self.assertEqual(report.eta_region(-3.75), "backward endcap")
+        self.assertEqual(report.eta_region(-1.25), "backward endcap")
+        self.assertEqual(report.eta_region(-0.75), "barrel")
+        self.assertEqual(report.eta_region(0.75), "barrel")
+        self.assertEqual(report.eta_region(1.25), "forward endcap")
+        self.assertEqual(report.eta_region(3.75), "forward endcap")
+        self.assertEqual(report.eta_region(float("nan")), "unknown")
+
+    def test_species_groups(self):
+        from trkperf import report
+
+        groups = report.SPECIES_GROUPS
+        self.assertEqual(groups["e-"], groups["e+"])
+        self.assertEqual(groups["pi+"], groups["pi-"])
+        self.assertEqual(groups["K+"], groups["K-"])
+        # Proton and antiproton stay separate (beam-charge asymmetry).
+        self.assertNotEqual(groups["proton"], groups["antiproton"])
+        # charge-conjugate merge is exact: (30 + 70) / (100 + 100) = 0.5
+        df = pd.DataFrame([
+            {"species": "e-", "pt_bin_center": 1.0, "eta_bin_center": 0.25,
+             "acceptance": 0.3, "acceptance_err": 0.05, "n_generated": 100,
+             "n_in_acceptance": 30, "insufficient_stats": False},
+            {"species": "e+", "pt_bin_center": 1.0, "eta_bin_center": 0.25,
+             "acceptance": 0.7, "acceptance_err": 0.05, "n_generated": 100,
+             "n_in_acceptance": 70, "insufficient_stats": False},
+        ])
+        agg = report.aggregate_eta_species(
+            df, "acceptance", "acceptance_err",
+            count_cols=("n_in_acceptance", "n_generated"))
+        self.assertEqual(len(agg), 1)
+        self.assertEqual(agg.iloc[0]["species_group"], groups["e-"])
+        self.assertEqual(agg.iloc[0]["eta_region"], "barrel")
+        self.assertAlmostEqual(agg.iloc[0]["acceptance"], 0.5)
+
+    def test_ratio_recovered_exactly(self):
+        agg = report.aggregate_eta_species(
+            self._ratio_df(), "acceptance", "acceptance_err",
+            count_cols=("n_in_acceptance", "n_generated"))
+        # barrel: (50 + 300) / (100 + 300) = 0.875, NOT mean(0.5, 1.0) = 0.75
+        barrel = agg[(agg["species_group"] == "e+/e-") & (agg["eta_region"] == "barrel")].iloc[0]
+        self.assertAlmostEqual(barrel["acceptance"], 0.875)
+        self.assertEqual(barrel["n"], 400.0)
+        self.assertFalse(barrel["insufficient_stats"])
+        # backward: 0 / 1000
+        back = agg[(agg["species_group"] == "e+/e-") & (agg["eta_region"] == "backward endcap")].iloc[0]
+        self.assertEqual(back["acceptance"], 0.0)
+        self.assertEqual(set(agg["eta_region"]), {"barrel", "backward endcap"})
+
+    def test_floor_reapplied(self):
+        df = self._ratio_df()
+        df.loc[df["eta_bin_center"] == 0.75, "n_generated"] = 10
+        df.loc[df["eta_bin_center"] == 0.75, "n_in_acceptance"] = 10
+        agg = report.aggregate_eta_species(
+            df, "acceptance", "acceptance_err",
+            count_cols=("n_in_acceptance", "n_generated"))
+        barrel = agg[agg["eta_region"] == "barrel"].iloc[0]
+        # (50 + 10) / (100 + 10) exact, n=110 passes the floor
+        self.assertAlmostEqual(barrel["acceptance"], 60.0 / 110.0)
+        df.loc[df["eta_bin_center"] == -0.75, "n_generated"] = 5
+        agg2 = report.aggregate_eta_species(
+            df, "acceptance", "acceptance_err",
+            count_cols=("n_in_acceptance", "n_generated"))
+        barrel2 = agg2[agg2["eta_region"] == "barrel"].iloc[0]
+        self.assertTrue(barrel2["insufficient_stats"])  # n = 15 < 50
+
+    def test_sigma_inverse_variance(self):
+        df = pd.DataFrame([
+            {"species": "pi+", "pt_bin_center": 1.0, "eta_bin_center": -0.25,
+             "sigma": 0.10, "sigma_err": 0.01, "n_matched": 200,
+             "fit_converged": True, "insufficient_stats": False},
+            {"species": "pi+", "pt_bin_center": 1.0, "eta_bin_center": 0.25,
+             "sigma": 0.20, "sigma_err": 0.02, "n_matched": 200,
+             "fit_converged": True, "insufficient_stats": False},
+            {"species": "pi+", "pt_bin_center": 1.0, "eta_bin_center": 0.75,
+             "sigma": 9.99, "sigma_err": 0.001, "n_matched": 200,
+             "fit_converged": False, "insufficient_stats": False},
+        ])
+        agg = report.aggregate_eta_species(df, "sigma", "sigma_err", count_cols=None)
+        row = agg.iloc[0]
+        # w = 1/0.01^2 : 1/0.02^2 = 4:1 -> (4*0.10 + 1*0.20)/5 = 0.12; the
+        # non-converged row is excluded even though its tiny error would
+        # otherwise dominate the weights.
+        self.assertAlmostEqual(row["sigma"], 0.12, places=6)
+        self.assertAlmostEqual(row["sigma_err"], 1.0 / np.sqrt(10000 + 2500), places=9)
+        self.assertEqual(row["n"], 600.0)
+
+    def test_eta_region_filter_keeps_one_region(self):
+        agg = report.aggregate_eta_species(
+            self._ratio_df(), "acceptance", "acceptance_err",
+            count_cols=("n_in_acceptance", "n_generated"),
+            eta_region_filter="barrel")
+        self.assertTrue((agg["eta_region"] == "barrel").all())
+        self.assertEqual(len(agg), 1)
+        self.assertAlmostEqual(agg.iloc[0]["acceptance"], 0.875)
+
+
 if __name__ == "__main__":
     unittest.main()

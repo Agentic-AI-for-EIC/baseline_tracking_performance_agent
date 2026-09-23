@@ -37,6 +37,11 @@ _SPECIES_METRIC_FUNCTIONS = {
     "efficiency": efficiency.compute_efficiency,
     "pid-confusion": pid_confusion_module.compute_pid_confusion,
 }
+#: Subset whose acceptance definition is region-dependent (see
+#: config.TRACKING_REGIONS); they take --region and write
+#: <metric>_<region>_<tag> outputs (central keeps the legacy
+#: <metric>_<tag> names).
+REGION_METRICS = ("acceptance", "efficiency")
 FAKE_RATE_NAME = "fake-rate"
 
 #: Which (value_col, err_col, output_suffix, [log_y], [ymin],
@@ -72,7 +77,6 @@ _PLOT_SPEC: dict[str, list[tuple]] = {
     # pid-confusion: no single group axis works for a two-species-axis
     # matrix — JSON/markdown output is the primary deliverable here.
 }
-
 
 def _plot_specs(
     metric_name: str,
@@ -162,7 +166,9 @@ def _write_outputs(
     run_params = dict(getattr(df, "attrs", {}).get("run_params", {}))
     meta.update(run_params)
     meta["skipped_files"] = list(getattr(df, "attrs", {}).get("skipped_files", []))
-    base = os.path.join(args.out_dir, f"{metric_name}_{args.dataset_tag}")
+    region = run_params.get("region", "central")
+    stem = metric_name if region == "central" else f"{metric_name}_{region}"
+    base = os.path.join(args.out_dir, f"{stem}_{args.dataset_tag}")
     report.to_json(df, base + ".json", meta=meta)
     report.to_markdown_table(df, base + ".md")
     report.to_root(
@@ -194,7 +200,11 @@ def _run_species_metric(metric_name: str, compute_fn):
     def run(args: argparse.Namespace):
         io_module.set_cache_dir(args.cache_dir)
         files = _read_file_list(args)
-        df = compute_fn(files, species=args.species, max_failures=args.max_file_failures)
+        kwargs = {}
+        if metric_name in REGION_METRICS:
+            kwargs["region"] = args.region
+        df = compute_fn(files, species=args.species, max_failures=args.max_file_failures,
+                        **kwargs)
         _write_outputs(df, metric_name, args, n_files=len(files))
         return df
 
@@ -211,6 +221,19 @@ def _run_fake_rate(args: argparse.Namespace):
     return df
 
 
+#: (metric, value column) -> (numerator, denominator) count columns for
+#: exact grouped re-aggregation (see report.aggregate_eta_species). A None
+#: entry means inverse-variance weighting (resolution sigmas).
+_GROUP_COUNTS: dict[tuple[str, str], tuple[str, str] | None] = {
+    ("acceptance", "acceptance"): ("n_in_acceptance", "n_generated"),
+    ("efficiency", "efficiency_absolute"): ("n_matched", "n_truth"),
+    ("efficiency", "efficiency_within_acceptance"): (
+        "n_matched_in_acceptance", "n_in_acceptance"),
+    ("fake-rate", "fake_rate"): ("n_fake", "n_tracks"),
+    ("resolution", "sigma"): None,
+}
+
+
 def _run_plot(args: argparse.Namespace):
     """Re-render the metric-vs-pT PNG(s) for an existing JSON result, without
     touching the grid — used to restyle a finished run's plots (e.g. after a
@@ -224,12 +247,25 @@ def _run_plot(args: argparse.Namespace):
     group_col = "species" if metric_name != FAKE_RATE_NAME else "__no_species_axis__"
     n_plotted = 0
     for value_col, err_col, suffix, log_y, ymin, marker_loc in _plot_specs(metric_name):
-        plot_path = f"{base}_{suffix}.png"
-        group_col = "species" if metric_name != FAKE_RATE_NAME else "__no_species_axis__"
+        if getattr(args, "grouped", False):
+            frame = report.aggregate_eta_species(
+                df, value_col, err_col,
+                count_cols=_GROUP_COUNTS.get((metric_name, value_col)),
+                eta_region_filter=getattr(args, "eta_region", None))
+            region_tag = f"_{args.eta_region}" if getattr(args, "eta_region", None) else ""
+            region_tag = region_tag.replace(" ", "_")
+            plot_path = f"{base}_{suffix}_grouped{region_tag}.png"
+            group_col = "species_group"
+            marker = "eta_region"
+        else:
+            frame = df
+            plot_path = f"{base}_{suffix}.png"
+            group_col = "species" if metric_name != FAKE_RATE_NAME else "__no_species_axis__"
+            marker = "eta_bin_center"
         group_color = "black" if metric_name == FAKE_RATE_NAME else None
         report.plot_metric_vs_pt(
-            df, value_col, err_col, plot_path, group_col=group_col,
-            marker_col="eta_bin_center", group_color=group_color, log_y=log_y,
+            frame, value_col, err_col, plot_path, group_col=group_col,
+            marker_col=marker, group_color=group_color, log_y=log_y,
             ymin=ymin, marker_legend_loc=marker_loc,
         )
         print(f"[plot/{metric_name}] wrote {plot_path}")
@@ -262,6 +298,14 @@ def build_parser() -> argparse.ArgumentParser:
             metavar="SPECIES",
             help="Restrict to these species (default: all species in config.SPECIES).",
         )
+        if name in REGION_METRICS:
+            p.add_argument(
+                "--region",
+                default="central",
+                choices=sorted(config.TRACKING_REGIONS),
+                help="Detector region for the acceptance definition "
+                "(default: central; writes <metric>_<region>_<tag> outputs).",
+            )
         p.set_defaults(func=_run_species_metric(name, fn))
 
     p = sub.add_parser(FAKE_RATE_NAME, help="Compute the fake-rate metric (no species axis).")
@@ -285,6 +329,22 @@ def build_parser() -> argparse.ArgumentParser:
         "--metric",
         default=None,
         help="Metric name for the plot spec; default: inferred from the JSON metadata.",
+    )
+    p.add_argument(
+        "--grouped",
+        action="store_true",
+        help="Group curves by eta region (barrel/forward/backward endcap) and "
+        "merged species (e±, π±, K±, proton, antiproton kept separate), "
+        "recomputed from summed counts (report.aggregate_eta_species). "
+        "Writes <base>_<suffix>_grouped.png alongside the per-bin plots.",
+    )
+    p.add_argument(
+        "--eta-region",
+        default=None,
+        choices=("barrel", "forward endcap", "backward endcap"),
+        help="With --grouped, keep only one detector region's bins (one plot "
+        "per region). Pair with the region-correct rule: central JSONs for "
+        "barrel, <region>-rule JSONs (acceptance_<region>_<tag>) for endcaps.",
     )
     p.set_defaults(func=_run_plot)
 

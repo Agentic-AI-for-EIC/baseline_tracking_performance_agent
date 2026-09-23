@@ -69,5 +69,39 @@ class TestMetricVsBin(unittest.TestCase):
             self.assertTrue(os.path.exists(path))
 
 
+class TestScoreDistDensity(unittest.TestCase):
+    def _over(self):
+        edges = [i / 10 for i in range(11)]
+        return {"classes": {
+            "e": {"train": {"counts": [0, 1, 3, 6] + [0] * 5 + [50],
+                            "edges": edges, "n": 60},
+                  "test": {"counts": [0, 0, 1, 2] + [0] * 5 + [17],
+                           "edges": edges, "n": 20}},
+            "pi": {"train": {"counts": [40, 5] + [0] * 8, "edges": edges, "n": 45},
+                   "test": {"counts": [12, 2] + [0] * 8, "edges": edges, "n": 14}}},
+                "ks": {}}
+
+    def test_density_mode_writes_a_figure(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            path = os.path.join(tmp, "dens.png")
+            plots.score_dist_train_vs_test(self._over(), path, density=True)
+            self.assertTrue(os.path.exists(path))
+            self.assertGreater(os.path.getsize(path), 1000)
+
+    def test_count_mode_unchanged(self):
+        # default path keeps the log-counts rendering (with its +0.3 offset).
+        with tempfile.TemporaryDirectory() as tmp:
+            path = os.path.join(tmp, "counts.png")
+            plots.score_dist_train_vs_test(self._over(), path)
+            self.assertTrue(os.path.exists(path))
+
+    def test_peak_mode_normalises_maximum_to_one(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            path = os.path.join(tmp, "peak.png")
+            plots.score_dist_train_vs_test(self._over(), path, peak=True)
+            self.assertTrue(os.path.exists(path))
+            self.assertGreater(os.path.getsize(path), 1000)
+
+
 if __name__ == "__main__":
     unittest.main()

@@ -83,6 +83,39 @@ CENTRAL_TRACKING_TRUTH_HIT_COLLECTIONS: tuple[str, ...] = (
 )
 
 # ---------------------------------------------------------------------------
+# Tracking regions (see PLAN.md 4.1). The central CKF reconstructs endcap
+# tracks, so no new reconstruction chain is needed - but the central >=4/7
+# acceptance rule calls nearly every endcap particle out of acceptance.
+# Each region therefore defines its own truth-hit collections and N_min
+# (2 = the stereo minimum: two independent measurements make a segment),
+# with the measured joint fractions in PLAN.md as justification.
+# ---------------------------------------------------------------------------
+TRACKING_REGIONS: dict[str, dict] = {
+    "central": {
+        "collections": CENTRAL_TRACKING_TRUTH_HIT_COLLECTIONS,
+        "min_layers": ACCEPTANCE_MIN_LAYERS,  # 4
+    },
+    "backward": {
+        "collections": (
+            "BackwardMPGDEndcapHits",
+            "TrackerEndcapHits",
+            "TOFEndcapHits",
+        ),
+        "min_layers": 2,
+    },
+    "forward": {
+        "collections": (
+            "ForwardMPGDEndcapHits",
+            "TrackerEndcapHits",
+            "TOFEndcapHits",
+            "ForwardOffMTrackerHits",
+            "ForwardRomanPotHits",
+        ),
+        "min_layers": 2,
+    },
+}
+
+# ---------------------------------------------------------------------------
 # Statistics floor: a (pT, eta[, species]) bin with fewer raw entries than
 # this is reported as "insufficient statistics" rather than a number, per
 # AGENTS.md's Definition of done.

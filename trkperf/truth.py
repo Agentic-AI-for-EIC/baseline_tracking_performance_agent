@@ -107,11 +107,35 @@ def select_primary(truth_df: pd.DataFrame, species: list[str] | None = None) -> 
     return out
 
 
+def _collection_present(file_paths: list[str], branch: str) -> bool:
+    """Does the first file actually carry this branch (metadata-cheap probe)?
+
+    A campaign entry is not proof (cf. pid.features._available): probe with a
+    one-entry read so a never-written collection is skipped without spending
+    the shared failure budget file by file.
+    """
+    if not file_paths:
+        return False
+    try:
+        tree = io.open_tree(file_paths[0])
+        tree.arrays([branch], library="ak", entry_start=0, entry_stop=1)
+        return True
+    except Exception:  # noqa: BLE001 - absent/unreadable branch in this production
+        return False
+
+
 def read_truth_hit_layer_counts(file_paths: list[str], *, max_failures: int = 0,
-                                shared_failures: dict | None = None) -> pd.DataFrame:
+                                 shared_failures: dict | None = None,
+                                 collections: tuple[str, ...] | None = None,
+                                 ) -> pd.DataFrame:
     """Count, per truth particle, how many central-tracking truth-hit
     collections registered >= 1 hit from it (see AGENTS.md / config.py for
     why "collection" is used as a proxy for "layer").
+
+    `collections` selects the detector region (see
+    ``config.TRACKING_REGIONS``); None means the central seven. A collection
+    whose branch is absent in a campaign degrades to 0 hits with a printed
+    NOTE rather than aborting the run.
 
     Returns
     -------
@@ -124,8 +148,21 @@ def read_truth_hit_layer_counts(file_paths: list[str], *, max_failures: int = 0,
     fill missing values with 0 - see acceptance.compute_acceptance for the
     canonical example.
     """
+    import sys
+
+    if collections is None:
+        collections = config.CENTRAL_TRACKING_TRUTH_HIT_COLLECTIONS
     frames = []
-    for collection in config.CENTRAL_TRACKING_TRUTH_HIT_COLLECTIONS:
+    for collection in collections:
+        # Campaign-wide absence (a collection a production never wrote) must
+        # NOT consume the shared failure budget: probing the first file keeps
+        # a missing branch from failing every file one by one and shrinking
+        # the whole run's sample. Per-file I/O failures below still do.
+        branch = f"_{collection}_particle/_{collection}_particle.index"
+        if not _collection_present(file_paths, branch):
+            print(f"[truth] NOTE: {collection} has no {branch} branch in this "
+                  "campaign; counting 0 hits from it in this run", file=sys.stderr)
+            continue
         # Each truth hit has exactly one `particle` relation (OneToOne) back
         # to the MCParticles entry that produced it. Name the requested
         # value column "particle_idx" (NOT "idx") - read_flat already uses
@@ -133,9 +170,14 @@ def read_truth_hit_layer_counts(file_paths: list[str], *, max_failures: int = 0,
         # name would produce two columns both called "idx" after the rename
         # below (pandas allows duplicate column names; groupby then breaks,
         # since `df["idx"]` returns a 2-column DataFrame, not a Series).
-        columns = {"particle_idx": f"_{collection}_particle/_{collection}_particle.index"}
-        hits = io.read_flat_multi(file_paths, columns, max_failures=max_failures,
-                                    shared_failures=shared_failures)
+        columns = {"particle_idx": branch}
+        try:
+            hits = io.read_flat_multi(file_paths, columns, max_failures=max_failures,
+                                      shared_failures=shared_failures)
+        except Exception as exc:  # noqa: BLE001 - unreadable collection
+            print(f"[truth] NOTE: {collection} unreadable ({exc.__class__.__name__}); "
+                  "counting 0 hits from it in this run", file=sys.stderr)
+            continue
         hits["collection"] = collection
         # Select only the columns we need FIRST (dropping the hit's own,
         # now-irrelevant bookkeeping "idx"), then rename - so there is only

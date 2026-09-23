@@ -40,19 +40,18 @@
     "bkg_scale": 1.0,
     "channels": [
       "eid",
-      "ehad",
-      "Kpi",
-      "pK"
+      "ehad"
     ],
-    "bin_source": "reco",
+    "bin_source": "both",
     "nsigma_method": "quantile",
     "binning_bases_in_rows": [
-      "reco"
+      "reco",
+      "truth"
     ],
     "pt_bins": 13,
     "p_bins": 14,
     "campaign": "26.07.1",
-    "written_at_utc": "2026-09-19T10:05:06.871801+00:00"
+    "written_at_utc": "2026-09-21T22:16:07.751391+00:00"
   },
   "data": [
     {
@@ -86,6 +85,36 @@
       "ks_background": 0.0798573438
     },
     {
+      "threshold": 0.0475,
+      "significance": 57.8988902138,
+      "efficiency": 0.9955856386,
+      "fake_rate": 0.1722222222,
+      "fake_rate_upper_limit": 0.2252743293,
+      "purity": 0.9909197422,
+      "rejection": 5.8064516129,
+      "rejection_lower_limit": 4.4390321933,
+      "n_signal_total": 3398,
+      "n_background_total": 180,
+      "valid": true,
+      "caution": "",
+      "edge_flag": "interior",
+      "rejects_background": true,
+      "signal": "e",
+      "background": "pi",
+      "channel": "eid",
+      "task": "eid",
+      "status": "headline",
+      "status_note": "",
+      "nsigma_method": ",quantile",
+      "score_space": "task",
+      "binning_basis": "truth",
+      "n_files": 36,
+      "n_rows": 3578,
+      "n_bins_with_cut": 2,
+      "ks_signal": null,
+      "ks_background": null
+    },
+    {
       "threshold": 0.0275,
       "significance": 57.7137709777,
       "efficiency": 0.9961742201,
@@ -114,6 +143,36 @@
       "n_bins_with_cut": 2,
       "ks_signal": 0.0185772427,
       "ks_background": 0.0617347759
+    },
+    {
+      "threshold": 0.0275,
+      "significance": 57.7137709777,
+      "efficiency": 0.9961742201,
+      "fake_rate": 0.2182539683,
+      "fake_rate_upper_limit": 0.2654208301,
+      "purity": 0.9840116279,
+      "rejection": 4.5818181818,
+      "rejection_lower_limit": 3.7676018099,
+      "n_signal_total": 3398,
+      "n_background_total": 252,
+      "valid": true,
+      "caution": "",
+      "edge_flag": "interior",
+      "rejects_background": true,
+      "signal": "e",
+      "background": "hadron",
+      "channel": "ehad",
+      "task": "ehad",
+      "status": "headline",
+      "status_note": "",
+      "nsigma_method": ",quantile",
+      "score_space": "task",
+      "binning_basis": "truth",
+      "n_files": 36,
+      "n_rows": 3650,
+      "n_bins_with_cut": 2,
+      "ks_signal": null,
+      "ks_background": null
     }
   ]
 }

@@ -241,8 +241,11 @@ Figures per channel (in `output/plots/`, named as requested):
 fake), `optimal_cut_vs_pt`, `roc`, `eff_vs_pt`, `misid_vs_pt`, `purity_vs_pt`,
 `nsigma_vs_p`, `eff_map_pt_vs_eta`, `fake_map_pt_vs_eta`, `pion_rejection_vs_p` (e-ID),
 `rejection_vs_p`, `score_dist_train_vs_test` (with a KS statistic per class), plus
-task-level `pid-hadpid_nsigma_vs_p` (K/π and p/K) and `pid-hadpid_confusion_matrix`
-(held-out rows only). The two task-level figures are extras outside the 13
+task-level `pid-hadpid_lightgbm_clean-nsigma_vs_p` (K/π and p/K) and
+`pid-hadpid_lightgbm_clean-confusion_matrix`
+(held-out rows only). Task-level names carry model_tag, and per-tag channel
+figures live in `output/plots_<tag>/` - without both, a bkg run silently
+overwrites the clean figures under the same stem. The two task-level figures are extras outside the 13
 per-channel required deliverables: the confusion matrix describes the multi-class
 task and is undefined for the binary channels, so the manifest can neither require
 nor sensibly miss it (see §5e). Every table also exists as JSON/markdown/ROOT

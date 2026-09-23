@@ -1146,14 +1146,17 @@ def run(*, channels: tuple[str, ...] = ("eid", "ehad", "Kpi", "pK"),
 
 
     # Task-level combined figures (written after the loop, once every channel of
-    # the task has contributed its n-sigma table).
+    # the task has contributed its n-sigma table). The model+tag ride in the
+    # filename: without them a bkg run silently overwrites the clean figure
+    # (and, for single-channel tasks, the task figure overwrites the
+    # channel-level one written above under the same stem).
     if write:
         for (task, basis), tables_list in nsigma_by_task.items():
             usable = [t for t in tables_list if len(t)]
             if not usable:
                 continue
             suffix = "" if basis == "reco" else "_truthpt"
-            path = os.path.join(plots_dir, f"pid-{task}_nsigma_vs_p{suffix}.png")
+            path = os.path.join(plots_dir, f"pid-{task}_{model}_{dataset_tag}-nsigma_vs_p{suffix}.png")
             try:
                 plots.nsigma_vs_p_table(usable, path,
                                         title=f"separation power vs momentum, {basis}-binned "

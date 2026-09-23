@@ -38,7 +38,7 @@
     "n_required": 13,
     "n_missing": 0,
     "campaign": "26.07.1",
-    "written_at_utc": "2026-09-19T10:05:06.858110+00:00"
+    "written_at_utc": "2026-09-21T22:16:07.729297+00:00"
   },
   "data": [
     {
@@ -172,6 +172,136 @@
       "reason": ""
     },
     {
+      "channel": "eid",
+      "status": "headline",
+      "binning_basis": "_truthpt",
+      "figure": "roc_truthpt",
+      "label": "ROC",
+      "present": true,
+      "shared_with_reco_run": true,
+      "reason": ""
+    },
+    {
+      "channel": "eid",
+      "status": "headline",
+      "binning_basis": "_truthpt",
+      "figure": "eff_vs_pt_truthpt",
+      "label": "signal efficiency at c* vs pT",
+      "present": true,
+      "shared_with_reco_run": false,
+      "reason": ""
+    },
+    {
+      "channel": "eid",
+      "status": "headline",
+      "binning_basis": "_truthpt",
+      "figure": "misid_vs_pt_truthpt",
+      "label": "mis-ID fake rate at c* vs pT",
+      "present": true,
+      "shared_with_reco_run": false,
+      "reason": ""
+    },
+    {
+      "channel": "eid",
+      "status": "headline",
+      "binning_basis": "_truthpt",
+      "figure": "purity_vs_pt_truthpt",
+      "label": "purity at c* vs pT",
+      "present": true,
+      "shared_with_reco_run": false,
+      "reason": ""
+    },
+    {
+      "channel": "eid",
+      "status": "headline",
+      "binning_basis": "_truthpt",
+      "figure": "eff_map_pt_vs_eta_truthpt",
+      "label": "2D efficiency map at c*",
+      "present": true,
+      "shared_with_reco_run": false,
+      "reason": ""
+    },
+    {
+      "channel": "eid",
+      "status": "headline",
+      "binning_basis": "_truthpt",
+      "figure": "fake_map_pt_vs_eta_truthpt",
+      "label": "2D fake-rate map at c*",
+      "present": true,
+      "shared_with_reco_run": false,
+      "reason": ""
+    },
+    {
+      "channel": "eid",
+      "status": "headline",
+      "binning_basis": "_truthpt",
+      "figure": "rejection_vs_p_truthpt",
+      "label": "rejection 1/fake at c* vs p",
+      "present": true,
+      "shared_with_reco_run": false,
+      "reason": ""
+    },
+    {
+      "channel": "eid",
+      "status": "headline",
+      "binning_basis": "_truthpt",
+      "figure": "nsigma_vs_p_truthpt",
+      "label": "n_sigma vs p (per-bin, at the channel working point)",
+      "present": true,
+      "shared_with_reco_run": false,
+      "reason": ""
+    },
+    {
+      "channel": "eid",
+      "status": "headline",
+      "binning_basis": "_truthpt",
+      "figure": "score_dist_train_vs_test_truthpt",
+      "label": "train vs test score distributions (overtraining)",
+      "present": true,
+      "shared_with_reco_run": true,
+      "reason": ""
+    },
+    {
+      "channel": "eid",
+      "status": "headline",
+      "binning_basis": "_truthpt",
+      "figure": "significance_vs_cut_truthpt",
+      "label": "FOM(c) and the optimum c*",
+      "present": true,
+      "shared_with_reco_run": true,
+      "reason": ""
+    },
+    {
+      "channel": "eid",
+      "status": "headline",
+      "binning_basis": "_truthpt",
+      "figure": "significance_vs_cut_by_pt_truthpt",
+      "label": "FOM(c) in every pT bin",
+      "present": true,
+      "shared_with_reco_run": false,
+      "reason": ""
+    },
+    {
+      "channel": "eid",
+      "status": "headline",
+      "binning_basis": "_truthpt",
+      "figure": "significance_vs_cut_panels_truthpt",
+      "label": "per-pT-bin FOM(c) panels with each c*",
+      "present": true,
+      "shared_with_reco_run": false,
+      "reason": ""
+    },
+    {
+      "channel": "eid",
+      "status": "headline",
+      "binning_basis": "_truthpt",
+      "figure": "optimal_cut_vs_pt_truthpt",
+      "label": "c*(pT)",
+      "present": true,
+      "shared_with_reco_run": false,
+      "reason": ""
+    },
+    {
       "channel": "ehad",
       "status": "headline",
       "binning_basis": "reco",
@@ -296,6 +426,136 @@
       "status": "headline",
       "binning_basis": "reco",
       "figure": "optimal_cut_vs_pt",
+      "label": "c*(pT)",
+      "present": true,
+      "shared_with_reco_run": false,
+      "reason": ""
+    },
+    {
+      "channel": "ehad",
+      "status": "headline",
+      "binning_basis": "_truthpt",
+      "figure": "roc_truthpt",
+      "label": "ROC",
+      "present": true,
+      "shared_with_reco_run": true,
+      "reason": ""
+    },
+    {
+      "channel": "ehad",
+      "status": "headline",
+      "binning_basis": "_truthpt",
+      "figure": "eff_vs_pt_truthpt",
+      "label": "signal efficiency at c* vs pT",
+      "present": true,
+      "shared_with_reco_run": false,
+      "reason": ""
+    },
+    {
+      "channel": "ehad",
+      "status": "headline",
+      "binning_basis": "_truthpt",
+      "figure": "misid_vs_pt_truthpt",
+      "label": "mis-ID fake rate at c* vs pT",
+      "present": true,
+      "shared_with_reco_run": false,
+      "reason": ""
+    },
+    {
+      "channel": "ehad",
+      "status": "headline",
+      "binning_basis": "_truthpt",
+      "figure": "purity_vs_pt_truthpt",
+      "label": "purity at c* vs pT",
+      "present": true,
+      "shared_with_reco_run": false,
+      "reason": ""
+    },
+    {
+      "channel": "ehad",
+      "status": "headline",
+      "binning_basis": "_truthpt",
+      "figure": "eff_map_pt_vs_eta_truthpt",
+      "label": "2D efficiency map at c*",
+      "present": true,
+      "shared_with_reco_run": false,
+      "reason": ""
+    },
+    {
+      "channel": "ehad",
+      "status": "headline",
+      "binning_basis": "_truthpt",
+      "figure": "fake_map_pt_vs_eta_truthpt",
+      "label": "2D fake-rate map at c*",
+      "present": true,
+      "shared_with_reco_run": false,
+      "reason": ""
+    },
+    {
+      "channel": "ehad",
+      "status": "headline",
+      "binning_basis": "_truthpt",
+      "figure": "rejection_vs_p_truthpt",
+      "label": "rejection 1/fake at c* vs p",
+      "present": true,
+      "shared_with_reco_run": false,
+      "reason": ""
+    },
+    {
+      "channel": "ehad",
+      "status": "headline",
+      "binning_basis": "_truthpt",
+      "figure": "nsigma_vs_p_truthpt",
+      "label": "n_sigma vs p (per-bin, at the channel working point)",
+      "present": true,
+      "shared_with_reco_run": false,
+      "reason": ""
+    },
+    {
+      "channel": "ehad",
+      "status": "headline",
+      "binning_basis": "_truthpt",
+      "figure": "score_dist_train_vs_test_truthpt",
+      "label": "train vs test score distributions (overtraining)",
+      "present": true,
+      "shared_with_reco_run": true,
+      "reason": ""
+    },
+    {
+      "channel": "ehad",
+      "status": "headline",
+      "binning_basis": "_truthpt",
+      "figure": "significance_vs_cut_truthpt",
+      "label": "FOM(c) and the optimum c*",
+      "present": true,
+      "shared_with_reco_run": true,
+      "reason": ""
+    },
+    {
+      "channel": "ehad",
+      "status": "headline",
+      "binning_basis": "_truthpt",
+      "figure": "significance_vs_cut_by_pt_truthpt",
+      "label": "FOM(c) in every pT bin",
+      "present": true,
+      "shared_with_reco_run": false,
+      "reason": ""
+    },
+    {
+      "channel": "ehad",
+      "status": "headline",
+      "binning_basis": "_truthpt",
+      "figure": "significance_vs_cut_panels_truthpt",
+      "label": "per-pT-bin FOM(c) panels with each c*",
+      "present": true,
+      "shared_with_reco_run": false,
+      "reason": ""
+    },
+    {
+      "channel": "ehad",
+      "status": "headline",
+      "binning_basis": "_truthpt",
+      "figure": "optimal_cut_vs_pt_truthpt",
       "label": "c*(pT)",
       "present": true,
       "shared_with_reco_run": false,
