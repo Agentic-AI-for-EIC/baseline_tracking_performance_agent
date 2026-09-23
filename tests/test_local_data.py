@@ -41,13 +41,18 @@ class TestTruthAndReco(unittest.TestCase):
         self.assertTrue(primary["species"].notna().all())
 
     def test_truth_hit_layer_counts_are_within_valid_range(self):
-        counts = truth.read_truth_hit_layer_counts([_local_file("clean")])
+        found: list = []
+        counts = truth.read_truth_hit_layer_counts([_local_file("clean")], found_collections=found)
         self.assertGreater(len(counts), 0)
         n_collections = len(config.CENTRAL_TRACKING_TRUTH_HIT_COLLECTIONS)
         # Every row here came from at least one hit, and can hit at most
         # once per distinct collection (nunique), so 1 <= n <= n_collections.
         self.assertTrue((counts["n_layers_hit"] >= 1).all())
         self.assertTrue((counts["n_layers_hit"] <= n_collections).all())
+        # The local clean file carries every central collection: nothing may
+        # silently degrade to 0 here (cf. the 26.07.1 probe flake, where a
+        # transient open failure zeroed whole collections for a run).
+        self.assertEqual(set(found), set(config.CENTRAL_TRACKING_TRUTH_HIT_COLLECTIONS))
 
     def test_read_reco_tracks_has_nonneg_pt(self):
         df = reco.read_reco_tracks([_local_file("clean")])

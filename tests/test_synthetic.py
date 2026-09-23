@@ -817,5 +817,42 @@ class TestEtaRegions(unittest.TestCase):
         self.assertAlmostEqual(agg.iloc[0]["acceptance"], 0.875)
 
 
+class TestCollectionProbe(unittest.TestCase):
+    """_collection_present must never mistake a transient open failure for a
+    genuinely absent branch (regression: on the flaky 26.07.1 endpoint a
+    failed probe zeroed whole endcap collections for a run)."""
+
+    def _tree(self, present: bool = True):
+        tree = mock.MagicMock()
+        if present:
+            tree.arrays.return_value = {"b": mock.MagicMock()}
+        else:
+            tree.arrays.side_effect = ValueError("bad branch")
+        return tree
+
+    def test_transient_open_failure_falls_through_to_next_file(self):
+        from trkperf import truth
+
+        with mock.patch("trkperf.truth.io.open_tree",
+                        side_effect=[RuntimeError("expired"), self._tree(True)]):
+            self.assertTrue(truth._collection_present(["f0", "f1"], "b"))
+
+    def test_genuine_absence_detected_on_opened_file(self):
+        from trkperf import truth
+
+        with mock.patch("trkperf.truth.io.open_tree",
+                        return_value=self._tree(False)):
+            self.assertFalse(truth._collection_present(["f0"], "b"))
+
+    def test_no_file_opens_fails_loud_downstream(self):
+        from trkperf import truth
+
+        with mock.patch("trkperf.truth.io.open_tree",
+                        side_effect=RuntimeError("expired")):
+            # True: let the normal read path raise through the shared
+            # failure budget rather than silently zeroing the collection.
+            self.assertTrue(truth._collection_present(["f0", "f1"], "b"))
+
+
 if __name__ == "__main__":
     unittest.main()

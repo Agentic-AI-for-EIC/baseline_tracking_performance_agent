@@ -339,6 +339,23 @@ backward/forward` on `filelists/clean_150.txt` (clean, strict) and
 cache/bkg_files`, as §8), then `trkperf compare --metric
 acceptance-backward` (etc.). B0/tagger stay excluded (empty in DIS).
 
+Incident 2026-09-23 (probe flake): the first `efficiency_forward_bkg_mixed`
+run printed `[truth] NOTE: ForwardMPGDEndcapHits/TrackerEndcapHits/
+TOFEndcapHits has no ... branch` and completed with the forward rule
+degraded to OffM+RomanPot only — but a direct uproot probe showed all six
+branches PRESENT in 26.07.1: the `_collection_present` single-file probe had
+failed to OPEN file 0 (transient `[ERROR] Operation expired`) and mistaken
+it for genuine absence. Those outputs were deleted as wrong, never plotted.
+Fix: the probe now skips unopenable files (first successfully opened file
+decides; all-unopenable returns True so reads fail loudly via the failure
+budget), and `read_truth_hit_layer_counts` reports `found_collections`,
+recorded in every acceptance/efficiency JSON's `collections_found` metadata.
+`acceptance_backward/efficiency_backward_bkg_mixed` finished WITHOUT probe
+NOTEs (12/17 files skipped, recorded) and are valid; `acceptance_forward`
+aborted on budget (61/60) and both forward jobs were relaunched on the
+fixed code. Covered by `TestCollectionProbe` (3 tests) + a
+`found_collections` assertion on the local file.
+
 Per-region plots: `trkperf plot --json ... --grouped [--eta-region
 {barrel,"forward endcap","backward endcap"}]` draws species-group curves
 for one detector region (or all three); pair the barrel plot with central

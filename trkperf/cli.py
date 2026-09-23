@@ -333,10 +333,10 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument(
         "--grouped",
         action="store_true",
-        help="Group curves by eta region (barrel/forward/backward endcap) and "
-        "merged species (e±, π±, K±, proton, antiproton kept separate), "
-        "recomputed from summed counts (report.aggregate_eta_species). "
-        "Writes <base>_<suffix>_grouped.png alongside the per-bin plots.",
+        help="Group curves by merged species (e+/e-, pi+/pi-, K+/K-, proton, "
+        "antiproton kept separate), recomputed from summed counts "
+        "(report.aggregate_eta_species). Add --eta-region for one plot per "
+        "detector region; writes <base>_<suffix>_grouped[_<region>].png.",
     )
     p.add_argument(
         "--eta-region",

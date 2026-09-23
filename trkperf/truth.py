@@ -107,26 +107,37 @@ def select_primary(truth_df: pd.DataFrame, species: list[str] | None = None) -> 
     return out
 
 
-def _collection_present(file_paths: list[str], branch: str) -> bool:
-    """Does the first file actually carry this branch (metadata-cheap probe)?
+def _collection_present(file_paths: list[str], branch: str, n_probe_files: int = 5) -> bool:
+    """Does this campaign actually carry this branch (metadata-cheap probe)?
 
     A campaign entry is not proof (cf. pid.features._available): probe with a
     one-entry read so a never-written collection is skipped without spending
     the shared failure budget file by file.
+
+    Robustness matters here because a wrong answer silently zeroes a whole
+    collection for the run: files that fail to OPEN (transient xrootd drops)
+    are skipped in favour of the next file — only a successfully opened file
+    whose key list lacks the branch counts as genuine absence. If no file
+    opens at all, return True so the normal read path fails loudly through
+    the shared failure budget instead of this probe quietly zeroing data.
     """
-    if not file_paths:
-        return False
-    try:
-        tree = io.open_tree(file_paths[0])
-        tree.arrays([branch], library="ak", entry_start=0, entry_stop=1)
-        return True
-    except Exception:  # noqa: BLE001 - absent/unreadable branch in this production
-        return False
+    for path in (file_paths or [])[:n_probe_files]:
+        try:
+            tree = io.open_tree(path)
+        except Exception:  # noqa: BLE001 - transient open failure; try next file
+            continue
+        try:
+            tree.arrays([branch], library="ak", entry_start=0, entry_stop=1)
+            return True
+        except Exception:  # noqa: BLE001 - file opened but branch absent
+            return False
+    return True
 
 
 def read_truth_hit_layer_counts(file_paths: list[str], *, max_failures: int = 0,
                                  shared_failures: dict | None = None,
                                  collections: tuple[str, ...] | None = None,
+                                 found_collections: list | None = None,
                                  ) -> pd.DataFrame:
     """Count, per truth particle, how many central-tracking truth-hit
     collections registered >= 1 hit from it (see AGENTS.md / config.py for
@@ -135,7 +146,10 @@ def read_truth_hit_layer_counts(file_paths: list[str], *, max_failures: int = 0,
     `collections` selects the detector region (see
     ``config.TRACKING_REGIONS``); None means the central seven. A collection
     whose branch is absent in a campaign degrades to 0 hits with a printed
-    NOTE rather than aborting the run.
+    NOTE rather than aborting the run. Every collection actually read is
+    appended to `found_collections` (when given) so the caller can record in
+    its output metadata which collections the numbers rest on — a run that
+    silently degraded must be distinguishable from a full one after the fact.
 
     Returns
     -------
@@ -186,6 +200,8 @@ def read_truth_hit_layer_counts(file_paths: list[str], *, max_failures: int = 0,
             columns={"particle_idx": "idx"}
         )
         frames.append(hits)
+        if found_collections is not None:
+            found_collections.append(collection)
 
     if not frames:
         return pd.DataFrame(columns=["file_id", "event", "idx", "n_layers_hit"])

@@ -63,7 +63,7 @@ def compute_acceptance(
 
     layer_counts = truth.read_truth_hit_layer_counts(
         file_paths, max_failures=max_failures, shared_failures=shared,
-        collections=spec["collections"],
+        collections=spec["collections"], found_collections=(found := []),
     )
     truth_df = truth.add_acceptance_flag(truth_df, layer_counts, min_layers=min_layers)
 
@@ -98,5 +98,6 @@ def compute_acceptance(
     result.attrs["skipped_files"] = sorted(shared.get("skipped", []))
     result.attrs["run_params"] = {"min_layers": min_layers, "species": species,
                                   "region": region,
-                                  "collections": list(spec["collections"])}
+                                  "collections": list(spec["collections"]),
+                                  "collections_found": found}
     return result
