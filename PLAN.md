@@ -390,6 +390,30 @@ series/panel). `trkperf` gained eta-region grouping for plotting only
   plots pending the §8.1 grid jobs. Stale mixed-region `*_grouped.png`
   files were deleted.
 - Covered by `tests/test_synthetic.py::TestEtaRegions` (7 tests).
+
+## 8.3 Tracking-code audit (2026-09-23, after the region/grouped update)
+
+Read all of trkperf (report, binning, config, io, truth, reco, matching,
+all five metrics, compare, cli) plus numeric spot-checks. Two real bugs
+found and fixed, both with regression tests:
+- `compare._JOIN_KEY_CANDIDATES` omitted `truth_species`: a clean (pi+->K+)
+  row joined a bkg (pi-->K+) row, so `pid-confusion_comparison.json`
+  compared different truth species. One-line fix + `TestCompareMetric`
+  regression test; comparison regenerated (666 bins, keys verified).
+- `pid/confusion.py` never joined the full bin grid: unobserved
+  (bin, truth, reco) pairs were silent gaps, violating the Definition of
+  done. Now emits the full 128 x 8 x 9 grid (zero pairs explicit: exact
+  0.0 where the truth species is present, NaN + insufficient_stats where
+  absent; row fractions sum to 1, asserted on the local file). The
+  empty-matches early return now carries the standard columns so `to_root`
+  cannot choke on a zero-branch TNtuple. Clean grid rerun launched
+  (`runs/pid-confusion_clean_fullgrid.log`); bkg rerun deferred to a
+  calmer endpoint window (current storm drops >25% of files).
+- Minor observations, no change: efficiency's single insufficient flag can
+  drop a trustworthy absolute point when the within denominator is thin
+  (conservative direction); io cache keys are URL-based with no content
+  hash (grid files are effectively immutable); `--grouped` help text now
+  states the per-region filename convention.
 - Interpretation caveat (verified on acceptance_clean): region curves at the
   barrel-endcap transition can be driven by a single edge bin — e.g. the
   backward e- point at pT 7.82 (acc 0.821, n=771) is entirely the eta=-1.25

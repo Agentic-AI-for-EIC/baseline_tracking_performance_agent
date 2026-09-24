@@ -130,8 +130,25 @@ class TestMetricsEndToEnd(unittest.TestCase):
         # Row-normalised fractions must be in [0, 1].
         valid = df["confusion_frac"].dropna()
         self.assertTrue(((valid >= 0) & (valid <= 1)).all())
-        # n_matchedinbin must be positive.
-        self.assertTrue((df["n_matchedinbin"] > 0).all())
+        # Full (bin x truth x reco) grid: 128 bins x 8 truth species x
+        # 9 reco hypotheses (8 + "unknown") - zero-count pairs are explicit
+        # rows, never silent gaps.
+        self.assertEqual(len(df), 128 * 8 * 9)
+        zero = df[df["n_matchedinbin"] == 0]
+        self.assertGreater(len(zero), 0)
+        # A zero pair where the truth species IS present is an exact 0.0,
+        # not NaN; where it is absent the fraction is undefined (NaN).
+        zero_present = zero[zero["n_truth_total_in_bin"] > 0]
+        self.assertTrue((zero_present["confusion_frac"] == 0.0).all())
+        zero_absent = zero[zero["n_truth_total_in_bin"] == 0]
+        self.assertTrue(zero_absent["confusion_frac"].isna().all())
+        self.assertTrue(zero_absent["insufficient_stats"].all())
+        # Row normalisation preserved: fractions sum to 1 per (bin, truth)
+        # wherever the truth species has any matches.
+        present = df[df["n_truth_total_in_bin"] > 0]
+        sums = present.groupby(
+            ["pt_bin", "eta_bin", "truth_species"], observed=True)["confusion_frac"].sum()
+        self.assertTrue(((sums - 1.0).abs() < 1e-9).all())
         # truth_species column should be populated (non-null).
         self.assertTrue(df["truth_species"].notna().all())
 

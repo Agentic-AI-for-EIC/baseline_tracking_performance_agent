@@ -258,6 +258,32 @@ class TestCompareMetric(unittest.TestCase):
             np.array(expected),
         )
 
+    def test_compare_pid_confusion_joins_on_truth_species(self):
+        # Regression: the join keys omitted truth_species, so a clean
+        # (pi+ -> K+) row joined a bkg (pi- -> K+) row in the same bin and
+        # the "comparison" compared different truth species.
+        cols = {
+            "pt_bin_center": [1.0],
+            "eta_bin_center": [0.0],
+            "reco_species": ["K+"],
+            "confusion_frac_err": [0.03],
+            "insufficient_stats": [False],
+        }
+        clean = pd.DataFrame({**cols, "truth_species": ["pi+"],
+                              "confusion_frac": [0.1]})
+        bkg = pd.DataFrame({**cols, "truth_species": ["pi-"],
+                            "confusion_frac": [0.2]})
+        with tempfile.TemporaryDirectory() as tmp:
+            clean_path = Path(tmp) / "clean.json"
+            bkg_path = Path(tmp) / "bkg.json"
+            report.to_json(clean, str(clean_path))
+            report.to_json(bkg, str(bkg_path))
+            merged = compare.compare_metric(str(clean_path), str(bkg_path))
+        # Different truth species must NOT join: two rows, NaN opposite.
+        self.assertEqual(len(merged), 2)
+        self.assertTrue(
+            merged["confusion_frac_ratio_bkg_over_clean"].isna().all())
+
     def test_joins_on_string_bin_labels(self):
         # String interval labels are the primary join keys: float centers
         # must never be the thing holding two rows together.

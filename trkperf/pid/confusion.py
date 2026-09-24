@@ -46,6 +46,11 @@ def compute_pid_confusion(
                                                # the tracking efficiency
         n_truth_total_in_bin,                 # row denominator
         insufficient_stats.
+
+    The table is the FULL bin x truth x reco grid (zero-count pairs are
+    explicit rows: frac NaN where the truth species has no matches in the
+    bin, exact 0.0 where it does), so row fractions always sum to 1 over
+    the table and empty bins are insufficient_stats rows, never gaps.
     """
     shared: dict = {}
     truth_df = truth.read_truth_particles(
@@ -59,8 +64,12 @@ def compute_pid_confusion(
 
     pairs = matching.build_matched_pairs(truth_df, reco_df, assoc_df, weight_threshold)
     matched = pairs[pairs["is_matched"]].copy()
+    _EMPTY_COLS = ["pt_bin", "eta_bin", "pt_bin_center", "eta_bin_center",
+                   "truth_species", "reco_species", "n_matchedinbin",
+                   "confusion_frac", "confusion_frac_err", "efficiency",
+                   "efficiency_err", "n_truth_total_in_bin", "insufficient_stats"]
     if matched.empty:
-        out = pd.DataFrame()
+        out = pd.DataFrame({c: [] for c in _EMPTY_COLS})
         out.attrs["skipped_files"] = sorted(shared.get("skipped", []))
         out.attrs["run_params"] = {"weight_threshold": weight_threshold, "species": species}
         return out
@@ -77,16 +86,32 @@ def compute_pid_confusion(
         matched.groupby(group_cols, observed=True)
         .size()
         .reset_index(name="n_matchedinbin")
-    )
+    ).rename(columns={"species": "truth_species"})
+
+    # Full (bin x truth_species x reco_species) grid: a pair with zero
+    # counts is an explicit insufficient_stats row — frac NaN where its
+    # truth species has no matches in the bin at all, exact 0.0 where it
+    # does — never a silent gap (same full-grid contract as every other
+    # metric, see AGENTS.md). The reco axis always spans every hypothesis
+    # plus "unknown", even under a --species filter (a filtered-out species
+    # can still be a reco hypothesis).
+    reco_axis = list(config.SPECIES) + ["unknown"]
+    truth_axis = species if species is not None else list(config.SPECIES)
+    full = binning.full_bin_grid(None)[bin_cols].drop_duplicates()
+    full = full.merge(pd.DataFrame({"truth_species": truth_axis}), how="cross")
+    full = full.merge(pd.DataFrame({"reco_species": reco_axis}), how="cross")
+    merged = full.merge(
+        counts, on=[*bin_cols, "truth_species", "reco_species"], how="left")
+    merged["n_matchedinbin"] = merged["n_matchedinbin"].fillna(0).astype(int)
 
     # Total matched truth particles per (bin, truth species).
     truth_totals = (
-        counts.groupby(bin_cols + ["species"], observed=True)["n_matchedinbin"]
+        merged.groupby(bin_cols + ["truth_species"], observed=True)["n_matchedinbin"]
         .sum()
         .reset_index(name="n_truth_total_in_bin")
     )
 
-    merged = counts.merge(truth_totals, on=bin_cols + ["species"], how="left")
+    merged = merged.merge(truth_totals, on=bin_cols + ["truth_species"], how="left")
     merged["confusion_frac"] = merged["n_matchedinbin"] / merged["n_truth_total_in_bin"]
     merged["confusion_frac_err"] = binning.binomial_error(
         merged["n_matchedinbin"], merged["n_truth_total_in_bin"]
@@ -108,7 +133,6 @@ def compute_pid_confusion(
         merged["n_truth_total_in_bin"] < config.MIN_ENTRIES_PER_BIN
     )
 
-    merged = merged.rename(columns={"species": "truth_species"})
     merged = merged.drop(columns=["n_bin_total"])
     merged.attrs["skipped_files"] = sorted(shared.get("skipped", []))
     merged.attrs["run_params"] = {"weight_threshold": weight_threshold, "species": species}

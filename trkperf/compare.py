@@ -22,8 +22,8 @@ from . import report
 #: first: float centers survive a JSON round-trip exactly in practice, but
 #: joining on the human-meaningful interval strings is robust by
 #: construction, and near-tie floats can never silently misalign rows.
-_JOIN_KEY_CANDIDATES = ("species", "reco_species", "pt_bin", "eta_bin",
-                        "pt_bin_center", "eta_bin_center")
+_JOIN_KEY_CANDIDATES = ("species", "truth_species", "reco_species", "pt_bin", "eta_bin",
+                         "pt_bin_center", "eta_bin_center")
 
 
 def _safe_divide(numerator: np.ndarray, denominator: np.ndarray) -> np.ndarray:
