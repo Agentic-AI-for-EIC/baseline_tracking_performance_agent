@@ -104,12 +104,14 @@ TRACKING_REGIONS: dict[str, dict] = {
         "min_layers": 2,
     },
     "forward": {
+        # Endcap disks only: 2 MPGD disks (one collection) + 5 Si disks
+        # (in TrackerEndcapHits) + FTOF. The far-forward spectrometer
+        # stations (ForwardOffM, Roman Pots) are deliberately NOT part of
+        # endcap acceptance - they are a separate detector system.
         "collections": (
             "ForwardMPGDEndcapHits",
             "TrackerEndcapHits",
             "TOFEndcapHits",
-            "ForwardOffMTrackerHits",
-            "ForwardRomanPotHits",
         ),
         "min_layers": 2,
     },

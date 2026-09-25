@@ -159,13 +159,16 @@ denominator are therefore defined per region (`trkperf.config.TRACKING_REGIONS`,
 |---|---|---|---|
 | central | the 7 collections above | 4 | unchanged behaviour |
 | backward (electron endcap) | BackwardMPGDEndcapHits, TrackerEndcapHits, TOFEndcapHits | 2 | backward e⁻: ≥1 = 1.000, ≥2 = 0.968, ≥3 = 0.002 |
-| forward (hadron endcap) | ForwardMPGDEndcapHits, TrackerEndcapHits, TOFEndcapHits, ForwardOffMTrackerHits, ForwardRomanPotHits | 2 | forward π/K/p: ≥1 = 0.519, ≥2 = 0.426, ≥3 = 0.271 |
+| forward (hadron endcap) | ForwardMPGDEndcapHits, TrackerEndcapHits, TOFEndcapHits | 2 | forward π/K/p: ≥1 = 0.519, ≥2 = 0.426, ≥3 = 0.271 |
 
 Rationale: N_min = 2 is the stereo minimum (two independent measurements make
 a segment); the joint fractions above are the measured justification, with
 ≥1/≥3 as brackets. TOF endcap hits count: TOF cluster hits are folded into
 the track fit (26.07.1), so they are tracking-relevant space points, not
-calorimetry. A collection whose branch is absent in a campaign degrades to 0
+calorimetry. Endcap rules cover endcap disks only: the far-forward
+spectrometer stations (ForwardOffM, Roman Pots) were removed from the forward
+rule (2026-09-25) — they are a separate detector system, not endcap
+tracking. A collection whose branch is absent in a campaign degrades to 0
 hits with a printed NOTE rather than aborting the run.
 
 Explicitly out of scope (measured, not assumed):
