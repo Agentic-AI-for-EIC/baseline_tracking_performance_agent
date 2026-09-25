@@ -122,7 +122,10 @@ def attach(frame: pd.DataFrame, *, features: pd.DataFrame,
         raise ValueError(f"unknown PID region(s) {unknown}; choices {list(ETA_REGIONS)}")
     for col in ("file_id", "event", "track_idx", "truth_eta"):
         if col not in frame.columns:
-            raise KeyError(f"pid.regions.attach: score frame lacks {col!r}")
+            raise KeyError(
+                f"pid.regions.attach: score frame lacks {col!r} - re-train with "
+                "the current pid.train (it writes truth kinematics into "
+                "test_scores.pkl/all_scores.pkl), or drop --eta-region.")
     for col in ("file_id", "event", "track_idx", "source_file", "truth_idx"):
         if col not in features.columns:
             raise KeyError(f"pid.regions.attach: feature table lacks {col!r}")

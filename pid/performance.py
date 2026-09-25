@@ -908,7 +908,7 @@ def _model_dir(override: str, channel: str, model: str, tag: str, root: str = ""
 def _run_region_package(*, channel, basis, suffix, frame, region_info,
                         eta_regions, spec, status, status_note, model,
                         dataset_tag, out_dir, plots_dir, names,
-                        global_cut, opt, weights, bkg_scale, mode, lumi_scale,
+                        global_cut, opt, bkg_scale, mode, lumi_scale,
                         binned_curves, n_thresholds, nsigma_method, write,
                         quiet, summary) -> None:
     """Per-region differential package: same figures, region-selected sample.
@@ -1314,7 +1314,7 @@ def run(*, channels: tuple[str, ...] = ("eid", "ehad", "Kpi", "pK"),
                     spec=spec, status=status, status_note=status_note,
                     model=model, dataset_tag=dataset_tag, out_dir=out_dir,
                     plots_dir=plots_dir, names=names,
-                    global_cut=global_cut, opt=opt, weights=weights,
+                    global_cut=global_cut, opt=opt,
                     bkg_scale=bkg_scale, mode=mode, lumi_scale=lumi_scale,
                     binned_curves=binned_curves, n_thresholds=n_thresholds,
                     nsigma_method=nsigma_method, write=write, quiet=quiet,

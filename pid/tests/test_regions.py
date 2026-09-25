@@ -174,7 +174,7 @@ class TestRegionPackage(unittest.TestCase):
             status_note="", model="lightgbm", dataset_tag="clean",
             out_dir="/tmp/nowhere", plots_dir="/tmp/nowhere",
             names={"pt": "pt", "p": "p", "eta": "eta"},
-            global_cut=0.6, opt=opt, weights=None, bkg_scale=1.0,
+            global_cut=0.6, opt=opt, bkg_scale=1.0,
             mode="s_over_sqrt", lumi_scale=1.0, binned_curves=False,
             n_thresholds=None, nsigma_method=None, write=False, quiet=True,
             summary=summary)
