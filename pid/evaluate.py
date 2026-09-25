@@ -708,28 +708,17 @@ def roc_table(df, *, task, signal=None, n_points: int = 200) -> pd.DataFrame:
 # Driver
 # ---------------------------------------------------------------------------
 
-def evaluate(scores_path: str, *, task: str, dataset_tag: str, model: str = "",
-             signal=None, targets=config.FAKE_RATE_TARGETS, out_dir=config.OUTPUT_DIR,
-             by=("pt", "eta"), quiet=False) -> dict:
-    """Evaluate a saved score table and write every output file."""
-    df = dataset.load_table(scores_path)
-    tag = f"{task}_{model}_{dataset_tag}" if model else f"{task}_{dataset_tag}"
-    if signal is None and task not in ("eid", "ehad"):
-        # Multiclass tables are quoted one class at a time; without --signal
-        # this defaults to the first class, which must be said out loud.
-        try:
-            first = class_order(df)[0]
-        except (ValueError, IndexError):
-            first = None
-        print(f"[evaluate/{tag}] NOTE: no --signal given for multiclass task "
-              f"{task!r}; quoting {first!r} vs rest", file=sys.stderr)
+def _sample_tables(df, tag, *, task, signal, targets, by, out_dir, model,
+                   dataset_tag, scores_path, quiet, skip=(), extra_meta=None) -> dict:
+    """Build and write the evaluate tables for one sample (main or region)."""
     tables = {"overall": overall_table(df, task=task, signal=signal, targets=targets)}
     for variable in by:
         tables[f"vs_{variable}"] = binned_table(df, task=task, by=variable,
                                                 signal=signal, targets=targets)
     tables["confusion"] = confusion_table(df, task=task)
     tables["roc"] = roc_table(df, task=task, signal=signal)
-    if task in ("eid", "ehad") and "score" in df.columns:
+    if (task in ("eid", "ehad") and "score" in df.columns
+            and "calibration" not in skip):
         tables["calibration"] = calibration_table(df)
 
     # Provenance that must survive into every table: how many files and events the
@@ -753,12 +742,13 @@ def evaluate(scores_path: str, *, task: str, dataset_tag: str, model: str = "",
                                    tree_name=f"pid_{task}_{name}",
                                    meta={"artifact": name, "task": task, "model": model,
                                          "dataset_tag": dataset_tag,
-                                         "scores_table": scores_path, **provenance})
+                                         "scores_table": scores_path, **provenance,
+                                         **(extra_meta or {})})
     if not quiet:
         print(f"[evaluate/{tag}] scored sample: {n_files} file(s), {n_events} event(s), "
               f"{len(df)} tracks"
               + (f" ({provenance['n_signal']} signal / {provenance['n_background']} background)"
-                 if provenance["n_signal"] is not None else ""))
+                 if provenance['n_signal'] is not None else ""))
         for _, r in tables["overall"].iterrows():
             note = f" (target fake {r['target_fake_rate']:g})" if r["quantity"] == "efficiency" else ""
             # Distinguish "below the statistics floor" (the number exists but is
@@ -774,4 +764,70 @@ def evaluate(scores_path: str, *, task: str, dataset_tag: str, model: str = "",
             print(f"[evaluate/{tag}] {r['quantity']:16s} {r['value']}{note}{flag}")
     tables["paths"] = paths
     tables["tag"] = tag
+    return tables
+
+
+def evaluate(scores_path: str, *, task: str, dataset_tag: str, model: str = "",
+             signal=None, targets=config.FAKE_RATE_TARGETS, out_dir=config.OUTPUT_DIR,
+             by=("pt", "eta"), quiet=False, eta_regions=None, features=None,
+             max_failures: int = 0, cache_dir: str | None = None) -> dict:
+    """Evaluate a saved score table and write every output file.
+
+    With ``eta_regions`` (subset of ``pid.regions.ETA_REGIONS``), the same
+    tables are additionally written per detector region on the candidates
+    satisfying that region's acceptance rule (``pid.regions.attach``), tagged
+    ``<tag>_<region-slug>``. Needs ``--features`` (default
+    ``<out_dir>/pid-features_<dataset_tag>.pkl``) to resolve the files the
+    truth-hit reads need.
+    """
+    from . import regions as pid_regions
+
+    df = dataset.load_table(scores_path)
+    tag = f"{task}_{model}_{dataset_tag}" if model else f"{task}_{dataset_tag}"
+    if signal is None and task not in ("eid", "ehad"):
+        # Multiclass tables are quoted one class at a time; without --signal
+        # this defaults to the first class, which must be said out loud.
+        try:
+            first = class_order(df)[0]
+        except (ValueError, IndexError):
+            first = None
+        print(f"[evaluate/{tag}] NOTE: no --signal given for multiclass task "
+              f"{task!r}; quoting {first!r} vs rest", file=sys.stderr)
+    tables = _sample_tables(df, tag, task=task, signal=signal, targets=targets,
+                            by=by, out_dir=out_dir, model=model,
+                            dataset_tag=dataset_tag, scores_path=scores_path,
+                            quiet=quiet)
+    regions_out: dict = {}
+    if eta_regions:
+        features_path = features or os.path.join(out_dir, f"pid-features_{dataset_tag}.pkl")
+        if not os.path.exists(features_path):
+            raise SystemExit(
+                f"pid evaluate: --eta-region needs the feature table at {features_path} "
+                "(pass --features); it carries the source_file/truth_idx links "
+                "the acceptance reads need.")
+        feats = dataset.load_table(features_path)
+        attached, info = pid_regions.attach(
+            df, features=feats, regions=tuple(eta_regions),
+            max_failures=max_failures, cache_dir=cache_dir)
+        for region in eta_regions:
+            sub = attached[(attached["eta_region"] == region)
+                           & attached["in_acceptance"]].copy()
+            if sub.empty:
+                print(f"[evaluate/{tag}] NOTE: no in-acceptance rows in {region}; "
+                      "skipping its tables", file=sys.stderr)
+                continue
+            rule = info["regions"][region]
+            tag_r = f"{tag}_{pid_regions.REGION_SLUGS[region]}"
+            regions_out[region] = _sample_tables(
+                sub, tag_r, task=task, signal=signal, targets=targets, by=by,
+                out_dir=out_dir, model=model, dataset_tag=dataset_tag,
+                scores_path=scores_path, quiet=quiet, skip=("calibration",),
+                extra_meta={"eta_region": region,
+                            "acceptance_rule": (f"{rule['rule']}: "
+                                                f"{pid_regions.describe_rule(region)}"),
+                            "acceptance_collections": rule["collections"],
+                            "acceptance_collections_found": rule["collections_found"],
+                            "n_rows_region": int(len(sub)),
+                            "skipped_files": info["skipped_files"]})
+    tables["regions"] = regions_out
     return tables

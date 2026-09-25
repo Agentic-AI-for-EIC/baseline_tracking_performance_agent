@@ -204,7 +204,12 @@ def read_truth_hit_layer_counts(file_paths: list[str], *, max_failures: int = 0,
             found_collections.append(collection)
 
     if not frames:
-        return pd.DataFrame(columns=["file_id", "event", "idx", "n_layers_hit"])
+        # No collection readable: return the contract columns with their
+        # real dtypes (object-dtype empties poison downstream merges with
+        # "Invalid value '[]'" setitem errors instead of clean NaN counts).
+        return pd.DataFrame({c: pd.Series(dtype=d) for c, d in
+                             (("file_id", "int64"), ("event", "int64"),
+                              ("idx", "int64"), ("n_layers_hit", "int64"))})
 
     all_hits = pd.concat(frames, ignore_index=True)
     counts = (

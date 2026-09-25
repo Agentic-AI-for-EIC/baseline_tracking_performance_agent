@@ -62,6 +62,28 @@ is reduced to its two hypotheses, `score = P(sig)/(P(sig)+P(bkg))` over truth in
 {sig, bkg}, so **c\* lives in that channel's score space** — a K/π cut of 0.62 and an
 e/π cut of 0.62 are not comparable numbers.
 
+### Per-region plots (barrel / endcaps, region-correct acceptance)
+
+```sh
+python -m pid performance --dataset-tag clean --model lightgbm \
+    --eta-region "barrel,forward endcap,backward endcap"
+python -m pid evaluate --task eid --model lightgbm --dataset-tag clean \
+    --scores output/models/eid_lightgbm_clean/test_scores.pkl --plot \
+    --eta-region "barrel,forward endcap,backward endcap"
+```
+
+Same plotting style as the tracking metrics: one plot per detector region
+(`|eta| < 1` barrel, endcaps beyond — the same boundary function), each drawn
+on the candidates satisfying that region's truth-hit rule (barrel `Nhit >= 4`
+of the 7 central collections, endcaps `Nhits >= 2` of their collections;
+`pid.regions`). The channel's global working point is kept — only the sample
+(and its criterion) varies. Tables/figures carry a `_<slug>` tag
+(`pid-eid_lightgbm_clean_barrel-...`, `pid-eid_eff_vs_pt_backward_endcap.png`);
+region outputs never enter the deliverables manifest. Needs the feature table
+(`--features`, default `<out-dir>/pid-features_<tag>.pkl`) for the file links,
+plus `--max-file-failures` / `--cache-dir` for the acceptance reads on the
+flaky +background endpoint. Training is untouched (leg-scoped samples stay).
+
 Figures written per channel into `output/plots/`:
 
 | file | content |

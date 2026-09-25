@@ -34,7 +34,10 @@ KEY_COLUMNS = ("file_id", "event", "track_idx", "source_file", "label", "truth_p
                "truth_class", "truth_species", "truth_pt", "truth_eta", "truth_phi",
                "truth_p", "truth_mass", "truth_generator_status", "assoc_weight",
                "is_matched", "is_fake", "pdg", "theta", "match_theta", "match_phi",
-               "theta_out", "phi_out", "theta_in", "phi_in", "e_hit_over_e_clu")
+               "theta_out", "phi_out", "theta_in", "phi_in", "e_hit_over_e_clu",
+               # Detector-region selection (pid.regions): truth-derived, so
+               # never model inputs - but kept on the frame for region plots.
+               "eta_region", "in_acceptance", "n_layers_hit")
 
 #: Column-name prefixes that mark a family (used by :func:`family_of`).
 #: The bare ``"p"`` is matched exactly, never by prefix: a startswith rule

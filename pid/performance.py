@@ -42,7 +42,7 @@ import sys
 import numpy as np
 import pandas as pd
 
-from . import config, dataset, evaluate, plots, report, significance
+from . import config, dataset, evaluate, plots, regions as pid_regions, report, significance
 
 
 # ---------------------------------------------------------------------------
@@ -905,6 +905,168 @@ def _model_dir(override: str, channel: str, model: str, tag: str, root: str = ""
     return os.path.join(base, f"{config.CHANNELS[channel]['task']}_{model}_{tag}")
 
 
+def _run_region_package(*, channel, basis, suffix, frame, region_info,
+                        eta_regions, spec, status, status_note, model,
+                        dataset_tag, out_dir, plots_dir, names,
+                        global_cut, opt, weights, bkg_scale, mode, lumi_scale,
+                        binned_curves, n_thresholds, nsigma_method, write,
+                        quiet, summary) -> None:
+    """Per-region differential package: same figures, region-selected sample.
+
+    Each requested region re-runs the differential tables (c*(pT), at-cut
+    merits, rejection, n-sigma, FOM curves) on the candidates satisfying that
+    region's acceptance rule, at the channel's GLOBAL working point — the cut
+    is fixed, only the sample (and its criterion) varies, exactly like the
+    tracking metrics keep the match threshold fixed across regions. Tables
+    and figures carry a ``_<region-slug>`` tag; region rows are appended to
+    ``summary`` with ``eta_region`` set. Manifests never see these outputs.
+    """
+    mark = "  EXPLORATORY" if status == "exploratory" else ""
+    for region in eta_regions:
+        sub = frame[(frame["eta_region"] == region)
+                    & frame["in_acceptance"]].copy()
+        if sub.empty:
+            if not quiet:
+                print(f"[performance/{channel}/{basis}/{region}] SKIPPED: "
+                      "no in-acceptance rows", file=sys.stderr)
+            continue
+        slug = pid_regions.REGION_SLUGS[region]
+        rule = region_info["regions"][region]
+        rule_text = pid_regions.describe_rule(region)
+        rmeta = {"eta_region": region,
+                 "acceptance_rule": f"{rule['rule']}: {rule_text}",
+                 "acceptance_collections": rule["collections"],
+                 "acceptance_collections_found": rule["collections_found"],
+                 "n_rows_region": int(len(sub)),
+                 "optimal_cut": global_cut,
+                 "binning_basis": basis}
+        rtag = (f"{spec['title']} [{model} / {dataset_tag}] {region} "
+                f"({rule_text}){mark}")
+        w_r = (None if bkg_scale == 1.0 else significance.flux_weights(
+            sub["y"].to_numpy(), signal=1, background=0, bkg_scale=bkg_scale))
+        per_bin_r = working_points_vs_pt(sub, channel, weights=w_r, mode=mode,
+                                         lumi_scale=lumi_scale,
+                                         variable=names["pt"],
+                                         n_thresholds=n_thresholds)
+        tables_r = {
+            f"optimal_cut_vs_pt{suffix}_{slug}": per_bin_r,
+            f"at_cut_global{suffix}_{slug}": at_cut_table(
+                sub, channel, cut=global_cut, variable=names["pt"], weights=w_r),
+            f"at_cut_per_bin{suffix}_{slug}": at_cut_table(
+                sub, channel, cut_per_bin=per_bin_r, variable=names["pt"],
+                weights=w_r),
+            f"rejection_vs_p{suffix}_{slug}": at_cut_table(
+                sub, channel, cut=global_cut, variable=names["p"], weights=w_r),
+            f"nsigma_vs_p{suffix}_{slug}": nsigma_vs_p(
+                sub, channel, variable=names["p"], nsigma_method=nsigma_method),
+        }
+        if binned_curves:
+            tables_r[f"significance_by_pt{suffix}_{slug}"] = (
+                significance_curves_by_bin(
+                    sub, channel, variable=names["pt"], weights=w_r, mode=mode,
+                    lumi_scale=lumi_scale, n_thresholds=n_thresholds))
+        figures_r: dict[str, str] = {}
+        if write:
+            stem_base = os.path.join(out_dir, f"pid-{channel}_{model}_{dataset_tag}")
+            for name, t in tables_r.items():
+                report.write(
+                    t, f"{stem_base}_{slug}-{name}",
+                    tree_name=("pid_" + channel + "_" + name).replace("-", "_")[:31],
+                    meta={"channel": channel, "task": spec["task"],
+                          "model": model, "dataset_tag": dataset_tag,
+                          "significance_mode": mode, "lumi_scale": lumi_scale,
+                          "bkg_scale": bkg_scale,
+                          "n_rows_channel": int(len(sub)), **rmeta})
+
+            def _fig(func, fname, *fargs, **fkwargs):
+                path = os.path.join(plots_dir, f"pid-{channel}_{fname}_{slug}{suffix}.png")
+                out_path = func(*fargs, path, **fkwargs)
+                if status == "exploratory":
+                    plots._stamp_exploratory(fname, out_path,
+                                             str(spec.get("status_note", "")))
+                figures_r[fname] = out_path
+                return out_path
+
+            _fig(plots.optimal_cut_vs_pt, "optimal_cut_vs_pt",
+                 tables_r[f"optimal_cut_vs_pt{suffix}_{slug}"],
+                 title=f"$c^*(p_T)$ {rtag}", global_cut=global_cut,
+                 xlabel=("truth $p_T$ [GeV]" if suffix == "_truthpt"
+                         else "track $p_T$ [GeV]"))
+            _fig(plots.efficiency_at_cut, "eff_vs_pt",
+                 tables_r[f"at_cut_global{suffix}_{slug}"],
+                 title=f"signal efficiency at $c^*$ {rtag}")
+            _fig(plots.misid_at_cut, "misid_vs_pt",
+                 tables_r[f"at_cut_global{suffix}_{slug}"],
+                 title=f"mis-ID fake rate at $c^*$ {rtag}")
+            _fig(plots.purity_at_cut, "purity_vs_pt",
+                 tables_r[f"at_cut_global{suffix}_{slug}"],
+                 title=f"purity at $c^*$ {rtag}")
+            _fig(plots.rejection_vs_p, "rejection_vs_p",
+                 tables_r[f"rejection_vs_p{suffix}_{slug}"],
+                 title=f"rejection vs $p$ at $c^*$ {rtag}")
+            _fig(plots.nsigma_vs_p_table, "nsigma_vs_p",
+                 [tables_r[f"nsigma_vs_p{suffix}_{slug}"]],
+                 title=f"n_sigma vs $p$ {rtag}")
+            if binned_curves:
+                curves_r = tables_r[f"significance_by_pt{suffix}_{slug}"]
+                _fig(plots.significance_vs_cut_by_bin, "significance_vs_cut_by_pt",
+                     curves_r, global_cut=global_cut,
+                     title=f"FOM(c) per $p_T$ bin {rtag}")
+                _fig(plots.significance_vs_cut_panels, "significance_vs_cut_panels",
+                     curves_r, title=f"per-bin working points {rtag}")
+            if not quiet:
+                print(f"[performance/{channel}/{basis}/{region}] "
+                      f"{len(sub)} in-acceptance rows, "
+                      f"{len(tables_r)} tables, {len(figures_r)} figures")
+        # Summary row: subset merits AT the global cut (nearest scan row).
+        row: dict = {"channel": channel, "task": spec["task"],
+                     "status": status, "status_note": status_note,
+                     "signal": opt["signal"], "background": opt["background"],
+                     "score_space": opt["score_space"],
+                     "binning_basis": basis, "eta_region": region,
+                     "acceptance_rule": rmeta["acceptance_rule"],
+                     "threshold": global_cut, "n_rows": int(len(sub)),
+                     "n_files": int(pd.Series(sub["file_id"]).nunique())
+                     if "file_id" in sub else None,
+                     "n_bins_with_cut": int(per_bin_r["valid"].sum())
+                     if "valid" in per_bin_r else 0,
+                     "nsigma_method": _methods_used(tables_r[f"nsigma_vs_p{suffix}_{slug}"]),
+                     "rejects_background": opt.get("rejects_background", False),
+                     "ks_signal": np.nan, "ks_background": np.nan}
+        valid = bool(opt.get("valid")) and len(sub) >= config.MIN_ENTRIES_PER_BIN
+        caution = str(opt.get("caution") or "")
+        if len(sub) < config.MIN_ENTRIES_PER_BIN:
+            caution = (caution + "; " if caution else "") + (
+                f"only {len(sub)} in-acceptance candidates in {region} "
+                f"(floor {config.MIN_ENTRIES_PER_BIN})")
+            valid = False
+        for key in ("significance", "efficiency", "fake_rate",
+                    "fake_rate_upper_limit", "purity", "rejection",
+                    "rejection_lower_limit", "n_signal_total",
+                    "n_background_total"):
+            row[key] = np.nan
+        if valid and global_cut is not None and np.isfinite(global_cut):
+            scan_r = significance.scan_thresholds(
+                sub["score"].to_numpy(dtype=float), sub["y"].to_numpy(),
+                weights=w_r, lumi_scale=lumi_scale)
+            # Same mode convention as significance.optimal_cut: the FOM
+            # column is "significance" (s_over_sqrt) or "significance_eff".
+            fom_col = ("significance" if mode == "s_over_sqrt"
+                       else "significance_eff")
+            hit = scan_r.iloc[(scan_r["threshold"].to_numpy(dtype=float)
+                               - float(global_cut)).__abs__().argsort()[:1]].iloc[0]
+            row["significance"] = hit[fom_col]
+            for key in ("efficiency", "fake_rate",
+                        "fake_rate_upper_limit", "purity", "rejection",
+                        "rejection_lower_limit", "n_signal_total",
+                        "n_background_total"):
+                row[key] = hit[key]
+        row["valid"] = valid
+        row["caution"] = caution
+        row["edge_flag"] = opt.get("edge_flag", False)
+        summary.append(row)
+
+
 def run(*, channels: tuple[str, ...] = ("eid", "ehad", "Kpi", "pK"),
         dataset_tag: str, model: str = config.MODEL_LIBRARY_DEFAULT,
         out_dir: str = config.OUTPUT_DIR, plots_dir: str | None = None,
@@ -913,12 +1075,24 @@ def run(*, channels: tuple[str, ...] = ("eid", "ehad", "Kpi", "pK"),
         bin_source: str = "reco", nsigma_method: str | None = None,
         require_figures: bool = False,
         mode: str = "s_over_sqrt", lumi_scale: float = config.DEFAULT_LUMI_SCALE,
-        bkg_scale: float = 1.0, write: bool = True, quiet: bool = False) -> dict:
+        bkg_scale: float = 1.0, write: bool = True, quiet: bool = False,
+        eta_regions: tuple[str, ...] | None = None,
+        features: str | None = None, max_failures: int = 0,
+        cache_dir: str | None = None) -> dict:
     """Produce the whole maximum-significance performance package.
 
     ``bkg_scale`` realises the "realistic species fraction" option: it rescales the
     background yield relative to the measured composition (1.0 = as measured), and
     is recorded in every output because the optimum depends on it.
+
+    With ``eta_regions`` (subset of ``pid.regions.ETA_REGIONS``), the
+    differential tables and figures are additionally produced per detector
+    region on the candidates satisfying that region's acceptance rule
+    (``pid.regions.attach``) — one plot per region, each using its own
+    criterion (barrel ``Nhit >= 4``, endcaps ``Nhits >= 2``), at the
+    channel's global working point. Region outputs are extras: they never
+    enter the deliverables manifest. Needs ``features`` (default
+    ``<out_dir>/pid-features_<dataset_tag>.pkl``).
     """
     plots_dir = plots_dir or os.path.join(out_dir, "plots")
     os.makedirs(out_dir, exist_ok=True)
@@ -931,6 +1105,15 @@ def run(*, channels: tuple[str, ...] = ("eid", "ehad", "Kpi", "pK"),
     #: n-sigma tables are collected per TASK so K/pi and p/K share one figure
     #: (that comparison is the point of the plot), rather than one per channel.
     nsigma_by_task: dict[str, list[pd.DataFrame]] = {}
+    region_features = None
+    if eta_regions:
+        features_path = features or os.path.join(out_dir, f"pid-features_{dataset_tag}.pkl")
+        if not os.path.exists(features_path):
+            raise SystemExit(
+                f"pid performance: --eta-region needs the feature table at {features_path} "
+                "(pass --features); it carries the source_file/truth_idx links "
+                "the acceptance reads need.")
+        region_features = dataset.load_table(features_path)
 
     for channel in channels:
         directory = (scores_map or {}).get(channel) or _model_dir(
@@ -945,6 +1128,11 @@ def run(*, channels: tuple[str, ...] = ("eid", "ehad", "Kpi", "pK"),
             continue
         table = dataset.load_table(path)
         test_only = table[table["sample"] == "test"] if "sample" in table.columns else table
+        region_info: dict = {}
+        if eta_regions and region_features is not None:
+            test_only, region_info = pid_regions.attach(
+                test_only, features=region_features, regions=tuple(eta_regions),
+                max_failures=max_failures, cache_dir=cache_dir)
         try:
             frame = channel_frame(test_only, channel, model_dir=directory)
         except (KeyError, ValueError) as exc:
@@ -1118,6 +1306,19 @@ def run(*, channels: tuple[str, ...] = ("eid", "ehad", "Kpi", "pK"),
                              f"reconstructed basis)") if manifest.get("shared_with_other_basis") else ""
                     print(f"[deliverables/{channel}{suffix}] complete: "
                           f"{manifest['n_required']}/{manifest['n_required']} figures{extra}")
+
+            if eta_regions and region_info:
+                _run_region_package(
+                    channel=channel, basis=basis, suffix=suffix, frame=frame,
+                    region_info=region_info, eta_regions=tuple(eta_regions),
+                    spec=spec, status=status, status_note=status_note,
+                    model=model, dataset_tag=dataset_tag, out_dir=out_dir,
+                    plots_dir=plots_dir, names=names,
+                    global_cut=global_cut, opt=opt, weights=weights,
+                    bkg_scale=bkg_scale, mode=mode, lumi_scale=lumi_scale,
+                    binned_curves=binned_curves, n_thresholds=n_thresholds,
+                    nsigma_method=nsigma_method, write=write, quiet=quiet,
+                    summary=summary)
 
             summary.append({**{k: opt.get(k) for k in ("threshold", "significance", "efficiency",
                                                        "fake_rate", "fake_rate_upper_limit",

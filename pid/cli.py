@@ -23,6 +23,37 @@ import sys
 from . import config, dataset, schema
 
 
+def _parse_regions(value: str | None) -> tuple[str, ...] | None:
+    """Comma-separated detector regions -> tuple (None = no region split)."""
+    if not value:
+        return None
+    from . import regions as pid_regions
+
+    out = tuple(r.strip() for r in value.split(",") if r.strip())
+    unknown = [r for r in out if r not in pid_regions.ETA_REGIONS]
+    if unknown:
+        raise SystemExit(f"--eta-region: unknown region(s) {unknown}; "
+                         f"choices {list(pid_regions.ETA_REGIONS)}")
+    return out or None
+
+
+def _add_region_args(p: argparse.ArgumentParser) -> None:
+    p.add_argument("--eta-region", default=None,
+                   help="Comma-separated detector regions (barrel, forward endcap, "
+                        "backward endcap): additionally write the tables/figures per "
+                        "region on the candidates satisfying that region's "
+                        "acceptance rule (barrel Nhit>=4, endcaps Nhits>=2).")
+    p.add_argument("--features", default=None,
+                   help="Feature table (.pkl) the scores came from (default: "
+                        "<out-dir>/pid-features_<tag>.pkl); carries the links the "
+                        "acceptance reads need.")
+    p.add_argument("--max-file-failures", type=int, default=0,
+                   help="Tolerate up to N failing files in the acceptance reads.")
+    p.add_argument("--cache-dir", default=None,
+                   help="Cache directory for the acceptance reads "
+                        "(reuses the trkperf io cache).")
+
+
 def _read_file_list(args) -> list[str]:
     files = list(getattr(args, "file", None) or [])
     if getattr(args, "file_list", None):
@@ -187,7 +218,11 @@ def cmd_evaluate(args) -> int:
     res = pid_evaluate.evaluate(args.scores, task=args.task, dataset_tag=args.dataset_tag,
                                 model=args.model, signal=args.signal,
                                 out_dir=args.out_dir,
-                                by=tuple(args.by.split(",")))
+                                by=tuple(args.by.split(",")),
+                                eta_regions=_parse_regions(args.eta_region),
+                                features=args.features,
+                                max_failures=args.max_file_failures,
+                                cache_dir=args.cache_dir or None)
     if args.plot:
         stem = os.path.join(args.out_dir, "plots", f"pid-{res['tag']}")
         plots.roc(res["roc"], stem + "-roc.png", title=res["tag"])
@@ -196,6 +231,16 @@ def cmd_evaluate(args) -> int:
             if f"vs_{variable}" in res:
                 plots.metric_vs_bin(res[f"vs_{variable}"], stem + f"-auc_vs_{variable}.png",
                                     column="auc", title=res["tag"])
+        for region, rres in res.get("regions", {}).items():
+            from . import regions as pid_regions
+            stem_r = stem + "_" + pid_regions.REGION_SLUGS[region]
+            rtag = f"{rres['tag']} [{region}; {pid_regions.describe_rule(region)}]"
+            plots.roc(rres["roc"], stem_r + "-roc.png", title=rtag)
+            plots.efficiency_vs_fake(rres["overall"], stem_r + "-eff_vs_fake.png",
+                                     title=rtag)
+            if "vs_pt" in rres:
+                plots.metric_vs_bin(rres["vs_pt"], stem_r + "-auc_vs_pt.png",
+                                     column="auc", title=rtag)
     return 0
 
 
@@ -236,7 +281,9 @@ def cmd_performance(args) -> int:
         n_thresholds=args.n_thresholds, bin_source=args.bin_source,
         nsigma_method=args.nsigma_method, require_figures=args.require_figures,
         mode=args.mode, lumi_scale=args.lumi_scale, bkg_scale=args.bkg_scale,
-        write=not args.no_write)
+        write=not args.no_write, eta_regions=_parse_regions(args.eta_region),
+        features=args.features, max_failures=args.max_file_failures,
+        cache_dir=args.cache_dir or None)
     summary = result["summary"]
     if summary.empty:
         raise SystemExit(
@@ -304,7 +351,8 @@ def cmd_all(args) -> int:
             cmd_evaluate(argparse.Namespace(
                 scores=os.path.join(stem, "test_scores.pkl"), task=task, model=model,
                 dataset_tag=args.dataset_tag, signal=None, out_dir=args.out_dir,
-                by=args.by, plot=args.plot))
+                by=args.by, plot=args.plot, eta_region=None, features=None,
+                max_file_failures=args.max_file_failures, cache_dir=args.cache_dir))
             cmd_importance(argparse.Namespace(
                 dir=stem, task=task, model=model, kind="all", dataset_tag=args.dataset_tag,
                 out_dir=args.out_dir, no_write=False, plot=args.plot, relax_gates=True))
@@ -378,6 +426,7 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--by", default="pt,eta", help="Comma list of slicing variables (pt,p,eta).")
     p.add_argument("--out-dir", default=config.OUTPUT_DIR)
     p.add_argument("--plot", action="store_true")
+    _add_region_args(p)
     p.set_defaults(func=cmd_evaluate)
 
     p = sub.add_parser("importance", help="Gain / exact SHAP / permutation importance.")
@@ -430,6 +479,7 @@ def build_parser() -> argparse.ArgumentParser:
                         "partner's (comparable to the tracking metrics, migration-free), "
                         "or both (truth outputs get a *_truthpt suffix).")
     p.add_argument("--no-write", action="store_true", help="Print summary only.")
+    _add_region_args(p)
     p.set_defaults(func=cmd_performance)
 
     p = sub.add_parser("compare", help="Clean vs +background comparison of PID artifacts.")

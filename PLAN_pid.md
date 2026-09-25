@@ -732,6 +732,27 @@ A third, uglier catch: `rec_idx` — a column left behind by the association mer
 
 ## 12. Remaining work
 1. **Grid runs (M8)** — **done** (2026-09-19): `pid/scripts/run_pid.sh clean filelists/clean_150.txt 0` and `... bkg_mixed filelists/bkg_200.txt 20`, plus backfill jobs for the learners the first pass missed (hadpid/pooled xgboost, eid/ehad sklearn_hgb on both tags). All 12 clean + 6 bkg models trained with evaluates and importance; `pid performance` manifests 104/104 (clean) + 26/26 (bkg); `pid compare` eid/ehad written; `check_learners.py` PASS on every task/tag (spreads ≤ 0.0063). Open: physics-gate adjudication (E/p outranked at scale) and any minQ2 100/1000 escalation for the bkg pion-side ceiling near 10⁻³ (§8).
+1b. **Per-region PID plots (2026-09-23, code done, grid blocked by endpoint outage).**
+    New `pid/regions.py`: `attach()` adds `eta_region` (truth eta, same
+    `|eta| = 1` boundary as tracking), `n_layers_hit` and `in_acceptance`
+    to any score frame via `trkperf.truth` reads (shared io cache, no
+    second reader), applying each region's own rule (barrel `>= 4/7`,
+    endcaps `>= 2`). `pid evaluate` / `pid performance --eta-region`
+    additionally write per-region tables + figures (`_<slug>` tag) at the
+    channel's global cut; region outputs never enter the manifest; training
+    untouched (leg-scoped). Proven on the local smoke chain (203/214
+    backward-endcap electrons in acceptance, empty barrel honestly
+    skipped) + 10 new tests. Grid commands ready (lightgbm first):
+    `python -m pid performance --dataset-tag <tag> --model lightgbm
+    --channels eid,ehad,Kpi,pK --bin-source both --eta-region "barrel,forward
+    endcap,backward endcap"` (+ `--max-file-failures 20 --cache-dir
+    cache/bkg_files` for bkg_mixed) and per-task `pid evaluate --plot` with
+    the same `--eta-region`. BLOCKED 2026-09-23 ~20:00 UTC: the JLab
+    endpoint 3011s every `/volatile/.../26.02.0` open (paths read fine hours
+    earlier; egress verified OK) and the bkg endpoint expires — relaunch
+    when reads succeed again. Also fixed en route: `trkperf.truth` empty
+    counts now carry int64 dtypes (object-dtype empties crashed the attach
+    merge), and region attach warns loudly on a degraded rule.
 2. **Hadron ID needs per-track Cherenkov/timing** (and is currently labelled
    `exploratory` in `config.CHANNELS` for exactly this reason — the calorimeter-only
    K/π and p/K results are baselines to be beaten, not deliverables). Three concrete routes, in cost order: (a) decode `DRICH*RawHits` cellIDs against the compact geometry to attach photons to the extrapolated `DRICH*Tracks` segment (AGENTS.md currently scopes cellID decoding out — a deliberate decision to revisit); (b) recover the `*_ParticleIDs` likelihoods by establishing the entry order of those collections (their `particle` relation is null, but the *multiplicity* pattern — 4 hypotheses/particle — may be alignable; time-box it); (c) request a production where the IRT `chargedParticle` relation is written (cid `1290518152` is not in the file).
