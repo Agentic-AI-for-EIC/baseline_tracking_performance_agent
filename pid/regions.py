@@ -128,7 +128,9 @@ def attach(frame: pd.DataFrame, *, features: pd.DataFrame,
                 "test_scores.pkl/all_scores.pkl), or drop --eta-region.")
     for col in ("file_id", "event", "track_idx", "source_file", "truth_idx"):
         if col not in features.columns:
-            raise KeyError(f"pid.regions.attach: feature table lacks {col!r}")
+            raise KeyError(
+                f"pid.regions.attach: feature table lacks {col!r} - pass the "
+                "table the model trained on via --features.")
 
     key = ["file_id", "event", "track_idx"]
     link = features[key + ["source_file", "truth_idx"]].copy()
@@ -166,8 +168,20 @@ def attach(frame: pd.DataFrame, *, features: pd.DataFrame,
                                       "n_layers_hit": f"_n_{rule_name}"})
         out = out.merge(hit[["file_id", "event", "truth_idx", f"_n_{rule_name}"]],
                         on=["file_id", "event", "truth_idx"], how="left")
+        # A matched particle with zero hits in every collection of this rule
+        # has no count row (trkperf.truth contract) - that is a genuine 0,
+        # not "unclassifiable". Fill it, but never for rows whose file was
+        # skipped (no read happened) or whose truth partner is missing
+        # (truth_idx NaN never joins).
+        skipped_ids = {i for i, p in enumerate(files)
+                       if p in set(shared.get("skipped", []))}
+        count_col = f"_n_{rule_name}"
+        has_truth = out["truth_idx"].notna()
+        readable = ~out["file_id"].isin(skipped_ids)
+        out.loc[has_truth & readable, count_col] = (
+            out.loc[has_truth & readable, count_col].fillna(0))
         sel = out["eta_region"] == region
-        out.loc[sel, "n_layers_hit"] = out.loc[sel, f"_n_{rule_name}"]
+        out.loc[sel, "n_layers_hit"] = out.loc[sel, count_col]
         out.loc[sel, "in_acceptance"] = (
             out.loc[sel, f"_n_{rule_name}"].fillna(-1) >= rule["min_layers"])
         out = out.drop(columns=[f"_n_{rule_name}"])
@@ -181,7 +195,7 @@ def attach(frame: pd.DataFrame, *, features: pd.DataFrame,
         info["regions"][region] = {
             "rule": rule_name, "min_layers": rule["min_layers"],
             "collections": list(rule["collections"]),
-            "collections_found": found,
+            "collections_found": list(found),
             "n_rows": int(sel.sum()),
             "n_in_acceptance": int((sel & out["in_acceptance"]).sum()),
         }

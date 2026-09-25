@@ -127,6 +127,31 @@ class TestAttach(unittest.TestCase):
         self.assertFalse(out.iloc[0]["in_acceptance"])
         self.assertEqual(info["n_unclassified"], 0)  # unknown region, not requested
 
+    def test_zero_hit_particle_is_zero_not_unclassifiable(self):
+        # A matched particle absent from the count table has 0 hits in the
+        # rule's collections (trkperf.truth contract): n_layers_hit must be 0
+        # (fails acceptance honestly), not NaN "unclassifiable".
+        frame = _frame([
+            {"file_id": 0, "event": 0, "track_idx": 0, "truth_eta": -2.5},
+            {"file_id": 0, "event": 0, "track_idx": 1, "truth_eta": -2.5},
+        ])
+        feats = _features([
+            {**self._link(track_idx=0), "truth_idx": 0},
+            {**self._link(track_idx=1), "truth_idx": 1},
+        ])
+        counts = pd.DataFrame([{"file_id": 0, "event": 0, "idx": 0,
+                                "n_layers_hit": 3}])
+        from pid import regions as R
+        with mock.patch("trkperf.truth.read_truth_hit_layer_counts",
+                        return_value=counts):
+            with mock.patch("trkperf.io.set_cache_dir"):
+                out, info = R.attach(frame, features=feats,
+                                     regions=("backward endcap",))
+        zero = out[out["track_idx"] == 1].iloc[0]
+        self.assertEqual(zero["n_layers_hit"], 0)
+        self.assertFalse(zero["in_acceptance"])
+        self.assertEqual(info["n_unclassified"], 0)
+
     def test_mismatched_features_refuse(self):
         frame = _frame([{"file_id": 0, "event": 0, "track_idx": 9,
                          "truth_eta": 0.25}])
