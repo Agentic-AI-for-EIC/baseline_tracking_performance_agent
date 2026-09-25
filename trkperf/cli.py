@@ -116,7 +116,7 @@ def _add_common_args(sub: argparse.ArgumentParser) -> None:
     sub.add_argument(
         "--dataset-tag",
         required=True,
-        choices=["clean", "bkg_mixed"],
+        choices=sorted(config.DATASETS),
         help="Which project dataset type this run is - used for output naming "
         "and recorded in the output's metadata for provenance.",
     )

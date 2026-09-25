@@ -184,6 +184,39 @@ DATASETS: dict[str, dict] = {
         "events_per_file": {1: 99, 10: 99, 100: 99, 1000: 99},
         "start_n_files": {1: 200, 10: 0, 100: 0, 1000: 0},
     },
+    # ------------------------------------------------------------------
+    # Same-campaign reproduction pair (2026-09-25): BOTH sides from
+    # campaign 26.07.1, served from a local copy on gautschi.rcac.purdue
+    # (.edu) through an ssh-tunnelled xrootd daemon (root://localhost:1294//
+    # <absolute scratch path>; daemon bound to 127.0.0.1 only, tunnel with
+    # `ssh -N -L 1294:127.0.0.1:1294 gautschi.rcac.purdue.edu`). This removes
+    # the 26.02.0-vs-26.07.1 production difference from the clean-vs-
+    # background comparison entirely. Replaces the purged JLab /volatile
+    # Type 1 sample (26.02.0 is now tape-only).
+    # ------------------------------------------------------------------
+    "clean26071": {
+        "label": "Type 1 reproduction: clean, SAME campaign 26.07.1 (local ssh copy)",
+        "campaign": "26.07.1",
+        "did": "epic:/RECO/26.07.1/epic_craterlake/DIS/NC/10x100/minQ2=1",
+        "xrootd_prefix": (
+            "root://localhost:1294//scratch/gautschi/wxie/eIC_data_small_set/clean"),
+        "min_q2_tiers": [1],
+        "files_available": {1: 300},
+        "events_per_file": {1: 1409},
+        "start_n_files": 300,
+    },
+    "bkg26071": {
+        "label": "Type 2 reproduction: +background, campaign 26.07.1 (local ssh copy)",
+        "campaign": "26.07.1",
+        "did": ("epic:/RECO/26.07.1/epic_craterlake/Bkg_Exact1S_2us/GoldCt/10um"
+                "/DIS/NC/10x100/minQ2=1"),
+        "xrootd_prefix": (
+            "root://localhost:1294//scratch/gautschi/wxie/eIC_data_small_set/bkg/reco"),
+        "min_q2_tiers": [1],
+        "files_available": {1: 275},
+        "events_per_file": {1: 99},
+        "start_n_files": 275,
+    },
 }
 
 # Local, network-free reference files (symlinked into data/dataset_small/)

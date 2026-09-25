@@ -73,12 +73,27 @@ impact of beam-induced background on tracking performance.
 ## Datasets
 - Type 1, clean: epic:/RECO/26.02.0/epic_craterlake/DIS/NC/10x100/minQ2=1
   (root://dtn-eic.jlab.org:1094//volatile/eic/EPIC/RECO/... ; 4,609 files,
-  1,083 events/file).
+  1,083 events/file). WARNING: as of 2026-09-25 the /volatile copies used
+  here are PURGED (rucio shows tape-only replicas at JLAB-TAPE-SE); treat
+  this path as unavailable.
 - Type 2, +background: epic:/RECO/26.07.1/epic_craterlake/Bkg_Exact1S_2us/
   GoldCt/10um/DIS/NC/10x100/minQ2={1,10,100,1000}
   (root://hpceph-xrootd.twgrid.org:1094//cephfs/epic/RECO/... ; 1463/902/547/551
   files per bin respectively, ~99 events/file — ~11x fewer events/file than
   Type 1, so this sample is the statistics bottleneck, not the clean one).
+- Reproduction pair (2026-09-25, the current primary comparison): tags
+  `clean26071` + `bkg26071` — BOTH from campaign 26.07.1, local copies on
+  gautschi.rcac.purdue.edu:/scratch/gautschi/wxie/eIC_data_small_set/{clean,
+  bkg/reco} (300 files x 1409 events; 275 files x 99 events), streamed via a
+  localhost-only xrootd daemon + ssh tunnel: start remote
+  `/cvmfs/oasis.opensciencegrid.org/osg/modules/xrootd/4.2.1/bin/xrootd -p
+  1294 -b 127.0.0.1 -l ~/xrdlog/xrootd.log /scratch/gautschi/wxie/
+  eIC_data_small_set` then `ssh -N -L 1294:127.0.0.1:1294
+  gautschi.rcac.purdue.edu`; filelists/clean26071_local.txt +
+  bkg26071_local.txt carry root://localhost:1294//<absolute path> URLs (the
+  daemon serves absolute paths). Driver: scripts/run_reproduction_26071.sh
+  (sequential — 300-file efficiency is the memory peak; tunnel watchdog;
+  resumable). This removes the campaign difference from the comparison.
 - Escalation order when a bin lacks statistics: more files in the current
   minQ2 tier, then the next minQ2 tier (1 -> 10 -> 100 -> 1000), for Type 2
   only. Type 1 stays at minQ2=1 (matches how it was produced).
