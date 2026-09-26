@@ -73,6 +73,9 @@ def _add_io_args(p: argparse.ArgumentParser, *, needs_tag: bool = True) -> None:
     p.add_argument("--out-dir", default=config.OUTPUT_DIR)
     p.add_argument("--limit-files", type=int, default=None,
                    help="Process only the first N files (smoke tests).")
+    p.add_argument("--jobs", type=int, default=1,
+                   help="Parallel per-file workers for the feature build "
+                        "(results are order-stamped and identical to jobs=1).")
     p.add_argument("--max-file-failures", type=int, default=0,
                    help="Tolerate up to N failing files (flaky endpoints) instead of aborting.")
     p.add_argument("--cache-dir", default=config.FEATURE_CACHE_DIR,
@@ -141,7 +144,7 @@ def cmd_features(args) -> int:
     df = pid_features.build_features(
         files, dataset_tag=args.dataset_tag, legs=legs, max_failures=args.max_file_failures,
         cache_dir=args.cache_dir or None, limit_files=args.limit_files,
-        enable_ionisation=args.enable_ionisation)
+        enable_ionisation=args.enable_ionisation, jobs=args.jobs)
     if df.empty:
         raise SystemExit("features: no rows produced (all files failed?)")
     out = args.out or os.path.join(args.out_dir, f"pid-features_{args.dataset_tag}.pkl")

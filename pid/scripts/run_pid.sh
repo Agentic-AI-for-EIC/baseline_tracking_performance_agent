@@ -52,6 +52,8 @@ SEED="${6:-1234}"
 # each region judged by its own acceptance rule from trkperf.config).
 # Override to change or disable (empty string = global tables only).
 ETA_REGIONS="${ETA_REGIONS:-barrel,forward endcap,backward endcap}"
+# Feature building is CPU-bound per file; fan out (15 GB box: 6 workers).
+JOBS="${JOBS:-6}"
 mkdir -p runs output cache
 [ -f "$FILELIST" ] || { echo "no such filelist: $FILELIST" >&2; exit 1; }
 
@@ -70,7 +72,7 @@ LOG="runs/pid_features_${TAG}.log"
 setsid nohup bash -c "
   set -x
   $PY -m pid features --file-list \"$FILELIST\" --dataset-tag \"$TAG\" \
-      --max-file-failures \"$MAXFAIL\" --cache-dir \"$CACHE\" --out \"$FEATURES\" || exit 1
+      --max-file-failures \"$MAXFAIL\" --cache-dir \"$CACHE\" --out \"$FEATURES\" --jobs \"$JOBS\" || exit 1
   for task in \$(echo \"$TASKS\" | tr ',' ' '); do
     for lib in lightgbm xgboost sklearn_hgb; do
       $PY -m pid train --task \"\$task\" --model \"\$lib\" --dataset-tag \"$TAG\" \

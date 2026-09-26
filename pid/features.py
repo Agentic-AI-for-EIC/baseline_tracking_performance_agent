@@ -748,66 +748,132 @@ def cache_file_for(cache_dir, path, campaign, legs, enable_ionisation):
     return os.path.join(cache_dir, hashlib.sha256(material.encode()).hexdigest() + ".pkl")
 
 
+def _build_features_job(i, path, campaign, legs, enable_ionisation, cache_dir, max_failures):
+    """One file's feature frame (or a marker). Module-level and side-effect
+    free apart from the ATOMIC per-file cache write, so `build_features` can
+    run it either in-process or in a forked worker. Returns a dict:
+    ``kind`` one of cached / fresh / empty / failed (+ ``df`` / ``err``)."""
+    import traceback
+
+    cp = cache_file_for(cache_dir, path, campaign, legs, enable_ionisation) if cache_dir else None
+    if cp and os.path.exists(cp):
+        try:
+            df = pd.read_pickle(cp)
+            df["file_id"] = i
+            df["source_file"] = path
+            return {"kind": "cached", "i": i, "path": path,
+                    "df": df.reset_index(drop=True)}
+        except Exception as exc:  # noqa: BLE001 - a bad cache entry is not fatal
+            print(f"[features] WARNING: ignoring unusable cache {cp}: {exc}", file=sys.stderr)
+    try:
+        df = build_features_one_file(path, campaign, legs=legs, max_failures=max_failures,
+                                     enable_ionisation=enable_ionisation)
+    except Exception as exc:  # noqa: BLE001 - the parent re-raises with context
+        traceback.print_exc(file=sys.stderr)
+        return {"kind": "failed", "i": i, "path": path,
+                "err": f"{exc.__class__.__name__}: {exc}"}
+    if df.empty:
+        return {"kind": "empty", "i": i, "path": path}
+    df["file_id"] = i
+    df["source_file"] = path
+    if cp:
+        os.makedirs(cache_dir, exist_ok=True)
+        tmp = f"{cp}.tmp.{os.getpid()}"
+        df.to_pickle(tmp)
+        os.replace(tmp, cp)
+    return {"kind": "fresh", "i": i, "path": path, "df": df}
+
+
 def build_features(files, *, dataset_tag, campaign=None, legs=("backward", "forward"),
                    max_failures=0, cache_dir=config.FEATURE_CACHE_DIR, limit_files=None,
-                   enable_ionisation=False, progress=True) -> pd.DataFrame:
+                   enable_ionisation=False, progress=True, jobs: int = 1) -> pd.DataFrame:
     """Feature table over many files, concatenated with per-file provenance.
 
     ``max_failures`` tolerates a flaky endpoint; every skip is printed and
     recorded in ``attrs`` so a partial sample can never be mistaken for a
     complete one. ``cache_dir`` makes a relaunch free over finished files.
+
+    ``jobs`` > 1 fans the per-file builds out to forked workers (the
+    bottleneck is the single-threaded cluster/shape pandas work, not the
+    network). Results are re-assembled in file-list order, so the table is
+    identical for any ``jobs`` value; only the interleaving of WARNING lines
+    and the point at which a shared ``max_failures`` budget trips can
+    differ (parallel runs stop as soon as the budget is exceeded, not on the
+    first failure in list order).
     """
     campaign = campaign or schema.campaign_of(dataset_tag)
     files = list(files)
     if limit_files:
         files = files[:limit_files]
-    frames, skipped, empty = [], [], []
-    for i, path in enumerate(files):
-        cp = cache_file_for(cache_dir, path, campaign, legs, enable_ionisation) if cache_dir else None
-        if cp and os.path.exists(cp):
-            try:
-                df = pd.read_pickle(cp)
-                df["file_id"] = i
-                df["source_file"] = path
-                frames.append(df.reset_index(drop=True))
-                if progress and (i + 1) % 10 == 0:
-                    print(f"[features] {i + 1}/{len(files)} files (cached)",
-                          file=sys.stderr)
-                continue
-            except Exception as exc:  # noqa: BLE001 - a bad cache entry is not fatal
-                print(f"[features] WARNING: ignoring unusable cache {cp}: {exc}", file=sys.stderr)
-        try:
-            df = build_features_one_file(path, campaign, legs=legs, max_failures=max_failures,
-                                         enable_ionisation=enable_ionisation)
-        except Exception as exc:  # noqa: BLE001
-            skipped.append(path)
-            print(f"[features] WARNING: file failed ({len(skipped)}/{max_failures + 1} "
-                  f"allowed): {path}\n  {exc.__class__.__name__}: {exc}", file=sys.stderr)
-            if len(skipped) > max_failures:
-                raise RuntimeError(
-                    f"pid.features.build_features: {len(skipped)} files failed "
-                    f"(max allowed = {max_failures})") from exc
-            continue
-        if df.empty:
-            # Not a failure (no budget consumed, not listed as skipped), but
-            # never silent: an empty file still shrinks the sample.
-            print(f"[features] WARNING: {path} yielded zero candidate rows",
+    results = {}
+    skipped, empty = [], []
+    jobs = max(1, int(jobs or 1))
+
+    def _note(res):
+        if res["kind"] == "empty":
+            print(f"[features] WARNING: {res['path']} yielded zero candidate rows",
                   file=sys.stderr)
-            empty.append(path)
-            continue
-        df["file_id"] = i
-        df["source_file"] = path
-        if cp:
-            os.makedirs(cache_dir, exist_ok=True)
-            tmp = f"{cp}.tmp.{os.getpid()}"
-            df.to_pickle(tmp)
-            os.replace(tmp, cp)
-        frames.append(df)
-        if progress and (i + 1) % 10 == 0:
-            print(f"[features] {i + 1}/{len(files)} files", file=sys.stderr)
-    if not frames:
+            empty.append(res["path"])
+        elif res["kind"] == "cached":
+            i = res["i"]
+            if progress and (i + 1) % 10 == 0:
+                print(f"[features] {i + 1}/{len(files)} files (cached)", file=sys.stderr)
+
+    if jobs == 1:
+        for i, path in enumerate(files):
+            res = _build_features_job(i, path, campaign, legs, enable_ionisation, cache_dir,
+                                      max_failures)
+            if res["kind"] == "failed":
+                skipped.append(path)
+                print(f"[features] WARNING: file failed ({len(skipped)}/{max_failures + 1} "
+                      f"allowed): {path}\n  {res['err']}", file=sys.stderr)
+                if len(skipped) > max_failures:
+                    raise RuntimeError(
+                        f"pid.features.build_features: {len(skipped)} files failed "
+                        f"(max allowed = {max_failures}). First failure: {res['err']}")
+                continue
+            _note(res)
+            if res["kind"] != "empty":
+                results[i] = res["df"]
+                if res["kind"] == "fresh" and progress and (i + 1) % 10 == 0:
+                    print(f"[features] {i + 1}/{len(files)} files", file=sys.stderr)
+    else:
+        import multiprocessing
+        from concurrent.futures import ProcessPoolExecutor, as_completed
+
+        ctx = multiprocessing.get_context("fork")
+        n_fail = n_done = 0
+        with ProcessPoolExecutor(max_workers=jobs, mp_context=ctx) as pool:
+            futs = [pool.submit(_build_features_job, i, path, campaign, legs,
+                                enable_ionisation, cache_dir, max_failures)
+                    for i, path in enumerate(files)]
+            try:
+                for fut in as_completed(futs):
+                    res = fut.result()
+                    n_done += 1
+                    if res["kind"] == "failed":
+                        n_fail += 1
+                        skipped.append(res["path"])
+                        print(f"[features] WARNING: file failed ({n_fail}/"
+                              f"{max_failures + 1} allowed): {res['path']}\n  {res['err']}",
+                              file=sys.stderr)
+                        if n_fail > max_failures:
+                            raise RuntimeError(
+                                f"pid.features.build_features: {n_fail} files failed "
+                                f"(max allowed = {max_failures})")
+                        continue
+                    _note(res)
+                    if res["kind"] != "empty":
+                        results[res["i"]] = res["df"]
+                    if progress and n_done % 10 == 0:
+                        print(f"[features] {n_done}/{len(files)} files done",
+                              file=sys.stderr)
+            finally:
+                for f in futs:
+                    f.cancel()
+    if not results:
         return pd.DataFrame()
-    out = pd.concat(frames, ignore_index=True)
+    out = pd.concat([results[i] for i in sorted(results)], ignore_index=True)
     out.attrs.update({"skipped_files": skipped, "empty_files": empty, "n_files": len(files),
                       "campaign": campaign, "schema_version": SCHEMA_VERSION})
     return out
