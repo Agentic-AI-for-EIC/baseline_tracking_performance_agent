@@ -1,1 +1,122 @@
 [repro] acceptance clean26071 22:16:11
+[repro] acceptance clean26071 02:22:45
+[repro] acceptance clean26071 02:43:12
+[acceptance/clean26071] wrote output/acceptance_clean26071.json, output/acceptance_clean26071.md and output/acceptance_clean26071.root (1024 bins, 501 flagged insufficient statistics, from 300 files)
+[acceptance/clean26071] wrote output/acceptance_clean26071_vs_pt.png
+[repro] acceptance clean26071 04:00:19
+[acceptance/clean26071] wrote output/acceptance_backward_clean26071.json, output/acceptance_backward_clean26071.md and output/acceptance_backward_clean26071.root (1024 bins, 501 flagged insufficient statistics, from 300 files)
+[acceptance/clean26071] wrote output/acceptance_backward_clean26071_vs_pt.png
+[repro] acceptance clean26071 04:10:03
+[acceptance/clean26071] wrote output/acceptance_forward_clean26071.json, output/acceptance_forward_clean26071.md and output/acceptance_forward_clean26071.root (1024 bins, 501 flagged insufficient statistics, from 300 files)
+[acceptance/clean26071] wrote output/acceptance_forward_clean26071_vs_pt.png
+[repro] efficiency clean26071 04:10:41
+[efficiency/clean26071] wrote output/efficiency_clean26071.json, output/efficiency_clean26071.md and output/efficiency_clean26071.root (1024 bins, 821 flagged insufficient statistics, from 300 files)
+[efficiency/clean26071] wrote output/efficiency_clean26071_absolute_vs_pt.png
+[efficiency/clean26071] wrote output/efficiency_clean26071_within_acceptance_vs_pt.png
+[repro] efficiency clean26071 04:39:03
+[efficiency/clean26071] wrote output/efficiency_backward_clean26071.json, output/efficiency_backward_clean26071.md and output/efficiency_backward_clean26071.root (1024 bins, 749 flagged insufficient statistics, from 300 files)
+[efficiency/clean26071] wrote output/efficiency_backward_clean26071_absolute_vs_pt.png
+[efficiency/clean26071] wrote output/efficiency_backward_clean26071_within_acceptance_vs_pt.png
+[repro] efficiency clean26071 04:39:42
+[efficiency/clean26071] wrote output/efficiency_forward_clean26071.json, output/efficiency_forward_clean26071.md and output/efficiency_forward_clean26071.root (1024 bins, 810 flagged insufficient statistics, from 300 files)
+[efficiency/clean26071] wrote output/efficiency_forward_clean26071_absolute_vs_pt.png
+[efficiency/clean26071] wrote output/efficiency_forward_clean26071_within_acceptance_vs_pt.png
+[repro] resolution clean26071 04:40:21
+[resolution/clean26071] wrote output/resolution_clean26071.json, output/resolution_clean26071.md and output/resolution_clean26071.root (1024 bins, 566 flagged insufficient statistics, from 300 files)
+[resolution/clean26071] wrote output/resolution_clean26071_sigma_vs_pt.png
+[resolution/clean26071] wrote output/resolution_clean26071_sigma_vs_pt_logy.png
+[repro] fake-rate clean26071 04:40:52
+[fake-rate/clean26071] wrote output/fake-rate_clean26071.json, output/fake-rate_clean26071.md and output/fake-rate_clean26071.root (128 bins, 35 flagged insufficient statistics, from 300 files)
+[fake-rate/clean26071] wrote output/fake-rate_clean26071_vs_pt.png
+[fake-rate/clean26071] wrote output/fake-rate_clean26071_vs_pt_logy.png
+[repro] acceptance bkg26071 04:40:57
+scripts/run_reproduction_26071.sh: line 29: 292014 Killed                  python3 -m trkperf "$metric" --file-list "$list" --dataset-tag "$tag" --min-q2-tier 1 "$@"
+[repro] FAIL acceptance/bkg26071
+[repro] skip acceptance/clean26071 (exists)
+[repro] skip acceptance/clean26071 (exists)
+[repro] skip acceptance/clean26071 (exists)
+[repro] skip efficiency/clean26071 (exists)
+[repro] skip efficiency/clean26071 (exists)
+[repro] skip efficiency/clean26071 (exists)
+[repro] skip resolution/clean26071 (exists)
+[repro] skip fake-rate/clean26071 (exists)
+[repro] acceptance bkg26071 13:04:52
+[acceptance/bkg26071] wrote output/acceptance_bkg26071.json, output/acceptance_bkg26071.md and output/acceptance_bkg26071.root (1024 bins, 781 flagged insufficient statistics, from 275 files)
+[acceptance/bkg26071] wrote output/acceptance_bkg26071_vs_pt.png
+[repro] acceptance bkg26071 13:06:06
+[acceptance/bkg26071] wrote output/acceptance_backward_bkg26071.json, output/acceptance_backward_bkg26071.md and output/acceptance_backward_bkg26071.root (1024 bins, 781 flagged insufficient statistics, from 275 files)
+[acceptance/bkg26071] wrote output/acceptance_backward_bkg26071_vs_pt.png
+[repro] acceptance bkg26071 13:15:50
+[acceptance/bkg26071] wrote output/acceptance_forward_bkg26071.json, output/acceptance_forward_bkg26071.md and output/acceptance_forward_bkg26071.root (1024 bins, 781 flagged insufficient statistics, from 275 files)
+[acceptance/bkg26071] wrote output/acceptance_forward_bkg26071_vs_pt.png
+[repro] efficiency bkg26071 13:16:51
+[efficiency/bkg26071] wrote output/efficiency_bkg26071.json, output/efficiency_bkg26071.md and output/efficiency_bkg26071.root (1024 bins, 952 flagged insufficient statistics, from 275 files)
+[efficiency/bkg26071] wrote output/efficiency_bkg26071_absolute_vs_pt.png
+[efficiency/bkg26071] wrote output/efficiency_bkg26071_within_acceptance_vs_pt.png
+[repro] efficiency bkg26071 13:43:48
+[efficiency/bkg26071] wrote output/efficiency_backward_bkg26071.json, output/efficiency_backward_bkg26071.md and output/efficiency_backward_bkg26071.root (1024 bins, 917 flagged insufficient statistics, from 275 files)
+[efficiency/bkg26071] wrote output/efficiency_backward_bkg26071_absolute_vs_pt.png
+[efficiency/bkg26071] wrote output/efficiency_backward_bkg26071_within_acceptance_vs_pt.png
+[repro] efficiency bkg26071 13:44:57
+[efficiency/bkg26071] wrote output/efficiency_forward_bkg26071.json, output/efficiency_forward_bkg26071.md and output/efficiency_forward_bkg26071.root (1024 bins, 920 flagged insufficient statistics, from 275 files)
+[efficiency/bkg26071] wrote output/efficiency_forward_bkg26071_absolute_vs_pt.png
+[efficiency/bkg26071] wrote output/efficiency_forward_bkg26071_within_acceptance_vs_pt.png
+[repro] resolution bkg26071 13:46:07
+[resolution/bkg26071] wrote output/resolution_bkg26071.json, output/resolution_bkg26071.md and output/resolution_bkg26071.root (1024 bins, 831 flagged insufficient statistics, from 275 files)
+[resolution/bkg26071] wrote output/resolution_bkg26071_sigma_vs_pt.png
+[resolution/bkg26071] wrote output/resolution_bkg26071_sigma_vs_pt_logy.png
+[repro] fake-rate bkg26071 13:47:09
+[fake-rate/bkg26071] wrote output/fake-rate_bkg26071.json, output/fake-rate_bkg26071.md and output/fake-rate_bkg26071.root (128 bins, 48 flagged insufficient statistics, from 275 files)
+[fake-rate/bkg26071] wrote output/fake-rate_bkg26071_vs_pt.png
+[fake-rate/bkg26071] wrote output/fake-rate_bkg26071_vs_pt_logy.png
+[compare/acceptance_26071] wrote output/acceptance_26071_comparison.json and output/acceptance_26071_comparison.md (1024 bins compared)
+[compare/acceptance-backward_26071] wrote output/acceptance-backward_26071_comparison.json and output/acceptance-backward_26071_comparison.md (1024 bins compared)
+[compare/acceptance-forward_26071] wrote output/acceptance-forward_26071_comparison.json and output/acceptance-forward_26071_comparison.md (1024 bins compared)
+[compare/efficiency_26071] wrote output/efficiency_26071_comparison.json and output/efficiency_26071_comparison.md (1024 bins compared)
+[compare/efficiency-backward_26071] wrote output/efficiency-backward_26071_comparison.json and output/efficiency-backward_26071_comparison.md (1024 bins compared)
+[compare/efficiency-forward_26071] wrote output/efficiency-forward_26071_comparison.json and output/efficiency-forward_26071_comparison.md (1024 bins compared)
+[compare/resolution_26071] wrote output/resolution_26071_comparison.json and output/resolution_26071_comparison.md (1024 bins compared)
+[compare/fake-rate_26071] wrote output/fake-rate_26071_comparison.json and output/fake-rate_26071_comparison.md (128 bins compared)
+[plot/acceptance] wrote output/acceptance_clean26071_vs_pt_grouped_barrel.png
+[plot/acceptance] wrote output/acceptance_backward_clean26071_vs_pt_grouped_backward_endcap.png
+[plot/acceptance] wrote output/acceptance_forward_clean26071_vs_pt_grouped_forward_endcap.png
+[plot/acceptance] wrote output/acceptance_bkg26071_vs_pt_grouped_barrel.png
+[plot/acceptance] wrote output/acceptance_backward_bkg26071_vs_pt_grouped_backward_endcap.png
+[plot/acceptance] wrote output/acceptance_forward_bkg26071_vs_pt_grouped_forward_endcap.png
+[plot/efficiency] wrote output/efficiency_clean26071_absolute_vs_pt_grouped_barrel.png
+[plot/efficiency] wrote output/efficiency_clean26071_within_acceptance_vs_pt_grouped_barrel.png
+[plot/efficiency] wrote output/efficiency_backward_clean26071_absolute_vs_pt_grouped_backward_endcap.png
+[plot/efficiency] wrote output/efficiency_backward_clean26071_within_acceptance_vs_pt_grouped_backward_endcap.png
+[plot/efficiency] wrote output/efficiency_forward_clean26071_absolute_vs_pt_grouped_forward_endcap.png
+[plot/efficiency] wrote output/efficiency_forward_clean26071_within_acceptance_vs_pt_grouped_forward_endcap.png
+[plot/efficiency] wrote output/efficiency_bkg26071_absolute_vs_pt_grouped_barrel.png
+[plot/efficiency] wrote output/efficiency_bkg26071_within_acceptance_vs_pt_grouped_barrel.png
+[plot/efficiency] wrote output/efficiency_backward_bkg26071_absolute_vs_pt_grouped_backward_endcap.png
+[plot/efficiency] wrote output/efficiency_backward_bkg26071_within_acceptance_vs_pt_grouped_backward_endcap.png
+[plot/efficiency] wrote output/efficiency_forward_bkg26071_absolute_vs_pt_grouped_forward_endcap.png
+[plot/efficiency] wrote output/efficiency_forward_bkg26071_within_acceptance_vs_pt_grouped_forward_endcap.png
+[plot/resolution] wrote output/resolution_clean26071_sigma_vs_pt_grouped_barrel.png
+[plot/resolution] wrote output/resolution_clean26071_sigma_vs_pt_logy_grouped_barrel.png
+[plot/resolution] wrote output/resolution_clean26071_sigma_vs_pt_grouped_backward_endcap.png
+[plot/resolution] wrote output/resolution_clean26071_sigma_vs_pt_logy_grouped_backward_endcap.png
+[plot/resolution] wrote output/resolution_clean26071_sigma_vs_pt_grouped_forward_endcap.png
+[plot/resolution] wrote output/resolution_clean26071_sigma_vs_pt_logy_grouped_forward_endcap.png
+[plot/resolution] wrote output/resolution_bkg26071_sigma_vs_pt_grouped_barrel.png
+[plot/resolution] wrote output/resolution_bkg26071_sigma_vs_pt_logy_grouped_barrel.png
+[plot/resolution] wrote output/resolution_bkg26071_sigma_vs_pt_grouped_backward_endcap.png
+[plot/resolution] wrote output/resolution_bkg26071_sigma_vs_pt_logy_grouped_backward_endcap.png
+[plot/resolution] wrote output/resolution_bkg26071_sigma_vs_pt_grouped_forward_endcap.png
+[plot/resolution] wrote output/resolution_bkg26071_sigma_vs_pt_logy_grouped_forward_endcap.png
+[plot/fake-rate] wrote output/fake-rate_clean26071_vs_pt_grouped_barrel.png
+[plot/fake-rate] wrote output/fake-rate_clean26071_vs_pt_logy_grouped_barrel.png
+[plot/fake-rate] wrote output/fake-rate_clean26071_vs_pt_grouped_backward_endcap.png
+[plot/fake-rate] wrote output/fake-rate_clean26071_vs_pt_logy_grouped_backward_endcap.png
+[plot/fake-rate] wrote output/fake-rate_clean26071_vs_pt_grouped_forward_endcap.png
+[plot/fake-rate] wrote output/fake-rate_clean26071_vs_pt_logy_grouped_forward_endcap.png
+[plot/fake-rate] wrote output/fake-rate_bkg26071_vs_pt_grouped_barrel.png
+[plot/fake-rate] wrote output/fake-rate_bkg26071_vs_pt_logy_grouped_barrel.png
+[plot/fake-rate] wrote output/fake-rate_bkg26071_vs_pt_grouped_backward_endcap.png
+[plot/fake-rate] wrote output/fake-rate_bkg26071_vs_pt_logy_grouped_backward_endcap.png
+[plot/fake-rate] wrote output/fake-rate_bkg26071_vs_pt_grouped_forward_endcap.png
+[plot/fake-rate] wrote output/fake-rate_bkg26071_vs_pt_logy_grouped_forward_endcap.png
+[repro] DONE Sat Sep 26 01:48:46 PM UTC 2026

@@ -20,3 +20,9 @@ runs/*.start
 #   python -m pid features --file-list filelists/clean_150.txt --dataset-tag clean --max-file-failures 0 --cache-dir cache/pid_features --out output/pid-features_clean.pkl
 #   python -m pid features --file-list filelists/bkg_200.txt --dataset-tag bkg_mixed --max-file-failures 20 --cache-dir cache/pid_features --out output/pid-features_bkg_mixed.pkl
 output/pid-features_*.pkl
+
+# Reproduction-pair read caches (26.07.1 gautschi streaming): 28 GB + 95 GB
+# of per-file pickles, far past GitHub limits; fully regenerable by rerunning
+# scripts/run_reproduction_26071.sh (re-streams from the login00 xrootd tunnel).
+cache/clean26071_files/
+cache/bkg26071_files/

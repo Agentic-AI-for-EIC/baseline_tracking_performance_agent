@@ -1,0 +1,22 @@
+[2026-09-26T02:56:39Z] iter=1 driver=286181 step=[acceptance clean26071 02:43:12] elapsed=13:26 cpu=00:11:06 [-m trkperf acceptance] net+disk=12.4GB tunnel=up out26071=0 fails=0 cache=cache/clean26071_files:27G 
+[2026-09-26T03:06:39Z] iter=2 driver=286181 step=[acceptance clean26071 02:43:12] elapsed=23:26 cpu=00:20:55 [-m trkperf acceptance] net+disk=12.8GB tunnel=up out26071=0 fails=0 cache=cache/clean26071_files:27G 
+[2026-09-26T03:16:39Z] iter=3 driver=286181 step=[acceptance clean26071 02:43:12] elapsed=33:26 cpu=00:30:41 [-m trkperf acceptance] net+disk=13.3GB tunnel=up out26071=0 fails=0 cache=cache/clean26071_files:27G 
+[2026-09-26T03:26:39Z] iter=4 driver=286181 step=[acceptance clean26071 02:43:12] elapsed=43:26 cpu=00:40:29 [-m trkperf acceptance] net+disk=13.7GB tunnel=up out26071=0 fails=0 cache=cache/clean26071_files:27G 
+[2026-09-26T03:36:39Z] iter=5 driver=286181 step=[acceptance clean26071 02:43:12] elapsed=53:26 cpu=00:50:15 [-m trkperf acceptance] net+disk=14.1GB tunnel=up out26071=0 fails=0 cache=cache/clean26071_files:27G 
+[2026-09-26T03:46:39Z] iter=6 driver=286181 step=[acceptance clean26071 02:43:12] elapsed=01:03:26 cpu=01:00:02 [-m trkperf acceptance] net+disk=14.6GB tunnel=up out26071=0 fails=0 cache=cache/clean26071_files:27G 
+[2026-09-26T03:56:39Z] iter=7 driver=286181 step=[acceptance clean26071 02:43:12] elapsed=01:13:26 cpu=01:09:50 [-m trkperf acceptance] net+disk=15.0GB tunnel=up out26071=0 fails=0 cache=cache/clean26071_files:28G 
+[2026-09-26T04:06:39Z] iter=8 driver=286181 step=[acceptance clean26071 04:00:19] elapsed=06:20 cpu=00:06:15 [-m trkperf acceptance] net+disk=29.1GB tunnel=up out26071=4 fails=0 cache=cache/clean26071_files:28G 
+[2026-09-26T04:16:39Z] iter=9 driver=286181 step=[efficiency clean26071 04:10:41] elapsed=05:57 cpu=00:05:53 [-m trkperf efficiency] net+disk=29.5GB tunnel=up out26071=12 fails=0 cache=cache/clean26071_files:28G 
+[2026-09-26T04:26:39Z] iter=10 driver=286181 step=[efficiency clean26071 04:10:41] elapsed=15:57 cpu=00:15:41 [-m trkperf efficiency] net+disk=29.9GB tunnel=up out26071=12 fails=0 cache=cache/clean26071_files:28G 
+[2026-09-26T04:36:39Z] iter=11 driver=286181 step=[efficiency clean26071 04:10:41] elapsed=25:57 cpu=00:25:31 [-m trkperf efficiency] net+disk=30.4GB tunnel=up out26071=12 fails=0 cache=cache/clean26071_files:28G 
+[2026-09-26T04:46:39Z] iter=12 driver=286181 step=[acceptance bkg26071 04:40:57] elapsed=05:42 cpu=00:04:26 [-m trkperf acceptance] net+disk=9.8GB tunnel=up out26071=37 fails=0 cache=cache/clean26071_files:28G cache/bkg26071_files:34G 
+[2026-09-26T04:56:39Z] iter=13 driver=286181 step=[acceptance bkg26071 04:40:57] elapsed=15:42 cpu=00:13:03 [-m trkperf acceptance] net+disk=25.8GB tunnel=up out26071=37 fails=0 cache=cache/clean26071_files:28G cache/bkg26071_files:90G 
+[2026-09-26T05:06:40Z] iter=14 driver=286181 step=[acceptance bkg26071 04:40:57] elapsed=25:42 cpu=00:22:50 [-m trkperf acceptance] net+disk=26.5GB tunnel=up out26071=37 fails=0 cache=cache/clean26071_files:28G cache/bkg26071_files:92G 
+[2026-09-26T05:16:40Z] iter=15 driver=286181 step=[acceptance bkg26071 04:40:57] elapsed=35:42 cpu=00:32:36 [-m trkperf acceptance] net+disk=27.2GB tunnel=up out26071=37 fails=0 cache=cache/clean26071_files:28G cache/bkg26071_files:94G 
+[2026-09-26T05:26:40Z] iter=16 driver=286181 step=[acceptance bkg26071 04:40:57] elapsed=45:42 cpu=00:42:23 [-m trkperf acceptance] net+disk=27.8GB tunnel=up out26071=37 fails=0 cache=cache/clean26071_files:28G cache/bkg26071_files:95G 
+[2026-09-26T05:36:40Z] iter=17 driver=286181 step=[acceptance bkg26071 04:40:57] elapsed=55:42 cpu=00:52:10 [-m trkperf acceptance] net+disk=28.3GB tunnel=up out26071=37 fails=0 cache=cache/clean26071_files:28G cache/bkg26071_files:95G 
+[2026-09-26T05:46:40Z] iter=18 driver=286181 step=[acceptance bkg26071 04:40:57] elapsed=01:05:42 cpu=01:01:55 [-m trkperf acceptance] net+disk=28.8GB tunnel=up out26071=37 fails=0 cache=cache/clean26071_files:28G cache/bkg26071_files:95G 
+[2026-09-26T05:56:40Z] iter=19 driver=DEAD step=[FAIL acceptance/bkg26071] no-trkperf-child  tunnel=up out26071=37 fails=1 cache=cache/clean26071_files:28G cache/bkg26071_files:95G 
+REPRO FAIL seen (n=1) - triage
+[2026-09-26T13:05:26Z] iter=1 driver=311784 step=[acceptance bkg26071 13:04:52] elapsed=00:34 cpu=00:00:35 [-m trkperf acceptance] net+disk=63.6GB tunnel=up out26071=37 fails=1 cache=cache/clean26071_files:28G cache/bkg26071_files:95G 
+REPRO FAIL seen (n=1) - triage
