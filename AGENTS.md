@@ -88,10 +88,14 @@ impact of beam-induced background on tracking performance.
   localhost-only xrootd daemon + ssh tunnel: start remote
   `/cvmfs/oasis.opensciencegrid.org/osg/modules/xrootd/4.2.1/bin/xrootd -p
   1294 -b 127.0.0.1 -l ~/xrdlog/xrootd.log /scratch/gautschi/wxie/
-  eIC_data_small_set` then `ssh -N -L 1294:127.0.0.1:1294
-  gautschi.rcac.purdue.edu`; filelists/clean26071_local.txt +
+  eIC_data_small_set` (with `LD_LIBRARY_PATH=<...>/4.2.1/lib64`, else
+  `libXrdServer.so.2` is not found) then `ssh -N -L 1294:127.0.0.1:1294
+  login00.gautschi.rcac.purdue.edu`; filelists/clean26071_local.txt +
   bkg26071_local.txt carry root://localhost:1294//<absolute path> URLs (the
-  daemon serves absolute paths). Driver: scripts/run_reproduction_26071.sh
+  daemon serves absolute paths). Pin EVERYTHING to login00:
+  gautschi.rcac.purdue.edu round-robins over 4 login nodes and the daemon
+  binds 127.0.0.1 on one node only — a tunnel landing on any other node
+  hangs forever. Driver: scripts/run_reproduction_26071.sh
   (sequential — 300-file efficiency is the memory peak; tunnel watchdog;
   resumable). This removes the campaign difference from the comparison.
 - Escalation order when a bin lacks statistics: more files in the current

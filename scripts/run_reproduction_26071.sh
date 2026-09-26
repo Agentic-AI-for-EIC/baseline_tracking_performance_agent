@@ -10,12 +10,17 @@ mkdir -p runs output
 export PYTHONUNBUFFERED=1
 
 tunnel_alive() { (exec 3<>/dev/tcp/127.0.0.1/1294) 2>/dev/null; }
+# NOTE (2026-09-25): pin to login00. gautschi.rcac.purdue.edu round-robins
+# over 4 login nodes; the xrootd daemon binds 127.0.0.1 on ONE node, so a
+# tunnel landing on any other node hangs forever. login00 is directly
+# sshable; the daemon must run on the same node the tunnel lands on.
+readonly GAUTSCHI_HOST=login00.gautschi.rcac.purdue.edu
 ensure_tunnel() {
   if ! tunnel_alive; then
     echo "[repro] tunnel down - restarting"
     setsid nohup ssh -o BatchMode=yes -o ServerAliveInterval=30 \
       -o ServerAliveCountMax=8 -N -L 1294:127.0.0.1:1294 \
-      gautschi.rcac.purdue.edu >> runs/xrd_tunnel.log 2>&1 < /dev/null &
+      "$GAUTSCHI_HOST" >> runs/xrd_tunnel.log 2>&1 < /dev/null &
     sleep 8
   fi
   tunnel_alive || { echo "[repro] FATAL: cannot reach xrootd tunnel"; exit 1; }
