@@ -64,6 +64,7 @@ def compute_acceptance(
     layer_counts = truth.read_truth_hit_layer_counts(
         file_paths, max_failures=max_failures, shared_failures=shared,
         collections=spec["collections"], found_collections=(found := []),
+        keep_particles=truth_df[["file_id", "event", "idx"]],
     )
     truth_df = truth.add_acceptance_flag(truth_df, layer_counts, min_layers=min_layers)
 

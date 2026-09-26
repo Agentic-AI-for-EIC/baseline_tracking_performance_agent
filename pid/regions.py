@@ -154,6 +154,14 @@ def attach(frame: pd.DataFrame, *, features: pd.DataFrame,
     info: dict = {"regions": {}, "skipped_files": [],
                   "n_unclassified": 0, "n_files": len(files)}
     shared: dict = {}
+    # Restrict the truth-hit reads to the particles these rows actually merge
+    # onto: the raw background hit tables are millions of rows per file and
+    # accumulating all of them OOMs (see trkperf.truth docstring).
+    keep_particles = (merged[["file_id", "event", "truth_idx"]]
+                      .dropna(subset=["truth_idx"])
+                      .astype({"truth_idx": "int64"})
+                      .rename(columns={"truth_idx": "idx"})
+                      .drop_duplicates())
     for region in regions:
         rule_name = REGION_RULE[region]
         rule = tk_config.TRACKING_REGIONS[rule_name]
@@ -161,7 +169,8 @@ def attach(frame: pd.DataFrame, *, features: pd.DataFrame,
         try:
             counts = tk_truth.read_truth_hit_layer_counts(
                 files, max_failures=max_failures, shared_failures=shared,
-                collections=rule["collections"], found_collections=found)
+                collections=rule["collections"], found_collections=found,
+                keep_particles=keep_particles)
         except RuntimeError as exc:
             raise SystemExit(f"pid.regions.attach: {exc}") from exc
         hit = counts.rename(columns={"idx": "truth_idx",

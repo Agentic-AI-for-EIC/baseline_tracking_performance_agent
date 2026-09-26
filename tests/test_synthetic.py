@@ -597,6 +597,70 @@ class TestPerFileFilter(unittest.TestCase):
         self.assertIsNone(mocked2.call_args.kwargs.get("per_file_filter"))
 
 
+class TestLayerCountKeepFilter(unittest.TestCase):
+    """`read_truth_hit_layer_counts(keep_particles=...)` must drop
+    background-particle hit rows DURING accumulation (that is the OOM fix)
+    while returning exactly the counts the merge-on-truth would have kept."""
+
+    _HITS = {
+        ("A", "C1"): [(0, 0), (0, 1), (0, 7)],   # (event, particle_idx); 7 = background
+        ("A", "C2"): [(0, 0), (0, 7)],
+        ("B", "C1"): [(0, 3)],
+        ("B", "C2"): [],
+    }
+
+    def _read(self, keep):
+        from trkperf import truth
+
+        def fake_open(path, tree_name="events"):
+            return mock.Mock()
+
+        def fake_read(tree, columns, file_id=0):
+            branch = columns["particle_idx"]
+            coll = branch.split("_")[1]
+            rows = self._HITS[(("A", "B")[file_id], coll)]
+            return pd.DataFrame({
+                "file_id": pd.Series([file_id] * len(rows), dtype="int64"),
+                "event": pd.Series([e for e, _ in rows], dtype="int64"),
+                "idx": pd.Series(range(len(rows)), dtype="int64"),  # hit bookkeeping
+                "particle_idx": pd.Series([p for _, p in rows], dtype="int64"),
+            })
+
+        with mock.patch.object(io, "open_tree", side_effect=fake_open), \
+             mock.patch.object(io, "read_flat", side_effect=fake_read), \
+             mock.patch.object(truth, "_collection_present", return_value=True):
+            return truth.read_truth_hit_layer_counts(
+                ["A", "B"], collections=("C1", "C2"), keep_particles=keep)
+
+    def test_keep_matches_merge_then_zero_fill(self):
+        full = self._read(None)
+        # Unfiltered table carries the background particle's row...
+        self.assertIn(7, set(full["idx"]))
+        keep = pd.DataFrame({"file_id": [0, 0, 1], "event": [0, 0, 0],
+                             "idx": [0, 1, 3]})
+        got = self._read(keep)
+        # ...and it (plus any other non-kept particle) must be gone.
+        self.assertNotIn(7, set(got["idx"]))
+        expect = pd.DataFrame({"file_id": [0, 0, 1], "event": [0, 0, 0],
+                               "idx": [0, 1, 3], "n_layers_hit": [2, 1, 1]})
+        cols = ["file_id", "event", "idx", "n_layers_hit"]
+        pd.testing.assert_frame_equal(
+            got[cols].sort_values(cols, ignore_index=True), expect)
+        # Bit-identity claim: merging full counts onto the same keys and
+        # zero-filling gives the identical table.
+        merged = (keep.merge(full, on=["file_id", "event", "idx"], how="inner")
+                  [cols].sort_values(cols, ignore_index=True))
+        pd.testing.assert_frame_equal(
+            got[cols].sort_values(cols, ignore_index=True), merged)
+
+    def test_keep_empty_returns_empty_contract(self):
+        keep = pd.DataFrame({"file_id": [], "event": [], "idx": []})
+        got = self._read(keep)
+        self.assertEqual(len(got), 0)
+        self.assertEqual(list(got.columns),
+                         ["file_id", "event", "idx", "n_layers_hit"])
+
+
 class TestReadCache(unittest.TestCase):
     """The per-file read cache makes a relaunched network run free over
     already-processed files: first read stashes a pickle, a second read of the

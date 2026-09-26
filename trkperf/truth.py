@@ -134,10 +134,40 @@ def _collection_present(file_paths: list[str], branch: str, n_probe_files: int =
     return True
 
 
+def _keep_particle_filter(keep_particles: pd.DataFrame):
+    """Build a ``read_flat_multi`` per-file filter keeping only hit rows of
+    particles listed in `keep_particles` (columns file_id, event, idx).
+
+    The (event, idx) pair is packed into one int64 key per file so the
+    membership test is a single ``np.isin`` over the raw table. Safe because
+    event and MCParticles-position are far below 2**31 per event.
+    """
+    keys = ((keep_particles["event"].astype("int64").to_numpy() << 32)
+            | keep_particles["idx"].astype("int64").to_numpy())
+    staged: dict = {}
+    for fid, key in zip(keep_particles["file_id"].to_numpy(), keys):
+        staged.setdefault(int(fid), []).append(key)
+    by_file = {fid: np.unique(np.asarray(v, dtype="int64"))
+               for fid, v in staged.items()}
+
+    def filt(df: pd.DataFrame) -> pd.DataFrame:
+        if df.empty:
+            return df
+        allowed = by_file.get(int(df["file_id"].iloc[0]))
+        if allowed is None:
+            return df.iloc[0:0]
+        row_keys = ((df["event"].astype("int64").to_numpy() << 32)
+                    | df["particle_idx"].astype("int64").to_numpy())
+        return df[np.isin(row_keys, allowed)]
+
+    return filt
+
+
 def read_truth_hit_layer_counts(file_paths: list[str], *, max_failures: int = 0,
                                  shared_failures: dict | None = None,
                                  collections: tuple[str, ...] | None = None,
                                  found_collections: list | None = None,
+                                 keep_particles: pd.DataFrame | None = None,
                                  ) -> pd.DataFrame:
     """Count, per truth particle, how many central-tracking truth-hit
     collections registered >= 1 hit from it (see AGENTS.md / config.py for
@@ -161,11 +191,25 @@ def read_truth_hit_layer_counts(file_paths: list[str], *, max_failures: int = 0,
     callers must left-merge this onto the full truth-particle table and
     fill missing values with 0 - see acceptance.compute_acceptance for the
     canonical example.
+
+    `keep_particles` (optional DataFrame with file_id, event, idx — e.g. the
+    truth-primary table the caller is about to merge onto) restricts the
+    accumulation to those particles, per file, BEFORE concatenation. On the
+    +background sample a raw truth-hit collection holds millions of
+    beam-background particles per file; hoarding every one of their rows for
+    a run's full file list is what OOM-killed the first 26.07.1 bkg
+    acceptance. Every consumer of this function left-merges onto exactly
+    this particle set (acceptance/efficiency via add_acceptance_flag,
+    pid.regions onto matched truth), so the filtered accumulation is
+    bit-identical to the full one. The read cache still holds the RAW
+    per-file tables (io.read_flat_multi stashes before filtering), so a
+    consumer that needs the full ancestor list loses nothing.
     """
     import sys
 
     if collections is None:
         collections = config.CENTRAL_TRACKING_TRUTH_HIT_COLLECTIONS
+    filt = _keep_particle_filter(keep_particles) if keep_particles is not None else None
     frames = []
     for collection in collections:
         # Campaign-wide absence (a collection a production never wrote) must
@@ -187,7 +231,8 @@ def read_truth_hit_layer_counts(file_paths: list[str], *, max_failures: int = 0,
         columns = {"particle_idx": branch}
         try:
             hits = io.read_flat_multi(file_paths, columns, max_failures=max_failures,
-                                      shared_failures=shared_failures)
+                                      shared_failures=shared_failures,
+                                      per_file_filter=filt)
         except Exception as exc:  # noqa: BLE001 - unreadable collection
             print(f"[truth] NOTE: {collection} unreadable ({exc.__class__.__name__}); "
                   "counting 0 hits from it in this run", file=sys.stderr)
