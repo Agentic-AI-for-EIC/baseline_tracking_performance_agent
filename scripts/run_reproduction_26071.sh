@@ -46,7 +46,10 @@ for pair in "clean26071 filelists/clean26071_local.txt 0" \
             "bkg26071 filelists/bkg26071_local.txt 10"; do
   set -- $pair; tag=$1; list=$2; mf=$3
   extra=(--max-file-failures "$mf")
-  [[ $tag == bkg* ]] && extra+=(--cache-dir cache/bkg26071_files)
+  # Cache every tag: the 3 acceptance + 3 efficiency region runs re-read the
+  # same truth/hit/reco branch-sets per file; the pickled cache turns the
+  # 2nd..nth read of each (file, branch-set) into local disk I/O.
+  extra+=(--cache-dir "cache/${tag}_files")
   for metric in acceptance efficiency; do
     for region in central backward forward; do
       EXTRA_REGION=$region run_metric "$metric" "$tag" "$list" \
