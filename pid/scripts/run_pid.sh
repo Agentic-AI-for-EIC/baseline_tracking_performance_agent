@@ -87,6 +87,10 @@ setsid nohup bash -c "
     done
   done
   $PY \"$HERE/pid/scripts/check_learners.py\" --dataset-tag \"$TAG\" --tasks \"$TASKS\"
+  for task in \$(echo \"$TASKS\" | tr ',' ' '); do
+    $PY -m pid overlay --task \"\$task\" --dataset-tag \"$TAG\" \
+        || echo \"[run_pid] overlay \$task skipped (fewer than 2 learners trained)\"
+  done
   echo '[run_pid] done'
 " > "$LOG" 2>&1 < /dev/null &
 

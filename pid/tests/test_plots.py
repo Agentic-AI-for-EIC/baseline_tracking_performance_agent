@@ -103,5 +103,63 @@ class TestScoreDistDensity(unittest.TestCase):
             self.assertGreater(os.path.getsize(path), 1000)
 
 
+class TestRocOverlay(unittest.TestCase):
+    """Cross-learner overlay: one ROC per library, or the CLI refuses."""
+
+    def _roc(self, boost: float = 0.0):
+        fx = [0.0, 1e-4, 1e-3, 1e-1, 1.0]
+        eff = [0.0, 0.4 + boost, 0.7 + boost, 0.99, 1.0]
+        return pd.DataFrame({"fake_rate": fx, "efficiency": eff,
+                             "threshold": [1, .5, .3, .1, 0],
+                             "signal": "e", "against": "pi"})
+
+    def test_writes_figure_with_one_curve_per_learner(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            path = os.path.join(tmp, "sub", "overlay.png")
+            out = plots.roc_multi({"lightgbm": self._roc(), "xgboost": self._roc(0.02)},
+                                  path, title="t",
+                                  aucs={"lightgbm": 0.91, "xgboost": 0.93})
+            self.assertEqual(out, path)
+            self.assertTrue(os.path.exists(path))
+            self.assertGreater(os.path.getsize(path), 1000)
+
+    def test_cmd_overlay_end_to_end(self):
+        import argparse
+
+        import numpy as np
+
+        from pid import cli
+        with tempfile.TemporaryDirectory() as tmp:
+            mdir = os.path.join(tmp, "models")
+            odir = os.path.join(tmp, "out")
+            for lib, shift in (("lightgbm", 0.0), ("xgboost", 0.1)):
+                d = os.path.join(mdir, f"eid_{lib}_clean")
+                os.makedirs(d)
+                rng = np.random.default_rng(7)
+                label = rng.integers(0, 2, 300)
+                score = label * 0.5 + shift + rng.normal(0, 0.4, 300)
+                pd.DataFrame({"label": label, "score": score}).to_pickle(
+                    os.path.join(d, "test_scores.pkl"))
+            rc = cli.cmd_overlay(argparse.Namespace(
+                task="eid", dataset_tag="clean",
+                models="lightgbm,xgboost,sklearn_hgb", signal=None,
+                model_dir=mdir, out_dir=odir))
+            self.assertEqual(rc, 0)  # the missing third learner is skipped, not fatal
+            fig = os.path.join(odir, "plots", "pid-eid_overlay_clean-roc.png")
+            self.assertTrue(os.path.exists(fig))
+
+    def test_cmd_overlay_refuses_fewer_than_two_learners(self):
+        import argparse
+
+        from pid import cli
+        with tempfile.TemporaryDirectory() as tmp:
+            with self.assertRaises(SystemExit):
+                cli.cmd_overlay(argparse.Namespace(
+                    task="eid", dataset_tag="clean",
+                    models="lightgbm,xgboost,sklearn_hgb", signal=None,
+                    model_dir=os.path.join(tmp, "nothing"),
+                    out_dir=os.path.join(tmp, "out")))
+
+
 if __name__ == "__main__":
     unittest.main()

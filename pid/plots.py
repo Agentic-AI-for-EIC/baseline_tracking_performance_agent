@@ -51,6 +51,38 @@ def roc(roc_table: pd.DataFrame, path: str, *, title: str = "") -> str:
     return _finish(fig, path)
 
 
+def roc_multi(rocs: dict[str, pd.DataFrame], path: str, *, title: str = "",
+              aucs: dict[str, float] | None = None) -> str:
+    """Cross-learner ROC overlay: one curve per learner on the same axes.
+
+    `rocs` maps a learner label to the `roc_table` frame (identical shape to
+    :func:`roc`'s input); `aucs` (optional) annotates the legend, so the
+    figure also carries the number `check_learners.py` compares. The three
+    learners are a robustness check on each other: a visible fan between
+    curves means the headline number depends on the library (the same rule
+    `CROSS_LEARNER_MAX_AUC_SPREAD` encodes as a gate).
+    """
+    fig, ax = plt.subplots(figsize=(5.4, 4.4))
+    for label, tab in rocs.items():
+        fx = np.clip(tab["fake_rate"].to_numpy(float), 1e-8, None)
+        name = label if not aucs or label not in aucs else f"{label} (AUC {aucs[label]:.4f})"
+        ax.plot(fx, tab["efficiency"], lw=1.5, label=name)
+    ax.set_xscale("log")
+    ax.set_xlabel("fake rate (background acceptance)")
+    ax.set_ylabel("efficiency")
+    ax.set_ylim(0, 1.02)
+    ax.grid(True, which="both", alpha=0.3)
+    for target in config.FAKE_RATE_TARGETS:
+        ax.axvline(target, ls=":", lw=0.8, color="grey")
+        ax.text(target, 0.02, f"{target:g}", rotation=90, fontsize=6, color="grey",
+                ha="right")
+    if title:
+        ax.set_title(title)
+    if ax.get_legend_handles_labels()[1]:
+        ax.legend(loc="lower right", fontsize=8)
+    return _finish(fig, path)
+
+
 def efficiency_vs_fake(overall: pd.DataFrame, path: str, *, title: str = "") -> str:
     """Efficiency at each quoted fake-rate working point (the headline figure)."""
     eff = overall[overall["quantity"] == "efficiency"].copy()

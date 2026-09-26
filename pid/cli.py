@@ -311,6 +311,45 @@ def cmd_compare(args) -> int:
     return 0
 
 
+def cmd_overlay(args) -> int:
+    """Cross-learner ROC overlay from the trained models' held-out score tables."""
+    import numpy as np
+
+    from . import dataset as pid_dataset
+    from . import evaluate as pid_evaluate
+    from . import plots
+
+    rocs: dict = {}
+    aucs: dict = {}
+    pair = ""
+    for model in args.models.split(","):
+        scores = os.path.join(args.model_dir, f"{args.task}_{model}_{args.dataset_tag}",
+                              "test_scores.pkl")
+        if not os.path.exists(scores):
+            print(f"[overlay] skipping {model}: no {scores} (train it first)")
+            continue
+        df = pid_dataset.load_table(scores)
+        y, score, sig, bkg = pid_evaluate.signal_background(df, args.task, args.signal)
+        ok = np.isfinite(score)
+        from sklearn.metrics import roc_auc_score
+        rocs[model] = pid_evaluate.roc_table(df, task=args.task, signal=args.signal)
+        aucs[model] = float(roc_auc_score(np.asarray(y)[ok], score[ok]))
+        pair = f"{sig} vs {bkg}"
+    if len(rocs) < 2:
+        raise SystemExit(
+            f"pid overlay: only {len(rocs)} learner(s) have score tables for "
+            f"{args.task}/{args.dataset_tag} - an overlay needs >= 2.")
+    spread = max(aucs.values()) - min(aucs.values())
+    out = os.path.join(args.out_dir, "plots",
+                       f"pid-{args.task}_overlay_{args.dataset_tag}-roc.png")
+    title = (f"{args.task} [{pair}] {args.dataset_tag}: AUC spread "
+             f"{spread:.4f}" + ("  (> cross-learner gate!)"
+                                if spread > config.CROSS_LEARNER_MAX_AUC_SPREAD else ""))
+    plots.roc_multi(rocs, out, title=title, aucs=aucs)
+    print(f"[overlay] learners={list(rocs)} AUC spread={spread:.4f} -> {out}")
+    return 0
+
+
 def cmd_all(args) -> int:
     """One-shot pipeline for the local pair: features -> train -> evaluate -> importance."""
     reference = config.LOCAL_REFERENCE_FILES.get(args.dataset_tag)
@@ -496,6 +535,18 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--bkg", default=None)
     p.add_argument("--out-dir", default=config.OUTPUT_DIR)
     p.set_defaults(func=cmd_compare)
+
+    p = sub.add_parser("overlay",
+                       help="Cross-learner ROC overlay (one curve per library) "
+                            "from the tasks' held-out test score tables.")
+    p.add_argument("--task", required=True, choices=sorted(config.TASKS))
+    p.add_argument("--dataset-tag", required=True, choices=sorted(config.CAMPAIGN_BY_DATASET_TAG))
+    p.add_argument("--models", default=",".join(config.MODEL_LIBRARIES),
+                   help="Comma list of libraries to overlay (default: all three).")
+    p.add_argument("--signal", default=None, help="Class of interest for multiclass tasks.")
+    p.add_argument("--model-dir", default=config.MODEL_DIR)
+    p.add_argument("--out-dir", default=config.OUTPUT_DIR)
+    p.set_defaults(func=cmd_overlay)
 
     p = sub.add_parser("all", help="End-to-end smoke run on the local reference file.")
     p.add_argument("--dataset-tag", default="clean", choices=sorted(config.CAMPAIGN_BY_DATASET_TAG))
