@@ -827,6 +827,20 @@ A third, uglier catch: `rec_idx` — a column left behind by the association mer
       projections; DIRC awaits reconstruction. Also unexplored:
       `BarrelChargedCandidateParticlesAlpha` carries `_tracks`/`_particleIDs`
       links — a ready-made barrel charged-hadron candidate list worth probing.
+    * **TOF-beta probe (2026-09-26, 480 ev of one clean26071 file): the
+      central leg is NOT trainable on this production.** Fit-chain route is
+      dead: `_CentralCKFTracks_measurements` stores ONE aggregate reference
+      per track (event x var int32, depth 2) and only ~4 % of tracks resolve
+      to a TOFBarrelClusterHits entry. Truth-link route (hits ->
+      `_TOFBarrelHits_particle`): 31 % coverage of central matched tracks
+      (n>=2 hits), 2 central electrons per file (e- is a backward-leg
+      particle), and the hit-time reference is uncalibrated (median 2-5 ns
+      against a ~21 ns flight time; raw sd 687 ns) -> e vs pi AUC
+      unmeasurable (0.50, n=2). A usable central TOF feature needs t0
+      calibration + cellID/module decoding (project scope excludes cellID
+      decoding) before any classifier training. Central PID stays out of
+      scope until a production provides barrel projections or calibrated
+      per-track timing.
 2. **Hadron ID needs per-track Cherenkov/timing** (and is currently labelled
    `exploratory` in `config.CHANNELS` for exactly this reason — the calorimeter-only
    K/π and p/K results are baselines to be beaten, not deliverables). Three concrete routes, in cost order: (a) decode `DRICH*RawHits` cellIDs against the compact geometry to attach photons to the extrapolated `DRICH*Tracks` segment (AGENTS.md currently scopes cellID decoding out — a deliberate decision to revisit); (b) recover the `*_ParticleIDs` likelihoods by establishing the entry order of those collections (their `particle` relation is null, but the *multiplicity* pattern — 4 hypotheses/particle — may be alignable; time-box it); (c) request a production where the IRT `chargedParticle` relation is written (cid `1290518152` is not in the file).
