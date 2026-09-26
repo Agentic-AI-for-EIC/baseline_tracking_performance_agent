@@ -790,6 +790,43 @@ A third, uglier catch: `rec_idx` — a column left behind by the association mer
     tests error and `pid train/compare` steps need the packages; and
     `data/dataset_small/{signal,signal_BKG_mix}` are empty (local smoke +
     `tests.test_local_data` need the pair recopied).
+1d. **Barrel/central-PID availability audit on 26.07.1 (2026-09-26, live on
+    both reproduction files).** ~25 % of truth primaries (31 % of π±) fall at
+    |eta| < 1.5 — the central leg is NOT empty, it lacks PID features. Measured
+    status of every candidate central-PID system:
+    * Present & populated: `EcalBarrelScFiClusters` (1.05–1.11/event, E/position/
+      time/shapeParameters filled, `_hits` -> `EcalBarrelScFiRecHits` resolves;
+      45–66 barrel RecHits/event), `EcalBarrelImaging*` likewise, `TOFBarrelClusterHits
+      .time` (8.7 clean / 565 bkg per event).
+    * The association layer is what is missing: `EcalBarrelTrackClusterMatches`
+      resolves to `CentralCKFTracks` but carries 0.03–0.08 matches/event with
+      weight == 0 (same disease as the endcap matches, but here there is no
+      fallback — `CalorimeterTrackProjections` extrapolates to 7 surfaces, all
+      endcap (system ids 90,101,102,103,111,113,116; zero barrel-like points),
+      so the proven endcap ΔR recipe has nothing to match against in the barrel.
+    * Cluster coverage is too thin anyway: ~1 ScFi cluster/event against ~5
+      central charged tracks/event; 46–51 % of events have zero barrel clusters;
+      of the central (|eta|<0.8, p>1 GeV) tracks in events that do have clusters,
+      only ~25 % find one within ΔR < 0.1. A barrel E/p feature would be ~0
+      for three quarters of central tracks.
+    * DIRC: no reconstruction chain at all — only `DIRCRawHits` and the dead
+      `DIRCParticleIDs` (null relation); no photon/track collections → no barrel
+      ring imaging in this production.
+    * `EcalBarrelClusters` (merged) is vestigial (0.09–0.17/event, empty
+      shapeParameters/subdetectorEnergies); `subdetectorEnergies` empty
+      everywhere → no cluster-level longitudinal profile (cellID layer decoding,
+      still out of scope, would be needed).
+    * One genuinely new handle vs the 26.02 notes: in 26.07.1 the
+      `_CentralCKFTracks_measurements` chain INCLUDES `TOFBarrelClusterHits`
+      (schema-check GATE PASS output) — i.e. TOF hits are assigned per fitted
+      track, making a track-attached β/m² timing feature reachable for the
+      SAME-campaign 26071 pair (it stays campaign-asymmetric vs 26.02.0, which
+      is why schema-check still flags it as not-v1). Candidate central-leg
+      features, in cost order: TOF-β via the measurements chain; then
+      ScFi-cluster ΔR matching IF a future production adds barrel-surface
+      projections; DIRC awaits reconstruction. Also unexplored:
+      `BarrelChargedCandidateParticlesAlpha` carries `_tracks`/`_particleIDs`
+      links — a ready-made barrel charged-hadron candidate list worth probing.
 2. **Hadron ID needs per-track Cherenkov/timing** (and is currently labelled
    `exploratory` in `config.CHANNELS` for exactly this reason — the calorimeter-only
    K/π and p/K results are baselines to be beaten, not deliverables). Three concrete routes, in cost order: (a) decode `DRICH*RawHits` cellIDs against the compact geometry to attach photons to the extrapolated `DRICH*Tracks` segment (AGENTS.md currently scopes cellID decoding out — a deliberate decision to revisit); (b) recover the `*_ParticleIDs` likelihoods by establishing the entry order of those collections (their `particle` relation is null, but the *multiplicity* pattern — 4 hypotheses/particle — may be alignable; time-box it); (c) request a production where the IRT `chargedParticle` relation is written (cid `1290518152` is not in the file).
