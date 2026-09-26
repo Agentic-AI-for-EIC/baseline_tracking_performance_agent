@@ -61,6 +61,27 @@ class TestCompareJoinKeys(unittest.TestCase):
         self.assertEqual(summary["clean"]["campaign"], "26.02.0")
         self.assertEqual(summary["bkg_mixed"]["campaign"], "26.07.1")
 
+    def test_nondefault_pair_is_named_and_labelled_by_its_tags(self):
+        rows = [{"quantity": "auc", "signal": "e", "against": "pi", "target_fake_rate": np.nan,
+                 "value": 0.99, "value_err": 0.01, "n_signal": 200, "n_background": 12}]
+        clean = os.path.join(self.tmp, "pid-eid_lightgbm_clean26071-overall.json")
+        bkg = os.path.join(self.tmp, "pid-eid_lightgbm_bkg26071-overall.json")
+        _write_metric(clean, pd.DataFrame(rows), campaign="26.07.1", dataset_tag="clean26071")
+        _write_metric(bkg, pd.DataFrame(rows), campaign="26.07.1", dataset_tag="bkg26071")
+        pid_compare.compare_artifact("overall", task="eid", model="lightgbm",
+                                     clean=clean, bkg=bkg, out_dir=self.tmp)
+        # ...the pair carries its own suffix (the legacy name stays reserved
+        # for the default pair) and its summary uses the real tags.
+        self.assertFalse(os.path.exists(
+            os.path.join(self.tmp, "pid-eid_lightgbm_overall_comparison.json")))
+        stem = os.path.join(self.tmp,
+                            "pid-eid_lightgbm_overall_clean26071-vs-bkg26071_comparison")
+        self.assertTrue(os.path.exists(stem + ".json"))
+        with open(stem + ".summary.json") as fh:
+            summary = json.load(fh)
+        self.assertIn("clean26071", summary)
+        self.assertIn("bkg26071", summary)
+
     def test_unknown_artifact_refuses_instead_of_guessing_keys(self):
         with self.assertRaises(SystemExit) as ctx:
             pid_compare.compare_artifact("mystery", task="eid", model="lightgbm",
@@ -73,7 +94,7 @@ class TestCompareJoinKeys(unittest.TestCase):
                                          clean=self.clean,
                                          bkg=os.path.join(self.tmp, "does-not-exist.json"),
                                          out_dir=self.tmp)
-        self.assertIn("missing the bkg_mixed input", str(ctx.exception))
+        self.assertIn("missing the background-side input", str(ctx.exception))
 
 
 class TestRootEncoding(unittest.TestCase):

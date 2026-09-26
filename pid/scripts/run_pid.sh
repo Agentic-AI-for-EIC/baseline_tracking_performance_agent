@@ -16,6 +16,11 @@
 #   pid/scripts/run_pid.sh <dataset_tag> <filelist> [max_failures] [cache_dir] [tasks] [seed]
 #   pid/scripts/run_pid.sh status
 #
+# Environment:
+#   ETA_REGIONS  comma-separated regions for the per-region tables/figures the
+#                evaluate step writes (default: all three, matching the
+#                tracking deliverable criteria; set empty for global-only).
+#
 # Examples:
 #   pid/scripts/run_pid.sh clean     filelists/clean_150.txt 0
 #   pid/scripts/run_pid.sh bkg_mixed filelists/bkg_200.txt   20 cache/pid_features "eid,ehad"
@@ -42,6 +47,11 @@ MAXFAIL="${3:-0}"
 CACHE="${4:-cache/pid_features}"
 TASKS="${5:-eid,ehad,hadpid,pooled}"
 SEED="${6:-1234}"
+# Per-region tables/figures are part of the standard deliverable set (same
+# criteria as the tracking plots: one plot per detector region, never merged;
+# each region judged by its own acceptance rule from trkperf.config).
+# Override to change or disable (empty string = global tables only).
+ETA_REGIONS="${ETA_REGIONS:-barrel,forward endcap,backward endcap}"
 mkdir -p runs output cache
 [ -f "$FILELIST" ] || { echo "no such filelist: $FILELIST" >&2; exit 1; }
 
@@ -67,7 +77,9 @@ setsid nohup bash -c "
           --features \"$FEATURES\" --seed \"$SEED\" --n-iter 24 || echo \"[run_pid] train \$task/\$lib failed (statistics?)\"
       if [ -f \"output/models/\${task}_\${lib}_${TAG}/test_scores.pkl\" ]; then
         $PY -m pid evaluate --task \"\$task\" --model \"\$lib\" --dataset-tag \"$TAG\" \
-            --scores \"output/models/\${task}_\${lib}_${TAG}/test_scores.pkl\" --by pt,eta --plot
+            --scores \"output/models/\${task}_\${lib}_${TAG}/test_scores.pkl\" --by pt,eta --plot \
+            --eta-region \"$ETA_REGIONS\" --features \"$FEATURES\" \
+            --max-file-failures \"$MAXFAIL\" --cache-dir \"$CACHE\"
         $PY -m pid importance --dir \"output/models/\${task}_\${lib}_${TAG}\" \
             --task \"\$task\" --model \"\$lib\" --dataset-tag \"$TAG\" --plot \
             || echo \"[run_pid] WARNING: importance \$task/\$lib failed - see log above\"
@@ -86,3 +98,6 @@ echo
 echo "when BOTH tags are done, compare them:"
 echo "  python -m pid compare --task eid --model lightgbm --artifact vs_pt"
 echo "  python -m pid compare --task eid --model lightgbm --artifact all"
+echo "and run the working-point package per region (same criteria as tracking plots):"
+echo "  python -m pid performance --dataset-tag $TAG --model lightgbm --bin-source both \\"
+echo "      --eta-region \"$ETA_REGIONS\" --cache-dir \"$CACHE\" $([ "$TAG" != "${TAG#bkg*}" ] && echo "--max-file-failures $MAXFAIL")"

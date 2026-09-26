@@ -753,6 +753,43 @@ A third, uglier catch: `rec_idx` — a column left behind by the association mer
     when reads succeed again. Also fixed en route: `trkperf.truth` empty
     counts now carry int64 dtypes (object-dtype empties crashed the attach
     merge), and region attach warns loudly on a degraded rule.
+1c. **PID criteria audit vs the tracking-plot criteria (2026-09-26).**
+    Tracking deliverables group charge-conjugate species (e±/K±/π±), keep
+    proton/antiproton separate, and emit one plot per detector region
+    (never merged). Audit result per criterion:
+    * *Region separation*: machinery existed (`--eta-region` on evaluate/
+      performance, region-correct rules read live from
+      `trkperf.config.TRACKING_REGIONS`, so the 2026-09-25 forward-rule
+      change propagates automatically) but was NOT wired into any default
+      workflow. Fixed: `run_pid.sh` evaluate step now always passes
+      `--eta-region "barrel,forward endcap,backward endcap" --features
+      <table> --cache-dir/--max-file-failures` (override via `$ETA_REGIONS`,
+      empty disables); `pid all` gained `--eta-region` with the same
+      default and forwards it; the closing hint now spells out the region
+      `pid performance` command.
+    * *Charge grouping*: e/π/K classes already merge charge by |PDG| —
+      consistent with the tracking criterion (the folding rationale, unlike
+      tracking, is physical: PID detector response is charge-symmetric).
+      The one divergence is **proton vs antiproton**: PID folds both into
+      class `p`, and NO charge dimension exists downstream (test_scores.pkl
+      carries truth_class only), so the tracking p/p̄ split has no PID
+      counterpart without re-plumbing dataset→train→evaluate and retraining.
+      Open decision (flagged to user 2026-09-26).
+    * *Tag registry*: `clean26071`/`bkg26071` (the same-campaign 26.07.1
+      reproduction pair) registered in `CAMPAIGN_BY_DATASET_TAG` (campaign
+      26.07.1 schema, already supported); `pid compare` generalized:
+      provenance summary labels now read the actual `dataset_tag` from the
+      compared JSONs, non-default pairs write
+      `pid-<stem><artifact>_<cleanTag>-vs-<bkgTag>_comparison.*`,
+      `compare_all` iterates `DATASET_TAG_PAIRS`. `pid all` refuses tags
+      without a local reference file.
+    * *Memory*: `pid regions.attach` benefits from the trkperf OOM fix
+      (`read_truth_hit_layer_counts(keep_particles=...)`, commit 8d56a9f).
+    Environment notes for this container: `/local/scratch/a/wxie/.
+    eic_python_pkgs` (lightgbm/xgboost/sklearn) is NOT mounted — 53 pid
+    tests error and `pid train/compare` steps need the packages; and
+    `data/dataset_small/{signal,signal_BKG_mix}` are empty (local smoke +
+    `tests.test_local_data` need the pair recopied).
 2. **Hadron ID needs per-track Cherenkov/timing** (and is currently labelled
    `exploratory` in `config.CHANNELS` for exactly this reason — the calorimeter-only
    K/π and p/K results are baselines to be beaten, not deliverables). Three concrete routes, in cost order: (a) decode `DRICH*RawHits` cellIDs against the compact geometry to attach photons to the extrapolated `DRICH*Tracks` segment (AGENTS.md currently scopes cellID decoding out — a deliberate decision to revisit); (b) recover the `*_ParticleIDs` likelihoods by establishing the entry order of those collections (their `particle` relation is null, but the *multiplicity* pattern — 4 hypotheses/particle — may be alignable; time-box it); (c) request a production where the IRT `chargedParticle` relation is written (cid `1290518152` is not in the file).

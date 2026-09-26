@@ -32,7 +32,18 @@ LOCAL_REFERENCE_FILES: dict = tk_config.LOCAL_REFERENCE_FILES
 CAMPAIGN_BY_DATASET_TAG: dict[str, str] = {
     "clean": "26.02.0",
     "bkg_mixed": "26.07.1",
+    # Same-campaign reproduction pair (local gautschi copies, campaign
+    # 26.07.1 both sides): the schema is the 26.07.1 one already supported.
+    "clean26071": "26.07.1",
+    "bkg26071": "26.07.1",
 }
+
+#: (clean-side, background-side) tag pairs that `pid compare --artifact all`
+#: will compare whenever both sides have been evaluated.
+DATASET_TAG_PAIRS: tuple[tuple[str, str], ...] = (
+    ("clean", "bkg_mixed"),
+    ("clean26071", "bkg26071"),
+)
 
 # ---------------------------------------------------------------------------
 # Species grouping: trkperf tracks charge-conjugate species separately (pi+/pi-),

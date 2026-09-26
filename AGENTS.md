@@ -39,7 +39,10 @@ impact of beam-induced background on tracking performance.
   `pid performance` (max-significance working points + 13-figure manifest), and
   `pid compare` (clean-vs-bkg) — mechanics: the `pid-performance` skill. Grid
   runs go through `pid/scripts/run_pid.sh` (detached, cached, trains all three
-  learner libraries, ends with the advisory `check_learners.py` agreement gate);
+  learner libraries, ends with the advisory `check_learners.py` agreement gate,
+  and by default emits per-region evaluate outputs — same criteria as the
+  tracking plots: one plot per region, each judged by its own
+  `TRACKING_REGIONS` rule; override with `$ETA_REGIONS`);
   smoke is `python -m pid all --relax-gates` on the local pair.
 
 ## When something fails

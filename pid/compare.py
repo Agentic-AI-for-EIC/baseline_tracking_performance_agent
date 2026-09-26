@@ -66,14 +66,17 @@ def compare_artifact(name: str, *, task: str, model: str = "",
     stem = f"{task}_{model}_" if model else f"{task}_"
     clean = clean or os.path.join(out_dir, f"pid-{stem}clean-{name}.json")
     bkg = bkg or os.path.join(out_dir, f"pid-{stem}bkg_mixed-{name}.json")
-    for path, tag in ((clean, "clean"), (bkg, "bkg_mixed")):
+    for path, role in ((clean, "clean"), (bkg, "background")):
         if not os.path.exists(path):
             raise SystemExit(
-                f"pid.compare: missing the {tag} input {path}. Run "
-                f"`python -m pid evaluate --task {task} --dataset-tag {tag}` first "
-                "(and, for a multiclass comparison, train that task on both "
-                "samples).")
-    out_stem = os.path.join(out_dir, f"pid-{stem}{name}_comparison")
+                f"pid.compare: missing the {role}-side input {path}. Run "
+                f"`python -m pid evaluate --task {task} --dataset-tag <tag>` "
+                "for that tag first (and, for a multiclass comparison, train "
+                "that task on both samples).")
+    pair = _read_json_meta(clean).get("dataset_tag"), _read_json_meta(bkg).get("dataset_tag")
+    pair_tag = "" if pair == ("clean", "bkg_mixed") or pair == (None, None) \
+        else f"_{pair[0]}-vs-{pair[1]}"
+    out_stem = os.path.join(out_dir, f"pid-{stem}{name}{pair_tag}_comparison")
     if name in _REFUSED_ARTIFACTS:
         raise SystemExit(f"pid.compare: refusing artifact {name!r}: {_REFUSED_ARTIFACTS[name]}")
     keys = [k for k in JOIN_KEYS.get(name, []) ]
@@ -86,6 +89,10 @@ def compare_artifact(name: str, *, task: str, model: str = "",
     df = tk_compare.compare_metric(clean, bkg, out_stem + ".json", out_stem + ".md",
                                    join_keys=keys)
     meta_clean, meta_bkg = _read_json_meta(clean), _read_json_meta(bkg)
+    # Provenance labels name the ACTUAL tags compared (any pair sharing this
+    # schema works: clean/bkg_mixed, clean26071/bkg26071, ...).
+    clean_tag = pair[0] or "clean"
+    bkg_tag = pair[1] or "bkg_mixed"
 
     def _meta_count(meta: dict, *names: str):
         for name in names:
@@ -96,15 +103,15 @@ def compare_artifact(name: str, *, task: str, model: str = "",
     summary = {
         "artifact": name, "task": task, "model": model,
         "n_bins_compared": int(len(df)),
-        "clean": {"campaign": meta_clean.get("campaign"),
-                  "n_files": _meta_count(meta_clean, "n_files_scored", "n_files"),
-                  "n_rows": _meta_count(meta_clean, "n_rows_scored", "n_rows"),
-                  "insufficient": int(
-                      df.get("insufficient_stats", pd.Series(dtype=bool)).sum())
-                      if "insufficient_stats" in df else None},
-        "bkg_mixed": {"campaign": meta_bkg.get("campaign"),
-                      "n_files": _meta_count(meta_bkg, "n_files_scored", "n_files"),
-                      "n_rows": _meta_count(meta_bkg, "n_rows_scored", "n_rows")},
+        clean_tag: {"campaign": meta_clean.get("campaign"),
+                    "n_files": _meta_count(meta_clean, "n_files_scored", "n_files"),
+                    "n_rows": _meta_count(meta_clean, "n_rows_scored", "n_rows"),
+                    "insufficient": int(
+                        df.get("insufficient_stats", pd.Series(dtype=bool)).sum())
+                        if "insufficient_stats" in df else None},
+        bkg_tag: {"campaign": meta_bkg.get("campaign"),
+                  "n_files": _meta_count(meta_bkg, "n_files_scored", "n_files"),
+                  "n_rows": _meta_count(meta_bkg, "n_rows_scored", "n_rows")},
     }
     with open(out_stem + ".summary.json", "w") as fh:
         json.dump(summary, fh, indent=2, default=str)
@@ -115,13 +122,18 @@ def compare_artifact(name: str, *, task: str, model: str = "",
 
 def compare_all(*, task: str, model: str = "", out_dir: str = config.OUTPUT_DIR,
                 artifacts: tuple[str, ...] = ("overall", "vs_pt", "vs_eta")) -> dict:
+    """Compare every clean/background tag pair that has both sides evaluated."""
     out = {}
     stem = f"{task}_{model}_" if model else f"{task}_"
+    tag_pairs = config.DATASET_TAG_PAIRS
     for name in artifacts:
-        clean = os.path.join(out_dir, f"pid-{stem}clean-{name}.json")
-        bkg = os.path.join(out_dir, f"pid-{stem}bkg_mixed-{name}.json")
-        if os.path.exists(clean) and os.path.exists(bkg):
-            out[name] = compare_artifact(name, task=task, model=model, out_dir=out_dir)
-        else:
-            print(f"[compare] skipping {name}: both tags' inputs are not present yet")
+        for clean_tag, bkg_tag in tag_pairs:
+            clean = os.path.join(out_dir, f"pid-{stem}{clean_tag}-{name}.json")
+            bkg = os.path.join(out_dir, f"pid-{stem}{bkg_tag}-{name}.json")
+            if os.path.exists(clean) and os.path.exists(bkg):
+                out[f"{name}:{clean_tag}-vs-{bkg_tag}"] = compare_artifact(
+                    name, task=task, model=model, clean=clean, bkg=bkg,
+                    out_dir=out_dir)
+        if not any(k.startswith(f"{name}:") for k in out):
+            print(f"[compare] skipping {name}: no tag pair has both sides present yet")
     return out

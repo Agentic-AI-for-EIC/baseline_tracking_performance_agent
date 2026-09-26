@@ -313,7 +313,12 @@ def cmd_compare(args) -> int:
 
 def cmd_all(args) -> int:
     """One-shot pipeline for the local pair: features -> train -> evaluate -> importance."""
-    reference = config.LOCAL_REFERENCE_FILES[args.dataset_tag]
+    reference = config.LOCAL_REFERENCE_FILES.get(args.dataset_tag)
+    if reference is None:
+        raise SystemExit(
+            f"pid all: no local reference file for tag {args.dataset_tag!r} "
+            "(smoke runs cover only tags with a data/dataset_small copy; "
+            "use pid/scripts/run_pid.sh with a filelist for grid runs).")
     files = [reference]
     print(f"[all] dataset_tag={args.dataset_tag} using {reference}")
     feats = os.path.join(args.out_dir, f"pid-features_{args.dataset_tag}.pkl")
@@ -351,7 +356,7 @@ def cmd_all(args) -> int:
             cmd_evaluate(argparse.Namespace(
                 scores=os.path.join(stem, "test_scores.pkl"), task=task, model=model,
                 dataset_tag=args.dataset_tag, signal=None, out_dir=args.out_dir,
-                by=args.by, plot=args.plot, eta_region=None, features=None,
+                by=args.by, plot=args.plot, eta_region=args.eta_region, features=feats,
                 max_file_failures=args.max_file_failures, cache_dir=args.cache_dir))
             cmd_importance(argparse.Namespace(
                 dir=stem, task=task, model=model, kind="all", dataset_tag=args.dataset_tag,
@@ -515,6 +520,11 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--plot", action="store_true")
     p.add_argument("--relax-gates", action="store_true")
     p.add_argument("--max-file-failures", type=int, default=0)
+    p.add_argument("--eta-region", default="barrel,forward endcap,backward endcap",
+                   help="Comma-separated regions for the per-region evaluate "
+                        "outputs (matching the tracking deliverable criteria: "
+                        "one plot per region, each judged by its own acceptance "
+                        "rule). Set empty for global tables only.")
     p.set_defaults(func=cmd_all)
 
     return parser
