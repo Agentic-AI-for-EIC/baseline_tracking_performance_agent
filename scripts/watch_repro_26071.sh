@@ -17,6 +17,10 @@ RLOG="runs/reproduction_26071.log"
 MONLOG="runs/repro_monitor.log"
 
 deadline=$((SECONDS + MAXH * 3600))
+# Baseline: a resumed log keeps FAIL markers of earlier, already-triaged
+# attempts; only NEW failures/dones relative to startup are actionable.
+base_fails=$(grep -c '^\[repro\] FAIL' "$RLOG" 2>/dev/null); base_fails=${base_fails:-0}
+base_done=$(grep -c '^\[repro\] DONE' "$RLOG" 2>/dev/null); base_done=${base_done:-0}
 iter=0
 while true; do
     iter=$((iter + 1))
@@ -37,8 +41,8 @@ while true; do
     (exec 3<>/dev/tcp/127.0.0.1/1294) 2>/dev/null && tun=tunnel=up || tun=tunnel=DOWN
     echo "[$ts] iter=$iter driver=${driver:-DEAD} step=[$step] $cinfo $io $tun out26071=$nout fails=$fails cache=$cache" >> "$MONLOG"
 
-    if [ "$done_n" -ge 1 ]; then echo "REPRO DONE"; exit 0; fi
-    if [ "$fails" -ge 1 ]; then echo "REPRO FAIL seen (n=$fails) - triage"; exit 2; fi
+    if [ "$done_n" -gt "$base_done" ]; then echo "REPRO DONE"; exit 0; fi
+    if [ "$fails" -gt "$base_fails" ]; then echo "REPRO FAIL seen (n=$fails) - triage"; exit 2; fi
     if [ -z "$driver" ] && [ "$done_n" -eq 0 ]; then
         echo "REPRO DRIVER DEAD without DONE marker - triage needed"; exit 2; fi
     if [ "$SECONDS" -ge "$deadline" ]; then echo "TIMEOUT after ${MAXH}h, still running"; exit 3; fi
