@@ -10,27 +10,24 @@ import pandas as pd
 from .. import binning, config, matching, reco, truth
 
 
-def compute_resolution(
+def _chunk_residuals(
     file_paths: list[str],
-    species: list[str] | None = None,
-    weight_threshold: float = config.MATCH_WEIGHT_THRESHOLD,
-    max_failures: int = 0,
+    species: list[str] | None,
+    weight_threshold: float,
+    max_failures: int,
+    shared: dict,
 ) -> pd.DataFrame:
-    """Compute the momentum-resolution table for the given files.
+    """Per-chunk stage of the resolution computation: read truth, reco and
+    associations for one file-list chunk, build the matched pairs, and keep
+    only the slim (bin keys, Delta(pT)/pT) frame the per-bin fits need.
 
-    Returns
-    -------
-    One row per (species, pt_bin, eta_bin):
-        species, pt_bin, eta_bin, pt_bin_center, eta_bin_center, n_matched,
-        mu, sigma, mu_err, sigma_err, chi2_ndf, insufficient_stats,
-        fit_converged.
-
-    `mu`/`sigma` are on Delta(pT)/pT = (pT_reco - pT_truth) / pT_truth (see
-    AGENTS.md - this project defines resolution on pT specifically, not
-    total momentum, for consistency with the pT/eta binning used
-    everywhere).
+    The wide truth/reco intermediates are dropped with the call frame, so
+    peak memory stays proportional to one chunk. `shared` (skip-set +
+    failure budget) is caller-owned and accumulates across chunks. The
+    Delta(pT)/pT values (including any non-finite ones) are passed through
+    exactly as the single pass would produce them - `binning.fit_gaussian_core`
+    filters non-finite entries at fit time, so fitted sigmas are identical.
     """
-    shared: dict = {}
     truth_df = truth.read_truth_particles(
         file_paths, max_failures=max_failures, primary_only=True, shared_failures=shared
     )
@@ -47,6 +44,53 @@ def compute_resolution(
 
     matched = binning.assign_bins(matched)
     matched = matched.dropna(subset=["pt_bin", "eta_bin"])
+
+    return matched[
+        ["species", "pt_bin", "eta_bin", "pt_bin_center", "eta_bin_center",
+         "delta_pt_over_pt"]
+    ]
+
+
+def compute_resolution(
+    file_paths: list[str],
+    species: list[str] | None = None,
+    weight_threshold: float = config.MATCH_WEIGHT_THRESHOLD,
+    max_failures: int = 0,
+    chunk_files: int = 0,
+) -> pd.DataFrame:
+    """Compute the momentum-resolution table for the given files.
+
+    Returns
+    -------
+    One row per (species, pt_bin, eta_bin):
+        species, pt_bin, eta_bin, pt_bin_center, eta_bin_center, n_matched,
+        mu, sigma, mu_err, sigma_err, chi2_ndf, insufficient_stats,
+        fit_converged.
+
+    `mu`/`sigma` are on Delta(pT)/pT = (pT_reco - pT_truth) / pT_truth (see
+    AGENTS.md - this project defines resolution on pT specifically, not
+    total momentum, for consistency with the pT/eta binning used
+    everywhere).
+
+    `chunk_files` bounds peak memory by processing the file list in
+    consecutive groups of at most that many files (0/None = one pass, the
+    historical behaviour). Gaussian-core fits are not additive, so chunks
+    are merged at the residual level - the per-bin fit loop then sees
+    exactly the same values as a single pass and returns identical numbers.
+    """
+    shared: dict = {}
+    n_files = len(file_paths)
+    if chunk_files and chunk_files > 0 and chunk_files < n_files:
+        chunks = [file_paths[i:i + chunk_files] for i in range(0, n_files, chunk_files)]
+    else:
+        chunks = [list(file_paths)]
+    matched = pd.concat(
+        [
+            _chunk_residuals(c, species, weight_threshold, max_failures, shared)
+            for c in chunks
+        ],
+        ignore_index=True,
+    )
 
     rows = []
     group_cols = ["species", "pt_bin", "eta_bin", "pt_bin_center", "eta_bin_center"]
@@ -107,5 +151,6 @@ def compute_resolution(
     result["insufficient_stats"] = result["insufficient_stats"].fillna(True).astype(bool)
     result["fit_converged"] = result["fit_converged"].fillna(False).astype(bool)
     result.attrs["skipped_files"] = sorted(shared.get("skipped", []))
-    result.attrs["run_params"] = {"weight_threshold": weight_threshold, "species": species}
+    result.attrs["run_params"] = {"weight_threshold": weight_threshold, "species": species,
+                                  "chunk_files": chunk_files or 0, "n_chunks": len(chunks)}
     return result

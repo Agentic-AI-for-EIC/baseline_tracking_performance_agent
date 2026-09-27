@@ -145,6 +145,15 @@ def _add_common_args(sub: argparse.ArgumentParser) -> None:
         "of re-downloading from the start. Cached tables are re-stamped with "
         "file_id on load, so the file-list order need not be stable.",
     )
+    sub.add_argument(
+        "--chunk-files",
+        type=int,
+        default=0,
+        help="Process the file list in consecutive groups of at most N files "
+        "to bound peak memory on small machines (0 = one pass). Only the "
+        "efficiency and resolution metrics honour it - chunked counts are "
+        "merged before ratios/fits, so results are identical to one pass.",
+    )
 
 
 def _write_outputs(
@@ -203,6 +212,8 @@ def _run_species_metric(metric_name: str, compute_fn):
         kwargs = {}
         if metric_name in REGION_METRICS:
             kwargs["region"] = args.region
+        if metric_name in ("efficiency", "resolution"):
+            kwargs["chunk_files"] = args.chunk_files
         df = compute_fn(files, species=args.species, max_failures=args.max_file_failures,
                         **kwargs)
         _write_outputs(df, metric_name, args, n_files=len(files))

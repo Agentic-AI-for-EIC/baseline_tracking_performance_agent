@@ -107,6 +107,20 @@ class TestMetricsEndToEnd(unittest.TestCase):
         self._assert_fraction_column(df, "efficiency_absolute")
         self._assert_fraction_column(df, "efficiency_within_acceptance")
 
+    def test_chunked_equivalence_on_real_files(self):
+        """chunk_files must not change numbers on physics data: run
+        efficiency and resolution over the two-file local pair in one pass
+        and in per-file chunks, and require identical tables."""
+        import pandas as pd
+
+        files = [_local_file("clean"), _local_file("bkg_mixed")]
+        eff_single = efficiency.compute_efficiency(files)
+        eff_chunked = efficiency.compute_efficiency(files, chunk_files=1)
+        pd.testing.assert_frame_equal(eff_single, eff_chunked)
+        res_single = resolution.compute_resolution(files)
+        res_chunked = resolution.compute_resolution(files, chunk_files=1)
+        pd.testing.assert_frame_equal(res_single, res_chunked)
+
     def test_compute_fake_rate_on_bkg_mixed_sample(self):
         # Deliberately the +background file: a single-particle-gun sample
         # would show ~0 fakes by construction (see AGENTS.md), but this

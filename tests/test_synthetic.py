@@ -743,6 +743,108 @@ class TestReadCache(unittest.TestCase):
         self.assertEqual(calls["count"], 1, "set_cache_dir default was not honoured")
 
 
+class TestChunkedMetrics(unittest.TestCase):
+    """chunk_files must not change numbers: the merge regroups additive
+    counts (efficiency) or concatenates residuals before fitting
+    (resolution), so chunked and single-pass runs are bit-identical."""
+
+    FILES = ["A", "B", "C"]
+
+    def _patch_reads(self):
+        def _truth(file_paths, **kw):
+            rows = []
+            for fid, p in enumerate(file_paths):
+                v = {"A": 0.0, "B": 0.3, "C": 0.0}[p]
+                for j, (sp, pt, eta) in enumerate(
+                    [("e-", 1.0, 0.0), ("pi+", 2.0, 1.5), ("e-", 0.5, -1.5)]
+                ):
+                    rows.append({"file_id": fid, "event": 0, "idx": j,
+                                 "generator_status": 1, "species": sp,
+                                 "pt": pt + v, "eta": eta})
+            return pd.DataFrame(rows)
+
+        def _layers(file_paths, **kw):
+            rows = []
+            for fid, _p in enumerate(file_paths):
+                for j, n in enumerate([4, 0, 4]):
+                    if n:
+                        rows.append({"file_id": fid, "event": 0, "idx": j,
+                                     "n_layers_hit": n})
+            return pd.DataFrame(rows, columns=["file_id", "event", "idx",
+                                               "n_layers_hit"])
+
+        def _reco(file_paths, **kw):
+            rows = []
+            for fid, p in enumerate(file_paths):
+                pts = [1.05, 2.1] if p != "C" else [float("inf"), 2.1]
+                for j in range(2):
+                    rows.append({"file_id": fid, "event": 0, "idx": j,
+                                 "pt": pts[j], "eta": [0.05, 1.55][j],
+                                 "phi": [0.1, 0.2][j], "p": [1.1, 2.2][j],
+                                 "charge": [-1, 1][j], "pdg": [11, 211][j],
+                                 "chi2": [1.0, 2.0][j], "ndf": [5, 5][j]})
+            return pd.DataFrame(rows)
+
+        def _assoc(file_paths, **kw):
+            rows = []
+            for fid, _p in enumerate(file_paths):
+                for j in range(2):
+                    rows.append({"file_id": fid, "event": 0, "idx": j,
+                                 "weight": 0.9, "rec_idx": j, "sim_idx": j})
+            return pd.DataFrame(rows)
+
+        return (mock.patch("trkperf.truth.read_truth_particles", side_effect=_truth),
+                mock.patch("trkperf.truth.read_truth_hit_layer_counts", side_effect=_layers),
+                mock.patch("trkperf.reco.read_reco_tracks", side_effect=_reco),
+                mock.patch("trkperf.matching.read_associations", side_effect=_assoc))
+
+    def test_efficiency_chunked_equals_single_pass(self):
+        from trkperf.metrics import efficiency
+
+        patches = self._patch_reads()
+        with patches[0], patches[1], patches[2], patches[3]:
+            single = efficiency.compute_efficiency(self.FILES)
+            chunked = efficiency.compute_efficiency(self.FILES, chunk_files=1)
+            big = efficiency.compute_efficiency(self.FILES, chunk_files=99)
+        pd.testing.assert_frame_equal(single, chunked)
+        pd.testing.assert_frame_equal(single, big)
+        # Sanity on the fixture itself: file B's e- sits in acceptance with a
+        # match, the unmatched truth row counts in the denominator only.
+        got = single[(single["species"] == "e-") & (single["n_truth"] > 0)]
+        self.assertTrue((got["n_matched"] <= got["n_truth"]).all())
+
+    def test_resolution_chunked_sees_identical_values(self):
+        from trkperf.metrics import resolution
+
+        patches = self._patch_reads()
+        calls: list = []
+
+        def fake_fit(values, *a, **k):
+            calls.append(np.sort(np.asarray(values, dtype=float)))
+            return binning.GaussianFitResult(len(values), 0.01, 0.02, 0.001,
+                                             0.002, 1.0, 1, True)
+
+        with patches[0], patches[1], patches[2], patches[3], \
+                mock.patch.object(binning, "fit_gaussian_core", side_effect=fake_fit):
+            r_single = resolution.compute_resolution(self.FILES)
+            single_calls = list(calls)
+            calls.clear()
+            r_chunked = resolution.compute_resolution(self.FILES, chunk_files=1)
+            chunked_calls = list(calls)
+        pd.testing.assert_frame_equal(r_single, r_chunked)
+        # The fitter must see the same per-bin value multisets: same number
+        # of fitted bins, same sorted values bin by bin.
+        self.assertEqual(len(single_calls), len(chunked_calls))
+        key = lambda v: (len(v), float(v[0]) if len(v) else 0.0)
+        for a, b in zip(sorted(single_calls, key=key), sorted(chunked_calls, key=key)):
+            np.testing.assert_array_equal(a, b)
+        # n_matched counts every binned row (the inf-delta row from file C
+        # included): chunking must not silently drop it.
+        self.assertEqual(int(r_single["n_matched"].sum()),
+                         int(r_chunked["n_matched"].sum()))
+        self.assertGreater(int(r_single["n_matched"].sum()), 0)
+
+
 class TestTrackingRegions(unittest.TestCase):
     """Endcap acceptance regions use their own collections/threshold (PLAN.md 4.1)."""
 

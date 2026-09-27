@@ -11,6 +11,64 @@ import pandas as pd
 from .. import binning, config, matching, reco, truth
 
 
+def _chunk_counts(
+    file_paths: list[str],
+    species: list[str] | None,
+    weight_threshold: float,
+    min_layers: int,
+    max_failures: int,
+    region: str,
+    shared: dict,
+    found: list,
+) -> pd.DataFrame:
+    """Per-chunk stage of the efficiency computation: read truth, hit-layer
+    counts, reco and associations for one file-list chunk, build the matched
+    pairs, and aggregate to raw per-bin counts.
+
+    Only the small count table is returned; the wide truth/reco/assoc frames
+    are dropped with the call frame, so peak memory stays proportional to one
+    chunk rather than the whole sample. ``shared`` (skip-set + failure
+    budget) and ``found`` (collections actually read) are caller-owned and
+    accumulate across chunks.
+    """
+    spec = config.TRACKING_REGIONS[region]
+    truth_df = truth.read_truth_particles(
+        file_paths, max_failures=max_failures, primary_only=True, shared_failures=shared
+    )
+    truth_df = truth.select_primary(truth_df, species=species)
+
+    layer_counts = truth.read_truth_hit_layer_counts(
+        file_paths, max_failures=max_failures, shared_failures=shared,
+        collections=spec["collections"], found_collections=found,
+        keep_particles=truth_df[["file_id", "event", "idx"]],
+    )
+    truth_df = truth.add_acceptance_flag(truth_df, layer_counts, min_layers=min_layers)
+
+    reco_df = reco.read_reco_tracks(file_paths, max_failures=max_failures, shared_failures=shared)
+    assoc_df = matching.read_associations(
+        file_paths, max_failures=max_failures, shared_failures=shared
+    )
+    pairs = matching.build_matched_pairs(truth_df, reco_df, assoc_df, weight_threshold)
+
+    pairs = binning.assign_bins(pairs)
+    pairs = pairs.dropna(subset=["pt_bin", "eta_bin"])
+
+    # Precompute as a plain column (rather than a groupby-agg lambda that
+    # reaches back into the outer frame) - simpler to read and avoids any
+    # doubt about index alignment inside the aggregation.
+    pairs["matched_in_acceptance"] = pairs["is_matched"] & pairs["in_acceptance"]
+
+    group_cols = ["species", "pt_bin", "eta_bin", "pt_bin_center", "eta_bin_center"]
+    grouped = pairs.groupby(group_cols, observed=True)
+
+    return grouped.agg(
+        n_truth=("is_matched", "size"),
+        n_in_acceptance=("in_acceptance", "sum"),
+        n_matched=("is_matched", "sum"),
+        n_matched_in_acceptance=("matched_in_acceptance", "sum"),
+    ).reset_index()
+
+
 def compute_efficiency(
     file_paths: list[str],
     species: list[str] | None = None,
@@ -18,6 +76,7 @@ def compute_efficiency(
     min_layers: int | None = None,
     max_failures: int = 0,
     region: str = "central",
+    chunk_files: int = 0,
 ) -> pd.DataFrame:
     """Compute the track-finding-efficiency table for the given files.
 
@@ -40,6 +99,15 @@ def compute_efficiency(
     `region` selects the detector region for the within-acceptance
     denominator (see config.TRACKING_REGIONS); the absolute efficiency is
     region-independent. An explicit `min_layers` overrides the region default.
+
+    `chunk_files` bounds peak memory by processing the file list in
+    consecutive groups of at most that many files (0/None = one pass, the
+    historical behaviour). Counts are additive, so per-chunk count tables are
+    summed and ratios/Wilson errors/the statistics floor are computed exactly
+    once on the merged counts - the result is bit-identical to a single pass.
+    `file_id` is positional within each chunk's list, which is safe because
+    every truth<->reco join happens inside a chunk, never across chunks. The
+    shared skip-set and failure budget cover the whole run, not each chunk.
     """
     if region not in config.TRACKING_REGIONS:
         raise ValueError(f"unknown tracking region {region!r}; "
@@ -48,41 +116,30 @@ def compute_efficiency(
     if min_layers is None:
         min_layers = spec["min_layers"]
     shared: dict = {}
-    truth_df = truth.read_truth_particles(
-        file_paths, max_failures=max_failures, primary_only=True, shared_failures=shared
+    found: list = []
+    n_files = len(file_paths)
+    if chunk_files and chunk_files > 0 and chunk_files < n_files:
+        chunks = [file_paths[i:i + chunk_files] for i in range(0, n_files, chunk_files)]
+    else:
+        chunks = [list(file_paths)]
+    counts = pd.concat(
+        [
+            _chunk_counts(c, species, weight_threshold, min_layers,
+                          max_failures, region, shared, found)
+            for c in chunks
+        ],
+        ignore_index=True,
     )
-    truth_df = truth.select_primary(truth_df, species=species)
-
-    layer_counts = truth.read_truth_hit_layer_counts(
-        file_paths, max_failures=max_failures, shared_failures=shared,
-        collections=spec["collections"], found_collections=(found := []),
-        keep_particles=truth_df[["file_id", "event", "idx"]],
-    )
-    truth_df = truth.add_acceptance_flag(truth_df, layer_counts, min_layers=min_layers)
-
-    reco_df = reco.read_reco_tracks(file_paths, max_failures=max_failures, shared_failures=shared)
-    assoc_df = matching.read_associations(
-        file_paths, max_failures=max_failures, shared_failures=shared
-    )
-    pairs = matching.build_matched_pairs(truth_df, reco_df, assoc_df, weight_threshold)
-
-    pairs = binning.assign_bins(pairs)
-    pairs = pairs.dropna(subset=["pt_bin", "eta_bin"])
-
-    # Precompute as a plain column (rather than a groupby-agg lambda that
-    # reaches back into the outer frame) - simpler to read and avoids any
-    # doubt about index alignment inside the aggregation.
-    pairs["matched_in_acceptance"] = pairs["is_matched"] & pairs["in_acceptance"]
-
-    group_cols = ["species", "pt_bin", "eta_bin", "pt_bin_center", "eta_bin_center"]
-    grouped = pairs.groupby(group_cols, observed=True)
-
-    result = grouped.agg(
-        n_truth=("is_matched", "size"),
-        n_in_acceptance=("in_acceptance", "sum"),
-        n_matched=("is_matched", "sum"),
-        n_matched_in_acceptance=("matched_in_acceptance", "sum"),
-    ).reset_index()
+    if len(chunks) > 1:
+        group_cols = ["species", "pt_bin", "eta_bin", "pt_bin_center", "eta_bin_center"]
+        counts = (
+            counts.groupby(group_cols, observed=True)[
+                ["n_truth", "n_in_acceptance", "n_matched", "n_matched_in_acceptance"]
+            ]
+            .sum()
+            .reset_index()
+        )
+    result = counts
 
     # Bins with zero entries are absent from the groupby; right-join the full
     # grid so they are explicitly reported as insufficient statistics.
@@ -116,7 +173,8 @@ def compute_efficiency(
     result.attrs["run_params"] = {
         "weight_threshold": weight_threshold, "min_layers": min_layers, "species": species,
         "region": region, "collections": list(spec["collections"]),
-        "collections_found": found,
+        "collections_found": list(dict.fromkeys(found)),
+        "chunk_files": chunk_files or 0, "n_chunks": len(chunks),
     }
     # n_matched_in_acceptance is kept (not just used for the ratio): grouped
     # plots re-aggregate the within-acceptance efficiency from summed counts,
