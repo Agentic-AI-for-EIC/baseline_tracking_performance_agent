@@ -26,3 +26,11 @@ output/pid-features_*.pkl
 # scripts/run_reproduction_26071.sh (re-streams from the login00 xrootd tunnel).
 cache/clean26071_files/
 cache/bkg26071_files/
+
+# Full-sample score tables for the 26.07.1 grid (pooled/clean reach ~90 MB):
+# regenerable offline via `python -m pid train --task <t> --model <lib>
+# --dataset-tag clean26071|bkg26071 --features output/pid-features_<tag>.pkl`;
+# the held-out test_scores.pkl (what every table/figure is computed from) IS
+# committed.
+output/models/*_clean26071/all_scores.pkl
+output/models/*_bkg26071/all_scores.pkl

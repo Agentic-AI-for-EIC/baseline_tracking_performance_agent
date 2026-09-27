@@ -1,0 +1,992 @@
++ python -m pid features --file-list filelists/clean26071_local.txt --dataset-tag clean26071 --max-file-failures 0 --cache-dir cache/pid_features --out output/pid-features_clean26071.pkl --jobs 6
+[features] 10/300 files (cached)
+[features] 10/300 files done
+[features] 20/300 files (cached)
+[features] 20/300 files done
+[features] 30/300 files (cached)
+[features] 30/300 files done
+[features] 40/300 files done
+[features] 50/300 files done
+[features] 60/300 files done
+[features] 70/300 files done
+[features] 80/300 files done
+[features] 90/300 files done
+[features] 100/300 files done
+[features] 110/300 files done
+[features] 120/300 files done
+[features] 130/300 files done
+[features] 140/300 files done
+[features] 150/300 files done
+[features] 160/300 files done
+[features] 170/300 files done
+[features] 180/300 files done
+[features] 190/300 files done
+[features] 200/300 files done
+[features] 210/300 files done
+[features] 220/300 files done
+[features] 230/300 files done
+[features] 240/300 files done
+[features] 250/300 files done
+[features] 260/300 files done
+[features] 270/300 files done
+[features] 280/300 files done
+[features] 290/300 files done
+[features] 300/300 files done
+[features] wrote output/pid-features_clean26071.pkl: 1627525 rows x 112 cols from 300 files (0 skipped)
+
+[features] feature summary (family / NaN fraction):
+family
+bookkeeping       5
+calorimeter      40
+cherenkov         4
+event_context    17
+other            32
+timing            2
+tracker          12
+[features] median e_over_p_backward by truth class: {'K': 0.146, 'e': 0.992, 'p': 0.146, 'pi': 0.173}  (n={'e': 400874, 'pi': 30081, 'K': 5021, 'p': 2831})
+[features] median e_over_p_forward by truth class: {'K': 0.273, 'e': 0.969, 'p': 0.214, 'pi': 0.279}  (n={'pi': 661222, 'K': 67889, 'p': 65911, 'e': 4837})
+[gate:PASS] feature-table sanity (E/p peaks where physics expects them)
+++ echo eid,ehad,hadpid,pooled
+++ tr , ' '
++ for task in $(echo "eid,ehad,hadpid,pooled" | tr ',' ' ')
++ for lib in lightgbm xgboost sklearn_hgb
++ python -m pid train --task eid --model lightgbm --dataset-tag clean26071 --features output/pid-features_clean26071.pkl --seed 1234 --n-iter 24
+[train] feature table output/pid-features_clean26071.pkl: 1627525 rows, 112 cols
+[dataset] WARNING: 22 numeric column(s) excluded (not allowlisted, or all-NaN here): ['drich_aerogel_pathlength', 'drich_gas_pathlength', 'e_hcal_forward', 'e_over_p_forward', 'ecal_forward_E', 'ecal_forward_delta_r', 'ecal_forward_has_shape', 'ecal_forward_n', 'ecal_forward_shape_0', 'ecal_forward_shape_1', 'ecal_forward_shape_2', 'ecal_forward_shape_3', 'ecal_forward_shape_4', 'ecal_forward_shape_5', 'ecal_forward_shape_6', 'ecal_forward_t', 'hcal_forward_E', 'hcal_forward_delta_r', 'hcal_forward_n', 'hcal_forward_t', 'leakage_forward', 'log_e_over_p_forward']
+[train/eid/lightgbm/clean26071] 421079 rows, 30 features, 2 classes -> AUC train 0.9986 / test 0.9981 (label-shuffle control 0.5113) in 514.0s
+[train] top gain features: ['ecal_backward_E', 'e_over_p_backward', 'log_e_over_p_backward']
+[gate:PASS] train_test_auc_gap: 0.0004985235231717011 | requires 0.02
+[gate:PASS] label_shuffle_control: {"control_auc_mean": 0.511281717790464, "control_auc_std": 0.029251487110897183, "control_auc_max": 0.5578247557221554, "model_auc_test": 0.9980549707437115, "z": 16.640974563372122} | requires {"min_z": 3.0, "min_auc_margin": 0.1}  [5 balanced permutations, 15880/class; AUCs [0.5136, 0.5578, 0.4826, 0.5118, 0.4906]]
+[gate:FAIL] top_feature_is_physical: {"gain_top3": ["ecal_backward_E", "e_over_p_backward", "log_e_over_p_backward"], "shap_top3": ["ecal_backward_E", "ecal_backward_n", "e_over_p_backward"]} | requires {"gain_patterns": ["e_over_p", "log_e_over_p", "ecal_"], "shap_must_lead": "e_over_p"}
+[gate:PASS] no_single_feature_label_correlation: 0.6587417539394804 | requires 0.95
+[train] artifacts -> output/models/eid_lightgbm_clean26071/
+pid.train: gates failed for eid/lightgbm/clean26071: ['top_feature_is_physical']. Re-run with --relax-gates to inspect the result anyway, and record the failure if the number is ever quoted.
++ echo '[run_pid] train eid/lightgbm failed (statistics?)'
+[run_pid] train eid/lightgbm failed (statistics?)
++ '[' -f output/models/eid_lightgbm_clean26071/test_scores.pkl ']'
++ python -m pid evaluate --task eid --model lightgbm --dataset-tag clean26071 --scores output/models/eid_lightgbm_clean26071/test_scores.pkl --by pt,eta --plot --eta-region 'barrel,forward endcap,backward endcap' --features output/pid-features_clean26071.pkl --max-file-failures 0 --cache-dir cache/pid_features
+[evaluate/eid] NOTE: 65 rows fall outside the pt bin edges and are excluded from the binned table (the global overall table still counts them)
+[report] wrote output/pid-eid_lightgbm_clean26071-overall.json, output/pid-eid_lightgbm_clean26071-overall.md, output/pid-eid_lightgbm_clean26071-overall.root (8 rows)
+[report] wrote output/pid-eid_lightgbm_clean26071-vs_pt.json, output/pid-eid_lightgbm_clean26071-vs_pt.md, output/pid-eid_lightgbm_clean26071-vs_pt.root (8 rows)
+[report] wrote output/pid-eid_lightgbm_clean26071-vs_eta.json, output/pid-eid_lightgbm_clean26071-vs_eta.md, output/pid-eid_lightgbm_clean26071-vs_eta.root (5 rows)
+[report] wrote output/pid-eid_lightgbm_clean26071-confusion.json, output/pid-eid_lightgbm_clean26071-confusion.md, output/pid-eid_lightgbm_clean26071-confusion.root (4 rows)
+[report] wrote output/pid-eid_lightgbm_clean26071-roc.json, output/pid-eid_lightgbm_clean26071-roc.md, output/pid-eid_lightgbm_clean26071-roc.root (200 rows)
+[report] wrote output/pid-eid_lightgbm_clean26071-calibration.json, output/pid-eid_lightgbm_clean26071-calibration.md, output/pid-eid_lightgbm_clean26071-calibration.root (10 rows)
+[evaluate/eid_lightgbm_clean26071] scored sample: 75 file(s), 1409 event(s), 105341 tracks (100074 signal / 5267 background)
+[evaluate/eid_lightgbm_clean26071] auc              0.9980549707437115
+[evaluate/eid_lightgbm_clean26071] signal_peak      6.959432733211435
+[evaluate/eid_lightgbm_clean26071] background_peak  -7.468747190213808
+[evaluate/eid_lightgbm_clean26071] n_sigma_lower_limit nan  [NOT COMPUTABLE: too few candidates to fit]
+[evaluate/eid_lightgbm_clean26071] n_sigma          4.082752623302869
+[evaluate/eid_lightgbm_clean26071] efficiency       0.9738693366908487 (target fake 0.01)
+[evaluate/eid_lightgbm_clean26071] efficiency       0.9450706477206867 (target fake 0.001)
+[evaluate/eid_lightgbm_clean26071] efficiency       0.9128444950736455 (target fake 0.0001)
+[regions] attached ['barrel', 'forward endcap', 'backward endcap'] acceptance (barrel: 0/0 in acceptance; forward endcap: 0/0 in acceptance; backward endcap: 102114/105341 in acceptance; 0 files skipped, 0 rows unclassifiable)
+[evaluate/eid_lightgbm_clean26071] NOTE: no in-acceptance rows in barrel; skipping its tables
+[evaluate/eid_lightgbm_clean26071] NOTE: no in-acceptance rows in forward endcap; skipping its tables
+[evaluate/eid] NOTE: 65 rows fall outside the pt bin edges and are excluded from the binned table (the global overall table still counts them)
+[report] wrote output/pid-eid_lightgbm_clean26071_backward_endcap-overall.json, output/pid-eid_lightgbm_clean26071_backward_endcap-overall.md, output/pid-eid_lightgbm_clean26071_backward_endcap-overall.root (8 rows)
+[report] wrote output/pid-eid_lightgbm_clean26071_backward_endcap-vs_pt.json, output/pid-eid_lightgbm_clean26071_backward_endcap-vs_pt.md, output/pid-eid_lightgbm_clean26071_backward_endcap-vs_pt.root (8 rows)
+[report] wrote output/pid-eid_lightgbm_clean26071_backward_endcap-vs_eta.json, output/pid-eid_lightgbm_clean26071_backward_endcap-vs_eta.md, output/pid-eid_lightgbm_clean26071_backward_endcap-vs_eta.root (5 rows)
+[report] wrote output/pid-eid_lightgbm_clean26071_backward_endcap-confusion.json, output/pid-eid_lightgbm_clean26071_backward_endcap-confusion.md, output/pid-eid_lightgbm_clean26071_backward_endcap-confusion.root (4 rows)
+[report] wrote output/pid-eid_lightgbm_clean26071_backward_endcap-roc.json, output/pid-eid_lightgbm_clean26071_backward_endcap-roc.md, output/pid-eid_lightgbm_clean26071_backward_endcap-roc.root (200 rows)
+[evaluate/eid_lightgbm_clean26071_backward_endcap] scored sample: 75 file(s), 1409 event(s), 102114 tracks (97748 signal / 4366 background)
+[evaluate/eid_lightgbm_clean26071_backward_endcap] auc              0.999353915593738
+[evaluate/eid_lightgbm_clean26071_backward_endcap] signal_peak      6.928075992605872
+[evaluate/eid_lightgbm_clean26071_backward_endcap] background_peak  -6.911529080602611
+[evaluate/eid_lightgbm_clean26071_backward_endcap] n_sigma_lower_limit nan  [NOT COMPUTABLE: too few candidates to fit]
+[evaluate/eid_lightgbm_clean26071_backward_endcap] n_sigma          4.55053387412796
+[evaluate/eid_lightgbm_clean26071_backward_endcap] efficiency       0.9909665670908868 (target fake 0.01)
+[evaluate/eid_lightgbm_clean26071_backward_endcap] efficiency       0.9668433113720997 (target fake 0.001)
+[evaluate/eid_lightgbm_clean26071_backward_endcap] efficiency       0.9345664361419159 (target fake 0.0001)
+[plot] wrote output/plots/pid-eid_lightgbm_clean26071-roc.png
+[plot] wrote output/plots/pid-eid_lightgbm_clean26071-eff_vs_fake.png
+[plot] wrote output/plots/pid-eid_lightgbm_clean26071-auc_vs_pt.png
+[plot] wrote output/plots/pid-eid_lightgbm_clean26071-auc_vs_eta.png
+[plot] wrote output/plots/pid-eid_lightgbm_clean26071_backward_endcap-roc.png
+[plot] wrote output/plots/pid-eid_lightgbm_clean26071_backward_endcap-eff_vs_fake.png
+[plot] wrote output/plots/pid-eid_lightgbm_clean26071_backward_endcap-auc_vs_pt.png
+/opt/local/lib/python3.13/site-packages/XRootD/client/finalize.py:46: FutureWarning: `torch.distributed.reduce_op` is deprecated, please use `torch.distributed.ReduceOp` instead
+  if isinstance(obj, File) and obj.is_open():
++ python -m pid importance --dir output/models/eid_lightgbm_clean26071 --task eid --model lightgbm --dataset-tag clean26071 --plot
+[importance] gains/SHAP read from booster.joblib (unwrapped booster)
+[report] wrote output/pid-eid_lightgbm_clean26071-importance-gain.json, output/pid-eid_lightgbm_clean26071-importance-gain.md, output/pid-eid_lightgbm_clean26071-importance-gain.root (30 rows)
+[report] wrote output/pid-eid_lightgbm_clean26071-importance-shap.json, output/pid-eid_lightgbm_clean26071-importance-shap.md, output/pid-eid_lightgbm_clean26071-importance-shap.root (30 rows)
+[report] wrote output/pid-eid_lightgbm_clean26071-importance-permutation.json, output/pid-eid_lightgbm_clean26071-importance-permutation.md, output/pid-eid_lightgbm_clean26071-importance-permutation.root (30 rows)
+
+[importance] leading feature: {'kind': 'shap', 'column': 'ecal_backward_E', 'family': 'calorimeter'}
+[plot] wrote output/plots/pid-eid_lightgbm_clean26071-importance.png
++ for lib in lightgbm xgboost sklearn_hgb
++ python -m pid train --task eid --model xgboost --dataset-tag clean26071 --features output/pid-features_clean26071.pkl --seed 1234 --n-iter 24
+[train] feature table output/pid-features_clean26071.pkl: 1627525 rows, 112 cols
+[dataset] WARNING: 22 numeric column(s) excluded (not allowlisted, or all-NaN here): ['drich_aerogel_pathlength', 'drich_gas_pathlength', 'e_hcal_forward', 'e_over_p_forward', 'ecal_forward_E', 'ecal_forward_delta_r', 'ecal_forward_has_shape', 'ecal_forward_n', 'ecal_forward_shape_0', 'ecal_forward_shape_1', 'ecal_forward_shape_2', 'ecal_forward_shape_3', 'ecal_forward_shape_4', 'ecal_forward_shape_5', 'ecal_forward_shape_6', 'ecal_forward_t', 'hcal_forward_E', 'hcal_forward_delta_r', 'hcal_forward_n', 'hcal_forward_t', 'leakage_forward', 'log_e_over_p_forward']
+[train/eid/xgboost/clean26071] 421079 rows, 30 features, 2 classes -> AUC train 0.9984 / test 0.9980 (label-shuffle control 0.5098) in 543.9s
+[train] top gain features: ['ecal_backward_E', 'log_e_over_p_backward', 'e_over_p_backward']
+[gate:PASS] train_test_auc_gap: 0.0003988235144505303 | requires 0.02
+[gate:PASS] label_shuffle_control: {"control_auc_mean": 0.5097930461020266, "control_auc_std": 0.026277317765123407, "control_auc_max": 0.5506937482553019, "model_auc_test": 0.9979954030903405, "z": 18.578850450112565} | requires {"min_z": 3.0, "min_auc_margin": 0.1}  [5 balanced permutations, 15880/class; AUCs [0.5108, 0.5507, 0.4823, 0.5133, 0.4919]]
+[gate:FAIL] top_feature_is_physical: {"gain_top3": ["ecal_backward_E", "log_e_over_p_backward", "e_over_p_backward"], "shap_top3": ["ecal_backward_E", "ecal_backward_n", "e_over_p_backward"]} | requires {"gain_patterns": ["e_over_p", "log_e_over_p", "ecal_"], "shap_must_lead": "e_over_p"}
+[gate:PASS] no_single_feature_label_correlation: 0.6587417539394804 | requires 0.95
+[train] artifacts -> output/models/eid_xgboost_clean26071/
+pid.train: gates failed for eid/xgboost/clean26071: ['top_feature_is_physical']. Re-run with --relax-gates to inspect the result anyway, and record the failure if the number is ever quoted.
++ echo '[run_pid] train eid/xgboost failed (statistics?)'
+[run_pid] train eid/xgboost failed (statistics?)
++ '[' -f output/models/eid_xgboost_clean26071/test_scores.pkl ']'
++ python -m pid evaluate --task eid --model xgboost --dataset-tag clean26071 --scores output/models/eid_xgboost_clean26071/test_scores.pkl --by pt,eta --plot --eta-region 'barrel,forward endcap,backward endcap' --features output/pid-features_clean26071.pkl --max-file-failures 0 --cache-dir cache/pid_features
+[evaluate/eid] NOTE: 65 rows fall outside the pt bin edges and are excluded from the binned table (the global overall table still counts them)
+[report] wrote output/pid-eid_xgboost_clean26071-overall.json, output/pid-eid_xgboost_clean26071-overall.md, output/pid-eid_xgboost_clean26071-overall.root (8 rows)
+[report] wrote output/pid-eid_xgboost_clean26071-vs_pt.json, output/pid-eid_xgboost_clean26071-vs_pt.md, output/pid-eid_xgboost_clean26071-vs_pt.root (8 rows)
+[report] wrote output/pid-eid_xgboost_clean26071-vs_eta.json, output/pid-eid_xgboost_clean26071-vs_eta.md, output/pid-eid_xgboost_clean26071-vs_eta.root (5 rows)
+[report] wrote output/pid-eid_xgboost_clean26071-confusion.json, output/pid-eid_xgboost_clean26071-confusion.md, output/pid-eid_xgboost_clean26071-confusion.root (4 rows)
+[report] wrote output/pid-eid_xgboost_clean26071-roc.json, output/pid-eid_xgboost_clean26071-roc.md, output/pid-eid_xgboost_clean26071-roc.root (200 rows)
+[report] wrote output/pid-eid_xgboost_clean26071-calibration.json, output/pid-eid_xgboost_clean26071-calibration.md, output/pid-eid_xgboost_clean26071-calibration.root (10 rows)
+[evaluate/eid_xgboost_clean26071] scored sample: 75 file(s), 1409 event(s), 105341 tracks (100074 signal / 5267 background)
+[evaluate/eid_xgboost_clean26071] auc              0.9979954030903405
+[evaluate/eid_xgboost_clean26071] signal_peak      4.571884357950154
+[evaluate/eid_xgboost_clean26071] background_peak  -4.846266942202736
+[evaluate/eid_xgboost_clean26071] n_sigma_lower_limit nan  [NOT COMPUTABLE: too few candidates to fit]
+[evaluate/eid_xgboost_clean26071] n_sigma          4.0693110694575765
+[evaluate/eid_xgboost_clean26071] efficiency       0.9725403201630793 (target fake 0.01)
+[evaluate/eid_xgboost_clean26071] efficiency       0.9409037312388833 (target fake 0.001)
+[evaluate/eid_xgboost_clean26071] efficiency       0.914373363710854 (target fake 0.0001)
+[regions] attached ['barrel', 'forward endcap', 'backward endcap'] acceptance (barrel: 0/0 in acceptance; forward endcap: 0/0 in acceptance; backward endcap: 102114/105341 in acceptance; 0 files skipped, 0 rows unclassifiable)
+[evaluate/eid_xgboost_clean26071] NOTE: no in-acceptance rows in barrel; skipping its tables
+[evaluate/eid_xgboost_clean26071] NOTE: no in-acceptance rows in forward endcap; skipping its tables
+[evaluate/eid] NOTE: 65 rows fall outside the pt bin edges and are excluded from the binned table (the global overall table still counts them)
+[report] wrote output/pid-eid_xgboost_clean26071_backward_endcap-overall.json, output/pid-eid_xgboost_clean26071_backward_endcap-overall.md, output/pid-eid_xgboost_clean26071_backward_endcap-overall.root (8 rows)
+[report] wrote output/pid-eid_xgboost_clean26071_backward_endcap-vs_pt.json, output/pid-eid_xgboost_clean26071_backward_endcap-vs_pt.md, output/pid-eid_xgboost_clean26071_backward_endcap-vs_pt.root (8 rows)
+[report] wrote output/pid-eid_xgboost_clean26071_backward_endcap-vs_eta.json, output/pid-eid_xgboost_clean26071_backward_endcap-vs_eta.md, output/pid-eid_xgboost_clean26071_backward_endcap-vs_eta.root (5 rows)
+[report] wrote output/pid-eid_xgboost_clean26071_backward_endcap-confusion.json, output/pid-eid_xgboost_clean26071_backward_endcap-confusion.md, output/pid-eid_xgboost_clean26071_backward_endcap-confusion.root (4 rows)
+[report] wrote output/pid-eid_xgboost_clean26071_backward_endcap-roc.json, output/pid-eid_xgboost_clean26071_backward_endcap-roc.md, output/pid-eid_xgboost_clean26071_backward_endcap-roc.root (200 rows)
+[evaluate/eid_xgboost_clean26071_backward_endcap] scored sample: 75 file(s), 1409 event(s), 102114 tracks (97748 signal / 4366 background)
+[evaluate/eid_xgboost_clean26071_backward_endcap] auc              0.9993016834392237
+[evaluate/eid_xgboost_clean26071_backward_endcap] signal_peak      4.583624728023697
+[evaluate/eid_xgboost_clean26071_backward_endcap] background_peak  -4.846287517535935
+[evaluate/eid_xgboost_clean26071_backward_endcap] n_sigma_lower_limit nan  [NOT COMPUTABLE: too few candidates to fit]
+[evaluate/eid_xgboost_clean26071_backward_endcap] n_sigma          4.5189016009865925
+[evaluate/eid_xgboost_clean26071_backward_endcap] efficiency       0.9907210377705937 (target fake 0.01)
+[evaluate/eid_xgboost_clean26071_backward_endcap] efficiency       0.9630478372959037 (target fake 0.001)
+[evaluate/eid_xgboost_clean26071_backward_endcap] efficiency       0.9361316855587838 (target fake 0.0001)
+[plot] wrote output/plots/pid-eid_xgboost_clean26071-roc.png
+[plot] wrote output/plots/pid-eid_xgboost_clean26071-eff_vs_fake.png
+[plot] wrote output/plots/pid-eid_xgboost_clean26071-auc_vs_pt.png
+[plot] wrote output/plots/pid-eid_xgboost_clean26071-auc_vs_eta.png
+[plot] wrote output/plots/pid-eid_xgboost_clean26071_backward_endcap-roc.png
+[plot] wrote output/plots/pid-eid_xgboost_clean26071_backward_endcap-eff_vs_fake.png
+[plot] wrote output/plots/pid-eid_xgboost_clean26071_backward_endcap-auc_vs_pt.png
+/opt/local/lib/python3.13/site-packages/XRootD/client/finalize.py:46: FutureWarning: `torch.distributed.reduce_op` is deprecated, please use `torch.distributed.ReduceOp` instead
+  if isinstance(obj, File) and obj.is_open():
++ python -m pid importance --dir output/models/eid_xgboost_clean26071 --task eid --model xgboost --dataset-tag clean26071 --plot
+[importance] gains/SHAP read from booster.joblib (unwrapped booster)
+[report] wrote output/pid-eid_xgboost_clean26071-importance-gain.json, output/pid-eid_xgboost_clean26071-importance-gain.md, output/pid-eid_xgboost_clean26071-importance-gain.root (30 rows)
+[report] wrote output/pid-eid_xgboost_clean26071-importance-shap.json, output/pid-eid_xgboost_clean26071-importance-shap.md, output/pid-eid_xgboost_clean26071-importance-shap.root (30 rows)
+[report] wrote output/pid-eid_xgboost_clean26071-importance-permutation.json, output/pid-eid_xgboost_clean26071-importance-permutation.md, output/pid-eid_xgboost_clean26071-importance-permutation.root (30 rows)
+
+[importance] leading feature: {'kind': 'shap', 'column': 'ecal_backward_E', 'family': 'calorimeter'}
+[plot] wrote output/plots/pid-eid_xgboost_clean26071-importance.png
++ for lib in lightgbm xgboost sklearn_hgb
++ python -m pid train --task eid --model sklearn_hgb --dataset-tag clean26071 --features output/pid-features_clean26071.pkl --seed 1234 --n-iter 24
+[train] feature table output/pid-features_clean26071.pkl: 1627525 rows, 112 cols
+[dataset] WARNING: 22 numeric column(s) excluded (not allowlisted, or all-NaN here): ['drich_aerogel_pathlength', 'drich_gas_pathlength', 'e_hcal_forward', 'e_over_p_forward', 'ecal_forward_E', 'ecal_forward_delta_r', 'ecal_forward_has_shape', 'ecal_forward_n', 'ecal_forward_shape_0', 'ecal_forward_shape_1', 'ecal_forward_shape_2', 'ecal_forward_shape_3', 'ecal_forward_shape_4', 'ecal_forward_shape_5', 'ecal_forward_shape_6', 'ecal_forward_t', 'hcal_forward_E', 'hcal_forward_delta_r', 'hcal_forward_n', 'hcal_forward_t', 'leakage_forward', 'log_e_over_p_forward']
+[train/eid/sklearn_hgb/clean26071] 421079 rows, 30 features, 2 classes -> AUC train 0.9987 / test 0.9981 (label-shuffle control 0.5077) in 284.0s
+[train] top gain features: ['chi2', 'chi2_per_ndf', 'e_hcal_backward']
+[gate:PASS] train_test_auc_gap: 0.0005472336596289429 | requires 0.02
+[gate:PASS] label_shuffle_control: {"control_auc_mean": 0.507656689849777, "control_auc_std": 0.028726163876379864, "control_auc_max": 0.5531080609614122, "model_auc_test": 0.9981034871483881, "z": 17.073174107381664} | requires {"min_z": 3.0, "min_auc_margin": 0.1}  [5 balanced permutations, 15880/class; AUCs [0.5086, 0.5531, 0.4782, 0.5097, 0.4887]]
+[gate:FAIL] top_feature_is_physical: {"gain_top3": ["chi2", "chi2_per_ndf", "e_hcal_backward"], "shap_top3": []} | requires {"gain_patterns": ["e_over_p", "log_e_over_p", "ecal_"], "shap_must_lead": "e_over_p"}
+[gate:PASS] no_single_feature_label_correlation: 0.6587417539394804 | requires 0.95
+[train] artifacts -> output/models/eid_sklearn_hgb_clean26071/
+pid.train: gates failed for eid/sklearn_hgb/clean26071: ['top_feature_is_physical']. Re-run with --relax-gates to inspect the result anyway, and record the failure if the number is ever quoted.
++ echo '[run_pid] train eid/sklearn_hgb failed (statistics?)'
+[run_pid] train eid/sklearn_hgb failed (statistics?)
++ '[' -f output/models/eid_sklearn_hgb_clean26071/test_scores.pkl ']'
++ python -m pid evaluate --task eid --model sklearn_hgb --dataset-tag clean26071 --scores output/models/eid_sklearn_hgb_clean26071/test_scores.pkl --by pt,eta --plot --eta-region 'barrel,forward endcap,backward endcap' --features output/pid-features_clean26071.pkl --max-file-failures 0 --cache-dir cache/pid_features
+[evaluate/eid] NOTE: 65 rows fall outside the pt bin edges and are excluded from the binned table (the global overall table still counts them)
+[report] wrote output/pid-eid_sklearn_hgb_clean26071-overall.json, output/pid-eid_sklearn_hgb_clean26071-overall.md, output/pid-eid_sklearn_hgb_clean26071-overall.root (8 rows)
+[report] wrote output/pid-eid_sklearn_hgb_clean26071-vs_pt.json, output/pid-eid_sklearn_hgb_clean26071-vs_pt.md, output/pid-eid_sklearn_hgb_clean26071-vs_pt.root (8 rows)
+[report] wrote output/pid-eid_sklearn_hgb_clean26071-vs_eta.json, output/pid-eid_sklearn_hgb_clean26071-vs_eta.md, output/pid-eid_sklearn_hgb_clean26071-vs_eta.root (5 rows)
+[report] wrote output/pid-eid_sklearn_hgb_clean26071-confusion.json, output/pid-eid_sklearn_hgb_clean26071-confusion.md, output/pid-eid_sklearn_hgb_clean26071-confusion.root (4 rows)
+[report] wrote output/pid-eid_sklearn_hgb_clean26071-roc.json, output/pid-eid_sklearn_hgb_clean26071-roc.md, output/pid-eid_sklearn_hgb_clean26071-roc.root (200 rows)
+[report] wrote output/pid-eid_sklearn_hgb_clean26071-calibration.json, output/pid-eid_sklearn_hgb_clean26071-calibration.md, output/pid-eid_sklearn_hgb_clean26071-calibration.root (10 rows)
+[evaluate/eid_sklearn_hgb_clean26071] scored sample: 75 file(s), 1409 event(s), 105341 tracks (100074 signal / 5267 background)
+[evaluate/eid_sklearn_hgb_clean26071] auc              0.9981034871483881
+[evaluate/eid_sklearn_hgb_clean26071] signal_peak      6.805764049962434
+[evaluate/eid_sklearn_hgb_clean26071] background_peak  -6.549975753127301
+[evaluate/eid_sklearn_hgb_clean26071] n_sigma_lower_limit nan  [NOT COMPUTABLE: too few candidates to fit]
+[evaluate/eid_sklearn_hgb_clean26071] n_sigma          4.093979649470795
+[evaluate/eid_sklearn_hgb_clean26071] efficiency       0.9752083458240902 (target fake 0.01)
+[evaluate/eid_sklearn_hgb_clean26071] efficiency       0.9464995903031757 (target fake 0.001)
+[evaluate/eid_sklearn_hgb_clean26071] efficiency       0.9124248056438236 (target fake 0.0001)
+[regions] attached ['barrel', 'forward endcap', 'backward endcap'] acceptance (barrel: 0/0 in acceptance; forward endcap: 0/0 in acceptance; backward endcap: 102114/105341 in acceptance; 0 files skipped, 0 rows unclassifiable)
+[evaluate/eid_sklearn_hgb_clean26071] NOTE: no in-acceptance rows in barrel; skipping its tables
+[evaluate/eid_sklearn_hgb_clean26071] NOTE: no in-acceptance rows in forward endcap; skipping its tables
+[evaluate/eid] NOTE: 65 rows fall outside the pt bin edges and are excluded from the binned table (the global overall table still counts them)
+[report] wrote output/pid-eid_sklearn_hgb_clean26071_backward_endcap-overall.json, output/pid-eid_sklearn_hgb_clean26071_backward_endcap-overall.md, output/pid-eid_sklearn_hgb_clean26071_backward_endcap-overall.root (8 rows)
+[report] wrote output/pid-eid_sklearn_hgb_clean26071_backward_endcap-vs_pt.json, output/pid-eid_sklearn_hgb_clean26071_backward_endcap-vs_pt.md, output/pid-eid_sklearn_hgb_clean26071_backward_endcap-vs_pt.root (8 rows)
+[report] wrote output/pid-eid_sklearn_hgb_clean26071_backward_endcap-vs_eta.json, output/pid-eid_sklearn_hgb_clean26071_backward_endcap-vs_eta.md, output/pid-eid_sklearn_hgb_clean26071_backward_endcap-vs_eta.root (5 rows)
+[report] wrote output/pid-eid_sklearn_hgb_clean26071_backward_endcap-confusion.json, output/pid-eid_sklearn_hgb_clean26071_backward_endcap-confusion.md, output/pid-eid_sklearn_hgb_clean26071_backward_endcap-confusion.root (4 rows)
+[report] wrote output/pid-eid_sklearn_hgb_clean26071_backward_endcap-roc.json, output/pid-eid_sklearn_hgb_clean26071_backward_endcap-roc.md, output/pid-eid_sklearn_hgb_clean26071_backward_endcap-roc.root (200 rows)
+[evaluate/eid_sklearn_hgb_clean26071_backward_endcap] scored sample: 75 file(s), 1409 event(s), 102114 tracks (97748 signal / 4366 background)
+[evaluate/eid_sklearn_hgb_clean26071_backward_endcap] auc              0.999410407676336
+[evaluate/eid_sklearn_hgb_clean26071_backward_endcap] signal_peak      6.793723899181137
+[evaluate/eid_sklearn_hgb_clean26071_backward_endcap] background_peak  -6.518511282575729
+[evaluate/eid_sklearn_hgb_clean26071_backward_endcap] n_sigma_lower_limit nan  [NOT COMPUTABLE: too few candidates to fit]
+[evaluate/eid_sklearn_hgb_clean26071_backward_endcap] n_sigma          4.58752182602094
+[evaluate/eid_sklearn_hgb_clean26071_backward_endcap] efficiency       0.9929308016532308 (target fake 0.01)
+[evaluate/eid_sklearn_hgb_clean26071_backward_endcap] efficiency       0.9679584237017638 (target fake 0.001)
+[evaluate/eid_sklearn_hgb_clean26071_backward_endcap] efficiency       0.9341367598314032 (target fake 0.0001)
+[plot] wrote output/plots/pid-eid_sklearn_hgb_clean26071-roc.png
+[plot] wrote output/plots/pid-eid_sklearn_hgb_clean26071-eff_vs_fake.png
+[plot] wrote output/plots/pid-eid_sklearn_hgb_clean26071-auc_vs_pt.png
+[plot] wrote output/plots/pid-eid_sklearn_hgb_clean26071-auc_vs_eta.png
+[plot] wrote output/plots/pid-eid_sklearn_hgb_clean26071_backward_endcap-roc.png
+[plot] wrote output/plots/pid-eid_sklearn_hgb_clean26071_backward_endcap-eff_vs_fake.png
+[plot] wrote output/plots/pid-eid_sklearn_hgb_clean26071_backward_endcap-auc_vs_pt.png
+/opt/local/lib/python3.13/site-packages/XRootD/client/finalize.py:46: FutureWarning: `torch.distributed.reduce_op` is deprecated, please use `torch.distributed.ReduceOp` instead
+  if isinstance(obj, File) and obj.is_open():
++ python -m pid importance --dir output/models/eid_sklearn_hgb_clean26071 --task eid --model sklearn_hgb --dataset-tag clean26071 --plot
+[importance] gains/SHAP read from booster.joblib (unwrapped booster)
+[importance] pid.models.sklearn_hgb: HistGradientBoosting has no built-in TreeSHAP. Use `pid importance --kind permutation`, or the lightgbm/xgboost models, for SHAP values.
+[report] wrote output/pid-eid_sklearn_hgb_clean26071-importance-gain.json, output/pid-eid_sklearn_hgb_clean26071-importance-gain.md, output/pid-eid_sklearn_hgb_clean26071-importance-gain.root (30 rows)
+[report] wrote output/pid-eid_sklearn_hgb_clean26071-importance-permutation.json, output/pid-eid_sklearn_hgb_clean26071-importance-permutation.md, output/pid-eid_sklearn_hgb_clean26071-importance-permutation.root (30 rows)
+
+[importance] leading feature: {'kind': 'gain', 'column': 'chi2', 'family': 'tracker'}
+[importance] NOTE: gain: leading feature 'chi2' (family 'tracker') is not one of the expected PID observables ['e_over_p', 'log_e_over_p', 'ecal_']
+[plot] wrote output/plots/pid-eid_sklearn_hgb_clean26071-importance.png
++ echo '[run_pid] WARNING: importance eid/sklearn_hgb failed - see log above'
+[run_pid] WARNING: importance eid/sklearn_hgb failed - see log above
++ for task in $(echo "eid,ehad,hadpid,pooled" | tr ',' ' ')
++ for lib in lightgbm xgboost sklearn_hgb
++ python -m pid train --task ehad --model lightgbm --dataset-tag clean26071 --features output/pid-features_clean26071.pkl --seed 1234 --n-iter 24
+[train] feature table output/pid-features_clean26071.pkl: 1627525 rows, 112 cols
+[dataset] WARNING: 22 numeric column(s) excluded (not allowlisted, or all-NaN here): ['drich_aerogel_pathlength', 'drich_gas_pathlength', 'e_hcal_forward', 'e_over_p_forward', 'ecal_forward_E', 'ecal_forward_delta_r', 'ecal_forward_has_shape', 'ecal_forward_n', 'ecal_forward_shape_0', 'ecal_forward_shape_1', 'ecal_forward_shape_2', 'ecal_forward_shape_3', 'ecal_forward_shape_4', 'ecal_forward_shape_5', 'ecal_forward_shape_6', 'ecal_forward_t', 'hcal_forward_E', 'hcal_forward_delta_r', 'hcal_forward_n', 'hcal_forward_t', 'leakage_forward', 'log_e_over_p_forward']
+[train/ehad/lightgbm/clean26071] 427531 rows, 30 features, 2 classes -> AUC train 0.9986 / test 0.9981 (label-shuffle control 0.5112) in 518.8s
+[train] top gain features: ['ecal_backward_E', 'e_over_p_backward', 'log_e_over_p_backward']
+[gate:PASS] train_test_auc_gap: 0.00044606640916622364 | requires 0.02
+[gate:PASS] label_shuffle_control: {"control_auc_mean": 0.511183900307878, "control_auc_std": 0.03269826646113461, "control_auc_max": 0.5371683766494736, "model_auc_test": 0.9981227933513541, "z": 14.891887116470077} | requires {"min_z": 3.0, "min_auc_margin": 0.1}  [5 balanced permutations, 20677/class; AUCs [0.5123, 0.4566, 0.5138, 0.5372, 0.5361]]
+[gate:FAIL] top_feature_is_physical: {"gain_top3": ["ecal_backward_E", "e_over_p_backward", "log_e_over_p_backward"], "shap_top3": ["ecal_backward_E", "log_e_over_p_backward", "ecal_backward_n"]} | requires {"gain_patterns": ["e_over_p", "log_e_over_p", "ecal_"], "shap_must_lead": "e_over_p"}
+[gate:PASS] no_single_feature_label_correlation: 0.7042959042654985 | requires 0.95
+[train] artifacts -> output/models/ehad_lightgbm_clean26071/
+pid.train: gates failed for ehad/lightgbm/clean26071: ['top_feature_is_physical']. Re-run with --relax-gates to inspect the result anyway, and record the failure if the number is ever quoted.
++ echo '[run_pid] train ehad/lightgbm failed (statistics?)'
+[run_pid] train ehad/lightgbm failed (statistics?)
++ '[' -f output/models/ehad_lightgbm_clean26071/test_scores.pkl ']'
++ python -m pid evaluate --task ehad --model lightgbm --dataset-tag clean26071 --scores output/models/ehad_lightgbm_clean26071/test_scores.pkl --by pt,eta --plot --eta-region 'barrel,forward endcap,backward endcap' --features output/pid-features_clean26071.pkl --max-file-failures 0 --cache-dir cache/pid_features
+[evaluate/ehad] NOTE: 72 rows fall outside the pt bin edges and are excluded from the binned table (the global overall table still counts them)
+[report] wrote output/pid-ehad_lightgbm_clean26071-overall.json, output/pid-ehad_lightgbm_clean26071-overall.md, output/pid-ehad_lightgbm_clean26071-overall.root (8 rows)
+[report] wrote output/pid-ehad_lightgbm_clean26071-vs_pt.json, output/pid-ehad_lightgbm_clean26071-vs_pt.md, output/pid-ehad_lightgbm_clean26071-vs_pt.root (8 rows)
+[report] wrote output/pid-ehad_lightgbm_clean26071-vs_eta.json, output/pid-ehad_lightgbm_clean26071-vs_eta.md, output/pid-ehad_lightgbm_clean26071-vs_eta.root (5 rows)
+[report] wrote output/pid-ehad_lightgbm_clean26071-confusion.json, output/pid-ehad_lightgbm_clean26071-confusion.md, output/pid-ehad_lightgbm_clean26071-confusion.root (4 rows)
+[report] wrote output/pid-ehad_lightgbm_clean26071-roc.json, output/pid-ehad_lightgbm_clean26071-roc.md, output/pid-ehad_lightgbm_clean26071-roc.root (200 rows)
+[report] wrote output/pid-ehad_lightgbm_clean26071-calibration.json, output/pid-ehad_lightgbm_clean26071-calibration.md, output/pid-ehad_lightgbm_clean26071-calibration.root (10 rows)
+[evaluate/ehad_lightgbm_clean26071] scored sample: 75 file(s), 1409 event(s), 106996 tracks (100074 signal / 6922 background)
+[evaluate/ehad_lightgbm_clean26071] auc              0.9981227933513541
+[evaluate/ehad_lightgbm_clean26071] signal_peak      7.826782670865702
+[evaluate/ehad_lightgbm_clean26071] background_peak  -6.615497653182073
+[evaluate/ehad_lightgbm_clean26071] n_sigma_lower_limit nan  [NOT COMPUTABLE: too few candidates to fit]
+[evaluate/ehad_lightgbm_clean26071] n_sigma          4.098519961459033
+[evaluate/ehad_lightgbm_clean26071] efficiency       0.9719307712292903 (target fake 0.01)
+[evaluate/ehad_lightgbm_clean26071] efficiency       0.9467294202290305 (target fake 0.001)
+[evaluate/ehad_lightgbm_clean26071] efficiency       0.9122449387453284 (target fake 0.0001)
+[regions] attached ['barrel', 'forward endcap', 'backward endcap'] acceptance (barrel: 0/0 in acceptance; forward endcap: 0/0 in acceptance; backward endcap: 103505/106996 in acceptance; 0 files skipped, 0 rows unclassifiable)
+[evaluate/ehad_lightgbm_clean26071] NOTE: no in-acceptance rows in barrel; skipping its tables
+[evaluate/ehad_lightgbm_clean26071] NOTE: no in-acceptance rows in forward endcap; skipping its tables
+[evaluate/ehad] NOTE: 72 rows fall outside the pt bin edges and are excluded from the binned table (the global overall table still counts them)
+[report] wrote output/pid-ehad_lightgbm_clean26071_backward_endcap-overall.json, output/pid-ehad_lightgbm_clean26071_backward_endcap-overall.md, output/pid-ehad_lightgbm_clean26071_backward_endcap-overall.root (8 rows)
+[report] wrote output/pid-ehad_lightgbm_clean26071_backward_endcap-vs_pt.json, output/pid-ehad_lightgbm_clean26071_backward_endcap-vs_pt.md, output/pid-ehad_lightgbm_clean26071_backward_endcap-vs_pt.root (8 rows)
+[report] wrote output/pid-ehad_lightgbm_clean26071_backward_endcap-vs_eta.json, output/pid-ehad_lightgbm_clean26071_backward_endcap-vs_eta.md, output/pid-ehad_lightgbm_clean26071_backward_endcap-vs_eta.root (5 rows)
+[report] wrote output/pid-ehad_lightgbm_clean26071_backward_endcap-confusion.json, output/pid-ehad_lightgbm_clean26071_backward_endcap-confusion.md, output/pid-ehad_lightgbm_clean26071_backward_endcap-confusion.root (4 rows)
+[report] wrote output/pid-ehad_lightgbm_clean26071_backward_endcap-roc.json, output/pid-ehad_lightgbm_clean26071_backward_endcap-roc.md, output/pid-ehad_lightgbm_clean26071_backward_endcap-roc.root (200 rows)
+[evaluate/ehad_lightgbm_clean26071_backward_endcap] scored sample: 75 file(s), 1409 event(s), 103505 tracks (97748 signal / 5757 background)
+[evaluate/ehad_lightgbm_clean26071_backward_endcap] auc              0.9993867346881402
+[evaluate/ehad_lightgbm_clean26071_backward_endcap] signal_peak      7.769764068710336
+[evaluate/ehad_lightgbm_clean26071_backward_endcap] background_peak  -6.553775539583074
+[evaluate/ehad_lightgbm_clean26071_backward_endcap] n_sigma_lower_limit nan  [NOT COMPUTABLE: too few candidates to fit]
+[evaluate/ehad_lightgbm_clean26071_backward_endcap] n_sigma          4.571639897798216
+[evaluate/ehad_lightgbm_clean26071_backward_endcap] efficiency       0.9914678561198184 (target fake 0.01)
+[evaluate/ehad_lightgbm_clean26071_backward_endcap] efficiency       0.9673446004010312 (target fake 0.001)
+[evaluate/ehad_lightgbm_clean26071_backward_endcap] efficiency       0.9339526128411835 (target fake 0.0001)
+[plot] wrote output/plots/pid-ehad_lightgbm_clean26071-roc.png
+[plot] wrote output/plots/pid-ehad_lightgbm_clean26071-eff_vs_fake.png
+[plot] wrote output/plots/pid-ehad_lightgbm_clean26071-auc_vs_pt.png
+[plot] wrote output/plots/pid-ehad_lightgbm_clean26071-auc_vs_eta.png
+[plot] wrote output/plots/pid-ehad_lightgbm_clean26071_backward_endcap-roc.png
+[plot] wrote output/plots/pid-ehad_lightgbm_clean26071_backward_endcap-eff_vs_fake.png
+[plot] wrote output/plots/pid-ehad_lightgbm_clean26071_backward_endcap-auc_vs_pt.png
+/opt/local/lib/python3.13/site-packages/XRootD/client/finalize.py:46: FutureWarning: `torch.distributed.reduce_op` is deprecated, please use `torch.distributed.ReduceOp` instead
+  if isinstance(obj, File) and obj.is_open():
++ python -m pid importance --dir output/models/ehad_lightgbm_clean26071 --task ehad --model lightgbm --dataset-tag clean26071 --plot
+[importance] gains/SHAP read from booster.joblib (unwrapped booster)
+[report] wrote output/pid-ehad_lightgbm_clean26071-importance-gain.json, output/pid-ehad_lightgbm_clean26071-importance-gain.md, output/pid-ehad_lightgbm_clean26071-importance-gain.root (30 rows)
+[report] wrote output/pid-ehad_lightgbm_clean26071-importance-shap.json, output/pid-ehad_lightgbm_clean26071-importance-shap.md, output/pid-ehad_lightgbm_clean26071-importance-shap.root (30 rows)
+[report] wrote output/pid-ehad_lightgbm_clean26071-importance-permutation.json, output/pid-ehad_lightgbm_clean26071-importance-permutation.md, output/pid-ehad_lightgbm_clean26071-importance-permutation.root (30 rows)
+
+[importance] leading feature: {'kind': 'shap', 'column': 'ecal_backward_E', 'family': 'calorimeter'}
+[plot] wrote output/plots/pid-ehad_lightgbm_clean26071-importance.png
++ for lib in lightgbm xgboost sklearn_hgb
++ python -m pid train --task ehad --model xgboost --dataset-tag clean26071 --features output/pid-features_clean26071.pkl --seed 1234 --n-iter 24
+[train] feature table output/pid-features_clean26071.pkl: 1627525 rows, 112 cols
+[dataset] WARNING: 22 numeric column(s) excluded (not allowlisted, or all-NaN here): ['drich_aerogel_pathlength', 'drich_gas_pathlength', 'e_hcal_forward', 'e_over_p_forward', 'ecal_forward_E', 'ecal_forward_delta_r', 'ecal_forward_has_shape', 'ecal_forward_n', 'ecal_forward_shape_0', 'ecal_forward_shape_1', 'ecal_forward_shape_2', 'ecal_forward_shape_3', 'ecal_forward_shape_4', 'ecal_forward_shape_5', 'ecal_forward_shape_6', 'ecal_forward_t', 'hcal_forward_E', 'hcal_forward_delta_r', 'hcal_forward_n', 'hcal_forward_t', 'leakage_forward', 'log_e_over_p_forward']
+[train/ehad/xgboost/clean26071] 427531 rows, 30 features, 2 classes -> AUC train 0.9985 / test 0.9981 (label-shuffle control 0.5072) in 546.2s
+[train] top gain features: ['ecal_backward_E', 'log_e_over_p_backward', 'e_over_p_backward']
+[gate:PASS] train_test_auc_gap: 0.00039340913862273563 | requires 0.02
+[gate:PASS] label_shuffle_control: {"control_auc_mean": 0.5071552117887544, "control_auc_std": 0.019394715636642534, "control_auc_max": 0.5240107368221598, "model_auc_test": 0.9981461767988307, "z": 25.31570837174042} | requires {"min_z": 3.0, "min_auc_margin": 0.1}  [5 balanced permutations, 20677/class; AUCs [0.5063, 0.4746, 0.5119, 0.5189, 0.524]]
+[gate:FAIL] top_feature_is_physical: {"gain_top3": ["ecal_backward_E", "log_e_over_p_backward", "e_over_p_backward"], "shap_top3": ["ecal_backward_E", "ecal_backward_n", "e_over_p_backward"]} | requires {"gain_patterns": ["e_over_p", "log_e_over_p", "ecal_"], "shap_must_lead": "e_over_p"}
+[gate:PASS] no_single_feature_label_correlation: 0.7042959042654985 | requires 0.95
+[train] artifacts -> output/models/ehad_xgboost_clean26071/
+pid.train: gates failed for ehad/xgboost/clean26071: ['top_feature_is_physical']. Re-run with --relax-gates to inspect the result anyway, and record the failure if the number is ever quoted.
++ echo '[run_pid] train ehad/xgboost failed (statistics?)'
+[run_pid] train ehad/xgboost failed (statistics?)
++ '[' -f output/models/ehad_xgboost_clean26071/test_scores.pkl ']'
++ python -m pid evaluate --task ehad --model xgboost --dataset-tag clean26071 --scores output/models/ehad_xgboost_clean26071/test_scores.pkl --by pt,eta --plot --eta-region 'barrel,forward endcap,backward endcap' --features output/pid-features_clean26071.pkl --max-file-failures 0 --cache-dir cache/pid_features
+[evaluate/ehad] NOTE: 72 rows fall outside the pt bin edges and are excluded from the binned table (the global overall table still counts them)
+[report] wrote output/pid-ehad_xgboost_clean26071-overall.json, output/pid-ehad_xgboost_clean26071-overall.md, output/pid-ehad_xgboost_clean26071-overall.root (8 rows)
+[report] wrote output/pid-ehad_xgboost_clean26071-vs_pt.json, output/pid-ehad_xgboost_clean26071-vs_pt.md, output/pid-ehad_xgboost_clean26071-vs_pt.root (8 rows)
+[report] wrote output/pid-ehad_xgboost_clean26071-vs_eta.json, output/pid-ehad_xgboost_clean26071-vs_eta.md, output/pid-ehad_xgboost_clean26071-vs_eta.root (5 rows)
+[report] wrote output/pid-ehad_xgboost_clean26071-confusion.json, output/pid-ehad_xgboost_clean26071-confusion.md, output/pid-ehad_xgboost_clean26071-confusion.root (4 rows)
+[report] wrote output/pid-ehad_xgboost_clean26071-roc.json, output/pid-ehad_xgboost_clean26071-roc.md, output/pid-ehad_xgboost_clean26071-roc.root (200 rows)
+[report] wrote output/pid-ehad_xgboost_clean26071-calibration.json, output/pid-ehad_xgboost_clean26071-calibration.md, output/pid-ehad_xgboost_clean26071-calibration.root (10 rows)
+[evaluate/ehad_xgboost_clean26071] scored sample: 75 file(s), 1409 event(s), 106996 tracks (100074 signal / 6922 background)
+[evaluate/ehad_xgboost_clean26071] auc              0.9981461767988307
+[evaluate/ehad_xgboost_clean26071] signal_peak      4.49898560627526
+[evaluate/ehad_xgboost_clean26071] background_peak  -4.831908139531726
+[evaluate/ehad_xgboost_clean26071] n_sigma_lower_limit nan  [NOT COMPUTABLE: too few candidates to fit]
+[evaluate/ehad_xgboost_clean26071] n_sigma          4.104076315151127
+[evaluate/ehad_xgboost_clean26071] efficiency       0.9728101205108219 (target fake 0.01)
+[evaluate/ehad_xgboost_clean26071] efficiency       0.9499670244019426 (target fake 0.001)
+[evaluate/ehad_xgboost_clean26071] efficiency       0.9097867577992286 (target fake 0.0001)
+[regions] attached ['barrel', 'forward endcap', 'backward endcap'] acceptance (barrel: 0/0 in acceptance; forward endcap: 0/0 in acceptance; backward endcap: 103505/106996 in acceptance; 0 files skipped, 0 rows unclassifiable)
+[evaluate/ehad_xgboost_clean26071] NOTE: no in-acceptance rows in barrel; skipping its tables
+[evaluate/ehad_xgboost_clean26071] NOTE: no in-acceptance rows in forward endcap; skipping its tables
+[evaluate/ehad] NOTE: 72 rows fall outside the pt bin edges and are excluded from the binned table (the global overall table still counts them)
+[report] wrote output/pid-ehad_xgboost_clean26071_backward_endcap-overall.json, output/pid-ehad_xgboost_clean26071_backward_endcap-overall.md, output/pid-ehad_xgboost_clean26071_backward_endcap-overall.root (8 rows)
+[report] wrote output/pid-ehad_xgboost_clean26071_backward_endcap-vs_pt.json, output/pid-ehad_xgboost_clean26071_backward_endcap-vs_pt.md, output/pid-ehad_xgboost_clean26071_backward_endcap-vs_pt.root (8 rows)
+[report] wrote output/pid-ehad_xgboost_clean26071_backward_endcap-vs_eta.json, output/pid-ehad_xgboost_clean26071_backward_endcap-vs_eta.md, output/pid-ehad_xgboost_clean26071_backward_endcap-vs_eta.root (5 rows)
+[report] wrote output/pid-ehad_xgboost_clean26071_backward_endcap-confusion.json, output/pid-ehad_xgboost_clean26071_backward_endcap-confusion.md, output/pid-ehad_xgboost_clean26071_backward_endcap-confusion.root (4 rows)
+[report] wrote output/pid-ehad_xgboost_clean26071_backward_endcap-roc.json, output/pid-ehad_xgboost_clean26071_backward_endcap-roc.md, output/pid-ehad_xgboost_clean26071_backward_endcap-roc.root (200 rows)
+[evaluate/ehad_xgboost_clean26071_backward_endcap] scored sample: 75 file(s), 1409 event(s), 103505 tracks (97748 signal / 5757 background)
+[evaluate/ehad_xgboost_clean26071_backward_endcap] auc              0.9994158087516667
+[evaluate/ehad_xgboost_clean26071_backward_endcap] signal_peak      4.565258541820884
+[evaluate/ehad_xgboost_clean26071_backward_endcap] background_peak  -4.831917064508026
+[evaluate/ehad_xgboost_clean26071_backward_endcap] n_sigma_lower_limit nan  [NOT COMPUTABLE: too few candidates to fit]
+[evaluate/ehad_xgboost_clean26071_backward_endcap] n_sigma          4.591227786502747
+[evaluate/ehad_xgboost_clean26071_backward_endcap] efficiency       0.9918156893235667 (target fake 0.01)
+[evaluate/ehad_xgboost_clean26071_backward_endcap] efficiency       0.9728485493309326 (target fake 0.001)
+[evaluate/ehad_xgboost_clean26071_backward_endcap] efficiency       0.9314359373081802 (target fake 0.0001)
+[plot] wrote output/plots/pid-ehad_xgboost_clean26071-roc.png
+[plot] wrote output/plots/pid-ehad_xgboost_clean26071-eff_vs_fake.png
+[plot] wrote output/plots/pid-ehad_xgboost_clean26071-auc_vs_pt.png
+[plot] wrote output/plots/pid-ehad_xgboost_clean26071-auc_vs_eta.png
+[plot] wrote output/plots/pid-ehad_xgboost_clean26071_backward_endcap-roc.png
+[plot] wrote output/plots/pid-ehad_xgboost_clean26071_backward_endcap-eff_vs_fake.png
+[plot] wrote output/plots/pid-ehad_xgboost_clean26071_backward_endcap-auc_vs_pt.png
+/opt/local/lib/python3.13/site-packages/XRootD/client/finalize.py:46: FutureWarning: `torch.distributed.reduce_op` is deprecated, please use `torch.distributed.ReduceOp` instead
+  if isinstance(obj, File) and obj.is_open():
++ python -m pid importance --dir output/models/ehad_xgboost_clean26071 --task ehad --model xgboost --dataset-tag clean26071 --plot
+[importance] gains/SHAP read from booster.joblib (unwrapped booster)
+[report] wrote output/pid-ehad_xgboost_clean26071-importance-gain.json, output/pid-ehad_xgboost_clean26071-importance-gain.md, output/pid-ehad_xgboost_clean26071-importance-gain.root (30 rows)
+[report] wrote output/pid-ehad_xgboost_clean26071-importance-shap.json, output/pid-ehad_xgboost_clean26071-importance-shap.md, output/pid-ehad_xgboost_clean26071-importance-shap.root (30 rows)
+[report] wrote output/pid-ehad_xgboost_clean26071-importance-permutation.json, output/pid-ehad_xgboost_clean26071-importance-permutation.md, output/pid-ehad_xgboost_clean26071-importance-permutation.root (30 rows)
+
+[importance] leading feature: {'kind': 'shap', 'column': 'ecal_backward_E', 'family': 'calorimeter'}
+[plot] wrote output/plots/pid-ehad_xgboost_clean26071-importance.png
++ for lib in lightgbm xgboost sklearn_hgb
++ python -m pid train --task ehad --model sklearn_hgb --dataset-tag clean26071 --features output/pid-features_clean26071.pkl --seed 1234 --n-iter 24
+[train] feature table output/pid-features_clean26071.pkl: 1627525 rows, 112 cols
+[dataset] WARNING: 22 numeric column(s) excluded (not allowlisted, or all-NaN here): ['drich_aerogel_pathlength', 'drich_gas_pathlength', 'e_hcal_forward', 'e_over_p_forward', 'ecal_forward_E', 'ecal_forward_delta_r', 'ecal_forward_has_shape', 'ecal_forward_n', 'ecal_forward_shape_0', 'ecal_forward_shape_1', 'ecal_forward_shape_2', 'ecal_forward_shape_3', 'ecal_forward_shape_4', 'ecal_forward_shape_5', 'ecal_forward_shape_6', 'ecal_forward_t', 'hcal_forward_E', 'hcal_forward_delta_r', 'hcal_forward_n', 'hcal_forward_t', 'leakage_forward', 'log_e_over_p_forward']
+[train/ehad/sklearn_hgb/clean26071] 427531 rows, 30 features, 2 classes -> AUC train 0.9987 / test 0.9981 (label-shuffle control 0.5112) in 274.2s
+[train] top gain features: ['chi2', 'chi2_per_ndf', 'e_hcal_backward']
+[gate:PASS] train_test_auc_gap: 0.0005140980319477961 | requires 0.02
+[gate:PASS] label_shuffle_control: {"control_auc_mean": 0.5112290734674312, "control_auc_std": 0.02818612533554895, "control_auc_max": 0.5311852312212973, "model_auc_test": 0.9981473569425715, "z": 17.275105310804406} | requires {"min_z": 3.0, "min_auc_margin": 0.1}  [5 balanced permutations, 20677/class; AUCs [0.5161, 0.4625, 0.5161, 0.5312, 0.5302]]
+[gate:FAIL] top_feature_is_physical: {"gain_top3": ["chi2", "chi2_per_ndf", "e_hcal_backward"], "shap_top3": []} | requires {"gain_patterns": ["e_over_p", "log_e_over_p", "ecal_"], "shap_must_lead": "e_over_p"}
+[gate:PASS] no_single_feature_label_correlation: 0.7042959042654985 | requires 0.95
+[train] artifacts -> output/models/ehad_sklearn_hgb_clean26071/
+pid.train: gates failed for ehad/sklearn_hgb/clean26071: ['top_feature_is_physical']. Re-run with --relax-gates to inspect the result anyway, and record the failure if the number is ever quoted.
++ echo '[run_pid] train ehad/sklearn_hgb failed (statistics?)'
+[run_pid] train ehad/sklearn_hgb failed (statistics?)
++ '[' -f output/models/ehad_sklearn_hgb_clean26071/test_scores.pkl ']'
++ python -m pid evaluate --task ehad --model sklearn_hgb --dataset-tag clean26071 --scores output/models/ehad_sklearn_hgb_clean26071/test_scores.pkl --by pt,eta --plot --eta-region 'barrel,forward endcap,backward endcap' --features output/pid-features_clean26071.pkl --max-file-failures 0 --cache-dir cache/pid_features
+[evaluate/ehad] NOTE: 72 rows fall outside the pt bin edges and are excluded from the binned table (the global overall table still counts them)
+[report] wrote output/pid-ehad_sklearn_hgb_clean26071-overall.json, output/pid-ehad_sklearn_hgb_clean26071-overall.md, output/pid-ehad_sklearn_hgb_clean26071-overall.root (8 rows)
+[report] wrote output/pid-ehad_sklearn_hgb_clean26071-vs_pt.json, output/pid-ehad_sklearn_hgb_clean26071-vs_pt.md, output/pid-ehad_sklearn_hgb_clean26071-vs_pt.root (8 rows)
+[report] wrote output/pid-ehad_sklearn_hgb_clean26071-vs_eta.json, output/pid-ehad_sklearn_hgb_clean26071-vs_eta.md, output/pid-ehad_sklearn_hgb_clean26071-vs_eta.root (5 rows)
+[report] wrote output/pid-ehad_sklearn_hgb_clean26071-confusion.json, output/pid-ehad_sklearn_hgb_clean26071-confusion.md, output/pid-ehad_sklearn_hgb_clean26071-confusion.root (4 rows)
+[report] wrote output/pid-ehad_sklearn_hgb_clean26071-roc.json, output/pid-ehad_sklearn_hgb_clean26071-roc.md, output/pid-ehad_sklearn_hgb_clean26071-roc.root (200 rows)
+[report] wrote output/pid-ehad_sklearn_hgb_clean26071-calibration.json, output/pid-ehad_sklearn_hgb_clean26071-calibration.md, output/pid-ehad_sklearn_hgb_clean26071-calibration.root (10 rows)
+[evaluate/ehad_sklearn_hgb_clean26071] scored sample: 75 file(s), 1409 event(s), 106996 tracks (100074 signal / 6922 background)
+[evaluate/ehad_sklearn_hgb_clean26071] auc              0.9981473569425715
+[evaluate/ehad_sklearn_hgb_clean26071] signal_peak      7.924958791817547
+[evaluate/ehad_sklearn_hgb_clean26071] background_peak  -6.4441408396369635
+[evaluate/ehad_sklearn_hgb_clean26071] n_sigma_lower_limit nan  [NOT COMPUTABLE: too few candidates to fit]
+[evaluate/ehad_sklearn_hgb_clean26071] n_sigma          4.104358425530977
+[evaluate/ehad_sklearn_hgb_clean26071] efficiency       0.9738793292963207 (target fake 0.01)
+[evaluate/ehad_sklearn_hgb_clean26071] efficiency       0.948048444151328 (target fake 0.001)
+[evaluate/ehad_sklearn_hgb_clean26071] efficiency       0.9097767651937566 (target fake 0.0001)
+[regions] attached ['barrel', 'forward endcap', 'backward endcap'] acceptance (barrel: 0/0 in acceptance; forward endcap: 0/0 in acceptance; backward endcap: 103505/106996 in acceptance; 0 files skipped, 0 rows unclassifiable)
+[evaluate/ehad_sklearn_hgb_clean26071] NOTE: no in-acceptance rows in barrel; skipping its tables
+[evaluate/ehad_sklearn_hgb_clean26071] NOTE: no in-acceptance rows in forward endcap; skipping its tables
+[evaluate/ehad] NOTE: 72 rows fall outside the pt bin edges and are excluded from the binned table (the global overall table still counts them)
+[report] wrote output/pid-ehad_sklearn_hgb_clean26071_backward_endcap-overall.json, output/pid-ehad_sklearn_hgb_clean26071_backward_endcap-overall.md, output/pid-ehad_sklearn_hgb_clean26071_backward_endcap-overall.root (8 rows)
+[report] wrote output/pid-ehad_sklearn_hgb_clean26071_backward_endcap-vs_pt.json, output/pid-ehad_sklearn_hgb_clean26071_backward_endcap-vs_pt.md, output/pid-ehad_sklearn_hgb_clean26071_backward_endcap-vs_pt.root (8 rows)
+[report] wrote output/pid-ehad_sklearn_hgb_clean26071_backward_endcap-vs_eta.json, output/pid-ehad_sklearn_hgb_clean26071_backward_endcap-vs_eta.md, output/pid-ehad_sklearn_hgb_clean26071_backward_endcap-vs_eta.root (5 rows)
+[report] wrote output/pid-ehad_sklearn_hgb_clean26071_backward_endcap-confusion.json, output/pid-ehad_sklearn_hgb_clean26071_backward_endcap-confusion.md, output/pid-ehad_sklearn_hgb_clean26071_backward_endcap-confusion.root (4 rows)
+[report] wrote output/pid-ehad_sklearn_hgb_clean26071_backward_endcap-roc.json, output/pid-ehad_sklearn_hgb_clean26071_backward_endcap-roc.md, output/pid-ehad_sklearn_hgb_clean26071_backward_endcap-roc.root (200 rows)
+[evaluate/ehad_sklearn_hgb_clean26071_backward_endcap] scored sample: 75 file(s), 1409 event(s), 103505 tracks (97748 signal / 5757 background)
+[evaluate/ehad_sklearn_hgb_clean26071_backward_endcap] auc              0.9994266148992312
+[evaluate/ehad_sklearn_hgb_clean26071_backward_endcap] signal_peak      7.924958795006809
+[evaluate/ehad_sklearn_hgb_clean26071_backward_endcap] background_peak  -6.450270050000338
+[evaluate/ehad_sklearn_hgb_clean26071_backward_endcap] n_sigma_lower_limit nan  [NOT COMPUTABLE: too few candidates to fit]
+[evaluate/ehad_sklearn_hgb_clean26071_backward_endcap] n_sigma          4.598738483774348
+[evaluate/ehad_sklearn_hgb_clean26071_backward_endcap] efficiency       0.9931354094201416 (target fake 0.01)
+[evaluate/ehad_sklearn_hgb_clean26071_backward_endcap] efficiency       0.9704853296231125 (target fake 0.001)
+[evaluate/ehad_sklearn_hgb_clean26071_backward_endcap] efficiency       0.9314257069198347 (target fake 0.0001)
+[plot] wrote output/plots/pid-ehad_sklearn_hgb_clean26071-roc.png
+[plot] wrote output/plots/pid-ehad_sklearn_hgb_clean26071-eff_vs_fake.png
+[plot] wrote output/plots/pid-ehad_sklearn_hgb_clean26071-auc_vs_pt.png
+[plot] wrote output/plots/pid-ehad_sklearn_hgb_clean26071-auc_vs_eta.png
+[plot] wrote output/plots/pid-ehad_sklearn_hgb_clean26071_backward_endcap-roc.png
+[plot] wrote output/plots/pid-ehad_sklearn_hgb_clean26071_backward_endcap-eff_vs_fake.png
+[plot] wrote output/plots/pid-ehad_sklearn_hgb_clean26071_backward_endcap-auc_vs_pt.png
+/opt/local/lib/python3.13/site-packages/XRootD/client/finalize.py:46: FutureWarning: `torch.distributed.reduce_op` is deprecated, please use `torch.distributed.ReduceOp` instead
+  if isinstance(obj, File) and obj.is_open():
++ python -m pid importance --dir output/models/ehad_sklearn_hgb_clean26071 --task ehad --model sklearn_hgb --dataset-tag clean26071 --plot
+[importance] gains/SHAP read from booster.joblib (unwrapped booster)
+[importance] pid.models.sklearn_hgb: HistGradientBoosting has no built-in TreeSHAP. Use `pid importance --kind permutation`, or the lightgbm/xgboost models, for SHAP values.
+[report] wrote output/pid-ehad_sklearn_hgb_clean26071-importance-gain.json, output/pid-ehad_sklearn_hgb_clean26071-importance-gain.md, output/pid-ehad_sklearn_hgb_clean26071-importance-gain.root (30 rows)
+[report] wrote output/pid-ehad_sklearn_hgb_clean26071-importance-permutation.json, output/pid-ehad_sklearn_hgb_clean26071-importance-permutation.md, output/pid-ehad_sklearn_hgb_clean26071-importance-permutation.root (30 rows)
+
+[importance] leading feature: {'kind': 'gain', 'column': 'chi2', 'family': 'tracker'}
+[importance] NOTE: gain: leading feature 'chi2' (family 'tracker') is not one of the expected PID observables ['e_over_p', 'log_e_over_p', 'ecal_']
+[plot] wrote output/plots/pid-ehad_sklearn_hgb_clean26071-importance.png
++ echo '[run_pid] WARNING: importance ehad/sklearn_hgb failed - see log above'
+[run_pid] WARNING: importance ehad/sklearn_hgb failed - see log above
++ for task in $(echo "eid,ehad,hadpid,pooled" | tr ',' ' ')
++ for lib in lightgbm xgboost sklearn_hgb
++ python -m pid train --task hadpid --model lightgbm --dataset-tag clean26071 --features output/pid-features_clean26071.pkl --seed 1234 --n-iter 24
+[train] feature table output/pid-features_clean26071.pkl: 1627525 rows, 112 cols
+[dataset] WARNING: 20 numeric column(s) excluded (not allowlisted, or all-NaN here): ['e_hcal_backward', 'e_over_p_backward', 'ecal_backward_E', 'ecal_backward_delta_r', 'ecal_backward_has_shape', 'ecal_backward_n', 'ecal_backward_shape_0', 'ecal_backward_shape_1', 'ecal_backward_shape_2', 'ecal_backward_shape_3', 'ecal_backward_shape_4', 'ecal_backward_shape_5', 'ecal_backward_shape_6', 'ecal_backward_t', 'hcal_backward_E', 'hcal_backward_delta_r', 'hcal_backward_n', 'hcal_backward_t', 'leakage_backward', 'log_e_over_p_backward']
+[train/hadpid/lightgbm/clean26071] 735036 rows, 32 features, 3 classes -> AUC train 0.7474 / test 0.6922 (label-shuffle control 0.4998) in 2992.7s
+[train] top gain features: ['ecal_forward_E', 'e_over_p_forward', 'ecal_forward_t']
+[gate:FAIL] train_test_auc_gap: 0.05517269514878631 | requires 0.02
+[gate:PASS] label_shuffle_control: {"control_auc_mean": 0.49979021448054606, "control_auc_std": 0.002501313483626402, "control_auc_max": 0.5016982342189215, "model_auc_test": 0.6921857102837959, "z": 76.91778622018822} | requires {"min_z": 3.0, "min_auc_margin": 0.1}  [5 balanced permutations, 48591/class; AUCs [0.4954, 0.5005, 0.5008, 0.5017, 0.5005]]
+[gate:PASS] top_feature_is_physical: {"gain_top3": ["ecal_forward_E", "e_over_p_forward", "ecal_forward_t"], "shap_top3": ["ecal_forward_E", "e_over_p_forward", "ecal_forward_t"]} | requires {"gain_patterns": ["shape_", "rms_", "irt_", "drich", "e_over_p", "leakage", "ecal_"], "shap_must_lead": null}
+[gate:PASS] no_single_feature_label_correlation: -0.06168154687321367 | requires 0.95
+[train] artifacts -> output/models/hadpid_lightgbm_clean26071/
+pid.train: gates failed for hadpid/lightgbm/clean26071: ['train_test_auc_gap']. Re-run with --relax-gates to inspect the result anyway, and record the failure if the number is ever quoted.
++ echo '[run_pid] train hadpid/lightgbm failed (statistics?)'
+[run_pid] train hadpid/lightgbm failed (statistics?)
++ '[' -f output/models/hadpid_lightgbm_clean26071/test_scores.pkl ']'
++ python -m pid evaluate --task hadpid --model lightgbm --dataset-tag clean26071 --scores output/models/hadpid_lightgbm_clean26071/test_scores.pkl --by pt,eta --plot --eta-region 'barrel,forward endcap,backward endcap' --features output/pid-features_clean26071.pkl --max-file-failures 0 --cache-dir cache/pid_features
+[evaluate/hadpid_lightgbm_clean26071] NOTE: no --signal given for multiclass task 'hadpid'; quoting 'pi' vs rest
+[evaluate/hadpid] NOTE: 1290 rows fall outside the pt bin edges and are excluded from the binned table (the global overall table still counts them)
+[report] wrote output/pid-hadpid_lightgbm_clean26071-overall.json, output/pid-hadpid_lightgbm_clean26071-overall.md, output/pid-hadpid_lightgbm_clean26071-overall.root (8 rows)
+[report] wrote output/pid-hadpid_lightgbm_clean26071-vs_pt.json, output/pid-hadpid_lightgbm_clean26071-vs_pt.md, output/pid-hadpid_lightgbm_clean26071-vs_pt.root (8 rows)
+[report] wrote output/pid-hadpid_lightgbm_clean26071-vs_eta.json, output/pid-hadpid_lightgbm_clean26071-vs_eta.md, output/pid-hadpid_lightgbm_clean26071-vs_eta.root (5 rows)
+[report] wrote output/pid-hadpid_lightgbm_clean26071-confusion.json, output/pid-hadpid_lightgbm_clean26071-confusion.md, output/pid-hadpid_lightgbm_clean26071-confusion.root (9 rows)
+[report] wrote output/pid-hadpid_lightgbm_clean26071-roc.json, output/pid-hadpid_lightgbm_clean26071-roc.md, output/pid-hadpid_lightgbm_clean26071-roc.root (200 rows)
+[evaluate/hadpid_lightgbm_clean26071] scored sample: 75 file(s), 1409 event(s), 183537 tracks
+[evaluate/hadpid_lightgbm_clean26071] auc              0.7106453035890092
+[evaluate/hadpid_lightgbm_clean26071] signal_peak      -0.41978653488240997
+[evaluate/hadpid_lightgbm_clean26071] background_peak  -0.9574756016496119
+[evaluate/hadpid_lightgbm_clean26071] n_sigma_lower_limit nan  [NOT COMPUTABLE: too few candidates to fit]
+[evaluate/hadpid_lightgbm_clean26071] n_sigma          0.785271611012479
+[evaluate/hadpid_lightgbm_clean26071] efficiency       0.10398824572782506 (target fake 0.01)
+[evaluate/hadpid_lightgbm_clean26071] efficiency       0.028763551166823303 (target fake 0.001)
+[evaluate/hadpid_lightgbm_clean26071] efficiency       0.011013011767508967 (target fake 0.0001)
+[regions] attached ['barrel', 'forward endcap', 'backward endcap'] acceptance (barrel: 0/0 in acceptance; forward endcap: 168576/183537 in acceptance; backward endcap: 0/0 in acceptance; 0 files skipped, 0 rows unclassifiable)
+[evaluate/hadpid_lightgbm_clean26071] NOTE: no in-acceptance rows in barrel; skipping its tables
+[evaluate/hadpid] NOTE: 1287 rows fall outside the pt bin edges and are excluded from the binned table (the global overall table still counts them)
+[report] wrote output/pid-hadpid_lightgbm_clean26071_forward_endcap-overall.json, output/pid-hadpid_lightgbm_clean26071_forward_endcap-overall.md, output/pid-hadpid_lightgbm_clean26071_forward_endcap-overall.root (8 rows)
+[report] wrote output/pid-hadpid_lightgbm_clean26071_forward_endcap-vs_pt.json, output/pid-hadpid_lightgbm_clean26071_forward_endcap-vs_pt.md, output/pid-hadpid_lightgbm_clean26071_forward_endcap-vs_pt.root (8 rows)
+[report] wrote output/pid-hadpid_lightgbm_clean26071_forward_endcap-vs_eta.json, output/pid-hadpid_lightgbm_clean26071_forward_endcap-vs_eta.md, output/pid-hadpid_lightgbm_clean26071_forward_endcap-vs_eta.root (5 rows)
+[report] wrote output/pid-hadpid_lightgbm_clean26071_forward_endcap-confusion.json, output/pid-hadpid_lightgbm_clean26071_forward_endcap-confusion.md, output/pid-hadpid_lightgbm_clean26071_forward_endcap-confusion.root (9 rows)
+[report] wrote output/pid-hadpid_lightgbm_clean26071_forward_endcap-roc.json, output/pid-hadpid_lightgbm_clean26071_forward_endcap-roc.md, output/pid-hadpid_lightgbm_clean26071_forward_endcap-roc.root (200 rows)
+[evaluate/hadpid_lightgbm_clean26071_forward_endcap] scored sample: 75 file(s), 1409 event(s), 168576 tracks
+[evaluate/hadpid_lightgbm_clean26071_forward_endcap] auc              0.7070700315605214
+[evaluate/hadpid_lightgbm_clean26071_forward_endcap] signal_peak      -0.4285312700693399
+[evaluate/hadpid_lightgbm_clean26071_forward_endcap] background_peak  -0.9451193854885944
+[evaluate/hadpid_lightgbm_clean26071_forward_endcap] n_sigma_lower_limit nan  [NOT COMPUTABLE: too few candidates to fit]
+[evaluate/hadpid_lightgbm_clean26071_forward_endcap] n_sigma          0.7705275775207268
+[evaluate/hadpid_lightgbm_clean26071_forward_endcap] efficiency       0.1012690081604774 (target fake 0.01)
+[evaluate/hadpid_lightgbm_clean26071_forward_endcap] efficiency       0.02944242729266276 (target fake 0.001)
+[evaluate/hadpid_lightgbm_clean26071_forward_endcap] efficiency       0.01144623791206816 (target fake 0.0001)
+[evaluate/hadpid_lightgbm_clean26071] NOTE: no in-acceptance rows in backward endcap; skipping its tables
+[plot] wrote output/plots/pid-hadpid_lightgbm_clean26071-roc.png
+[plot] wrote output/plots/pid-hadpid_lightgbm_clean26071-eff_vs_fake.png
+[plot] wrote output/plots/pid-hadpid_lightgbm_clean26071-auc_vs_pt.png
+[plot] wrote output/plots/pid-hadpid_lightgbm_clean26071-auc_vs_eta.png
+[plot] wrote output/plots/pid-hadpid_lightgbm_clean26071_forward_endcap-roc.png
+[plot] wrote output/plots/pid-hadpid_lightgbm_clean26071_forward_endcap-eff_vs_fake.png
+[plot] wrote output/plots/pid-hadpid_lightgbm_clean26071_forward_endcap-auc_vs_pt.png
+/opt/local/lib/python3.13/site-packages/XRootD/client/finalize.py:46: FutureWarning: `torch.distributed.reduce_op` is deprecated, please use `torch.distributed.ReduceOp` instead
+  if isinstance(obj, File) and obj.is_open():
++ python -m pid importance --dir output/models/hadpid_lightgbm_clean26071 --task hadpid --model lightgbm --dataset-tag clean26071 --plot
+[importance] gains/SHAP read from booster.joblib (unwrapped booster)
+[report] wrote output/pid-hadpid_lightgbm_clean26071-importance-gain.json, output/pid-hadpid_lightgbm_clean26071-importance-gain.md, output/pid-hadpid_lightgbm_clean26071-importance-gain.root (32 rows)
+[report] wrote output/pid-hadpid_lightgbm_clean26071-importance-shap.json, output/pid-hadpid_lightgbm_clean26071-importance-shap.md, output/pid-hadpid_lightgbm_clean26071-importance-shap.root (32 rows)
+[report] wrote output/pid-hadpid_lightgbm_clean26071-importance-permutation.json, output/pid-hadpid_lightgbm_clean26071-importance-permutation.md, output/pid-hadpid_lightgbm_clean26071-importance-permutation.root (32 rows)
+
+[importance] leading feature: {'kind': 'shap', 'column': 'ecal_forward_E', 'family': 'calorimeter'}
+[plot] wrote output/plots/pid-hadpid_lightgbm_clean26071-importance.png
++ for lib in lightgbm xgboost sklearn_hgb
++ python -m pid train --task hadpid --model xgboost --dataset-tag clean26071 --features output/pid-features_clean26071.pkl --seed 1234 --n-iter 24
+[train] feature table output/pid-features_clean26071.pkl: 1627525 rows, 112 cols
+[dataset] WARNING: 20 numeric column(s) excluded (not allowlisted, or all-NaN here): ['e_hcal_backward', 'e_over_p_backward', 'ecal_backward_E', 'ecal_backward_delta_r', 'ecal_backward_has_shape', 'ecal_backward_n', 'ecal_backward_shape_0', 'ecal_backward_shape_1', 'ecal_backward_shape_2', 'ecal_backward_shape_3', 'ecal_backward_shape_4', 'ecal_backward_shape_5', 'ecal_backward_shape_6', 'ecal_backward_t', 'hcal_backward_E', 'hcal_backward_delta_r', 'hcal_backward_n', 'hcal_backward_t', 'leakage_backward', 'log_e_over_p_backward']
+[train/hadpid/xgboost/clean26071] 735036 rows, 32 features, 3 classes -> AUC train 0.7710 / test 0.6975 (label-shuffle control 0.5007) in 4730.1s
+[train] top gain features: ['log_e_over_p_forward', 'ecal_forward_t', 'ecal_forward_E']
+[gate:FAIL] train_test_auc_gap: 0.0735019249946891 | requires 0.02
+[gate:PASS] label_shuffle_control: {"control_auc_mean": 0.5006712874294118, "control_auc_std": 0.0029646649764769537, "control_auc_max": 0.5039785191949179, "model_auc_test": 0.6975040815714998, "z": 66.39292996134536} | requires {"min_z": 3.0, "min_auc_margin": 0.1}  [5 balanced permutations, 48591/class; AUCs [0.4961, 0.4998, 0.504, 0.5022, 0.5013]]
+[gate:PASS] top_feature_is_physical: {"gain_top3": ["log_e_over_p_forward", "ecal_forward_t", "ecal_forward_E"], "shap_top3": ["ecal_forward_E", "hcal_forward_t", "e_over_p_forward"]} | requires {"gain_patterns": ["shape_", "rms_", "irt_", "drich", "e_over_p", "leakage", "ecal_"], "shap_must_lead": null}
+[gate:PASS] no_single_feature_label_correlation: -0.06168154687321367 | requires 0.95
+[train] artifacts -> output/models/hadpid_xgboost_clean26071/
+pid.train: gates failed for hadpid/xgboost/clean26071: ['train_test_auc_gap']. Re-run with --relax-gates to inspect the result anyway, and record the failure if the number is ever quoted.
++ echo '[run_pid] train hadpid/xgboost failed (statistics?)'
+[run_pid] train hadpid/xgboost failed (statistics?)
++ '[' -f output/models/hadpid_xgboost_clean26071/test_scores.pkl ']'
++ python -m pid evaluate --task hadpid --model xgboost --dataset-tag clean26071 --scores output/models/hadpid_xgboost_clean26071/test_scores.pkl --by pt,eta --plot --eta-region 'barrel,forward endcap,backward endcap' --features output/pid-features_clean26071.pkl --max-file-failures 0 --cache-dir cache/pid_features
+[evaluate/hadpid_xgboost_clean26071] NOTE: no --signal given for multiclass task 'hadpid'; quoting 'pi' vs rest
+[evaluate/hadpid] NOTE: 1290 rows fall outside the pt bin edges and are excluded from the binned table (the global overall table still counts them)
+[report] wrote output/pid-hadpid_xgboost_clean26071-overall.json, output/pid-hadpid_xgboost_clean26071-overall.md, output/pid-hadpid_xgboost_clean26071-overall.root (8 rows)
+[report] wrote output/pid-hadpid_xgboost_clean26071-vs_pt.json, output/pid-hadpid_xgboost_clean26071-vs_pt.md, output/pid-hadpid_xgboost_clean26071-vs_pt.root (8 rows)
+[report] wrote output/pid-hadpid_xgboost_clean26071-vs_eta.json, output/pid-hadpid_xgboost_clean26071-vs_eta.md, output/pid-hadpid_xgboost_clean26071-vs_eta.root (5 rows)
+[report] wrote output/pid-hadpid_xgboost_clean26071-confusion.json, output/pid-hadpid_xgboost_clean26071-confusion.md, output/pid-hadpid_xgboost_clean26071-confusion.root (9 rows)
+[report] wrote output/pid-hadpid_xgboost_clean26071-roc.json, output/pid-hadpid_xgboost_clean26071-roc.md, output/pid-hadpid_xgboost_clean26071-roc.root (200 rows)
+[evaluate/hadpid_xgboost_clean26071] scored sample: 75 file(s), 1409 event(s), 183537 tracks
+[evaluate/hadpid_xgboost_clean26071] auc              0.7087014905548951
+[evaluate/hadpid_xgboost_clean26071] signal_peak      -0.3832164726667547
+[evaluate/hadpid_xgboost_clean26071] background_peak  -0.9942445195790904
+[evaluate/hadpid_xgboost_clean26071] n_sigma_lower_limit nan  [NOT COMPUTABLE: too few candidates to fit]
+[evaluate/hadpid_xgboost_clean26071] n_sigma          0.7772450535456117
+[evaluate/hadpid_xgboost_clean26071] efficiency       0.10228731782863648 (target fake 0.01)
+[evaluate/hadpid_xgboost_clean26071] efficiency       0.03532900048976134 (target fake 0.001)
+[evaluate/hadpid_xgboost_clean26071] efficiency       0.012058718413702728 (target fake 0.0001)
+[regions] attached ['barrel', 'forward endcap', 'backward endcap'] acceptance (barrel: 0/0 in acceptance; forward endcap: 168576/183537 in acceptance; backward endcap: 0/0 in acceptance; 0 files skipped, 0 rows unclassifiable)
+[evaluate/hadpid_xgboost_clean26071] NOTE: no in-acceptance rows in barrel; skipping its tables
+[evaluate/hadpid] NOTE: 1287 rows fall outside the pt bin edges and are excluded from the binned table (the global overall table still counts them)
+[report] wrote output/pid-hadpid_xgboost_clean26071_forward_endcap-overall.json, output/pid-hadpid_xgboost_clean26071_forward_endcap-overall.md, output/pid-hadpid_xgboost_clean26071_forward_endcap-overall.root (8 rows)
+[report] wrote output/pid-hadpid_xgboost_clean26071_forward_endcap-vs_pt.json, output/pid-hadpid_xgboost_clean26071_forward_endcap-vs_pt.md, output/pid-hadpid_xgboost_clean26071_forward_endcap-vs_pt.root (8 rows)
+[report] wrote output/pid-hadpid_xgboost_clean26071_forward_endcap-vs_eta.json, output/pid-hadpid_xgboost_clean26071_forward_endcap-vs_eta.md, output/pid-hadpid_xgboost_clean26071_forward_endcap-vs_eta.root (5 rows)
+[report] wrote output/pid-hadpid_xgboost_clean26071_forward_endcap-confusion.json, output/pid-hadpid_xgboost_clean26071_forward_endcap-confusion.md, output/pid-hadpid_xgboost_clean26071_forward_endcap-confusion.root (9 rows)
+[report] wrote output/pid-hadpid_xgboost_clean26071_forward_endcap-roc.json, output/pid-hadpid_xgboost_clean26071_forward_endcap-roc.md, output/pid-hadpid_xgboost_clean26071_forward_endcap-roc.root (200 rows)
+[evaluate/hadpid_xgboost_clean26071_forward_endcap] scored sample: 75 file(s), 1409 event(s), 168576 tracks
+[evaluate/hadpid_xgboost_clean26071_forward_endcap] auc              0.7049871901989307
+[evaluate/hadpid_xgboost_clean26071_forward_endcap] signal_peak      -0.3867408177290469
+[evaluate/hadpid_xgboost_clean26071_forward_endcap] background_peak  -0.9726093226146267
+[evaluate/hadpid_xgboost_clean26071_forward_endcap] n_sigma_lower_limit nan  [NOT COMPUTABLE: too few candidates to fit]
+[evaluate/hadpid_xgboost_clean26071_forward_endcap] n_sigma          0.7619767181521507
+[evaluate/hadpid_xgboost_clean26071_forward_endcap] efficiency       0.09924147104288744 (target fake 0.01)
+[evaluate/hadpid_xgboost_clean26071_forward_endcap] efficiency       0.03544595031815077 (target fake 0.001)
+[evaluate/hadpid_xgboost_clean26071_forward_endcap] efficiency       0.010986087644246325 (target fake 0.0001)
+[evaluate/hadpid_xgboost_clean26071] NOTE: no in-acceptance rows in backward endcap; skipping its tables
+[plot] wrote output/plots/pid-hadpid_xgboost_clean26071-roc.png
+[plot] wrote output/plots/pid-hadpid_xgboost_clean26071-eff_vs_fake.png
+[plot] wrote output/plots/pid-hadpid_xgboost_clean26071-auc_vs_pt.png
+[plot] wrote output/plots/pid-hadpid_xgboost_clean26071-auc_vs_eta.png
+[plot] wrote output/plots/pid-hadpid_xgboost_clean26071_forward_endcap-roc.png
+[plot] wrote output/plots/pid-hadpid_xgboost_clean26071_forward_endcap-eff_vs_fake.png
+[plot] wrote output/plots/pid-hadpid_xgboost_clean26071_forward_endcap-auc_vs_pt.png
+/opt/local/lib/python3.13/site-packages/XRootD/client/finalize.py:46: FutureWarning: `torch.distributed.reduce_op` is deprecated, please use `torch.distributed.ReduceOp` instead
+  if isinstance(obj, File) and obj.is_open():
++ python -m pid importance --dir output/models/hadpid_xgboost_clean26071 --task hadpid --model xgboost --dataset-tag clean26071 --plot
+[importance] gains/SHAP read from booster.joblib (unwrapped booster)
+[report] wrote output/pid-hadpid_xgboost_clean26071-importance-gain.json, output/pid-hadpid_xgboost_clean26071-importance-gain.md, output/pid-hadpid_xgboost_clean26071-importance-gain.root (32 rows)
+[report] wrote output/pid-hadpid_xgboost_clean26071-importance-shap.json, output/pid-hadpid_xgboost_clean26071-importance-shap.md, output/pid-hadpid_xgboost_clean26071-importance-shap.root (32 rows)
+[report] wrote output/pid-hadpid_xgboost_clean26071-importance-permutation.json, output/pid-hadpid_xgboost_clean26071-importance-permutation.md, output/pid-hadpid_xgboost_clean26071-importance-permutation.root (32 rows)
+
+[importance] leading feature: {'kind': 'shap', 'column': 'ecal_forward_E', 'family': 'calorimeter'}
+[plot] wrote output/plots/pid-hadpid_xgboost_clean26071-importance.png
++ for lib in lightgbm xgboost sklearn_hgb
++ python -m pid train --task hadpid --model sklearn_hgb --dataset-tag clean26071 --features output/pid-features_clean26071.pkl --seed 1234 --n-iter 24
+[train] feature table output/pid-features_clean26071.pkl: 1627525 rows, 112 cols
+[dataset] WARNING: 20 numeric column(s) excluded (not allowlisted, or all-NaN here): ['e_hcal_backward', 'e_over_p_backward', 'ecal_backward_E', 'ecal_backward_delta_r', 'ecal_backward_has_shape', 'ecal_backward_n', 'ecal_backward_shape_0', 'ecal_backward_shape_1', 'ecal_backward_shape_2', 'ecal_backward_shape_3', 'ecal_backward_shape_4', 'ecal_backward_shape_5', 'ecal_backward_shape_6', 'ecal_backward_t', 'hcal_backward_E', 'hcal_backward_delta_r', 'hcal_backward_n', 'hcal_backward_t', 'leakage_backward', 'log_e_over_p_backward']
+[train/hadpid/sklearn_hgb/clean26071] 735036 rows, 32 features, 3 classes -> AUC train 0.7398 / test 0.6920 (label-shuffle control 0.5002) in 1162.7s
+[train] top gain features: ['chi2', 'chi2_per_ndf', 'drich_aerogel_pathlength']
+[gate:FAIL] train_test_auc_gap: 0.04784828102155325 | requires 0.02
+[gate:PASS] label_shuffle_control: {"control_auc_mean": 0.5001934181337494, "control_auc_std": 0.002431150888832455, "control_auc_max": 0.5035844622185446, "model_auc_test": 0.6919606243159754, "z": 78.87918724547819} | requires {"min_z": 3.0, "min_auc_margin": 0.1}  [5 balanced permutations, 48591/class; AUCs [0.4967, 0.5002, 0.5002, 0.5036, 0.5003]]
+[gate:FAIL] top_feature_is_physical: {"gain_top3": ["chi2", "chi2_per_ndf", "drich_aerogel_pathlength"], "shap_top3": []} | requires {"gain_patterns": ["shape_", "rms_", "irt_", "drich", "e_over_p", "leakage", "ecal_"], "shap_must_lead": null}
+[gate:PASS] no_single_feature_label_correlation: -0.06168154687321367 | requires 0.95
+[train] artifacts -> output/models/hadpid_sklearn_hgb_clean26071/
+pid.train: gates failed for hadpid/sklearn_hgb/clean26071: ['train_test_auc_gap', 'top_feature_is_physical']. Re-run with --relax-gates to inspect the result anyway, and record the failure if the number is ever quoted.
++ echo '[run_pid] train hadpid/sklearn_hgb failed (statistics?)'
+[run_pid] train hadpid/sklearn_hgb failed (statistics?)
++ '[' -f output/models/hadpid_sklearn_hgb_clean26071/test_scores.pkl ']'
++ python -m pid evaluate --task hadpid --model sklearn_hgb --dataset-tag clean26071 --scores output/models/hadpid_sklearn_hgb_clean26071/test_scores.pkl --by pt,eta --plot --eta-region 'barrel,forward endcap,backward endcap' --features output/pid-features_clean26071.pkl --max-file-failures 0 --cache-dir cache/pid_features
+[evaluate/hadpid_sklearn_hgb_clean26071] NOTE: no --signal given for multiclass task 'hadpid'; quoting 'pi' vs rest
+[evaluate/hadpid] NOTE: 1290 rows fall outside the pt bin edges and are excluded from the binned table (the global overall table still counts them)
+[report] wrote output/pid-hadpid_sklearn_hgb_clean26071-overall.json, output/pid-hadpid_sklearn_hgb_clean26071-overall.md, output/pid-hadpid_sklearn_hgb_clean26071-overall.root (8 rows)
+[report] wrote output/pid-hadpid_sklearn_hgb_clean26071-vs_pt.json, output/pid-hadpid_sklearn_hgb_clean26071-vs_pt.md, output/pid-hadpid_sklearn_hgb_clean26071-vs_pt.root (8 rows)
+[report] wrote output/pid-hadpid_sklearn_hgb_clean26071-vs_eta.json, output/pid-hadpid_sklearn_hgb_clean26071-vs_eta.md, output/pid-hadpid_sklearn_hgb_clean26071-vs_eta.root (5 rows)
+[report] wrote output/pid-hadpid_sklearn_hgb_clean26071-confusion.json, output/pid-hadpid_sklearn_hgb_clean26071-confusion.md, output/pid-hadpid_sklearn_hgb_clean26071-confusion.root (9 rows)
+[report] wrote output/pid-hadpid_sklearn_hgb_clean26071-roc.json, output/pid-hadpid_sklearn_hgb_clean26071-roc.md, output/pid-hadpid_sklearn_hgb_clean26071-roc.root (200 rows)
+[evaluate/hadpid_sklearn_hgb_clean26071] scored sample: 75 file(s), 1409 event(s), 183537 tracks
+[evaluate/hadpid_sklearn_hgb_clean26071] auc              0.709950266284654
+[evaluate/hadpid_sklearn_hgb_clean26071] signal_peak      -0.42870343885803835
+[evaluate/hadpid_sklearn_hgb_clean26071] background_peak  -0.9434029247069804
+[evaluate/hadpid_sklearn_hgb_clean26071] n_sigma_lower_limit nan  [NOT COMPUTABLE: too few candidates to fit]
+[evaluate/hadpid_sklearn_hgb_clean26071] n_sigma          0.7823987112983862
+[evaluate/hadpid_sklearn_hgb_clean26071] efficiency       0.10896527989198777 (target fake 0.01)
+[evaluate/hadpid_sklearn_hgb_clean26071] efficiency       0.03461421366831244 (target fake 0.001)
+[evaluate/hadpid_sklearn_hgb_clean26071] efficiency       0.01096006459554979 (target fake 0.0001)
+[regions] attached ['barrel', 'forward endcap', 'backward endcap'] acceptance (barrel: 0/0 in acceptance; forward endcap: 168576/183537 in acceptance; backward endcap: 0/0 in acceptance; 0 files skipped, 0 rows unclassifiable)
+[evaluate/hadpid_sklearn_hgb_clean26071] NOTE: no in-acceptance rows in barrel; skipping its tables
+[evaluate/hadpid] NOTE: 1287 rows fall outside the pt bin edges and are excluded from the binned table (the global overall table still counts them)
+[report] wrote output/pid-hadpid_sklearn_hgb_clean26071_forward_endcap-overall.json, output/pid-hadpid_sklearn_hgb_clean26071_forward_endcap-overall.md, output/pid-hadpid_sklearn_hgb_clean26071_forward_endcap-overall.root (8 rows)
+[report] wrote output/pid-hadpid_sklearn_hgb_clean26071_forward_endcap-vs_pt.json, output/pid-hadpid_sklearn_hgb_clean26071_forward_endcap-vs_pt.md, output/pid-hadpid_sklearn_hgb_clean26071_forward_endcap-vs_pt.root (8 rows)
+[report] wrote output/pid-hadpid_sklearn_hgb_clean26071_forward_endcap-vs_eta.json, output/pid-hadpid_sklearn_hgb_clean26071_forward_endcap-vs_eta.md, output/pid-hadpid_sklearn_hgb_clean26071_forward_endcap-vs_eta.root (5 rows)
+[report] wrote output/pid-hadpid_sklearn_hgb_clean26071_forward_endcap-confusion.json, output/pid-hadpid_sklearn_hgb_clean26071_forward_endcap-confusion.md, output/pid-hadpid_sklearn_hgb_clean26071_forward_endcap-confusion.root (9 rows)
+[report] wrote output/pid-hadpid_sklearn_hgb_clean26071_forward_endcap-roc.json, output/pid-hadpid_sklearn_hgb_clean26071_forward_endcap-roc.md, output/pid-hadpid_sklearn_hgb_clean26071_forward_endcap-roc.root (200 rows)
+[evaluate/hadpid_sklearn_hgb_clean26071_forward_endcap] scored sample: 75 file(s), 1409 event(s), 168576 tracks
+[evaluate/hadpid_sklearn_hgb_clean26071_forward_endcap] auc              0.7064517299931319
+[evaluate/hadpid_sklearn_hgb_clean26071_forward_endcap] signal_peak      -0.44451264333741713
+[evaluate/hadpid_sklearn_hgb_clean26071_forward_endcap] background_peak  -0.9358335538540008
+[evaluate/hadpid_sklearn_hgb_clean26071_forward_endcap] n_sigma_lower_limit nan  [NOT COMPUTABLE: too few candidates to fit]
+[evaluate/hadpid_sklearn_hgb_clean26071_forward_endcap] n_sigma          0.7679862862970981
+[evaluate/hadpid_sklearn_hgb_clean26071_forward_endcap] efficiency       0.10551101844195995 (target fake 0.01)
+[evaluate/hadpid_sklearn_hgb_clean26071_forward_endcap] efficiency       0.03441061221555164 (target fake 0.001)
+[evaluate/hadpid_sklearn_hgb_clean26071_forward_endcap] efficiency       0.011230542474026675 (target fake 0.0001)
+[evaluate/hadpid_sklearn_hgb_clean26071] NOTE: no in-acceptance rows in backward endcap; skipping its tables
+[plot] wrote output/plots/pid-hadpid_sklearn_hgb_clean26071-roc.png
+[plot] wrote output/plots/pid-hadpid_sklearn_hgb_clean26071-eff_vs_fake.png
+[plot] wrote output/plots/pid-hadpid_sklearn_hgb_clean26071-auc_vs_pt.png
+[plot] wrote output/plots/pid-hadpid_sklearn_hgb_clean26071-auc_vs_eta.png
+[plot] wrote output/plots/pid-hadpid_sklearn_hgb_clean26071_forward_endcap-roc.png
+[plot] wrote output/plots/pid-hadpid_sklearn_hgb_clean26071_forward_endcap-eff_vs_fake.png
+[plot] wrote output/plots/pid-hadpid_sklearn_hgb_clean26071_forward_endcap-auc_vs_pt.png
+/opt/local/lib/python3.13/site-packages/XRootD/client/finalize.py:46: FutureWarning: `torch.distributed.reduce_op` is deprecated, please use `torch.distributed.ReduceOp` instead
+  if isinstance(obj, File) and obj.is_open():
++ python -m pid importance --dir output/models/hadpid_sklearn_hgb_clean26071 --task hadpid --model sklearn_hgb --dataset-tag clean26071 --plot
+[importance] gains/SHAP read from booster.joblib (unwrapped booster)
+[importance] pid.models.sklearn_hgb: HistGradientBoosting has no built-in TreeSHAP. Use `pid importance --kind permutation`, or the lightgbm/xgboost models, for SHAP values.
+[report] wrote output/pid-hadpid_sklearn_hgb_clean26071-importance-gain.json, output/pid-hadpid_sklearn_hgb_clean26071-importance-gain.md, output/pid-hadpid_sklearn_hgb_clean26071-importance-gain.root (32 rows)
+[report] wrote output/pid-hadpid_sklearn_hgb_clean26071-importance-permutation.json, output/pid-hadpid_sklearn_hgb_clean26071-importance-permutation.md, output/pid-hadpid_sklearn_hgb_clean26071-importance-permutation.root (32 rows)
+
+[importance] leading feature: {'kind': 'gain', 'column': 'chi2', 'family': 'tracker'}
+[importance] NOTE: gain: leading feature 'chi2' (family 'tracker') is not one of the expected PID observables ['shape_', 'rms_', 'irt_', 'drich', 'e_over_p', 'leakage', 'ecal_']
+[plot] wrote output/plots/pid-hadpid_sklearn_hgb_clean26071-importance.png
++ echo '[run_pid] WARNING: importance hadpid/sklearn_hgb failed - see log above'
+[run_pid] WARNING: importance hadpid/sklearn_hgb failed - see log above
++ for task in $(echo "eid,ehad,hadpid,pooled" | tr ',' ' ')
++ for lib in lightgbm xgboost sklearn_hgb
++ python -m pid train --task pooled --model lightgbm --dataset-tag clean26071 --features output/pid-features_clean26071.pkl --seed 1234 --n-iter 24
+[train] feature table output/pid-features_clean26071.pkl: 1627525 rows, 112 cols
+[train/pooled/lightgbm/clean26071] 1298617 rows, 53 features, 4 classes -> AUC train 0.8820 / test 0.8647 (label-shuffle control 0.5050) in 8976.4s
+[train] top gain features: ['ecal_backward_E', 'leg', 'log_e_over_p_backward']
+[gate:PASS] train_test_auc_gap: 0.017266123436568193 | requires 0.02
+[gate:PASS] label_shuffle_control: {"control_auc_mean": 0.5050157171136171, "control_auc_std": 0.012384591153526936, "control_auc_max": 0.5249261231917035, "model_auc_test": 0.8647431641747827, "z": 29.04637243181991} | requires {"min_z": 3.0, "min_auc_margin": 0.1}  [5 balanced permutations, 58321/class; AUCs [0.4911, 0.5249, 0.5054, 0.5029, 0.5008]]
+[gate:FAIL] top_feature_is_physical: {"gain_top3": ["ecal_backward_E", "leg", "log_e_over_p_backward"], "shap_top3": ["ecal_backward_E", "e_over_p_forward", "leg"]} | requires {"gain_patterns": ["e_over_p", "log_e_over_p", "ecal_", "leg"], "shap_must_lead": "e_over_p"}
+[gate:PASS] no_single_feature_label_correlation: -0.6832424419156856 | requires 0.95
+[train] artifacts -> output/models/pooled_lightgbm_clean26071/
+pid.train: gates failed for pooled/lightgbm/clean26071: ['top_feature_is_physical']. Re-run with --relax-gates to inspect the result anyway, and record the failure if the number is ever quoted.
++ echo '[run_pid] train pooled/lightgbm failed (statistics?)'
+[run_pid] train pooled/lightgbm failed (statistics?)
++ '[' -f output/models/pooled_lightgbm_clean26071/test_scores.pkl ']'
++ python -m pid evaluate --task pooled --model lightgbm --dataset-tag clean26071 --scores output/models/pooled_lightgbm_clean26071/test_scores.pkl --by pt,eta --plot --eta-region 'barrel,forward endcap,backward endcap' --features output/pid-features_clean26071.pkl --max-file-failures 0 --cache-dir cache/pid_features
+[evaluate/pooled_lightgbm_clean26071] NOTE: no --signal given for multiclass task 'pooled'; quoting 'e' vs rest
+[evaluate/pooled] NOTE: 1437 rows fall outside the pt bin edges and are excluded from the binned table (the global overall table still counts them)
+[report] wrote output/pid-pooled_lightgbm_clean26071-overall.json, output/pid-pooled_lightgbm_clean26071-overall.md, output/pid-pooled_lightgbm_clean26071-overall.root (8 rows)
+[report] wrote output/pid-pooled_lightgbm_clean26071-vs_pt.json, output/pid-pooled_lightgbm_clean26071-vs_pt.md, output/pid-pooled_lightgbm_clean26071-vs_pt.root (8 rows)
+[report] wrote output/pid-pooled_lightgbm_clean26071-vs_eta.json, output/pid-pooled_lightgbm_clean26071-vs_eta.md, output/pid-pooled_lightgbm_clean26071-vs_eta.root (16 rows)
+[report] wrote output/pid-pooled_lightgbm_clean26071-confusion.json, output/pid-pooled_lightgbm_clean26071-confusion.md, output/pid-pooled_lightgbm_clean26071-confusion.root (16 rows)
+[report] wrote output/pid-pooled_lightgbm_clean26071-roc.json, output/pid-pooled_lightgbm_clean26071-roc.md, output/pid-pooled_lightgbm_clean26071-roc.root (200 rows)
+[evaluate/pooled_lightgbm_clean26071] scored sample: 75 file(s), 1409 event(s), 324377 tracks
+[evaluate/pooled_lightgbm_clean26071] auc              0.9973358483134561
+[evaluate/pooled_lightgbm_clean26071] signal_peak      4.253515983049486
+[evaluate/pooled_lightgbm_clean26071] background_peak  -8.933087915293488
+[evaluate/pooled_lightgbm_clean26071] n_sigma_lower_limit nan  [NOT COMPUTABLE: too few candidates to fit]
+[evaluate/pooled_lightgbm_clean26071] n_sigma          3.9406853110885587
+[evaluate/pooled_lightgbm_clean26071] efficiency       0.9653067810767713 (target fake 0.01)
+[evaluate/pooled_lightgbm_clean26071] efficiency       0.930528134254689 (target fake 0.001)
+[evaluate/pooled_lightgbm_clean26071] efficiency       0.8951420001518718 (target fake 0.0001)
+[regions] attached ['barrel', 'forward endcap', 'backward endcap'] acceptance (barrel: 10757/14285 in acceptance; forward endcap: 169561/196716 in acceptance; backward endcap: 103552/113376 in acceptance; 0 files skipped, 0 rows unclassifiable)
+[report] wrote output/pid-pooled_lightgbm_clean26071_barrel-overall.json, output/pid-pooled_lightgbm_clean26071_barrel-overall.md, output/pid-pooled_lightgbm_clean26071_barrel-overall.root (8 rows)
+[report] wrote output/pid-pooled_lightgbm_clean26071_barrel-vs_pt.json, output/pid-pooled_lightgbm_clean26071_barrel-vs_pt.md, output/pid-pooled_lightgbm_clean26071_barrel-vs_pt.root (6 rows)
+[report] wrote output/pid-pooled_lightgbm_clean26071_barrel-vs_eta.json, output/pid-pooled_lightgbm_clean26071_barrel-vs_eta.md, output/pid-pooled_lightgbm_clean26071_barrel-vs_eta.root (6 rows)
+[report] wrote output/pid-pooled_lightgbm_clean26071_barrel-confusion.json, output/pid-pooled_lightgbm_clean26071_barrel-confusion.md, output/pid-pooled_lightgbm_clean26071_barrel-confusion.root (16 rows)
+[report] wrote output/pid-pooled_lightgbm_clean26071_barrel-roc.json, output/pid-pooled_lightgbm_clean26071_barrel-roc.md, output/pid-pooled_lightgbm_clean26071_barrel-roc.root (200 rows)
+[evaluate/pooled_lightgbm_clean26071_barrel] scored sample: 75 file(s), 1407 event(s), 10757 tracks
+[evaluate/pooled_lightgbm_clean26071_barrel] auc              0.5955867676457418
+[evaluate/pooled_lightgbm_clean26071_barrel] signal_peak      -2.71925830491058
+[evaluate/pooled_lightgbm_clean26071_barrel] background_peak  -2.9163132475612685
+[evaluate/pooled_lightgbm_clean26071_barrel] n_sigma_lower_limit nan  [NOT COMPUTABLE: too few candidates to fit]
+[evaluate/pooled_lightgbm_clean26071_barrel] n_sigma          0.3421551768482382
+[evaluate/pooled_lightgbm_clean26071_barrel] efficiency       0.00808080808080808 (target fake 0.01)
+[evaluate/pooled_lightgbm_clean26071_barrel] efficiency       0.00101010101010101 (target fake 0.001)
+[evaluate/pooled_lightgbm_clean26071_barrel] efficiency       0.0 (target fake 0.0001)
+[evaluate/pooled] NOTE: 1361 rows fall outside the pt bin edges and are excluded from the binned table (the global overall table still counts them)
+[report] wrote output/pid-pooled_lightgbm_clean26071_forward_endcap-overall.json, output/pid-pooled_lightgbm_clean26071_forward_endcap-overall.md, output/pid-pooled_lightgbm_clean26071_forward_endcap-overall.root (8 rows)
+[report] wrote output/pid-pooled_lightgbm_clean26071_forward_endcap-vs_pt.json, output/pid-pooled_lightgbm_clean26071_forward_endcap-vs_pt.md, output/pid-pooled_lightgbm_clean26071_forward_endcap-vs_pt.root (8 rows)
+[report] wrote output/pid-pooled_lightgbm_clean26071_forward_endcap-vs_eta.json, output/pid-pooled_lightgbm_clean26071_forward_endcap-vs_eta.md, output/pid-pooled_lightgbm_clean26071_forward_endcap-vs_eta.root (6 rows)
+[report] wrote output/pid-pooled_lightgbm_clean26071_forward_endcap-confusion.json, output/pid-pooled_lightgbm_clean26071_forward_endcap-confusion.md, output/pid-pooled_lightgbm_clean26071_forward_endcap-confusion.root (16 rows)
+[report] wrote output/pid-pooled_lightgbm_clean26071_forward_endcap-roc.json, output/pid-pooled_lightgbm_clean26071_forward_endcap-roc.md, output/pid-pooled_lightgbm_clean26071_forward_endcap-roc.root (200 rows)
+[evaluate/pooled_lightgbm_clean26071_forward_endcap] scored sample: 75 file(s), 1409 event(s), 169561 tracks
+[evaluate/pooled_lightgbm_clean26071_forward_endcap] auc              0.936501159741594
+[evaluate/pooled_lightgbm_clean26071_forward_endcap] signal_peak      -1.8492613940677736
+[evaluate/pooled_lightgbm_clean26071_forward_endcap] background_peak  -8.944528401524678
+[evaluate/pooled_lightgbm_clean26071_forward_endcap] n_sigma_lower_limit nan  [NOT COMPUTABLE: too few candidates to fit]
+[evaluate/pooled_lightgbm_clean26071_forward_endcap] n_sigma          2.1581590865788556
+[evaluate/pooled_lightgbm_clean26071_forward_endcap] efficiency       0.4649532710280374 (target fake 0.01)
+[evaluate/pooled_lightgbm_clean26071_forward_endcap] efficiency       0.21962616822429906 (target fake 0.001)
+[evaluate/pooled_lightgbm_clean26071_forward_endcap] efficiency       0.04789719626168224 (target fake 0.0001)
+[evaluate/pooled] NOTE: 72 rows fall outside the pt bin edges and are excluded from the binned table (the global overall table still counts them)
+[report] wrote output/pid-pooled_lightgbm_clean26071_backward_endcap-overall.json, output/pid-pooled_lightgbm_clean26071_backward_endcap-overall.md, output/pid-pooled_lightgbm_clean26071_backward_endcap-overall.root (8 rows)
+[report] wrote output/pid-pooled_lightgbm_clean26071_backward_endcap-vs_pt.json, output/pid-pooled_lightgbm_clean26071_backward_endcap-vs_pt.md, output/pid-pooled_lightgbm_clean26071_backward_endcap-vs_pt.root (8 rows)
+[report] wrote output/pid-pooled_lightgbm_clean26071_backward_endcap-vs_eta.json, output/pid-pooled_lightgbm_clean26071_backward_endcap-vs_eta.md, output/pid-pooled_lightgbm_clean26071_backward_endcap-vs_eta.root (6 rows)
+[report] wrote output/pid-pooled_lightgbm_clean26071_backward_endcap-confusion.json, output/pid-pooled_lightgbm_clean26071_backward_endcap-confusion.md, output/pid-pooled_lightgbm_clean26071_backward_endcap-confusion.root (16 rows)
+[report] wrote output/pid-pooled_lightgbm_clean26071_backward_endcap-roc.json, output/pid-pooled_lightgbm_clean26071_backward_endcap-roc.md, output/pid-pooled_lightgbm_clean26071_backward_endcap-roc.root (200 rows)
+[evaluate/pooled_lightgbm_clean26071_backward_endcap] scored sample: 75 file(s), 1409 event(s), 103552 tracks
+[evaluate/pooled_lightgbm_clean26071_backward_endcap] auc              0.9989586726858616
+[evaluate/pooled_lightgbm_clean26071_backward_endcap] signal_peak      4.227054076252594
+[evaluate/pooled_lightgbm_clean26071_backward_endcap] background_peak  -3.795503098031269
+[evaluate/pooled_lightgbm_clean26071_backward_endcap] n_sigma_lower_limit nan  [NOT COMPUTABLE: too few candidates to fit]
+[evaluate/pooled_lightgbm_clean26071_backward_endcap] n_sigma          4.3532112112223045
+[evaluate/pooled_lightgbm_clean26071_backward_endcap] efficiency       0.9810915561373189 (target fake 0.01)
+[evaluate/pooled_lightgbm_clean26071_backward_endcap] efficiency       0.9498910898176649 (target fake 0.001)
+[evaluate/pooled_lightgbm_clean26071_backward_endcap] efficiency       0.9026046406986614 (target fake 0.0001)
+[plot] wrote output/plots/pid-pooled_lightgbm_clean26071-roc.png
+[plot] wrote output/plots/pid-pooled_lightgbm_clean26071-eff_vs_fake.png
+[plot] wrote output/plots/pid-pooled_lightgbm_clean26071-auc_vs_pt.png
+[plot] wrote output/plots/pid-pooled_lightgbm_clean26071-auc_vs_eta.png
+[plot] wrote output/plots/pid-pooled_lightgbm_clean26071_barrel-roc.png
+[plot] wrote output/plots/pid-pooled_lightgbm_clean26071_barrel-eff_vs_fake.png
+[plot] wrote output/plots/pid-pooled_lightgbm_clean26071_barrel-auc_vs_pt.png
+[plot] wrote output/plots/pid-pooled_lightgbm_clean26071_forward_endcap-roc.png
+[plot] wrote output/plots/pid-pooled_lightgbm_clean26071_forward_endcap-eff_vs_fake.png
+[plot] wrote output/plots/pid-pooled_lightgbm_clean26071_forward_endcap-auc_vs_pt.png
+[plot] wrote output/plots/pid-pooled_lightgbm_clean26071_backward_endcap-roc.png
+[plot] wrote output/plots/pid-pooled_lightgbm_clean26071_backward_endcap-eff_vs_fake.png
+[plot] wrote output/plots/pid-pooled_lightgbm_clean26071_backward_endcap-auc_vs_pt.png
+/opt/local/lib/python3.13/site-packages/XRootD/client/finalize.py:46: FutureWarning: `torch.distributed.reduce_op` is deprecated, please use `torch.distributed.ReduceOp` instead
+  if isinstance(obj, File) and obj.is_open():
++ python -m pid importance --dir output/models/pooled_lightgbm_clean26071 --task pooled --model lightgbm --dataset-tag clean26071 --plot
+[importance] gains/SHAP read from booster.joblib (unwrapped booster)
+[report] wrote output/pid-pooled_lightgbm_clean26071-importance-gain.json, output/pid-pooled_lightgbm_clean26071-importance-gain.md, output/pid-pooled_lightgbm_clean26071-importance-gain.root (53 rows)
+[report] wrote output/pid-pooled_lightgbm_clean26071-importance-shap.json, output/pid-pooled_lightgbm_clean26071-importance-shap.md, output/pid-pooled_lightgbm_clean26071-importance-shap.root (53 rows)
+[report] wrote output/pid-pooled_lightgbm_clean26071-importance-permutation.json, output/pid-pooled_lightgbm_clean26071-importance-permutation.md, output/pid-pooled_lightgbm_clean26071-importance-permutation.root (53 rows)
+
+[importance] leading feature: {'kind': 'shap', 'column': 'ecal_backward_E', 'family': 'calorimeter'}
+[plot] wrote output/plots/pid-pooled_lightgbm_clean26071-importance.png
++ for lib in lightgbm xgboost sklearn_hgb
++ python -m pid train --task pooled --model xgboost --dataset-tag clean26071 --features output/pid-features_clean26071.pkl --seed 1234 --n-iter 24
+[train] feature table output/pid-features_clean26071.pkl: 1627525 rows, 112 cols
+[train/pooled/xgboost/clean26071] 1298617 rows, 53 features, 4 classes -> AUC train 0.8839 / test 0.8681 (label-shuffle control 0.5055) in 10677.1s
+[train] top gain features: ['leg', 'ecal_backward_E', 'has_hcal_backward']
+[gate:PASS] train_test_auc_gap: 0.01575754729627643 | requires 0.02
+[gate:PASS] label_shuffle_control: {"control_auc_mean": 0.5055254442407799, "control_auc_std": 0.014087859638876639, "control_auc_max": 0.5285198655994782, "model_auc_test": 0.8681369354562184, "z": 25.739289041096168} | requires {"min_z": 3.0, "min_auc_margin": 0.1}  [5 balanced permutations, 58321/class; AUCs [0.49, 0.5285, 0.5046, 0.5011, 0.5034]]
+[gate:FAIL] top_feature_is_physical: {"gain_top3": ["leg", "ecal_backward_E", "has_hcal_backward"], "shap_top3": ["ecal_backward_E", "leg", "e_over_p_forward"]} | requires {"gain_patterns": ["e_over_p", "log_e_over_p", "ecal_", "leg"], "shap_must_lead": "e_over_p"}
+[gate:PASS] no_single_feature_label_correlation: -0.6832424419156856 | requires 0.95
+[train] artifacts -> output/models/pooled_xgboost_clean26071/
+pid.train: gates failed for pooled/xgboost/clean26071: ['top_feature_is_physical']. Re-run with --relax-gates to inspect the result anyway, and record the failure if the number is ever quoted.
++ echo '[run_pid] train pooled/xgboost failed (statistics?)'
+[run_pid] train pooled/xgboost failed (statistics?)
++ '[' -f output/models/pooled_xgboost_clean26071/test_scores.pkl ']'
++ python -m pid evaluate --task pooled --model xgboost --dataset-tag clean26071 --scores output/models/pooled_xgboost_clean26071/test_scores.pkl --by pt,eta --plot --eta-region 'barrel,forward endcap,backward endcap' --features output/pid-features_clean26071.pkl --max-file-failures 0 --cache-dir cache/pid_features
+[evaluate/pooled_xgboost_clean26071] NOTE: no --signal given for multiclass task 'pooled'; quoting 'e' vs rest
+[evaluate/pooled] NOTE: 1437 rows fall outside the pt bin edges and are excluded from the binned table (the global overall table still counts them)
+[report] wrote output/pid-pooled_xgboost_clean26071-overall.json, output/pid-pooled_xgboost_clean26071-overall.md, output/pid-pooled_xgboost_clean26071-overall.root (8 rows)
+[report] wrote output/pid-pooled_xgboost_clean26071-vs_pt.json, output/pid-pooled_xgboost_clean26071-vs_pt.md, output/pid-pooled_xgboost_clean26071-vs_pt.root (8 rows)
+[report] wrote output/pid-pooled_xgboost_clean26071-vs_eta.json, output/pid-pooled_xgboost_clean26071-vs_eta.md, output/pid-pooled_xgboost_clean26071-vs_eta.root (16 rows)
+[report] wrote output/pid-pooled_xgboost_clean26071-confusion.json, output/pid-pooled_xgboost_clean26071-confusion.md, output/pid-pooled_xgboost_clean26071-confusion.root (16 rows)
+[report] wrote output/pid-pooled_xgboost_clean26071-roc.json, output/pid-pooled_xgboost_clean26071-roc.md, output/pid-pooled_xgboost_clean26071-roc.root (200 rows)
+[evaluate/pooled_xgboost_clean26071] scored sample: 75 file(s), 1409 event(s), 324377 tracks
+[evaluate/pooled_xgboost_clean26071] auc              0.9968564435953459
+[evaluate/pooled_xgboost_clean26071] signal_peak      1.832656665500128
+[evaluate/pooled_xgboost_clean26071] background_peak  -4.693190404782397
+[evaluate/pooled_xgboost_clean26071] n_sigma_lower_limit nan  [NOT COMPUTABLE: too few candidates to fit]
+[evaluate/pooled_xgboost_clean26071] n_sigma          3.8642240122464013
+[evaluate/pooled_xgboost_clean26071] efficiency       0.9649935454476422 (target fake 0.01)
+[evaluate/pooled_xgboost_clean26071] efficiency       0.9302148986255601 (target fake 0.001)
+[evaluate/pooled_xgboost_clean26071] efficiency       0.9071398739463893 (target fake 0.0001)
+[regions] attached ['barrel', 'forward endcap', 'backward endcap'] acceptance (barrel: 10757/14285 in acceptance; forward endcap: 169561/196716 in acceptance; backward endcap: 103552/113376 in acceptance; 0 files skipped, 0 rows unclassifiable)
+[report] wrote output/pid-pooled_xgboost_clean26071_barrel-overall.json, output/pid-pooled_xgboost_clean26071_barrel-overall.md, output/pid-pooled_xgboost_clean26071_barrel-overall.root (8 rows)
+[report] wrote output/pid-pooled_xgboost_clean26071_barrel-vs_pt.json, output/pid-pooled_xgboost_clean26071_barrel-vs_pt.md, output/pid-pooled_xgboost_clean26071_barrel-vs_pt.root (6 rows)
+[report] wrote output/pid-pooled_xgboost_clean26071_barrel-vs_eta.json, output/pid-pooled_xgboost_clean26071_barrel-vs_eta.md, output/pid-pooled_xgboost_clean26071_barrel-vs_eta.root (6 rows)
+[report] wrote output/pid-pooled_xgboost_clean26071_barrel-confusion.json, output/pid-pooled_xgboost_clean26071_barrel-confusion.md, output/pid-pooled_xgboost_clean26071_barrel-confusion.root (16 rows)
+[report] wrote output/pid-pooled_xgboost_clean26071_barrel-roc.json, output/pid-pooled_xgboost_clean26071_barrel-roc.md, output/pid-pooled_xgboost_clean26071_barrel-roc.root (200 rows)
+[evaluate/pooled_xgboost_clean26071_barrel] scored sample: 75 file(s), 1407 event(s), 10757 tracks
+[evaluate/pooled_xgboost_clean26071_barrel] auc              0.6037467435696166
+[evaluate/pooled_xgboost_clean26071_barrel] signal_peak      -3.9685433889990347
+[evaluate/pooled_xgboost_clean26071_barrel] background_peak  -4.01320060791092
+[evaluate/pooled_xgboost_clean26071_barrel] n_sigma_lower_limit nan  [NOT COMPUTABLE: too few candidates to fit]
+[evaluate/pooled_xgboost_clean26071_barrel] n_sigma          0.37201902140382004
+[evaluate/pooled_xgboost_clean26071_barrel] efficiency       0.01818181818181818 (target fake 0.01)
+[evaluate/pooled_xgboost_clean26071_barrel] efficiency       0.0 (target fake 0.001)
+[evaluate/pooled_xgboost_clean26071_barrel] efficiency       0.0 (target fake 0.0001)
+[evaluate/pooled] NOTE: 1361 rows fall outside the pt bin edges and are excluded from the binned table (the global overall table still counts them)
+[report] wrote output/pid-pooled_xgboost_clean26071_forward_endcap-overall.json, output/pid-pooled_xgboost_clean26071_forward_endcap-overall.md, output/pid-pooled_xgboost_clean26071_forward_endcap-overall.root (8 rows)
+[report] wrote output/pid-pooled_xgboost_clean26071_forward_endcap-vs_pt.json, output/pid-pooled_xgboost_clean26071_forward_endcap-vs_pt.md, output/pid-pooled_xgboost_clean26071_forward_endcap-vs_pt.root (8 rows)
+[report] wrote output/pid-pooled_xgboost_clean26071_forward_endcap-vs_eta.json, output/pid-pooled_xgboost_clean26071_forward_endcap-vs_eta.md, output/pid-pooled_xgboost_clean26071_forward_endcap-vs_eta.root (6 rows)
+[report] wrote output/pid-pooled_xgboost_clean26071_forward_endcap-confusion.json, output/pid-pooled_xgboost_clean26071_forward_endcap-confusion.md, output/pid-pooled_xgboost_clean26071_forward_endcap-confusion.root (16 rows)
+[report] wrote output/pid-pooled_xgboost_clean26071_forward_endcap-roc.json, output/pid-pooled_xgboost_clean26071_forward_endcap-roc.md, output/pid-pooled_xgboost_clean26071_forward_endcap-roc.root (200 rows)
+[evaluate/pooled_xgboost_clean26071_forward_endcap] scored sample: 75 file(s), 1409 event(s), 169561 tracks
+[evaluate/pooled_xgboost_clean26071_forward_endcap] auc              0.88077839795008
+[evaluate/pooled_xgboost_clean26071_forward_endcap] signal_peak      -3.2617823006177105
+[evaluate/pooled_xgboost_clean26071_forward_endcap] background_peak  -4.691485424105885
+[evaluate/pooled_xgboost_clean26071_forward_endcap] n_sigma_lower_limit nan  [NOT COMPUTABLE: too few candidates to fit]
+[evaluate/pooled_xgboost_clean26071_forward_endcap] n_sigma          1.6671978803479273
+[evaluate/pooled_xgboost_clean26071_forward_endcap] efficiency       0.433411214953271 (target fake 0.01)
+[evaluate/pooled_xgboost_clean26071_forward_endcap] efficiency       0.2091121495327103 (target fake 0.001)
+[evaluate/pooled_xgboost_clean26071_forward_endcap] efficiency       0.04322429906542056 (target fake 0.0001)
+[evaluate/pooled] NOTE: 72 rows fall outside the pt bin edges and are excluded from the binned table (the global overall table still counts them)
+[report] wrote output/pid-pooled_xgboost_clean26071_backward_endcap-overall.json, output/pid-pooled_xgboost_clean26071_backward_endcap-overall.md, output/pid-pooled_xgboost_clean26071_backward_endcap-overall.root (8 rows)
+[report] wrote output/pid-pooled_xgboost_clean26071_backward_endcap-vs_pt.json, output/pid-pooled_xgboost_clean26071_backward_endcap-vs_pt.md, output/pid-pooled_xgboost_clean26071_backward_endcap-vs_pt.root (8 rows)
+[report] wrote output/pid-pooled_xgboost_clean26071_backward_endcap-vs_eta.json, output/pid-pooled_xgboost_clean26071_backward_endcap-vs_eta.md, output/pid-pooled_xgboost_clean26071_backward_endcap-vs_eta.root (6 rows)
+[report] wrote output/pid-pooled_xgboost_clean26071_backward_endcap-confusion.json, output/pid-pooled_xgboost_clean26071_backward_endcap-confusion.md, output/pid-pooled_xgboost_clean26071_backward_endcap-confusion.root (16 rows)
+[report] wrote output/pid-pooled_xgboost_clean26071_backward_endcap-roc.json, output/pid-pooled_xgboost_clean26071_backward_endcap-roc.md, output/pid-pooled_xgboost_clean26071_backward_endcap-roc.root (200 rows)
+[evaluate/pooled_xgboost_clean26071_backward_endcap] scored sample: 75 file(s), 1409 event(s), 103552 tracks
+[evaluate/pooled_xgboost_clean26071_backward_endcap] auc              0.9990172562165865
+[evaluate/pooled_xgboost_clean26071_backward_endcap] signal_peak      1.832578446374168
+[evaluate/pooled_xgboost_clean26071_backward_endcap] background_peak  -4.786824214546912
+[evaluate/pooled_xgboost_clean26071_backward_endcap] n_sigma_lower_limit nan  [NOT COMPUTABLE: too few candidates to fit]
+[evaluate/pooled_xgboost_clean26071_backward_endcap] n_sigma          4.377554271084382
+[evaluate/pooled_xgboost_clean26071_backward_endcap] efficiency       0.9845071430762781 (target fake 0.01)
+[evaluate/pooled_xgboost_clean26071_backward_endcap] efficiency       0.9599026455459314 (target fake 0.001)
+[evaluate/pooled_xgboost_clean26071_backward_endcap] efficiency       0.9285078793704684 (target fake 0.0001)
+[plot] wrote output/plots/pid-pooled_xgboost_clean26071-roc.png
+[plot] wrote output/plots/pid-pooled_xgboost_clean26071-eff_vs_fake.png
+[plot] wrote output/plots/pid-pooled_xgboost_clean26071-auc_vs_pt.png
+[plot] wrote output/plots/pid-pooled_xgboost_clean26071-auc_vs_eta.png
+[plot] wrote output/plots/pid-pooled_xgboost_clean26071_barrel-roc.png
+[plot] wrote output/plots/pid-pooled_xgboost_clean26071_barrel-eff_vs_fake.png
+[plot] wrote output/plots/pid-pooled_xgboost_clean26071_barrel-auc_vs_pt.png
+[plot] wrote output/plots/pid-pooled_xgboost_clean26071_forward_endcap-roc.png
+[plot] wrote output/plots/pid-pooled_xgboost_clean26071_forward_endcap-eff_vs_fake.png
+[plot] wrote output/plots/pid-pooled_xgboost_clean26071_forward_endcap-auc_vs_pt.png
+[plot] wrote output/plots/pid-pooled_xgboost_clean26071_backward_endcap-roc.png
+[plot] wrote output/plots/pid-pooled_xgboost_clean26071_backward_endcap-eff_vs_fake.png
+[plot] wrote output/plots/pid-pooled_xgboost_clean26071_backward_endcap-auc_vs_pt.png
+/opt/local/lib/python3.13/site-packages/XRootD/client/finalize.py:46: FutureWarning: `torch.distributed.reduce_op` is deprecated, please use `torch.distributed.ReduceOp` instead
+  if isinstance(obj, File) and obj.is_open():
++ python -m pid importance --dir output/models/pooled_xgboost_clean26071 --task pooled --model xgboost --dataset-tag clean26071 --plot
+[importance] gains/SHAP read from booster.joblib (unwrapped booster)
+[report] wrote output/pid-pooled_xgboost_clean26071-importance-gain.json, output/pid-pooled_xgboost_clean26071-importance-gain.md, output/pid-pooled_xgboost_clean26071-importance-gain.root (53 rows)
+[report] wrote output/pid-pooled_xgboost_clean26071-importance-shap.json, output/pid-pooled_xgboost_clean26071-importance-shap.md, output/pid-pooled_xgboost_clean26071-importance-shap.root (53 rows)
+[report] wrote output/pid-pooled_xgboost_clean26071-importance-permutation.json, output/pid-pooled_xgboost_clean26071-importance-permutation.md, output/pid-pooled_xgboost_clean26071-importance-permutation.root (53 rows)
+
+[importance] leading feature: {'kind': 'shap', 'column': 'ecal_backward_E', 'family': 'calorimeter'}
+[plot] wrote output/plots/pid-pooled_xgboost_clean26071-importance.png
++ for lib in lightgbm xgboost sklearn_hgb
++ python -m pid train --task pooled --model sklearn_hgb --dataset-tag clean26071 --features output/pid-features_clean26071.pkl --seed 1234 --n-iter 24
+[train] feature table output/pid-features_clean26071.pkl: 1627525 rows, 112 cols
+[train/pooled/sklearn_hgb/clean26071] 1298617 rows, 53 features, 4 classes -> AUC train 0.8800 / test 0.8653 (label-shuffle control 0.5046) in 2749.5s
+[train] top gain features: ['chi2', 'chi2_per_ndf', 'drich_aerogel_pathlength']
+[gate:PASS] train_test_auc_gap: 0.014706550873300195 | requires 0.02
+[gate:PASS] label_shuffle_control: {"control_auc_mean": 0.5045547462528202, "control_auc_std": 0.012205926243401773, "control_auc_max": 0.5225593186933133, "model_auc_test": 0.8653007445561658, "z": 29.554987561747406} | requires {"min_z": 3.0, "min_auc_margin": 0.1}  [5 balanced permutations, 58321/class; AUCs [0.489, 0.5226, 0.5074, 0.5001, 0.5038]]
+[gate:FAIL] top_feature_is_physical: {"gain_top3": ["chi2", "chi2_per_ndf", "drich_aerogel_pathlength"], "shap_top3": []} | requires {"gain_patterns": ["e_over_p", "log_e_over_p", "ecal_", "leg"], "shap_must_lead": "e_over_p"}
+[gate:PASS] no_single_feature_label_correlation: -0.6832424419156856 | requires 0.95
+[train] artifacts -> output/models/pooled_sklearn_hgb_clean26071/
+pid.train: gates failed for pooled/sklearn_hgb/clean26071: ['top_feature_is_physical']. Re-run with --relax-gates to inspect the result anyway, and record the failure if the number is ever quoted.
++ echo '[run_pid] train pooled/sklearn_hgb failed (statistics?)'
+[run_pid] train pooled/sklearn_hgb failed (statistics?)
++ '[' -f output/models/pooled_sklearn_hgb_clean26071/test_scores.pkl ']'
++ python -m pid evaluate --task pooled --model sklearn_hgb --dataset-tag clean26071 --scores output/models/pooled_sklearn_hgb_clean26071/test_scores.pkl --by pt,eta --plot --eta-region 'barrel,forward endcap,backward endcap' --features output/pid-features_clean26071.pkl --max-file-failures 0 --cache-dir cache/pid_features
+[evaluate/pooled_sklearn_hgb_clean26071] NOTE: no --signal given for multiclass task 'pooled'; quoting 'e' vs rest
+[evaluate/pooled] NOTE: 1437 rows fall outside the pt bin edges and are excluded from the binned table (the global overall table still counts them)
+[report] wrote output/pid-pooled_sklearn_hgb_clean26071-overall.json, output/pid-pooled_sklearn_hgb_clean26071-overall.md, output/pid-pooled_sklearn_hgb_clean26071-overall.root (8 rows)
+[report] wrote output/pid-pooled_sklearn_hgb_clean26071-vs_pt.json, output/pid-pooled_sklearn_hgb_clean26071-vs_pt.md, output/pid-pooled_sklearn_hgb_clean26071-vs_pt.root (8 rows)
+[report] wrote output/pid-pooled_sklearn_hgb_clean26071-vs_eta.json, output/pid-pooled_sklearn_hgb_clean26071-vs_eta.md, output/pid-pooled_sklearn_hgb_clean26071-vs_eta.root (16 rows)
+[report] wrote output/pid-pooled_sklearn_hgb_clean26071-confusion.json, output/pid-pooled_sklearn_hgb_clean26071-confusion.md, output/pid-pooled_sklearn_hgb_clean26071-confusion.root (16 rows)
+[report] wrote output/pid-pooled_sklearn_hgb_clean26071-roc.json, output/pid-pooled_sklearn_hgb_clean26071-roc.md, output/pid-pooled_sklearn_hgb_clean26071-roc.root (200 rows)
+[evaluate/pooled_sklearn_hgb_clean26071] scored sample: 75 file(s), 1409 event(s), 324377 tracks
+[evaluate/pooled_sklearn_hgb_clean26071] auc              0.997412399268883
+[evaluate/pooled_sklearn_hgb_clean26071] signal_peak      4.963989494658288
+[evaluate/pooled_sklearn_hgb_clean26071] background_peak  -9.77694149040178
+[evaluate/pooled_sklearn_hgb_clean26071] n_sigma_lower_limit nan  [NOT COMPUTABLE: too few candidates to fit]
+[evaluate/pooled_sklearn_hgb_clean26071] n_sigma          3.9540297011341234
+[evaluate/pooled_sklearn_hgb_clean26071] efficiency       0.9659047763687448 (target fake 0.01)
+[evaluate/pooled_sklearn_hgb_clean26071] efficiency       0.931857012681297 (target fake 0.001)
+[evaluate/pooled_sklearn_hgb_clean26071] efficiency       0.9011789050041765 (target fake 0.0001)
+[regions] attached ['barrel', 'forward endcap', 'backward endcap'] acceptance (barrel: 10757/14285 in acceptance; forward endcap: 169561/196716 in acceptance; backward endcap: 103552/113376 in acceptance; 0 files skipped, 0 rows unclassifiable)
+[report] wrote output/pid-pooled_sklearn_hgb_clean26071_barrel-overall.json, output/pid-pooled_sklearn_hgb_clean26071_barrel-overall.md, output/pid-pooled_sklearn_hgb_clean26071_barrel-overall.root (8 rows)
+[report] wrote output/pid-pooled_sklearn_hgb_clean26071_barrel-vs_pt.json, output/pid-pooled_sklearn_hgb_clean26071_barrel-vs_pt.md, output/pid-pooled_sklearn_hgb_clean26071_barrel-vs_pt.root (6 rows)
+[report] wrote output/pid-pooled_sklearn_hgb_clean26071_barrel-vs_eta.json, output/pid-pooled_sklearn_hgb_clean26071_barrel-vs_eta.md, output/pid-pooled_sklearn_hgb_clean26071_barrel-vs_eta.root (6 rows)
+[report] wrote output/pid-pooled_sklearn_hgb_clean26071_barrel-confusion.json, output/pid-pooled_sklearn_hgb_clean26071_barrel-confusion.md, output/pid-pooled_sklearn_hgb_clean26071_barrel-confusion.root (16 rows)
+[report] wrote output/pid-pooled_sklearn_hgb_clean26071_barrel-roc.json, output/pid-pooled_sklearn_hgb_clean26071_barrel-roc.md, output/pid-pooled_sklearn_hgb_clean26071_barrel-roc.root (200 rows)
+[evaluate/pooled_sklearn_hgb_clean26071_barrel] scored sample: 75 file(s), 1407 event(s), 10757 tracks
+[evaluate/pooled_sklearn_hgb_clean26071_barrel] auc              0.6075350618915685
+[evaluate/pooled_sklearn_hgb_clean26071_barrel] signal_peak      -2.5382823071837715
+[evaluate/pooled_sklearn_hgb_clean26071_barrel] background_peak  -2.7554051749131605
+[evaluate/pooled_sklearn_hgb_clean26071_barrel] n_sigma_lower_limit nan  [NOT COMPUTABLE: too few candidates to fit]
+[evaluate/pooled_sklearn_hgb_clean26071_barrel] n_sigma          0.38593926806489426
+[evaluate/pooled_sklearn_hgb_clean26071_barrel] efficiency       0.013131313131313131 (target fake 0.01)
+[evaluate/pooled_sklearn_hgb_clean26071_barrel] efficiency       0.0 (target fake 0.001)
+[evaluate/pooled_sklearn_hgb_clean26071_barrel] efficiency       0.0 (target fake 0.0001)
+[evaluate/pooled] NOTE: 1361 rows fall outside the pt bin edges and are excluded from the binned table (the global overall table still counts them)
+[report] wrote output/pid-pooled_sklearn_hgb_clean26071_forward_endcap-overall.json, output/pid-pooled_sklearn_hgb_clean26071_forward_endcap-overall.md, output/pid-pooled_sklearn_hgb_clean26071_forward_endcap-overall.root (8 rows)
+[report] wrote output/pid-pooled_sklearn_hgb_clean26071_forward_endcap-vs_pt.json, output/pid-pooled_sklearn_hgb_clean26071_forward_endcap-vs_pt.md, output/pid-pooled_sklearn_hgb_clean26071_forward_endcap-vs_pt.root (8 rows)
+[report] wrote output/pid-pooled_sklearn_hgb_clean26071_forward_endcap-vs_eta.json, output/pid-pooled_sklearn_hgb_clean26071_forward_endcap-vs_eta.md, output/pid-pooled_sklearn_hgb_clean26071_forward_endcap-vs_eta.root (6 rows)
+[report] wrote output/pid-pooled_sklearn_hgb_clean26071_forward_endcap-confusion.json, output/pid-pooled_sklearn_hgb_clean26071_forward_endcap-confusion.md, output/pid-pooled_sklearn_hgb_clean26071_forward_endcap-confusion.root (16 rows)
+[report] wrote output/pid-pooled_sklearn_hgb_clean26071_forward_endcap-roc.json, output/pid-pooled_sklearn_hgb_clean26071_forward_endcap-roc.md, output/pid-pooled_sklearn_hgb_clean26071_forward_endcap-roc.root (200 rows)
+[evaluate/pooled_sklearn_hgb_clean26071_forward_endcap] scored sample: 75 file(s), 1409 event(s), 169561 tracks
+[evaluate/pooled_sklearn_hgb_clean26071_forward_endcap] auc              0.9359136025750862
+[evaluate/pooled_sklearn_hgb_clean26071_forward_endcap] signal_peak      -0.6275766994588912
+[evaluate/pooled_sklearn_hgb_clean26071_forward_endcap] background_peak  -8.765910689148368
+[evaluate/pooled_sklearn_hgb_clean26071_forward_endcap] n_sigma_lower_limit nan  [NOT COMPUTABLE: too few candidates to fit]
+[evaluate/pooled_sklearn_hgb_clean26071_forward_endcap] n_sigma          2.151509485444794
+[evaluate/pooled_sklearn_hgb_clean26071_forward_endcap] efficiency       0.46261682242990654 (target fake 0.01)
+[evaluate/pooled_sklearn_hgb_clean26071_forward_endcap] efficiency       0.2324766355140187 (target fake 0.001)
+[evaluate/pooled_sklearn_hgb_clean26071_forward_endcap] efficiency       0.056074766355140186 (target fake 0.0001)
+[evaluate/pooled] NOTE: 72 rows fall outside the pt bin edges and are excluded from the binned table (the global overall table still counts them)
+[report] wrote output/pid-pooled_sklearn_hgb_clean26071_backward_endcap-overall.json, output/pid-pooled_sklearn_hgb_clean26071_backward_endcap-overall.md, output/pid-pooled_sklearn_hgb_clean26071_backward_endcap-overall.root (8 rows)
+[report] wrote output/pid-pooled_sklearn_hgb_clean26071_backward_endcap-vs_pt.json, output/pid-pooled_sklearn_hgb_clean26071_backward_endcap-vs_pt.md, output/pid-pooled_sklearn_hgb_clean26071_backward_endcap-vs_pt.root (8 rows)
+[report] wrote output/pid-pooled_sklearn_hgb_clean26071_backward_endcap-vs_eta.json, output/pid-pooled_sklearn_hgb_clean26071_backward_endcap-vs_eta.md, output/pid-pooled_sklearn_hgb_clean26071_backward_endcap-vs_eta.root (6 rows)
+[report] wrote output/pid-pooled_sklearn_hgb_clean26071_backward_endcap-confusion.json, output/pid-pooled_sklearn_hgb_clean26071_backward_endcap-confusion.md, output/pid-pooled_sklearn_hgb_clean26071_backward_endcap-confusion.root (16 rows)
+[report] wrote output/pid-pooled_sklearn_hgb_clean26071_backward_endcap-roc.json, output/pid-pooled_sklearn_hgb_clean26071_backward_endcap-roc.md, output/pid-pooled_sklearn_hgb_clean26071_backward_endcap-roc.root (200 rows)
+[evaluate/pooled_sklearn_hgb_clean26071_backward_endcap] scored sample: 75 file(s), 1409 event(s), 103552 tracks
+[evaluate/pooled_sklearn_hgb_clean26071_backward_endcap] auc              0.9991623136932725
+[evaluate/pooled_sklearn_hgb_clean26071_backward_endcap] signal_peak      4.957005273169413
+[evaluate/pooled_sklearn_hgb_clean26071_backward_endcap] background_peak  -4.140116527133678
+[evaluate/pooled_sklearn_hgb_clean26071_backward_endcap] n_sigma_lower_limit nan  [NOT COMPUTABLE: too few candidates to fit]
+[evaluate/pooled_sklearn_hgb_clean26071_backward_endcap] n_sigma          4.4441029804387755
+[evaluate/pooled_sklearn_hgb_clean26071_backward_endcap] efficiency       0.9870841727427981 (target fake 0.01)
+[evaluate/pooled_sklearn_hgb_clean26071_backward_endcap] efficiency       0.9500751633652735 (target fake 0.001)
+[evaluate/pooled_sklearn_hgb_clean26071_backward_endcap] efficiency       0.8402241606757545 (target fake 0.0001)
+[plot] wrote output/plots/pid-pooled_sklearn_hgb_clean26071-roc.png
+[plot] wrote output/plots/pid-pooled_sklearn_hgb_clean26071-eff_vs_fake.png
+[plot] wrote output/plots/pid-pooled_sklearn_hgb_clean26071-auc_vs_pt.png
+[plot] wrote output/plots/pid-pooled_sklearn_hgb_clean26071-auc_vs_eta.png
+[plot] wrote output/plots/pid-pooled_sklearn_hgb_clean26071_barrel-roc.png
+[plot] wrote output/plots/pid-pooled_sklearn_hgb_clean26071_barrel-eff_vs_fake.png
+[plot] wrote output/plots/pid-pooled_sklearn_hgb_clean26071_barrel-auc_vs_pt.png
+[plot] wrote output/plots/pid-pooled_sklearn_hgb_clean26071_forward_endcap-roc.png
+[plot] wrote output/plots/pid-pooled_sklearn_hgb_clean26071_forward_endcap-eff_vs_fake.png
+[plot] wrote output/plots/pid-pooled_sklearn_hgb_clean26071_forward_endcap-auc_vs_pt.png
+[plot] wrote output/plots/pid-pooled_sklearn_hgb_clean26071_backward_endcap-roc.png
+[plot] wrote output/plots/pid-pooled_sklearn_hgb_clean26071_backward_endcap-eff_vs_fake.png
+[plot] wrote output/plots/pid-pooled_sklearn_hgb_clean26071_backward_endcap-auc_vs_pt.png
+/opt/local/lib/python3.13/site-packages/XRootD/client/finalize.py:46: FutureWarning: `torch.distributed.reduce_op` is deprecated, please use `torch.distributed.ReduceOp` instead
+  if isinstance(obj, File) and obj.is_open():
++ python -m pid importance --dir output/models/pooled_sklearn_hgb_clean26071 --task pooled --model sklearn_hgb --dataset-tag clean26071 --plot
+[importance] gains/SHAP read from booster.joblib (unwrapped booster)
+[importance] pid.models.sklearn_hgb: HistGradientBoosting has no built-in TreeSHAP. Use `pid importance --kind permutation`, or the lightgbm/xgboost models, for SHAP values.
+[report] wrote output/pid-pooled_sklearn_hgb_clean26071-importance-gain.json, output/pid-pooled_sklearn_hgb_clean26071-importance-gain.md, output/pid-pooled_sklearn_hgb_clean26071-importance-gain.root (53 rows)
+[report] wrote output/pid-pooled_sklearn_hgb_clean26071-importance-permutation.json, output/pid-pooled_sklearn_hgb_clean26071-importance-permutation.md, output/pid-pooled_sklearn_hgb_clean26071-importance-permutation.root (53 rows)
+
+[importance] leading feature: {'kind': 'gain', 'column': 'chi2', 'family': 'tracker'}
+[importance] NOTE: gain: leading feature 'chi2' (family 'tracker') is not one of the expected PID observables ['e_over_p', 'log_e_over_p', 'ecal_', 'leg']
+[plot] wrote output/plots/pid-pooled_sklearn_hgb_clean26071-importance.png
++ echo '[run_pid] WARNING: importance pooled/sklearn_hgb failed - see log above'
+[run_pid] WARNING: importance pooled/sklearn_hgb failed - see log above
++ python /local/scratch/a/wxie/eic/baseline_tracking_performance_agent/pid/scripts/check_learners.py --dataset-tag clean26071 --tasks eid,ehad,hadpid,pooled
+[check-learners] tag=clean26071 agreement limit (max-min test AUC): 0.02
+[check-learners] PASS eid: lightgbm=0.9981, sklearn_hgb=0.9981, xgboost=0.9980 (spread 0.0001)
+[check-learners] PASS ehad: lightgbm=0.9981, sklearn_hgb=0.9981, xgboost=0.9981 (spread 0.0000)
+[check-learners] PASS hadpid: lightgbm=0.6922, sklearn_hgb=0.6920, xgboost=0.6975 (spread 0.0055)
+[check-learners] PASS pooled: lightgbm=0.8647, sklearn_hgb=0.8653, xgboost=0.8681 (spread 0.0034)
+++ tr , ' '
+++ echo eid,ehad,hadpid,pooled
++ for task in $(echo "eid,ehad,hadpid,pooled" | tr ',' ' ')
++ python -m pid overlay --task eid --dataset-tag clean26071
+[plot] wrote output/plots/pid-eid_overlay_clean26071-roc.png
+[overlay] learners=['lightgbm', 'xgboost', 'sklearn_hgb'] AUC spread=0.0001 -> output/plots/pid-eid_overlay_clean26071-roc.png
++ for task in $(echo "eid,ehad,hadpid,pooled" | tr ',' ' ')
++ python -m pid overlay --task ehad --dataset-tag clean26071
+[plot] wrote output/plots/pid-ehad_overlay_clean26071-roc.png
+[overlay] learners=['lightgbm', 'xgboost', 'sklearn_hgb'] AUC spread=0.0000 -> output/plots/pid-ehad_overlay_clean26071-roc.png
++ for task in $(echo "eid,ehad,hadpid,pooled" | tr ',' ' ')
++ python -m pid overlay --task hadpid --dataset-tag clean26071
+[plot] wrote output/plots/pid-hadpid_overlay_clean26071-roc.png
+[overlay] learners=['lightgbm', 'xgboost', 'sklearn_hgb'] AUC spread=0.0019 -> output/plots/pid-hadpid_overlay_clean26071-roc.png
++ for task in $(echo "eid,ehad,hadpid,pooled" | tr ',' ' ')
++ python -m pid overlay --task pooled --dataset-tag clean26071
+[plot] wrote output/plots/pid-pooled_overlay_clean26071-roc.png
+[overlay] learners=['lightgbm', 'xgboost', 'sklearn_hgb'] AUC spread=0.0006 -> output/plots/pid-pooled_overlay_clean26071-roc.png
++ echo '[run_pid] done'
+[run_pid] done

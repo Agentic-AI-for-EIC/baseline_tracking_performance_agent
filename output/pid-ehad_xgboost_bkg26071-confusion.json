@@ -1,0 +1,117 @@
+{
+  "meta": {
+    "pipeline": "pid",
+    "schema_version": "pid-v1",
+    "campaigns": {
+      "clean": "26.02.0",
+      "bkg_mixed": "26.07.1",
+      "clean26071": "26.07.1",
+      "bkg26071": "26.07.1"
+    },
+    "match_weight_threshold": 0.5,
+    "min_track_p": 1.0,
+    "delta_r_max": 0.3,
+    "min_entries_per_bin": 50,
+    "fake_rate_targets": [
+      0.01,
+      0.001,
+      0.0001
+    ],
+    "excluded_columns": [
+      "charge"
+    ],
+    "n_jobs": 1,
+    "random_seed": 1234,
+    "libraries": {
+      "lightgbm": "4.7.0",
+      "xgboost": "3.4.1",
+      "sklearn": "1.9.1",
+      "numpy": "2.4.6",
+      "pandas": "3.0.3",
+      "awkward": "2.9.0",
+      "uproot": "5.7.1",
+      "torch": "2.12.0",
+      "ROOT": "6.40.04",
+      "problems": "none"
+    },
+    "numpy_path": "/local/scratch/a/wxie/.eic_python_pkgs/numpy/__init__.py",
+    "artifact": "confusion",
+    "task": "ehad",
+    "model": "xgboost",
+    "dataset_tag": "bkg26071",
+    "scores_table": "output/models/ehad_xgboost_bkg26071/test_scores.pkl",
+    "n_files_scored": 69,
+    "n_events_scored": 99,
+    "n_rows_scored": 6897,
+    "n_signal": 6459,
+    "n_background": 438,
+    "campaign": "26.07.1",
+    "written_at_utc": "2026-09-27T09:10:16.703293+00:00"
+  },
+  "data": [
+    {
+      "truth_class": "e",
+      "pred_class": "e",
+      "n": 5940,
+      "row_fraction": 0.9196470042,
+      "row_fraction_err_lo": 0.9127489416,
+      "row_fraction_err_hi": 0.9261632707,
+      "row_fraction_err": 0.0067071646,
+      "col_fraction": 1.0,
+      "n_truth": 6459,
+      "n_pred": 5940,
+      "decision": "threshold@0.0001",
+      "threshold": 0.9507647132,
+      "target_fake_rate": 0.0001,
+      "insufficient_stats": false
+    },
+    {
+      "truth_class": "e",
+      "pred_class": "hadron",
+      "n": 519,
+      "row_fraction": 0.0803529958,
+      "row_fraction_err_lo": 0.0738367293,
+      "row_fraction_err_hi": 0.0872510584,
+      "row_fraction_err": 0.0067071646,
+      "col_fraction": 0.5423197492,
+      "n_truth": 6459,
+      "n_pred": 957,
+      "decision": "threshold@0.0001",
+      "threshold": 0.9507647132,
+      "target_fake_rate": 0.0001,
+      "insufficient_stats": false
+    },
+    {
+      "truth_class": "hadron",
+      "pred_class": "e",
+      "n": 0,
+      "row_fraction": null,
+      "row_fraction_err_lo": null,
+      "row_fraction_err_hi": null,
+      "row_fraction_err": null,
+      "col_fraction": 0.0,
+      "n_truth": 0,
+      "n_pred": 5940,
+      "decision": "threshold@0.0001",
+      "threshold": 0.9507647132,
+      "target_fake_rate": 0.0001,
+      "insufficient_stats": true
+    },
+    {
+      "truth_class": "hadron",
+      "pred_class": "hadron",
+      "n": 0,
+      "row_fraction": null,
+      "row_fraction_err_lo": null,
+      "row_fraction_err_hi": null,
+      "row_fraction_err": null,
+      "col_fraction": 0.0,
+      "n_truth": 0,
+      "n_pred": 957,
+      "decision": "threshold@0.0001",
+      "threshold": 0.9507647132,
+      "target_fake_rate": 0.0001,
+      "insufficient_stats": true
+    }
+  ]
+}
