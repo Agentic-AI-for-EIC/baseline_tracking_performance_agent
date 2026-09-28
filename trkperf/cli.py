@@ -292,6 +292,7 @@ def _run_plot(args: argparse.Namespace):
                     sub, value_col, err_col, plot_path, group_col="eta_label",
                     marker_col=None, group_color=None, log_y=log_y,
                     ymin=ymin, marker_legend_loc=marker_loc,
+                    legend_title="eta bin",
                     title=f"{metric_name} {group} ({meta.get('dataset_tag', '')}, "
                           f"{meta.get('region', 'central')} rule)",
                 )

@@ -353,6 +353,7 @@ def plot_metric_vs_pt(
     group_color: str | None = None,
     ymin: float | None = None,
     marker_legend_loc: str = "upper right",
+    legend_title: str | None = None,
 ) -> None:
     """`value_col` vs `x_col`, one curve per distinct `group_col` value.
 
@@ -392,16 +393,20 @@ def plot_metric_vs_pt(
         g for g in plot_df[group_col].dropna().unique()
     )
     markers = [None]
+    marker_map = {}
     if marker_col and marker_col in plot_df.columns:
         markers = sorted(m for m in plot_df[marker_col].dropna().unique())
         marker_map = _markers_for(markers)
+    # One colour per named group (with its own legend), whether or not a
+    # marker column is also in play - without this, a marker-less plot
+    # (e.g. the eta-slice survey) draws anonymous coloured curves.
+    if group_color is None and group_col in plot_df.columns:
         cmap = plt.get_cmap("tab10" if len(groups) <= 10 else "tab20")
         color_map = {
             g: cmap(i) if cmap.N > 1 else cmap(0)
             for i, g in enumerate(groups)
         }
     else:
-        marker_map = {}
         color_map = None
 
     if group_color is not None:
@@ -447,7 +452,7 @@ def plot_metric_vs_pt(
         labels = [str(g) if g is not None else "all" for g in groups]
         # Outside the axes (top right) so the box never covers data points.
         ax.legend(handles, labels, loc="upper left", bbox_to_anchor=(1.02, 1.0),
-                  fontsize=7, title=group_col, borderaxespad=0.0)
+                  fontsize=7, title=legend_title or group_col, borderaxespad=0.0)
     if marker_map:
         mhandles = [
             plt.Line2D([0], [0], color="#333333" if group_color is None else group_color,

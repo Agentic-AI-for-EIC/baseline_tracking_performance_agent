@@ -7,6 +7,7 @@ file, so they run instantly and should never be skipped.
 
 from __future__ import annotations
 
+import os
 import tempfile
 import unittest
 from pathlib import Path
@@ -975,6 +976,39 @@ class TestEtaRegions(unittest.TestCase):
             count_cols=("n_in_acceptance", "n_generated"), eta_center=3.75)
         self.assertTrue(empty.empty)
         self.assertIn("species_group", empty.columns)
+
+    def test_markerless_plot_still_gets_a_colour_legend(self):
+        # Regression: with marker_col=None, plot_metric_vs_pt used to leave
+        # color_map unset, so multi-curve figures shipped with NO legend.
+        import matplotlib
+        from unittest import mock
+
+        matplotlib.use("Agg")
+        frame = pd.DataFrame([
+            {"eta_label": "[0.00,0.50]", "pt_bin_center": 1.0,
+             "acceptance": 0.5, "acceptance_err": 0.05,
+             "insufficient_stats": False},
+            {"eta_label": "[0.50,1.00]", "pt_bin_center": 1.0,
+             "acceptance": 0.7, "acceptance_err": 0.05,
+             "insufficient_stats": False},
+        ])
+        with tempfile.TemporaryDirectory() as tmp:
+            path = os.path.join(tmp, "legend.png")
+            with mock.patch.object(matplotlib.pyplot, "close"):
+                report.plot_metric_vs_pt(
+                    frame, "acceptance", "acceptance_err", path,
+                    group_col="eta_label", marker_col=None, legend_title="eta bin")
+            self.assertTrue(os.path.exists(path))
+            import matplotlib.pyplot as plt
+
+            fig = plt.gcf()
+            legends = [c for c in fig.axes[0].get_children()
+                       if isinstance(c, matplotlib.legend.Legend)]
+            self.assertTrue(legends, "no legend drawn")
+            texts = [t.get_text() for t in legends[0].get_texts()]
+            self.assertEqual(texts, ["[0.00,0.50]", "[0.50,1.00]"])
+            self.assertEqual(legends[0].get_title().get_text(), "eta bin")
+            plt.close("all")
 
     def test_ratio_recovered_exactly(self):
         agg = report.aggregate_eta_species(
