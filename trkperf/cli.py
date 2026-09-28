@@ -258,6 +258,31 @@ def _run_plot(args: argparse.Namespace):
     group_col = "species" if metric_name != FAKE_RATE_NAME else "__no_species_axis__"
     n_plotted = 0
     for value_col, err_col, suffix, log_y, ymin, marker_loc in _plot_specs(metric_name):
+        if getattr(args, "eta_slices", False):
+            # One figure per eta bin (all 16, delta_eta = 0.5): species-group
+            # curves vs pT within that bin, no eta aggregation. Used for the
+            # acceptance survey (clean only - acceptance is background-free),
+            # one invocation per region-rule JSON.
+            for center in sorted(df["eta_bin_center"].dropna().unique()):
+                frame = report.aggregate_species_eta_bin(
+                    df, value_col, err_col,
+                    count_cols=_GROUP_COUNTS.get((metric_name, value_col)),
+                    eta_center=center)
+                lo, hi = center - 0.25, center + 0.25
+                plot_path = f"{base}_{suffix}_eta_{lo:.2f}_to_{hi:.2f}.png"
+                if frame.empty or bool((frame["insufficient_stats"] == True).all()):  # noqa: E712
+                    print(f"[plot/{metric_name}] skip eta [{lo:.2f},{hi:.2f}] (no trusted bins)")
+                    continue
+                report.plot_metric_vs_pt(
+                    frame, value_col, err_col, plot_path, group_col="species_group",
+                    marker_col=None, group_color=None, log_y=log_y,
+                    ymin=ymin, marker_legend_loc=marker_loc,
+                    title=f"{metric_name} ({meta.get('dataset_tag', '')}, "
+                          f"{meta.get('region', 'central')} rule) eta in [{lo:.2f},{hi:.2f}]",
+                )
+                print(f"[plot/{metric_name}] wrote {plot_path}")
+                n_plotted += 1
+            continue
         if getattr(args, "grouped", False):
             frame = report.aggregate_eta_species(
                 df, value_col, err_col,
@@ -356,6 +381,14 @@ def build_parser() -> argparse.ArgumentParser:
         help="With --grouped, keep only one detector region's bins (one plot "
         "per region). Pair with the region-correct rule: central JSONs for "
         "barrel, <region>-rule JSONs (acceptance_<region>_<tag>) for endcaps.",
+    )
+    p.add_argument(
+        "--eta-slices",
+        action="store_true",
+        help="One figure per eta bin (no eta aggregation): species-group "
+        "curves vs pT within each 0.5-wide bin; writes "
+        "<base>_<suffix>_eta_<lo>_to_<hi>.png. For the acceptance survey "
+        "(clean only); run once per region-rule JSON.",
     )
     p.set_defaults(func=_run_plot)
 

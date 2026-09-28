@@ -947,6 +947,35 @@ class TestEtaRegions(unittest.TestCase):
         self.assertEqual(agg.iloc[0]["eta_region"], "barrel")
         self.assertAlmostEqual(agg.iloc[0]["acceptance"], 0.5)
 
+    def test_eta_slice_keeps_eta_granularity(self):
+        df = pd.DataFrame([
+            {"species": "e-", "pt_bin_center": 1.0, "eta_bin_center": 0.25,
+             "acceptance": 0.3, "acceptance_err": 0.05, "n_generated": 100,
+             "n_in_acceptance": 30, "insufficient_stats": False},
+            {"species": "e+", "pt_bin_center": 1.0, "eta_bin_center": 0.25,
+             "acceptance": 0.7, "acceptance_err": 0.05, "n_generated": 100,
+             "n_in_acceptance": 70, "insufficient_stats": False},
+            {"species": "e-", "pt_bin_center": 1.0, "eta_bin_center": -2.75,
+             "acceptance": 1.0, "acceptance_err": 0.01, "n_generated": 1000,
+             "n_in_acceptance": 1000, "insufficient_stats": False},
+        ])
+        one = report.aggregate_species_eta_bin(
+            df, "acceptance", "acceptance_err",
+            count_cols=("n_in_acceptance", "n_generated"), eta_center=0.25)
+        self.assertEqual(len(one), 1)
+        self.assertAlmostEqual(one.iloc[0]["acceptance"], 0.5)
+        self.assertEqual(one.iloc[0]["n"], 200.0)
+        other = report.aggregate_species_eta_bin(
+            df, "acceptance", "acceptance_err",
+            count_cols=("n_in_acceptance", "n_generated"), eta_center=-2.75)
+        self.assertEqual(len(other), 1)
+        self.assertAlmostEqual(other.iloc[0]["acceptance"], 1.0)
+        empty = report.aggregate_species_eta_bin(
+            df, "acceptance", "acceptance_err",
+            count_cols=("n_in_acceptance", "n_generated"), eta_center=3.75)
+        self.assertTrue(empty.empty)
+        self.assertIn("species_group", empty.columns)
+
     def test_ratio_recovered_exactly(self):
         agg = report.aggregate_eta_species(
             self._ratio_df(), "acceptance", "acceptance_err",

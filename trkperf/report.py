@@ -306,6 +306,32 @@ def aggregate_eta_species(
     return pd.DataFrame(rows)
 
 
+def aggregate_species_eta_bin(
+    df: pd.DataFrame, value_col: str, err_col: str | None,
+    count_cols: tuple[str, str] | None = None,
+    eta_center: float | None = None,
+) -> pd.DataFrame:
+    """Aggregate one eta bin over species groups, recomputing the value from
+    summed counts (exact for count-based metrics).
+
+    Same grouping convention as :func:`aggregate_eta_species` (charge
+    pairs merged, proton/antiproton separate) but WITHOUT any eta
+    aggregation: one figure per (region-rule file, eta bin) keeps the full
+    0.5-wide eta granularity, so eta-dependent structures (e.g. the
+    barrel/endcap transition) are never averaged away. Implemented by
+    filtering to the bin and delegating to :func:`aggregate_eta_species`,
+    so the counts, errors and statistics floor are identical.
+    """
+    sub = df[df["eta_bin_center"] == eta_center].copy()
+    if sub.empty:
+        return pd.DataFrame(
+            columns=["species_group", "pt_bin_center",
+                     value_col, err_col or "err", "n", "insufficient_stats"])
+    out = aggregate_eta_species(sub, value_col, err_col, count_cols=count_cols,
+                                eta_region_filter=None)
+    return out.drop(columns=["eta_region"])
+
+
 def _markers_for(values: list) -> dict:
     """Map each sorted `values` entry to a distinct marker style, cycling the
     built-in list if there are more values than styles."""
