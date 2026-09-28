@@ -23,6 +23,8 @@ import argparse
 import os
 import sys
 
+import pandas as pd
+
 from . import compare as compare_module
 from . import config, io as io_module, report
 from .metrics import acceptance, efficiency, resolution
@@ -259,26 +261,39 @@ def _run_plot(args: argparse.Namespace):
     n_plotted = 0
     for value_col, err_col, suffix, log_y, ymin, marker_loc in _plot_specs(metric_name):
         if getattr(args, "eta_slices", False):
-            # One figure per eta bin (all 16, delta_eta = 0.5): species-group
-            # curves vs pT within that bin, no eta aggregation. Used for the
-            # acceptance survey (clean only - acceptance is background-free),
-            # one invocation per region-rule JSON.
+            # One figure per species group with ALL eta bins in the same
+            # plot (16 curves, one per 0.5-wide bin, no eta aggregation).
+            # Used for the acceptance survey (clean only - acceptance is
+            # background-free), one invocation per region-rule JSON.
+            slices = []
             for center in sorted(df["eta_bin_center"].dropna().unique()):
                 frame = report.aggregate_species_eta_bin(
                     df, value_col, err_col,
                     count_cols=_GROUP_COUNTS.get((metric_name, value_col)),
                     eta_center=center)
-                lo, hi = center - 0.25, center + 0.25
-                plot_path = f"{base}_{suffix}_eta_{lo:.2f}_to_{hi:.2f}.png"
-                if frame.empty or bool((frame["insufficient_stats"] == True).all()):  # noqa: E712
-                    print(f"[plot/{metric_name}] skip eta [{lo:.2f},{hi:.2f}] (no trusted bins)")
+                if frame.empty:
                     continue
+                lo, hi = center - 0.25, center + 0.25
+                frame["eta_label"] = f"[{lo:.2f},{hi:.2f}]"
+                frame["eta_center"] = center
+                slices.append(frame)
+            if not slices:
+                print(f"[plot/{metric_name}] skip eta slices (no binned rows)")
+                continue
+            allf = pd.concat(slices, ignore_index=True)
+            order = [f"[{c - 0.25:.2f},{c + 0.25:.2f}]"
+                     for c in sorted(allf["eta_center"].unique())]
+            allf["eta_label"] = pd.Categorical(allf["eta_label"], categories=order,
+                                               ordered=True)
+            for group, sub in allf.groupby("species_group", observed=True):
+                slug = str(group).split("/")[0].rstrip("+-")
+                plot_path = f"{base}_{suffix}_eta_slices_{slug}.png"
                 report.plot_metric_vs_pt(
-                    frame, value_col, err_col, plot_path, group_col="species_group",
+                    sub, value_col, err_col, plot_path, group_col="eta_label",
                     marker_col=None, group_color=None, log_y=log_y,
                     ymin=ymin, marker_legend_loc=marker_loc,
-                    title=f"{metric_name} ({meta.get('dataset_tag', '')}, "
-                          f"{meta.get('region', 'central')} rule) eta in [{lo:.2f},{hi:.2f}]",
+                    title=f"{metric_name} {group} ({meta.get('dataset_tag', '')}, "
+                          f"{meta.get('region', 'central')} rule)",
                 )
                 print(f"[plot/{metric_name}] wrote {plot_path}")
                 n_plotted += 1
@@ -385,9 +400,9 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument(
         "--eta-slices",
         action="store_true",
-        help="One figure per eta bin (no eta aggregation): species-group "
-        "curves vs pT within each 0.5-wide bin; writes "
-        "<base>_<suffix>_eta_<lo>_to_<hi>.png. For the acceptance survey "
+        help="One figure per species group with all eta bins in the same "
+        "plot (16 curves, one per 0.5-wide bin, no eta aggregation); writes "
+        "<base>_<suffix>_eta_slices_<group>.png. For the acceptance survey "
         "(clean only); run once per region-rule JSON.",
     )
     p.set_defaults(func=_run_plot)
