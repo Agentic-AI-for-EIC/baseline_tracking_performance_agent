@@ -977,8 +977,7 @@ class TestEtaRegions(unittest.TestCase):
         self.assertTrue(empty.empty)
         self.assertIn("species_group", empty.columns)
 
-    def test_markerless_plot_still_gets_a_colour_legend(self):
-        # Regression: with marker_col=None, plot_metric_vs_pt used to leave
+    def test_markerless_plot_still_gets_a_colour_legend(self):        # Regression: with marker_col=None, plot_metric_vs_pt used to leave
         # color_map unset, so multi-curve figures shipped with NO legend.
         import matplotlib
         from unittest import mock
@@ -1061,6 +1060,23 @@ class TestEtaRegions(unittest.TestCase):
         self.assertAlmostEqual(row["sigma"], 0.12, places=6)
         self.assertAlmostEqual(row["sigma_err"], 1.0 / np.sqrt(10000 + 2500), places=9)
         self.assertEqual(row["n"], 600.0)
+
+    def test_eta_centers_follow_their_rule(self):
+        centers = [-3.75, -1.25, -0.75, 0.75, 1.25, 3.75]
+        self.assertEqual(
+            report.eta_centers_for_rule(centers, "backward"),
+            [-3.75, -1.25])
+        self.assertEqual(
+            report.eta_centers_for_rule(centers, "central"),
+            [-0.75, 0.75])
+        self.assertEqual(
+            report.eta_centers_for_rule(centers, "forward"),
+            [1.25, 3.75])
+        # Unknown rule (older JSONs): keep everything, old behaviour.
+        self.assertEqual(
+            report.eta_centers_for_rule(centers, None), sorted(centers))
+        self.assertEqual(
+            report.eta_centers_for_rule(centers, "nosecone"), sorted(centers))
 
     def test_eta_region_filter_keeps_one_region(self):
         agg = report.aggregate_eta_species(

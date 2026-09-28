@@ -266,7 +266,8 @@ def _run_plot(args: argparse.Namespace):
             # Used for the acceptance survey (clean only - acceptance is
             # background-free), one invocation per region-rule JSON.
             slices = []
-            for center in sorted(df["eta_bin_center"].dropna().unique()):
+            for center in report.eta_centers_for_rule(
+                    df["eta_bin_center"].dropna().unique(), meta.get("region")):
                 frame = report.aggregate_species_eta_bin(
                     df, value_col, err_col,
                     count_cols=_GROUP_COUNTS.get((metric_name, value_col)),

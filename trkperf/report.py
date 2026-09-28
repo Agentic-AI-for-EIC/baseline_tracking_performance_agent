@@ -306,6 +306,30 @@ def aggregate_eta_species(
     return pd.DataFrame(rows)
 
 
+#: Acceptance-rule name (as stored in result metadata) -> the eta_region
+#: label whose bins that rule judges. A rule file covers the full eta grid,
+#: but a region's figures must only show its own bins: a backward-rule curve
+#: at positive eta (or vice versa) is a dead zero by construction, not a
+#: measurement.
+RULE_TO_ETA_REGION: dict[str, str] = {
+    "central": "barrel",
+    "backward": "backward endcap",
+    "forward": "forward endcap",
+}
+
+
+def eta_centers_for_rule(centers, rule: str | None) -> list:
+    """Filter eta-bin centers down to the region a rule judges.
+
+    Unknown/absent rule (e.g. older JSONs without the metadata field) keeps
+    every bin, preserving the old behaviour.
+    """
+    want = RULE_TO_ETA_REGION.get(rule or "")
+    if want is None:
+        return sorted(centers)
+    return sorted(c for c in centers if eta_region(c) == want)
+
+
 def aggregate_species_eta_bin(
     df: pd.DataFrame, value_col: str, err_col: str | None,
     count_cols: tuple[str, str] | None = None,
