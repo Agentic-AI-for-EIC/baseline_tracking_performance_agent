@@ -841,6 +841,19 @@ A third, uglier catch: `rec_idx` — a column left behind by the association mer
       decoding) before any classifier training. Central PID stays out of
       scope until a production provides barrel projections or calibrated
       per-track timing.
+1e. **Same-campaign 26.07.1 PID grid (2026-09-26/27, done).** Detached chain
+    (tunnel watchdog): features (parallel `--jobs 6` build, new) ->
+    run_pid.sh per tag (all 3 learners x 4 tasks, region evaluate outputs by
+    default) -> per-tag performance packages -> compare. 24/24 models
+    trained (300x1409 + 275x99 events, 0 skipped files; clean 1.63M feature
+    rows, bkg 126k), 24/24 evaluated incl. barrel/backward/forward tables,
+    8 cross-learner ROC overlays (`pid overlay`, new), per-tag figure dirs
+    (`plots_clean26071/`, `plots_bkg26071/` - channel names carry no tag),
+    first campaign-matched comparisons. Headline: eid e/pi eff at 1e-3 fake
+    0.945 clean -> 0.922 bkg (background-blind, mirrors tracking).
+    check_learners PASS everywhere (spreads <= 0.0049). Open: the §12.1
+    gate adjudication (persists at 26.07.1 scale) + 3 train_test_auc_gap
+    flags; hadpid stays exploratory.
 2. **Hadron ID needs per-track Cherenkov/timing** (and is currently labelled
    `exploratory` in `config.CHANNELS` for exactly this reason — the calorimeter-only
    K/π and p/K results are baselines to be beaten, not deliverables). Three concrete routes, in cost order: (a) decode `DRICH*RawHits` cellIDs against the compact geometry to attach photons to the extrapolated `DRICH*Tracks` segment (AGENTS.md currently scopes cellID decoding out — a deliberate decision to revisit); (b) recover the `*_ParticleIDs` likelihoods by establishing the entry order of those collections (their `particle` relation is null, but the *multiplicity* pattern — 4 hypotheses/particle — may be alignable; time-box it); (c) request a production where the IRT `chargedParticle` relation is written (cid `1290518152` is not in the file).

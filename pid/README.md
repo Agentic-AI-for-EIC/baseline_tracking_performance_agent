@@ -34,6 +34,7 @@ warning — that is deliberate, see §4.
 | `pid evaluate` | AUC, efficiency at fixed fake rate, n-sigma, confusion, ROC, calibration | `output/pid-<task>_<lib>_<tag>-{overall,vs_pt,vs_eta,confusion,roc,calibration}.{json,md,root}` |
 | `pid importance` | gain, **exact** SHAP, permutation + the physics check | `output/pid-<task>_<lib>_<tag>-importance-*.…` |
 | `pid compare` | clean vs +background, via `trkperf.compare` | `output/pid-<task>_<lib>_<artifact>_comparison.{json,md}` |
+| `pid overlay` | cross-learner ROC overlay (one curve per library, same task+tag) | `output/plots/pid-<task>_overlay_<tag>-roc.png` |
 | `pid all` | the whole chain for one dataset tag | all of the above |
 
 ### Separation power (n_sigma): do not fit the bounded score
@@ -153,7 +154,24 @@ python -m pid compare --task eid --model lightgbm --artifact vs_pt
 Feature extraction is the slow step on the overseas endpoint (it touches ~20
 collections per file). `scripts/run_pid.sh` detaches it the same way
 `scripts/launch_bkg.sh` does, and the per-file cache means a relaunch after a
-container teardown replays finished files from disk.
+container teardown replays finished files from disk. Feature builds fan out
+with `--jobs N` (forked per-file workers, order-identical output).
+
+## 2b. Same-campaign 26.07.1 reproduction (current primary)
+
+Tags `clean26071`/`bkg26071` (campaign 26.07.1 both sides, gautschi local
+copies via the login00-pinned xrootd tunnel — see AGENTS.md). Full chain ran
+2026-09-26/27: 24/24 models (4 tasks x 3 learners x 2 tags, 0 skipped files),
+24 evaluates incl. per-region outputs, working-point packages, cross-learner
+overlays, and the first campaign-matched comparisons
+(`output/pid-{eid,ehad}_lightgbm_{overall,vs_pt,vs_eta}_clean26071-vs-bkg26071_comparison.*`).
+Headline eid e/pi efficiency at 1e-3 fake: 0.945 clean -> 0.922 bkg.
+Performance figure packages live per tag (`output/plots_clean26071/`,
+`output/plots_bkg26071/` — channel figure names carry no tag, so a shared
+directory lets the second tag overwrite the first; always pass a per-tag
+`--plots-dir`). Open: `top_feature_is_physical` adjudication (raw ECAL E /
+chi2 outrank E/p at scale) and a few `train_test_auc_gap` flags; hadpid
+stays exploratory. Full record: `PLAN_pid.md` §12.1c-1d.
 
 ## 3. Reading the outputs
 

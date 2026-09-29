@@ -209,6 +209,13 @@ any PID number.
   fake has no true species). Always name the dataset/minQ2 tier(s) used.
 - Every metric is run on both Type 1 and Type 2, then compared (ratio and
   difference, per bin, with propagated uncertainty) via `trkperf/compare.py`.
+- On small hosts bound efficiency/resolution peaks with `--chunk-files N`
+  (consecutive file groups, merged before ratios/fits — bit-identical; the
+  reproduction driver uses 80 for the heavy clean runs).
+- Survey plots keep full eta granularity via `trkperf plot --eta-slices`
+  (one figure per species group with its rule's own eta bins as curves);
+  grouped plots aggregate regions instead. Legends always name the curve
+  variable (`legend_title`).
 - Write results as JSON; render tables in markdown; save plots; and write a
   ROOT TNtuple — all under output/.
 - Minimum entries per bin before trusting it: 50 (see

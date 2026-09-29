@@ -13,6 +13,15 @@ description: >-
 
 # trkperf grid-workflow
 
+> **Current primary workflow (2026-09-26):** the same-campaign 26.07.1
+> reproduction (`clean26071` + `bkg26071`, gautschi local copies via a
+> login00-pinned xrootd tunnel) driven end-to-end by
+> `scripts/run_reproduction_26071.sh` — metrics, comparisons, and plots in
+> one sequential, resumable pass; see PLAN.md §8.4 and AGENTS.md. The
+> Type 1 / Type 2 grid procedure below is the legacy mixed-campaign
+> workflow (26.02.0 vs 26.07.1); use it only for reference or when the
+> old tags are explicitly requested.
+
 ## What I do
 Stands for the shared, metric-independent parts of every tracking-performance
 run in this project:
@@ -105,7 +114,12 @@ flagged:
    (`--min-q2-tier`, file list, file count).
 
 Note the OOM risk on this 30 GB box: the efficiency compute/merge peaked at
-~18 GB RSS; do not stack heavy bkg jobs simultaneously.
+~18 GB RSS; do not stack heavy bkg jobs simultaneously. On smaller hosts,
+bound the peak with `--chunk-files N` (efficiency/resolution only): files
+are processed in consecutive groups of at most N, counts/residuals merged
+afterwards, results bit-identical to one pass (chunk size recorded in
+`run_params`). The reproduction driver uses `--chunk-files 80` for the
+heavy clean runs.
 
 ### 5. Compare clean vs bkg_mixed
 Requires both sides' JSON in `output/` (`output/<metric>_clean.json` and

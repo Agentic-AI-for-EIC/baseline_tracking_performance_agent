@@ -111,16 +111,32 @@ file/row counts. Requires both tags trained and evaluated; missing sides are
 named, never half-compared. Also run the **cross-application** check (train
 clean → evaluate bkg and vice versa) before attributing a difference to
 background: the campaigns differ in schema (PLAN_pid.md §3.3).
+Tag pairs are declared in `pid.config.DATASET_TAG_PAIRS`
+(`clean`/`bkg_mixed`, `clean26071`/`bkg26071`); summaries label the actual
+tags compared, and non-default pairs write
+`pid-<stem><artifact>_<cleanTag>-vs-<bkgTag>_comparison.*`.
+Cross-learner overlays (one ROC per library, same task+tag) come from
+`python -m pid overlay --task <t> --dataset-tag <tag>` (refuses below two
+trained learners); grid runs emit them automatically after
+`check_learners.py`.
 
 ### 3. Grid runs (detached; sessions die with the container)
 ```sh
 pid/scripts/run_pid.sh clean     filelists/clean_150.txt 0
 pid/scripts/run_pid.sh bkg_mixed filelists/bkg_200.txt   20 cache/pid_features "eid,ehad" [seed]
+pid/scripts/run_pid.sh clean26071 filelists/clean26071_local.txt 0 cache/pid_features
+pid/scripts/run_pid.sh bkg26071  filelists/bkg26071_local.txt  10 cache/pid_features
 pid/scripts/run_pid.sh status
 ```
 Signature: tag, filelist, max_failures, cache_dir, tasks, seed. One detached
-job does features → train (all three learner libraries) → evaluate
-(`--by pt,eta --plot`) → importance per task, then `check_learners.py`.
+job does features (`--jobs ${JOBS:-6}`, parallel per-file workers) → train
+(all three learner libraries) → evaluate (`--by pt,eta --plot`, plus
+per-region tables/figures for barrel/backward/forward by default via
+`$ETA_REGIONS`) → importance per task, then `check_learners.py`, then a
+cross-learner ROC `overlay` per task. Performance packages go through
+`python -m pid performance ... --eta-region ...` with a **per-tag**
+`--plots-dir` (`output/plots_<tag>/`): channel figure names carry no tag,
+so sharing one directory lets the second tag overwrite the first.
 Quoting rule inside that script (a real bug lived here): the detached shell
 inherits only *exported* variables, so every value must be expanded by the
 launching shell — `'$VAR'` references expand to empty inside. The cache makes
