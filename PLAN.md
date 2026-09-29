@@ -124,6 +124,19 @@ software/geometry drift, not only the background overlay. `acceptance` is
 purely truth/geometry-level and should be background-independent; treat it as
 a built-in cross-check.
 
+Reproduction pair (2026-09-25/26, the current primary comparison, supersedes
+the mixed-campaign one for all quoted results): tags `clean26071` +
+`bkg26071`, BOTH campaign 26.07.1, local copies on
+gautschi.rcac.purdue.edu:/scratch/gautschi/wxie/eIC_data_small_set/{clean,
+bkg/reco} (300 files x 1409 events; 275 files x 99 events), streamed via a
+localhost-only xrootd daemon + ssh tunnel pinned to login00 (the bare
+hostname round-robins over 4 login nodes; the daemon binds 127.0.0.1 on one
+node only). File lists filelists/{clean26071,bkg26071}_local.txt carry
+root://localhost:1294//<absolute path> URLs. WARNING: the JLab 26.02.0
+/volatile replicas above are PURGED as of 2026-09-25 (tape only) — treat
+that path as unavailable; the old mixed-campaign outputs remain in output/
+for reference but are no longer quoted.
+
 ## 4. Data model (verified live against real files this session)
 - MCParticles: .PDG, .generatorStatus, .momentum.x/y/z (double), .mass (double)
 - CentralCKFTracks (edm4eic::TrackData): .momentum.x/y/z (float), .charge,
@@ -170,6 +183,23 @@ spectrometer stations (ForwardOffM, Roman Pots) were removed from the forward
 rule (2026-09-25) — they are a separate detector system, not endcap
 tracking. A collection whose branch is absent in a campaign degrades to 0
 hits with a printed NOTE rather than aborting the run.
+
+Region tiling (no overlap by construction): bin centres fall at +-0.25,
++-0.75, ..., so +-1.0 splits cleanly between bins. Particle flow follows
+its region's rule - each eta bin is judged exactly once:
+
+| eta range | region | rule file |
+|---|---|---|
+| [-4.0, -1.0] (6 bins) | backward endcap | acceptance_backward_<tag> |
+| [-1.0, +1.0] (4 bins) | barrel | acceptance_<tag> (central rule, legacy name) |
+| [+1.0, +4.0] (6 bins) | forward endcap | acceptance_forward_<tag> |
+
+Shared collections across rules (TrackerEndcapHits in all three,
+TOFEndcapHits in both endcap rules) do not double-count: every plotted
+number applies a single rule to its own region slice. Verified live:
+at pT 0.55, pi+ eta=-1.25 scores 0.0015 under the backward rule but 0.44
+under the central rule - the eta=-1.25 transition "hole" is rule-specific
+(endcap disks miss it; barrel layers still fire), not a detector gap.
 
 Explicitly out of scope (measured, not assumed):
 - `B0TrackerCKFTracks` (+ its associations/parameters) exist but are EMPTY
@@ -424,6 +454,68 @@ found and fixed, both with regression tests:
   tracks cross many central layers, so acceptance there rises steeply with
   pT while the deep endcap stays ~0 under the central >=4/7 rule.
 
+## 8.4 Same-campaign 26.07.1 reproduction (2026-09-26, as-built)
+
+Driver `scripts/run_reproduction_26071.sh` (sequential, resumable,
+tunnel watchdog): all 16 metric runs (acceptance/efficiency x3 regions +
+resolution + fake-rate, both tags), 8 clean-vs-bkg comparisons, 42
+per-region grouped plots. Pure compute ~4 h (clean ~2 h, bkg ~2 h with the
+failed attempt's reads reused via cache); single 17 MB/s tunnel stream is
+the bottleneck, first passes pay network, repeats replay from disk.
+
+- Access: login00 pin (see §3); remote daemon needs
+  `LD_LIBRARY_PATH=<...>/4.2.1/lib64` (`libXrdServer.so.2`); a stale
+  daemon holding port 1294 from a killed session must be cleared first.
+- OOM #1: `read_truth_hit_layer_counts` hoarded every raw background hit
+  row before the nunique groupby - bkg acceptance OOM-killed at 65 min on
+  the 15 GB box. Fix: `keep_particles` (the truth table the caller merges
+  onto) filters rows per-file inside `read_flat_multi`'s accumulation,
+  after the raw cache stash; bit-identical (proven by
+  `TestLayerCountKeepFilter`). Bkg acceptance then finished in ~70 s.
+- Chunking (`--chunk-files`, default 0 = historical path): efficiency
+  splits into `_chunk_counts` (counts merged before ratios), resolution
+  into `_chunk_residuals` (residuals merged before fits; the non-finite
+  filter stays inside the fitter so `n_matched` is unchanged). Proven
+  bit-identical (`TestChunkedMetrics` synthetic + `TestChunkedEquivalence`
+  on real files + full-size bkg efficiency diff vs the committed JSON).
+  Heavy clean runs use `--chunk-files 80` (300/4, tunable).
+- Driver resilience: `ensure_stack()` verifies the data path with a real
+  uproot read (port checks lie on half-dead tunnels), restarts tunnel then
+  daemon; 10 cached-replay attempts per metric; failures collected, never
+  abort the stream; existence-checked compares/plots.
+- Headline (trusted bins): acceptance 0.259 clean vs 0.257 bkg (cross-check
+  passes, no campaign artifact); resolution sigma median 1.4% -> 2.4%;
+  fake rate 0.000 -> 0.217; within-acceptance efficiency 0.724 -> 0.718.
+
+## 8.5 Acceptance survey plots + composition findings (2026-09-26/27)
+
+`report.aggregate_species_eta_bin()` + `trkperf plot --eta-slices`: per
+region-rule JSON, one figure per species group (e, pi, K, proton,
+antiproton separate) with ALL of that rule's own eta bins as curves
+(6/4/6, Δη = 0.5, ordered "eta bin" legend, trusted bins only) - 15
+figures, clean only (acceptance is background-free). Legend fix en route:
+`plot_metric_vs_pt` built its colour map only with a marker column, so
+marker-less multi-curve figures shipped legend-free; colour+legend now
+follow the named group alone (regression-tested).
+
+Measured (backward, clean; bkg identical within errors):
+- Hadrons "fall" with pT (pi 0.56 -> 0.03 from 0.15 to 4 GeV) because the
+  denominator migrates into the eta=-1.25 hole: its share of backward
+  pions rises 0.40 -> 0.94 (E = pT*cosh(eta) forces energetic backward
+  hadrons to the least-backward edge). Deep-backward bins stay ~0.9 at all
+  pT where populated - high-pT hadrons are not harder to detect, there are
+  just (almost) none deep backward.
+- Electrons "peak" (~1.0 at pT 1-2 GeV, 0.02 at 8 GeV): low pT is soft
+  pair production spread over eta; pT 0.5-4 is the scattered beam electron
+  at eta -2.75/-2.25 (233k entries, acc 0.993); above ~4 GeV kinematics
+  forbid deep-backward electrons (E would exceed the 10 GeV beam), leaving
+  only the eta=-1.25 edge bin.
+- Forward composition (1.35M primaries: 81% pi, 8% K, 8% p, 2% pbar,
+  0.6% e): current-jet pions/kaons + beam-remnant protons; pbar mirrors pi
+  (fragmentation pairs); forward e are secondaries (conversions/Dalitz),
+  never the scattered beam electron. Forward acceptance stays 0.4-0.65
+  (no transition hole under the forward rule).
+
 ## 9. Outstanding decision (step 15 outcome)
 
 - [ ] 17. Open decision: whether to deepen Type 2 statistics for the flagged
@@ -432,12 +524,19 @@ found and fixed, both with regression tests:
     insufficient). Discovery lists for the escalation are already staged
     (`filelists/clean_full.txt`, `filelists/bkg_full_minQ2_1.txt`,
     `filelists/bkg_full.txt`) but no escalation run has been launched.
+    SUPERSEDED in practice by the §8.4 same-campaign reproduction (26.07.1
+    both sides, 300x1409 + 275x99 events): remaining thin bins there are
+    mostly kinematic (no high-pT deep-backward/endcap population exists to
+    collect - see §8.5), not a file-count problem, so blind escalation
+    would buy little. Revisit only for specific quoted bins, with the
+    acceptance cross-check first. The old mixed-campaign counts above are
+    kept for reference only.
     The wise escalation order is: (a) more minQ2=1 files — only
-   200 of 1,463 used; then (b) minQ2 tiers 10 -> 100 -> 1000 for Type 2 only,
-   as section 3 prescribes. Cost note: minQ2=1 files read ~3.5-7 min each at
-   ~1-3 pickles/min and the compute peak is ~18 GB for efficiency — every
-   additional tier is hours-days of wall time on this 30 GB box. Before
-   escalating, sanity-check the flag-heavy bins against the acceptance
-   cross-check: a large clean-vs-bkg difference in `acceptance` (which should
-   be background-independent) would indicate campaign/geometry drift rather
-   than a background effect — see section 3 caveat.
+    200 of 1,463 used; then (b) minQ2 tiers 10 -> 100 -> 1000 for Type 2 only,
+    as section 3 prescribes. Cost note: minQ2=1 files read ~3.5-7 min each at
+    ~1-3 pickles/min and the compute peak is ~18 GB for efficiency — every
+    additional tier is hours-days of wall time on this 30 GB box. Before
+    escalating, sanity-check the flag-heavy bins against the acceptance
+    cross-check: a large clean-vs-bkg difference in `acceptance` (which should
+    be background-independent) would indicate campaign/geometry drift rather
+    than a background effect — see section 3 caveat.
