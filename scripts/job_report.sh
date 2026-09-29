@@ -3,7 +3,9 @@
 #
 # Usage: scripts/job_report.sh
 #
-# Covers both PID grid jobs (clean + bkg_mixed): process state, pipeline
+# Covers every PID grid job with a runs/pid_features_<tag>.log (clean +
+# bkg_mixed legacy pair, clean26071 + bkg26071 reproduction pair, ...):
+# process state, pipeline
 # stage, feature progress, skipped files, per-task train outcomes and gate
 # verdicts, errors/tracebacks, check-learners output, and deliverables
 # manifest completeness. Read-only: never touches jobs, outputs, or the tree.
@@ -12,7 +14,9 @@ cd "$HERE"
 
 echo "===== PID grid jobs report: $(date -u +%Y-%m-%dT%H:%M:%SZ) ====="
 echo
-for TAG in clean bkg_mixed; do
+for _log in runs/pid_features_*.log; do
+    [ -e "$_log" ] || { echo "no PID grid jobs launched yet"; break; }
+    TAG="${_log#runs/pid_features_}"; TAG="${TAG%.log}"
     LOG="runs/pid_features_${TAG}.log"
     PIDFILE="runs/pid_features_${TAG}.pid"
     echo "--- ${TAG} ---"
@@ -47,8 +51,9 @@ done
 
 echo "--- deliverables manifests ---"
 python3 - "$@" <<'PYEOF'
-import json, os
-for tag in ("clean", "bkg_mixed"):
+import json, os, glob
+for path in sorted(glob.glob("runs/pid_features_*.log")):
+    tag = os.path.basename(path)[len("pid_features_"):-len(".log")]
     p = f"output/pid-deliverables_lightgbm_{tag}.json"
     if not os.path.exists(p):
         print(f"{tag}: no manifest yet"); continue

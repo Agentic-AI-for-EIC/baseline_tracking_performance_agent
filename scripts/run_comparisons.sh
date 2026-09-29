@@ -1,6 +1,9 @@
 #!/bin/bash
 # Run the clean-vs-bkg_mixed comparison for every metric once BOTH sides'
 # results exist in output/. Skips any metric whose inputs are not present yet.
+# LEGACY mixed-campaign pair only (26.02.0 vs 26.07.1); the current primary
+# comparison is the same-campaign 26.07.1 reproduction, whose own driver
+# (scripts/run_reproduction_26071.sh) runs its comparisons internally.
 # Usage: scripts/run_comparisons.sh [max_attempts]  (repeat until --all-ok)
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$HERE"
