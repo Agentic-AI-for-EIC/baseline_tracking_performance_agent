@@ -11,7 +11,14 @@ against the two reference files rather than assumed.
 
 from __future__ import annotations
 
+import os
+
 import numpy as np
+
+
+def plots_dir_for(out_dir: str) -> str:
+    """PID figure directory for a given output root (mirrors PLOT_DIR)."""
+    return os.path.join(out_dir, "plot_PID", "plots")
 
 from trkperf import config as tk_config
 
@@ -224,7 +231,7 @@ N_THRESHOLD_SCAN_BINNED: int = 201
 MIN_CANDIDATES_PER_WP_BIN: int = 20
 
 #: Deliverable figures every channel must produce (PLAN_pid.md 5b/5e). `base`
-#: is the file stem used inside output/plots/.
+#: is the file stem used inside output/plot_PID/plots/ (or the per-tag dir).
 REQUIRED_FIGURES: tuple[tuple[str, str], ...] = (
     ("roc", "ROC"),
     ("eff_vs_pt", "signal efficiency at c* vs pT"),
@@ -481,7 +488,10 @@ CROSS_LEARNER_MAX_AUC_SPREAD: float = 0.02
 # ---------------------------------------------------------------------------
 OUTPUT_DIR: str = "output"
 MODEL_DIR: str = "output/models"
-PLOT_DIR: str = "output/plots"
+#: Default directory for PID figures (per-model evaluate/importance/overlay
+#: PNGs). Performance packages take an explicit --plots-dir per tag
+#: (output/plot_PID/plots_<tag>/), because channel figure names carry no tag.
+PLOT_DIR: str = "output/plot_PID/plots"
 FEATURE_CACHE_DIR: str = "cache/pid_features"
 # Calibration: BDT/boosted outputs are not probabilities; a post-hoc calibration
 # is required before "efficiency at 1e-4 fake rate" means the same thing in the

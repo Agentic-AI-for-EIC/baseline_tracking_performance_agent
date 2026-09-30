@@ -217,7 +217,9 @@ any PID number.
   grouped plots aggregate regions instead. Legends always name the curve
   variable (`legend_title`).
 - Write results as JSON; render tables in markdown; save plots; and write a
-  ROOT TNtuple — all under output/.
+  ROOT TNtuple — all under output/ (figures live in output/plot_tracking/
+  for tracking metrics and output/plot_PID/ for PID: `--plots-dir`
+  overrides either).
 - Minimum entries per bin before trusting it: 50 (see
   `trkperf.config.MIN_ENTRIES_PER_BIN`).
 

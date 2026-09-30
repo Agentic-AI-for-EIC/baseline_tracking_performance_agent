@@ -227,7 +227,7 @@ def cmd_evaluate(args) -> int:
                                 max_failures=args.max_file_failures,
                                 cache_dir=args.cache_dir or None)
     if args.plot:
-        stem = os.path.join(args.out_dir, "plots", f"pid-{res['tag']}")
+        stem = os.path.join(config.plots_dir_for(args.out_dir), f"pid-{res['tag']}")
         plots.roc(res["roc"], stem + "-roc.png", title=res["tag"])
         plots.efficiency_vs_fake(res["overall"], stem + "-eff_vs_fake.png", title=res["tag"])
         for variable in ("pt", "eta"):
@@ -259,7 +259,8 @@ def cmd_importance(args) -> int:
     for note in check["notes"]:
         print(f"[importance] NOTE: {note}")
     if args.plot:
-        stem = os.path.join(args.out_dir, "plots", f"pid-{args.task}_{args.model}_{args.dataset_tag}")
+        stem = os.path.join(config.plots_dir_for(args.out_dir),
+                            f"pid-{args.task}_{args.model}_{args.dataset_tag}")
         plots.importance(res["tables"], stem + "-importance.png", title=stem.split("/")[-1])
     return 0 if check["passed"] or args.relax_gates else 1
 
@@ -343,7 +344,7 @@ def cmd_overlay(args) -> int:
             f"pid overlay: only {len(rocs)} learner(s) have score tables for "
             f"{args.task}/{args.dataset_tag} - an overlay needs >= 2.")
     spread = max(aucs.values()) - min(aucs.values())
-    out = os.path.join(args.out_dir, "plots",
+    out = os.path.join(config.plots_dir_for(args.out_dir),
                        f"pid-{args.task}_overlay_{args.dataset_tag}-roc.png")
     title = (f"{args.task} [{pair}] {args.dataset_tag}: AUC spread "
              f"{spread:.4f}" + ("  (> cross-learner gate!)"

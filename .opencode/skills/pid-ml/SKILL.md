@@ -103,7 +103,7 @@ python -m pid importance --dir output/models/eid_lightgbm_clean \
 ```
 Outputs `output/pid-<task>_<lib>_<tag>-{overall,vs_pt,vs_eta,confusion,roc,calibration}`
 as JSON + markdown + ROOT TNtuple (text columns → `*_code` with a legend in the
-metadata) plus PNGs in `output/plots/`. Quote efficiency at a fixed fake rate
+metadata) plus PNGs in `output/plot_PID/plots/`. Quote efficiency at a fixed fake rate
 **with** its Garwood interval and check `meets_target` / `fake_at_*_err_hi`:
 with 20 background candidates a point estimate of 0 does not demonstrate 10⁻⁴.
 
