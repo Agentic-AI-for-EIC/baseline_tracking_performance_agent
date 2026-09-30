@@ -34,7 +34,7 @@ warning — that is deliberate, see §4.
 | `pid evaluate` | AUC, efficiency at fixed fake rate, n-sigma, confusion, ROC, calibration | `output/pid-<task>_<lib>_<tag>-{overall,vs_pt,vs_eta,confusion,roc,calibration}.{json,md,root}` |
 | `pid importance` | gain, **exact** SHAP, permutation + the physics check | `output/pid-<task>_<lib>_<tag>-importance-*.…` |
 | `pid compare` | clean vs +background, via `trkperf.compare` | `output/pid-<task>_<lib>_<artifact>_comparison.{json,md}` |
-| `pid overlay` | cross-learner ROC overlay (one curve per library, same task+tag) | `output/plot_PID/plot_model_eval/pid-<task>_overlay_<tag>-roc.png` |
+| `pid overlay` | cross-learner ROC overlay (one curve per library, same task+tag) | `output/plot_PID/plot_model_eval/<clean|bkgmix>/pid-<task>_overlay_<tag>-roc.png` |
 | `pid all` | the whole chain for one dataset tag | all of the above |
 
 ### Separation power (n_sigma): do not fit the bounded score
@@ -85,7 +85,7 @@ region outputs never enter the deliverables manifest. Needs the feature table
 plus `--max-file-failures` / `--cache-dir` for the acceptance reads on the
 flaky +background endpoint. Training is untouched (leg-scoped samples stay).
 
-Figures written per channel into `output/plot_PID/plot_model_eval/` (per-tag packages: `output/plot_PID/plots_<tag>_pid_perform/`):
+Figures written per channel into `output/plot_PID/plot_model_eval/<clean|bkgmix>/` (per-tag packages: `output/plot_PID/plots_<tag>_pid_perform/`):
 
 | file | content |
 |---|---|

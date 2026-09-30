@@ -1094,7 +1094,7 @@ def run(*, channels: tuple[str, ...] = ("eid", "ehad", "Kpi", "pK"),
     enter the deliverables manifest. Needs ``features`` (default
     ``<out_dir>/pid-features_<dataset_tag>.pkl``).
     """
-    plots_dir = plots_dir or config.plots_dir_for(out_dir)
+    plots_dir = plots_dir or config.plots_dir_for(out_dir, dataset_tag)
     os.makedirs(out_dir, exist_ok=True)
     os.makedirs(plots_dir, exist_ok=True)
     if bin_source not in ("reco", "truth", "both"):

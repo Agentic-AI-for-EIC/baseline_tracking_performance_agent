@@ -16,9 +16,19 @@ import os
 import numpy as np
 
 
-def plots_dir_for(out_dir: str) -> str:
-    """PID figure directory for a given output root (mirrors PLOT_DIR)."""
-    return os.path.join(out_dir, "plot_PID", "plot_model_eval")
+def scenario_for_tag(dataset_tag: str) -> str:
+    """Model-eval figure scenario subfolder: background tags -> bkgmix."""
+    return "bkgmix" if "bkg" in (dataset_tag or "") else "clean"
+
+
+def plots_dir_for(out_dir: str, dataset_tag: str | None = None) -> str:
+    """PID figure directory for a given output root (mirrors PLOT_DIR).
+
+    With a dataset tag, appends the scenario subfolder (clean/bkgmix) so
+    per-model figures never mix scenarios.
+    """
+    base = os.path.join(out_dir, "plot_PID", "plot_model_eval")
+    return os.path.join(base, scenario_for_tag(dataset_tag)) if dataset_tag else base
 
 from trkperf import config as tk_config
 
