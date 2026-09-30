@@ -135,7 +135,7 @@ per-region tables/figures for barrel/backward/forward by default via
 `$ETA_REGIONS`) → importance per task, then `check_learners.py`, then a
 cross-learner ROC `overlay` per task. Performance packages go through
 `python -m pid performance ... --eta-region ...` with a **per-tag**
-`--plots-dir` (`output/plot_PID/plots_<tag>/`): channel figure names carry no tag,
+`--plots-dir` (`output/plot_PID/plots_<tag>_pid_perform/`): channel figure names carry no tag,
 so sharing one directory lets the second tag overwrite the first.
 Quoting rule inside that script (a real bug lived here): the detached shell
 inherits only *exported* variables, so every value must be expanded by the

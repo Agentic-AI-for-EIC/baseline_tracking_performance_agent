@@ -235,7 +235,7 @@ reports fabrications:
   curve and a grey panel with the reason, so the figure itself shows which slices
   need more files.
 
-Figures per channel (in `output/plot_PID/plots/`, named as requested):
+Figures per channel (in `output/plot_PID/plot_model_eval/`, named as requested):
 `significance_vs_cut`, `significance_vs_cut_by_pt` (FOM(c) for every pT bin, absolute
 + self-normalised), `significance_vs_cut_panels` (one panel per bin with c*, FOM, ε,
 fake), `optimal_cut_vs_pt`, `roc`, `eff_vs_pt`, `misid_vs_pt`, `purity_vs_pt`,
@@ -244,7 +244,7 @@ fake), `optimal_cut_vs_pt`, `roc`, `eff_vs_pt`, `misid_vs_pt`, `purity_vs_pt`,
 task-level `pid-hadpid_lightgbm_clean-nsigma_vs_p` (K/π and p/K) and
 `pid-hadpid_lightgbm_clean-confusion_matrix`
 (held-out rows only). Task-level names carry model_tag, and per-tag channel
-figures live in `output/plot_PID/plots_<tag>/` - without both, a bkg run silently
+figures live in `output/plot_PID/plots_<tag>_pid_perform/` - without both, a bkg run silently
 overwrites the clean figures under the same stem. The two task-level figures are extras outside the 13
 per-channel required deliverables: the confusion matrix describes the multi-class
 task and is undefined for the binary channels, so the manifest can neither require
@@ -508,7 +508,7 @@ AGENTS.md "bin in truth pT/eta", and free of resolution migration).
 | `cross-check` | `pooled` task | exists to quantify the hemisphere shortcut, not to be quoted as a PID |
 
 Each exploratory figure also gets a `pid-<channel>_<figure>.png.note` sidecar stating
-`status: exploratory` and why, so a plot exported out of `output/plot_PID/plots/` still carries
+`status: exploratory` and why, so a plot exported out of `output/plot_PID/plot_model_eval/` still carries
 its caveat, and the manifest table has a `status` column so a table of results cannot
 silently mix a baseline with a measurement.
 
@@ -848,7 +848,7 @@ A third, uglier catch: `rec_idx` — a column left behind by the association mer
     trained (300x1409 + 275x99 events, 0 skipped files; clean 1.63M feature
     rows, bkg 126k), 24/24 evaluated incl. barrel/backward/forward tables,
     8 cross-learner ROC overlays (`pid overlay`, new), per-tag figure dirs
-    (`output/plot_PID/plots_clean26071/`, `output/plot_PID/plots_bkg26071/` - channel names carry no tag),
+    (`output/plot_PID/plots_clean_pid_perform/`, `output/plot_PID/plots_bkgmix_pid_perform/` - channel names carry no tag),
     first campaign-matched comparisons. Headline: eid e/pi eff at 1e-3 fake
     0.945 clean -> 0.922 bkg (background-blind, mirrors tracking).
     check_learners PASS everywhere (spreads <= 0.0049). Open: the §12.1

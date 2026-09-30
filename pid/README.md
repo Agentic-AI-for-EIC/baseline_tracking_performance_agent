@@ -34,7 +34,7 @@ warning — that is deliberate, see §4.
 | `pid evaluate` | AUC, efficiency at fixed fake rate, n-sigma, confusion, ROC, calibration | `output/pid-<task>_<lib>_<tag>-{overall,vs_pt,vs_eta,confusion,roc,calibration}.{json,md,root}` |
 | `pid importance` | gain, **exact** SHAP, permutation + the physics check | `output/pid-<task>_<lib>_<tag>-importance-*.…` |
 | `pid compare` | clean vs +background, via `trkperf.compare` | `output/pid-<task>_<lib>_<artifact>_comparison.{json,md}` |
-| `pid overlay` | cross-learner ROC overlay (one curve per library, same task+tag) | `output/plot_PID/plots/pid-<task>_overlay_<tag>-roc.png` |
+| `pid overlay` | cross-learner ROC overlay (one curve per library, same task+tag) | `output/plot_PID/plot_model_eval/pid-<task>_overlay_<tag>-roc.png` |
 | `pid all` | the whole chain for one dataset tag | all of the above |
 
 ### Separation power (n_sigma): do not fit the bounded score
@@ -85,7 +85,7 @@ region outputs never enter the deliverables manifest. Needs the feature table
 plus `--max-file-failures` / `--cache-dir` for the acceptance reads on the
 flaky +background endpoint. Training is untouched (leg-scoped samples stay).
 
-Figures written per channel into `output/plot_PID/plots/` (per-tag packages: `output/plot_PID/plots_<tag>/`):
+Figures written per channel into `output/plot_PID/plot_model_eval/` (per-tag packages: `output/plot_PID/plots_<tag>_pid_perform/`):
 
 | file | content |
 |---|---|
@@ -97,7 +97,7 @@ Figures written per channel into `output/plot_PID/plots/` (per-tag packages: `ou
 | `pid-<ch>_eff_vs_pt.png`, `_misid_vs_pt.png`, `_purity_vs_pt.png` | efficiency / fake rate / purity at c* |
 | `pid-<ch>_eff_map_pt_vs_eta.png`, `_fake_map_pt_vs_eta.png` | 2D maps (masked where statistics do not support them) |
 | `pid-eid_pion_rejection_vs_p.png`, `pid-<ch>_rejection_vs_p.png` | 1/fake vs p, log scale; 95 % CL **lower limits** where no background passed |
-| `pid-hadpid_lightgbm_clean-nsigma_vs_p.png` | nσ(p) for K/π and p/K together (task-level names carry model_tag; per-tag plots live in `output/plot_PID/plots_<tag>/`) |
+| `pid-hadpid_lightgbm_clean-nsigma_vs_p.png` | nσ(p) for K/π and p/K together (task-level names carry model_tag; per-tag plots live in `output/plot_PID/plots_<tag>_pid_perform/`) |
 | `pid-hadpid_lightgbm_clean-confusion_matrix.png` | row-normalised multi-class confusion (held-out rows only) |
 | `pid-<ch>_score_dist_train_vs_test.png` | overtraining check, log y, with a KS statistic per class |
 
@@ -166,8 +166,8 @@ copies via the login00-pinned xrootd tunnel — see AGENTS.md). Full chain ran
 overlays, and the first campaign-matched comparisons
 (`output/pid-{eid,ehad}_lightgbm_{overall,vs_pt,vs_eta}_clean26071-vs-bkg26071_comparison.*`).
 Headline eid e/pi efficiency at 1e-3 fake: 0.945 clean -> 0.922 bkg.
-Performance figure packages live per tag (`output/plot_PID/plots_clean26071/,
-`output/plot_PID/plots_bkg26071/` — channel figure names carry no tag, so a shared
+Performance figure packages live per tag (`output/plot_PID/plots_clean_pid_perform/,
+`output/plot_PID/plots_bkgmix_pid_perform/` — channel figure names carry no tag, so a shared
 directory lets the second tag overwrite the first; always pass a per-tag
 `--plots-dir`). Open: `top_feature_is_physical` adjudication (raw ECAL E /
 chi2 outrank E/p at scale) and a few `train_test_auc_gap` flags; hadpid

@@ -106,4 +106,10 @@ echo "  python -m pid compare --task eid --model lightgbm --artifact vs_pt"
 echo "  python -m pid compare --task eid --model lightgbm --artifact all"
 echo "and run the working-point package per region (same criteria as tracking plots):"
 echo "  python -m pid performance --dataset-tag $TAG --model lightgbm --bin-source both \\"
-echo "      --eta-region \"$ETA_REGIONS\" --cache-dir \"$CACHE\" --plots-dir output/plot_PID/plots_${TAG} $([ "$TAG" != "${TAG#bkg*}" ] && echo "--max-file-failures $MAXFAIL")"
+# Per-tag figure dir (channel names carry no tag - never share one).
+case "$TAG" in
+  clean26071) PDIR="output/plot_PID/plots_clean_pid_perform" ;;
+  bkg26071) PDIR="output/plot_PID/plots_bkgmix_pid_perform" ;;
+  *) PDIR="output/plot_PID/plots_${TAG}_pid_perform" ;;
+esac
+echo "      --eta-region \"$ETA_REGIONS\" --cache-dir \"$CACHE\" --plots-dir \"$PDIR\" $([ "$TAG" != "${TAG#bkg*}" ] && echo "--max-file-failures $MAXFAIL")"

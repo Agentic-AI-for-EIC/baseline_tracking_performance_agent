@@ -145,7 +145,7 @@ class TestRocOverlay(unittest.TestCase):
                 models="lightgbm,xgboost,sklearn_hgb", signal=None,
                 model_dir=mdir, out_dir=odir))
             self.assertEqual(rc, 0)  # the missing third learner is skipped, not fatal
-            fig = os.path.join(odir, "plot_PID", "plots", "pid-eid_overlay_clean-roc.png")
+            fig = os.path.join(odir, "plot_PID", "plot_model_eval", "pid-eid_overlay_clean-roc.png")
             self.assertTrue(os.path.exists(fig))
 
     def test_cmd_overlay_refuses_fewer_than_two_learners(self):
