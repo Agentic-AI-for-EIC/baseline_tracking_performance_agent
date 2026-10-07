@@ -1,0 +1,29 @@
+primaries of interest: 7664 in 1083 events
+----- event 0 -----
+  MC primaries of interest: 2
+    truth  12       e- pt=  1.311 eta= -2.72 [backward endcap] hits(2):BkMPGD,TrkEnd -> reco 1 w=1.00 MATCH
+    truth  13      pi+ pt=  0.863 eta= +3.04 [forward endcap] hits(3):FwMPGD,TOFEnd,TrkEnd -> reco 0 w=1.00 MATCH
+  reco tracks with finite kinematics: 2
+    reco   0 pt=  0.930 eta= +3.04 -> matched w=1.00
+    reco   1 pt=  1.270 eta= -2.72 -> matched w=1.00
+
+----- event 1 -----
+  MC primaries of interest: 8
+    truth  28       e- pt=  2.169 eta= -2.22 [backward endcap] hits(2):BkMPGD,TrkEnd -> reco 0 w=1.00 MATCH
+    truth  30      pi- pt=  0.210 eta= +4.76 [out-of-range] hits(0):- -> no association
+    truth  31      pi+ pt=  0.163 eta= +3.59 [forward endcap] hits(2):FwMPGD,TrkEnd -> reco 2 w=1.00 MATCH
+    truth  36   proton pt=  0.834 eta= +4.86 [out-of-range] hits(0):- -> no association
+    truth  46      pi+ pt=  0.091 eta= +4.36 [out-of-range] hits(0):- -> no association
+    truth  47      pi- pt=  0.330 eta= +3.03 [forward endcap] hits(2):FwMPGD,TrkEnd -> reco 1 w=1.00 MATCH
+    truth  48      pi+ pt=  0.074 eta= +3.83 [forward endcap] hits(0):- -> no association
+    truth  49      pi- pt=  0.468 eta= +3.47 [forward endcap] hits(2):FwMPGD,TrkEnd -> reco 3 w=1.00 MATCH
+  reco tracks with finite kinematics: 4
+    reco   0 pt=  2.091 eta= -2.22 -> matched w=1.00
+    reco   1 pt=  0.353 eta= +3.04 -> matched w=1.00
+    reco   2 pt=  0.198 eta= +3.58 -> matched w=1.00
+    reco   3 pt=  0.493 eta= +3.47 -> matched w=1.00
+
+barrel          n= 1434 acc=0.613 eff=0.745 core_res=0.006 tail=0.073 matched=944
+backward endcap n= 1185 acc=0.936 eff=0.977 core_res=0.035 tail=0.091 matched=1138
+forward endcap  n= 3139 acc=0.630 eff=0.897 core_res=0.030 tail=0.126 matched=2062
+fake rate: 6/4214 = 0.0014 (36 unbinnable tracks excluded)

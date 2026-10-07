@@ -1,0 +1,26 @@
+primaries of interest: 703 in 99 events
+----- event 0 -----
+  MC primaries of interest: 2
+    truth   8   proton pt=  0.589 eta= +4.52 [out-of-range] hits(0):- -> no association
+    truth   9       e- pt=  1.525 eta= -2.57 [backward endcap] hits(2):BkMPGD,TrkEnd -> reco 2 w=1.00 MATCH
+  reco tracks with finite kinematics: 4
+    reco   0 pt=  0.079 eta= -2.53 -> fake
+    reco   1 pt=  0.239 eta= -1.95 -> fake
+    reco   2 pt=  1.335 eta= -2.57 -> matched w=1.00
+    reco   3 pt=  0.583 eta= -0.20 -> matched w=0.50
+
+----- event 1 -----
+  MC primaries of interest: 4
+    truth  10      pi+ pt=  0.279 eta= +4.15 [out-of-range] hits(0):- -> no association
+    truth  12       e- pt=  1.295 eta= -2.73 [backward endcap] hits(2):BkMPGD,TrkEnd -> reco 1 w=1.00 MATCH
+    truth  16      pi+ pt=  0.392 eta= +3.83 [forward endcap] hits(0):- -> no association
+    truth  17      pi- pt=  1.102 eta= +4.06 [out-of-range] hits(0):- -> no association
+  reco tracks with finite kinematics: 3
+    reco   0 pt=  0.104 eta= -2.14 -> fake
+    reco   1 pt=  1.224 eta= -2.73 -> matched w=1.00
+    reco   2 pt=  0.103 eta= +3.37 -> matched w=1.00
+
+barrel          n=  133 acc=0.564 eff=0.653 core_res=0.006 tail=0.050 matched=80
+backward endcap n=  105 acc=0.952 eff=0.960 core_res=0.044 tail=0.090 matched=100
+forward endcap  n=  300 acc=0.707 eff=0.844 core_res=0.032 tail=0.150 matched=193
+fake rate: 53/481 = 0.1102 (11 unbinnable tracks excluded)

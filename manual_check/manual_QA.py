@@ -1,9 +1,12 @@
 """manual_QA.py -- hand-check tracking performance on ONE file, in plain code.
 
 Usage:
-    python3 manual_QA.py <file.root> [outdir]
+    python3 manual_QA.py <file.root> [outdir] [n_dump]
 
 What it does (the same physics as trkperf, with all packaging stripped):
+  0. prints the first n_dump events (default 2) as plain text - truth
+     particles, their hit collections, reco tracks and associations - so a
+     reader can eyeball the whole chain without reading any code,
   1. reads truth particles, truth-hit links, reco tracks and associations,
   2. splits truth particles into 3 detector regions by truth eta,
   3. applies each region's own acceptance rule
@@ -99,11 +102,14 @@ WANT_PDG = {11: "e-", -11: "e+", 211: "pi+", -211: "pi-",
             321: "K+", -321: "K-", 2212: "proton", -2212: "antiproton"}
 
 
-def main(path, outdir):
-    tree = uproot.open(path)["events"]
+def main(path, outdir, n_dump=2):
+    tree = uproot.open(path)["events"]  # "events" is the EDM4eic TTree name
 
     # --- 1. truth particles ------------------------------------------------
     # generatorStatus == 1  <=>  primary particle from the generator
+    # library="np": each branch comes back as one object array with one entry
+    # per EVENT (each entry itself an array over that event's particles), so
+    # [...][ev] below means "this event's particles".
     mc = tree.arrays(["MCParticles/MCParticles.PDG",
                       "MCParticles/MCParticles.generatorStatus",
                       "MCParticles/MCParticles.momentum.x",
@@ -125,9 +131,14 @@ def main(path, outdir):
             ptot = float(np.sqrt(px[i] ** 2 + py[i] ** 2 + pz[i] ** 2))
             if ptot <= 0:
                 continue
+            # clip guards float roundoff pushing pz/ptot a hair outside
+            # [-1, 1], where arccos would return NaN for a valid track
             theta = np.arccos(np.clip(pz[i] / ptot, -1.0, 1.0))
             eta = -np.log(np.tan(theta / 2.0))
             rows.append((ev, i, p, pt, float(eta)))
+    # structured array: each row keeps (event, index) so later joins need no
+    # extra bookkeeping - position i within the event IS the MCParticles index
+    # that the hit/match relations point at
     truth = np.array(rows, dtype=[("event", int), ("idx", int), ("pdg", int),
                                  ("pt", float), ("eta", float)])
     print(f"primaries of interest: {len(truth)} in {n_ev} events")
@@ -140,6 +151,8 @@ def main(path, outdir):
     for coll in {c for _, cols, _ in REGIONS.values() for c in cols}:
         branch = f"_{coll}_particle/_{coll}_particle.index"
         try:
+            # library="ak" (not "np") because these are jagged int lists
+            # (one per event, variable length) - awkward handles that natively
             data = tree.arrays(branch, library="ak")
             # uproot hands back one record per event keyed by branch name:
             # take the field to get the plain jagged int array
@@ -149,10 +162,13 @@ def main(path, outdir):
             missing.add(coll)
             continue
         # jagged per-event index lists (plain ints, or {index, ...}
-        # records on some productions - take ["index"] then)
+        # records on some productions - take ["index"] then).
+        # `items or []`: events with no hits give an empty (or missing) list.
         for ev, items in enumerate(ak.to_list(arr)):
             for it in items or []:
                 j = it["index"] if isinstance(it, dict) else it
+                # int(): normalize uproot's int32 to plain Python ints so all
+                # dict keys below have one identical type
                 hit_by_particle.setdefault((ev, int(j)), set()).add(coll)
 
     # --- 3. reco tracks ----------------------------------------------------
@@ -164,12 +180,19 @@ def main(path, outdir):
                       library="np")
     reco_pt = {}  # (event, track idx) -> (pt, eta); finite values only
     for ev in range(n_ev):
+        # np.asarray(..., dtype=float): the per-event entries are object
+        # arrays; this makes them real float vectors for the math below
         q = np.asarray(par["CentralCKFTrackParameters/CentralCKFTrackParameters.qOverP"][ev],
                        dtype=float)
         th = np.asarray(par["CentralCKFTrackParameters/CentralCKFTrackParameters.theta"][ev],
                         dtype=float)
+        # qOverP = charge/momentum, so p = 1/|qOverP|; qOverP == 0 would mean
+        # infinite momentum (perfectly straight track) -> NaN, filtered next
         p = np.where(np.abs(q) > 0, 1.0 / np.abs(q), np.nan)
         pt = p * np.sin(th)
+        # theta = 0 gives tan(0/2) = 0 and -log(0) = +inf: a forward-going
+        # track with formally infinite eta; errstate keeps it quiet and the
+        # isfinite filter below drops it (trkperf counts these separately)
         with np.errstate(divide="ignore", invalid="ignore"):
             eta = -np.log(np.tan(th / 2.0))
         for i, (v, e) in enumerate(zip(pt, eta)):
@@ -193,6 +216,9 @@ def main(path, outdir):
             s = a["_CentralCKFTrackAssociations_sim/_CentralCKFTrackAssociations_sim.index"][ev]
             for ww, rr, ss in zip(w, r, s):
                 key = (ev, int(ss))
+                # strict > : on an exact weight tie the FIRST association in
+                # file order wins - identical to trkperf's stable sort +
+                # drop_duplicates(keep="first") (verified on real files)
                 if key not in best or ww > best[key][0]:
                     best[key] = (float(ww), int(rr))
                 tkey = (ev, int(rr))
@@ -205,6 +231,49 @@ def main(path, outdir):
             "manual_QA: cannot read CentralCKFTrackAssociations "
             f"({type(exc).__name__}: {exc}). Efficiency/fake rate would be "
             "meaningless - check the file/campaign.") from exc
+
+    # --- 4b. eyeball dump: first n_dump events as plain text ----------------
+    # Everything below is computed from these tables; printing a few events
+    # lets a reader check each step without reading any code.
+    def region_of(eta):
+        c = eta_bin_centre(eta)
+        if not np.isfinite(c):
+            return "out-of-range"
+        if abs(c) < BARREL_ETA_MAX:
+            return "barrel"
+        return "forward endcap" if c > 0 else "backward endcap"
+
+    def short(coll):
+        return {"SiBarrelHits": "SiBrl", "VertexBarrelHits": "VtxBrl",
+                "TrackerEndcapHits": "TrkEnd", "MPGDBarrelHits": "MPGDBrl",
+                "OuterMPGDBarrelHits": "OutMPGD",
+                "BackwardMPGDEndcapHits": "BkMPGD",
+                "ForwardMPGDEndcapHits": "FwMPGD",
+                "TOFEndcapHits": "TOFEnd"}.get(coll, coll)
+
+    for ev in range(min(n_dump, n_ev)):
+        print(f"----- event {ev} -----")
+        rows_ev = truth[truth["event"] == ev]
+        print(f"  MC primaries of interest: {len(rows_ev)}")
+        for r in rows_ev:
+            hits = sorted(hit_by_particle.get((int(r['event']), int(r['idx'])), set()))
+            w_r = best.get((int(r['event']), int(r['idx'])))
+            match = (f"-> reco {w_r[1]} w={w_r[0]:.2f} "
+                     f"{'MATCH' if w_r[0] >= MATCH_WEIGHT else 'below-threshold'}"
+                     if w_r is not None else "-> no association")
+            print(f"    truth {int(r['idx']):3d} {WANT_PDG[int(r['pdg'])] if int(r['pdg']) in WANT_PDG else r['pdg']:>8s} "
+                  f"pt={r['pt']:7.3f} eta={r['eta']:+6.2f} [{region_of(r['eta'])}] "
+                  f"hits({len(hits)}):{','.join(short(c) for c in hits) or '-'} {match}")
+        print(f"  reco tracks with finite kinematics: "
+              f"{sum(1 for (e, _) in reco_pt if e == ev)}")
+        for (e, i), (pt, eta) in sorted(reco_pt.items()):
+            if e != ev:
+                continue
+            w = best_track.get((e, i))
+            verdict = ("fake" if w is None or w < MATCH_WEIGHT
+                       else f"matched w={w:.2f}")
+            print(f"    reco {i:3d} pt={pt:7.3f} eta={eta:+6.2f} -> {verdict}")
+        print()
 
     # --- 5. per-region numbers ----------------------------------------------
     os.makedirs(outdir, exist_ok=True)
@@ -313,6 +382,8 @@ def main(path, outdir):
                 if PT_MIN < v[0] <= PT_MAX
                 and ETA_EDGES[0] < v[1] <= ETA_EDGES[-1]}
     n_tracks = len(binnable)
+    # .get(key, 0.0): a track with no association at all counts as weight 0,
+    # i.e. fake - same as trkperf's fillna(0) before the threshold comparison
     n_fake = sum(1 for key in binnable
                  if best_track.get(key, 0.0) < MATCH_WEIGHT)
     n_unbinnable = len(reco_pt) - n_tracks
@@ -323,5 +394,7 @@ def main(path, outdir):
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:
-        sys.exit("usage: python3 manual_QA.py <file.root> [outdir]")
-    main(sys.argv[1], sys.argv[2] if len(sys.argv) > 2 else "qa_out")
+        sys.exit("usage: python3 manual_QA.py <file.root> [outdir] [n_dump]")
+    n_dump = int(sys.argv[3]) if len(sys.argv) > 3 else 2
+    main(sys.argv[1], sys.argv[2] if len(sys.argv) > 2 else "qa_out",
+         n_dump=n_dump)
