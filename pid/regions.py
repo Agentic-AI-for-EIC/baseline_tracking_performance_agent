@@ -1,7 +1,7 @@
 """Detector-region selection for PID performance plots.
 
 The tracking half of this project measures acceptance/efficiency/resolution
-per detector region (``trkperf``: barrel ``|eta| < 1``, forward/backward
+per detector region (``trkperf``: barrel ``|eta| < 1.5``, forward/backward
 endcaps beyond) with a region-correct truth-hit rule — ``>= 4`` of the 7
 central collections in the barrel, ``>= 2`` of the endcap collections in
 each endcap (``trkperf.config.TRACKING_REGIONS``). PID performance plots use
@@ -51,7 +51,7 @@ from trkperf import report as tk_report
 from trkperf import truth as tk_truth
 
 #: Detector regions usable for PID region plots (same names and the same
-#: |eta| = 1 boundary as trkperf.report.eta_region).
+#: |eta| = trkperf.config.BARREL_ETA_MAX (1.5) boundary as trkperf.report.eta_region).
 ETA_REGIONS: tuple[str, ...] = ("barrel", "forward endcap", "backward endcap")
 
 #: eta_region -> the trkperf tracking-region rule that defines its

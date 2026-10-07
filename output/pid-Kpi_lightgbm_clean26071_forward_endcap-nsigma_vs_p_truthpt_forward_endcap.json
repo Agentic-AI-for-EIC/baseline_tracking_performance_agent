@@ -34,7 +34,7 @@
       "ROOT": "6.40.04",
       "problems": "none"
     },
-    "numpy_path": "/local/scratch/a/wxie/.eic_python_pkgs/numpy/__init__.py",
+    "numpy_path": "/home/wxie/.eic_python_pkgs/numpy/__init__.py",
     "channel": "Kpi",
     "task": "hadpid",
     "model": "lightgbm",
@@ -42,7 +42,7 @@
     "significance_mode": "s_over_sqrt",
     "lumi_scale": 1.0,
     "bkg_scale": 1.0,
-    "n_rows_channel": 153677,
+    "n_rows_channel": 153676,
     "eta_region": "forward endcap",
     "acceptance_rule": "forward: Nhit >= 2 over 3 forward collections",
     "acceptance_collections": [
@@ -55,11 +55,11 @@
       "TrackerEndcapHits",
       "TOFEndcapHits"
     ],
-    "n_rows_region": 153677,
+    "n_rows_region": 153676,
     "optimal_cut": 0.3725,
     "binning_basis": "truth",
     "campaign": "26.07.1",
-    "written_at_utc": "2026-09-27T21:13:18.411594+00:00"
+    "written_at_utc": "2026-10-07T01:41:42.319210+00:00"
   },
   "data": [
     {
@@ -124,18 +124,18 @@
       "bin": "(1.5, 2]",
       "bin_center": 1.75,
       "n_signal": 1189,
-      "n_background": 15740,
-      "auc": 0.7333383739,
-      "n_sigma": 0.8809717005,
-      "n_sigma_quantile": 0.8809717005,
-      "n_sigma_logit": 0.850738621,
+      "n_background": 15739,
+      "auc": 0.7333395997,
+      "n_sigma": 0.8809769763,
+      "n_sigma_quantile": 0.8809769763,
+      "n_sigma_logit": 0.8506636643,
       "n_sigma_lower_limit": null,
       "nsigma_method": "quantile",
       "saturated": false,
       "mu_signal": -0.0579923726,
       "sigma_signal": 0.5249079886,
-      "mu_background": -0.4887801832,
-      "sigma_background": 0.4871253218,
+      "mu_background": -0.4887650026,
+      "sigma_background": 0.4871809822,
       "converged": true,
       "insufficient_stats": false,
       "reason": ""

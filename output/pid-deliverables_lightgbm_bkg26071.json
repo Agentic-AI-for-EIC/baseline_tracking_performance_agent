@@ -34,13 +34,13 @@
       "ROOT": "6.40.04",
       "problems": "none"
     },
-    "numpy_path": "/local/scratch/a/wxie/.eic_python_pkgs/numpy/__init__.py",
+    "numpy_path": "/home/wxie/.eic_python_pkgs/numpy/__init__.py",
     "model": "lightgbm",
     "dataset_tag": "bkg26071",
     "n_required": 13,
-    "n_missing": 0,
+    "n_missing": 8,
     "campaign": "26.07.1",
-    "written_at_utc": "2026-09-27T21:17:16.281866+00:00"
+    "written_at_utc": "2026-10-07T01:52:05.292592+00:00"
   },
   "data": [
     {
@@ -129,9 +129,9 @@
       "binning_basis": "reco",
       "figure": "score_dist_train_vs_test",
       "label": "train vs test score distributions (overtraining)",
-      "present": true,
+      "present": false,
       "shared_with_reco_run": false,
-      "reason": ""
+      "reason": "needs all_scores.pkl (train and test rows); this artifact directory only has test_scores.pkl - retrain with the current pid.train to write both"
     },
     {
       "channel": "eid",
@@ -259,9 +259,9 @@
       "binning_basis": "_truthpt",
       "figure": "score_dist_train_vs_test_truthpt",
       "label": "train vs test score distributions (overtraining)",
-      "present": true,
-      "shared_with_reco_run": true,
-      "reason": ""
+      "present": false,
+      "shared_with_reco_run": false,
+      "reason": "needs all_scores.pkl (train and test rows); this artifact directory only has test_scores.pkl - retrain with the current pid.train to write both"
     },
     {
       "channel": "eid",
@@ -389,9 +389,9 @@
       "binning_basis": "reco",
       "figure": "score_dist_train_vs_test",
       "label": "train vs test score distributions (overtraining)",
-      "present": true,
+      "present": false,
       "shared_with_reco_run": false,
-      "reason": ""
+      "reason": "needs all_scores.pkl (train and test rows); this artifact directory only has test_scores.pkl - retrain with the current pid.train to write both"
     },
     {
       "channel": "ehad",
@@ -519,9 +519,9 @@
       "binning_basis": "_truthpt",
       "figure": "score_dist_train_vs_test_truthpt",
       "label": "train vs test score distributions (overtraining)",
-      "present": true,
-      "shared_with_reco_run": true,
-      "reason": ""
+      "present": false,
+      "shared_with_reco_run": false,
+      "reason": "needs all_scores.pkl (train and test rows); this artifact directory only has test_scores.pkl - retrain with the current pid.train to write both"
     },
     {
       "channel": "ehad",
@@ -649,9 +649,9 @@
       "binning_basis": "reco",
       "figure": "score_dist_train_vs_test",
       "label": "train vs test score distributions (overtraining)",
-      "present": true,
+      "present": false,
       "shared_with_reco_run": false,
-      "reason": ""
+      "reason": "needs all_scores.pkl (train and test rows); this artifact directory only has test_scores.pkl - retrain with the current pid.train to write both"
     },
     {
       "channel": "Kpi",
@@ -779,9 +779,9 @@
       "binning_basis": "_truthpt",
       "figure": "score_dist_train_vs_test_truthpt",
       "label": "train vs test score distributions (overtraining)",
-      "present": true,
-      "shared_with_reco_run": true,
-      "reason": ""
+      "present": false,
+      "shared_with_reco_run": false,
+      "reason": "needs all_scores.pkl (train and test rows); this artifact directory only has test_scores.pkl - retrain with the current pid.train to write both"
     },
     {
       "channel": "Kpi",
@@ -909,9 +909,9 @@
       "binning_basis": "reco",
       "figure": "score_dist_train_vs_test",
       "label": "train vs test score distributions (overtraining)",
-      "present": true,
+      "present": false,
       "shared_with_reco_run": false,
-      "reason": ""
+      "reason": "needs all_scores.pkl (train and test rows); this artifact directory only has test_scores.pkl - retrain with the current pid.train to write both"
     },
     {
       "channel": "pK",
@@ -1039,9 +1039,9 @@
       "binning_basis": "_truthpt",
       "figure": "score_dist_train_vs_test_truthpt",
       "label": "train vs test score distributions (overtraining)",
-      "present": true,
-      "shared_with_reco_run": true,
-      "reason": ""
+      "present": false,
+      "shared_with_reco_run": false,
+      "reason": "needs all_scores.pkl (train and test rows); this artifact directory only has test_scores.pkl - retrain with the current pid.train to write both"
     },
     {
       "channel": "pK",

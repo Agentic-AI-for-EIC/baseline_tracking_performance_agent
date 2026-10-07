@@ -193,13 +193,13 @@ _MARKER_STYLES = [
 
 
 #: eta-bin-center -> detector region. Bin centres fall at +-0.25, +-0.75,
-#: +-1.25, ... so +-1.0 splits cleanly between bins: barrel |eta| < 1,
-#: endcaps beyond.
+#: +-1.25, +-1.75, ... so config.BARREL_ETA_MAX = 1.5 (a bin EDGE) splits
+#: cleanly between bins: |centre| < 1.5 is barrel, beyond is endcap.
 def eta_region(center: float) -> str:
     """Detector region (barrel / forward endcap / backward endcap) for an eta-bin centre."""
     if not np.isfinite(center):
         return "unknown"
-    if abs(center) < 1.0:
+    if abs(center) < config.BARREL_ETA_MAX:
         return "barrel"
     return "forward endcap" if center > 0 else "backward endcap"
 

@@ -914,13 +914,32 @@ class TestEtaRegions(unittest.TestCase):
     def test_region_assignment(self):
         from trkperf import report
 
+        # Split at |eta| = config.BARREL_ETA_MAX = 1.5 (a bin EDGE): the
+        # +-1.25 bins still belong to the barrel (barrel collections fire
+        # there), the first endcap bins are +-1.75.
         self.assertEqual(report.eta_region(-3.75), "backward endcap")
-        self.assertEqual(report.eta_region(-1.25), "backward endcap")
+        self.assertEqual(report.eta_region(-1.75), "backward endcap")
+        self.assertEqual(report.eta_region(-1.25), "barrel")
         self.assertEqual(report.eta_region(-0.75), "barrel")
         self.assertEqual(report.eta_region(0.75), "barrel")
-        self.assertEqual(report.eta_region(1.25), "forward endcap")
+        self.assertEqual(report.eta_region(1.25), "barrel")
+        self.assertEqual(report.eta_region(1.75), "forward endcap")
         self.assertEqual(report.eta_region(3.75), "forward endcap")
         self.assertEqual(report.eta_region(float("nan")), "unknown")
+
+    def test_barrel_split_sits_on_a_bin_edge(self):
+        # A split inside a bin would assign one 0.5-wide bin to two regions.
+        from trkperf import config
+
+        edges = set(np.round(config.ETA_BIN_EDGES, 9))
+        self.assertIn(round(config.BARREL_ETA_MAX, 9), edges)
+        self.assertIn(round(-config.BARREL_ETA_MAX, 9), edges)
+        # every bin centre maps to exactly one region, symmetric in eta
+        centres = 0.5 * (config.ETA_BIN_EDGES[:-1] + config.ETA_BIN_EDGES[1:])
+        for c in centres:
+            self.assertNotEqual(report.eta_region(float(c)), "unknown")
+        self.assertEqual(
+            sum(report.eta_region(float(c)) == "barrel" for c in centres), 6)
 
     def test_species_groups(self):
         from trkperf import report
@@ -1062,16 +1081,16 @@ class TestEtaRegions(unittest.TestCase):
         self.assertEqual(row["n"], 600.0)
 
     def test_eta_centers_follow_their_rule(self):
-        centers = [-3.75, -1.25, -0.75, 0.75, 1.25, 3.75]
+        centers = [-3.75, -1.75, -1.25, -0.75, 0.75, 1.25, 1.75, 3.75]
         self.assertEqual(
             report.eta_centers_for_rule(centers, "backward"),
-            [-3.75, -1.25])
+            [-3.75, -1.75])
         self.assertEqual(
             report.eta_centers_for_rule(centers, "central"),
-            [-0.75, 0.75])
+            [-1.25, -0.75, 0.75, 1.25])
         self.assertEqual(
             report.eta_centers_for_rule(centers, "forward"),
-            [1.25, 3.75])
+            [1.75, 3.75])
         # Unknown rule (older JSONs): keep everything, old behaviour.
         self.assertEqual(
             report.eta_centers_for_rule(centers, None), sorted(centers))

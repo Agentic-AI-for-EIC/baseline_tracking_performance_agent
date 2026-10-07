@@ -734,7 +734,7 @@ A third, uglier catch: `rec_idx` — a column left behind by the association mer
 1. **Grid runs (M8)** — **done** (2026-09-19): `pid/scripts/run_pid.sh clean filelists/clean_150.txt 0` and `... bkg_mixed filelists/bkg_200.txt 20`, plus backfill jobs for the learners the first pass missed (hadpid/pooled xgboost, eid/ehad sklearn_hgb on both tags). All 12 clean + 6 bkg models trained with evaluates and importance; `pid performance` manifests 104/104 (clean) + 26/26 (bkg); `pid compare` eid/ehad written; `check_learners.py` PASS on every task/tag (spreads ≤ 0.0063). Open: physics-gate adjudication (E/p outranked at scale) and any minQ2 100/1000 escalation for the bkg pion-side ceiling near 10⁻³ (§8).
 1b. **Per-region PID plots (2026-09-23, code done, grid blocked by endpoint outage).**
     New `pid/regions.py`: `attach()` adds `eta_region` (truth eta, same
-    `|eta| = 1` boundary as tracking), `n_layers_hit` and `in_acceptance`
+    `|eta| = 1.5` boundary as tracking - moved from 1.0 on 2026-10-06, PLAN.md 8.6), `n_layers_hit` and `in_acceptance`
     to any score frame via `trkperf.truth` reads (shared io cache, no
     second reader), applying each region's own rule (barrel `>= 4/7`,
     endcaps `>= 2`). `pid evaluate` / `pid performance --eta-region`

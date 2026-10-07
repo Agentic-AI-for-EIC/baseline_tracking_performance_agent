@@ -185,14 +185,16 @@ tracking. A collection whose branch is absent in a campaign degrades to 0
 hits with a printed NOTE rather than aborting the run.
 
 Region tiling (no overlap by construction): bin centres fall at +-0.25,
-+-0.75, ..., so +-1.0 splits cleanly between bins. Particle flow follows
-its region's rule - each eta bin is judged exactly once:
++-0.75, ..., so +-1.5 (`trkperf.config.BARREL_ETA_MAX`, a bin EDGE) splits
+cleanly between bins. Particle flow follows its region's rule - each eta
+bin is judged exactly once (boundary moved from 1.0 to 1.5 on 2026-10-06,
+see 8.6):
 
 | eta range | region | rule file |
 |---|---|---|
-| [-4.0, -1.0] (6 bins) | backward endcap | acceptance_backward_<tag> |
-| [-1.0, +1.0] (4 bins) | barrel | acceptance_<tag> (central rule, legacy name) |
-| [+1.0, +4.0] (6 bins) | forward endcap | acceptance_forward_<tag> |
+| [-4.0, -1.5] (5 bins) | backward endcap | acceptance_backward_<tag> |
+| [-1.5, +1.5] (6 bins) | barrel | acceptance_<tag> (central rule, legacy name) |
+| [+1.5, +4.0] (5 bins) | forward endcap | acceptance_forward_<tag> |
 
 Shared collections across rules (TrackerEndcapHits in all three,
 TOFEndcapHits in both endcap rules) do not double-count: every plotted
@@ -399,9 +401,10 @@ JSONs and each endcap plot with its `<region>`-rule JSON.
 The 16-eta-bin vs-pT plots were unreadable when overlaid (up to 120
 series/panel). `trkperf` gained eta-region grouping for plotting only
 (no recomputation, no new numbers):
-- `report.eta_region()` + `report.SPECIES_GROUPS`: barrel (|eta| < 1),
-  backward/forward endcap beyond; boundaries at +-1.0 so no 0.5-grid bin
-  straddles. Species merge e+/e-, pi+/pi-, K+/K- pairs with proton and
+- `report.eta_region()` + `report.SPECIES_GROUPS`: barrel
+  (|eta| < `config.BARREL_ETA_MAX` = 1.5; was 1.0 until 2026-10-06, see
+  8.6), backward/forward endcap beyond; the split sits on a bin edge so no
+  0.5-grid bin straddles. Species merge e+/e-, pi+/pi-, K+/K- pairs with proton and
   antiproton kept separate (beam-charge asymmetry).
 - `report.aggregate_eta_species(df, value, err, count_cols)`: exact
   re-aggregation for count ratios (summed numerators/denominators, Wilson
@@ -492,7 +495,7 @@ the bottleneck, first passes pay network, repeats replay from disk.
 `report.aggregate_species_eta_bin()` + `trkperf plot --eta-slices`: per
 region-rule JSON, one figure per species group (e, pi, K, proton,
 antiproton separate) with ALL of that rule's own eta bins as curves
-(6/4/6, Δη = 0.5, ordered "eta bin" legend, trusted bins only) - 15
+(5/6/5 since the 2026-10-06 boundary change, was 6/4/6; Δη = 0.5, ordered "eta bin" legend, trusted bins only) - 15
 figures, clean only (acceptance is background-free). Legend fix en route:
 `plot_metric_vs_pt` built its colour map only with a marker column, so
 marker-less multi-curve figures shipped legend-free; colour+legend now
@@ -515,6 +518,45 @@ Measured (backward, clean; bkg identical within errors):
   (fragmentation pairs); forward e are secondaries (conversions/Dalitz),
   never the scattered beam electron. Forward acceptance stays 0.4-0.65
   (no transition hole under the forward rule).
+
+## 8.6 Barrel/endcap boundary moved from |eta| = 1.0 to 1.5 (2026-10-06)
+
+Trigger: the published ePIC coverage (barrel ~|eta| < 1.65, endcaps from
+|eta| 1.5) disagreed with the |eta| < 1 split, which had been chosen only
+because 1.0 sits on the 0.5-wide eta grid. Measured before changing it
+(26.07.1 clean file, primaries pT > 0.3 GeV, share of particles with >= 1
+truth hit in the collection, per eta bin):
+
+| collection | 0.5-1.0 | 1.0-1.5 | 1.5-2.0 | 2.0-2.5 |
+|---|---|---|---|---|
+| VertexBarrel | 98 | 93 | 66 | 11 |
+| OuterMPGDBarrel | 70-79 | 76-77 | 3-12 | 0-1 |
+| TOFBarrel | 86-91 | 51-90 | 9-16 | 3-22 |
+| TrackerEndcap | 16-24 | 96-97 | 98-99 | 99 |
+| BackwardMPGD (backward side) | 1 | 1 | 60 | 100 |
+| ForwardMPGD / TOFEndcap | 0 | 0 | 0 / 0-15 | 89 / 83 |
+
+The barrel layers still fire at 76-93 % in the 1.0-1.5 slab, but the old
+split assigned it to the endcap rules, where only TrackerEndcap can fire:
+that slab scored 1.6 % (backward rule) / 3.8 % (forward rule) acceptance
+versus 49 % under the central rule - the "eta = -1.25 hole" first noted in
+8.2/8.5 was this artefact, not a detector gap. Effect of the new split on
+the clean26071 region totals (bkg26071 identical within 0.003):
+backward-endcap acceptance 0.850 -> 0.954, forward-endcap 0.591 -> 0.658,
+barrel 0.655 -> 0.597 (n 364k -> 565k; the added slab is judged by the
+barrel rule, 0.49, because transition tracks cross fewer barrel layers).
+The PID legs (`pid.config.BACKWARD_ETA_MAX/FORWARD_ETA_MIN` = -/+1.5) already
+used 1.5, so tracking and PID now agree.
+
+Scope: only region AGGREGATION changed. Every per-eta-bin table, comparison
+JSON and plain per-bin figure is untouched (each rule JSON already holds the
+full eta grid); the 84 grouped region figures and the 15 eta-slice survey
+figures were regenerated from the existing JSONs (no grid access), and the
+PID per-region tables/figures follow the same `report.eta_region`.
+Observation kept for the record: the central-rule acceptance in the
+[-1.5,-1.0] bin is visibly below [+1.0,+1.5] (0.37-0.5 vs 0.55-0.72 for
+pi), matching the MPGDBarrel asymmetry (47 % vs 94 % hit share at +-1.25) -
+a genuine geometry feature, not a rule artefact.
 
 ## 9. Outstanding decision (step 15 outcome)
 

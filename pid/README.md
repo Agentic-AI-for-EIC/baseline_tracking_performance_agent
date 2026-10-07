@@ -74,7 +74,7 @@ python -m pid evaluate --task eid --model lightgbm --dataset-tag clean \
 ```
 
 Same plotting style as the tracking metrics: one plot per detector region
-(`|eta| < 1` barrel, endcaps beyond — the same boundary function), each drawn
+(`|eta| < 1.5` barrel, endcaps beyond — `trkperf.config.BARREL_ETA_MAX`, the same boundary function), each drawn
 on the candidates satisfying that region's truth-hit rule (barrel `Nhit >= 4`
 of the 7 central collections, endcaps `Nhits >= 2` of their collections;
 `pid.regions`). The channel's global working point is kept — only the sample

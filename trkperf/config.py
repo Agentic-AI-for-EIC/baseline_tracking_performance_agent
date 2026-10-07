@@ -44,6 +44,20 @@ PT_BIN_EDGES: np.ndarray = np.logspace(np.log10(0.1), np.log10(20.0), 9)
 # 0.5-wide eta bins spanning the central + far-forward/backward acceptance.
 ETA_BIN_EDGES: np.ndarray = np.arange(-4.0, 4.01, 0.5)
 
+# Barrel/endcap split used for every per-region table and figure (tracking
+# AND PID): an eta bin belongs to the barrel when |bin centre| < this value,
+# otherwise to the forward/backward endcap. 1.5 is the grid edge nearest the
+# nominal ePIC barrel coverage (|eta| < ~1.65; endcaps cited from |eta| 1.5)
+# and it is MEASURED, not assumed: in the 26.07.1 clean sample the barrel
+# collections still fire at 76-93 % in the |eta| 1.0-1.5 bin
+# (VertexBarrel 93, MPGDBarrel ~94, OuterMPGD 76, TOFBarrel 90 %) and die off
+# between 1.5 and 2.0, while BackwardMPGD starts near -1.5 and ForwardMPGD /
+# TOFEndcap near +2.0. The previous split at 1.0 sent that barrel-covered
+# 1.0-1.5 slab to the endcap rule, where at most one collection (TrackerEndcap)
+# can fire - an artefact ("the eta = -1.25 hole", PLAN.md 8.5), not physics.
+# Must sit on an ETA_BIN_EDGES edge so no bin straddles the split.
+BARREL_ETA_MAX: float = 1.5
+
 # ---------------------------------------------------------------------------
 # Truth-reco matching (CentralCKFTrackAssociations.weight).
 # ---------------------------------------------------------------------------
