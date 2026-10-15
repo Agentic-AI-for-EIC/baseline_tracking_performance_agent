@@ -87,7 +87,8 @@ impact of beam-induced background on tracking performance.
 - Reproduction pair (2026-09-25, the current primary comparison): tags
   `clean26071` + `bkg26071` — BOTH from campaign 26.07.1, local copies on
   gautschi.rcac.purdue.edu:/scratch/gautschi/wxie/eIC_data_small_set/{clean,
-  bkg/reco} (300 files x 1409 events; 275 files x 99 events), streamed via a
+  bkg/reco} (300 files x 1409 events; 500 files x 99 events, extended from
+  275 on 2026-09-29 - same minQ2=1 production), streamed via a
   localhost-only xrootd daemon + ssh tunnel: start remote
   `/cvmfs/oasis.opensciencegrid.org/osg/modules/xrootd/4.2.1/bin/xrootd -p
   1294 -b 127.0.0.1 -l ~/xrdlog/xrootd.log /scratch/gautschi/wxie/

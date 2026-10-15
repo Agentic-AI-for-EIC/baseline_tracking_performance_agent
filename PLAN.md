@@ -128,7 +128,8 @@ Reproduction pair (2026-09-25/26, the current primary comparison, supersedes
 the mixed-campaign one for all quoted results): tags `clean26071` +
 `bkg26071`, BOTH campaign 26.07.1, local copies on
 gautschi.rcac.purdue.edu:/scratch/gautschi/wxie/eIC_data_small_set/{clean,
-bkg/reco} (300 files x 1409 events; 275 files x 99 events), streamed via a
+  bkg/reco} (300 files x 1409 events; 500 files x 99 events, extended from
+  275 on 2026-09-29 - same minQ2=1 production), streamed via a
 localhost-only xrootd daemon + ssh tunnel pinned to login00 (the bare
 hostname round-robins over 4 login nodes; the daemon binds 127.0.0.1 on one
 node only). File lists filelists/{clean26071,bkg26071}_local.txt carry
@@ -489,6 +490,11 @@ the bottleneck, first passes pay network, repeats replay from disk.
 - Headline (trusted bins): acceptance 0.259 clean vs 0.257 bkg (cross-check
   passes, no campaign artifact); resolution sigma median 1.4% -> 2.4%;
   fake rate 0.000 -> 0.217; within-acceptance efficiency 0.724 -> 0.718.
+- Rerun 2026-09-29 on the extended bkg sample (275 -> 500 files, same
+  minQ2=1 production; URL format preserved so the 95 GB read cache stayed
+  valid): 8 bkg metrics in ~1h45m, 0 skipped, 0 FAILs; comparisons/plots
+  regenerated. Headlines stable (resolution ~1.3% -> ~2.1%, fake ~0 ->
+  ~0.12, efficiency ~0.90 -> ~0.89).
 
 ## 8.5 Acceptance survey plots + composition findings (2026-09-26/27)
 
@@ -567,7 +573,7 @@ a genuine geometry feature, not a rule artefact.
     (`filelists/clean_full.txt`, `filelists/bkg_full_minQ2_1.txt`,
     `filelists/bkg_full.txt`) but no escalation run has been launched.
     SUPERSEDED in practice by the §8.4 same-campaign reproduction (26.07.1
-    both sides, 300x1409 + 275x99 events): remaining thin bins there are
+    both sides, 300x1409 + 500x99 events): remaining thin bins there are
     mostly kinematic (no high-pT deep-backward/endcap population exists to
     collect - see §8.5), not a file-count problem, so blind escalation
     would buy little. Revisit only for specific quoted bins, with the
