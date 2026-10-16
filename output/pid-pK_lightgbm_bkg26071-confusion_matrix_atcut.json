@@ -34,45 +34,45 @@
       "ROOT": "6.40.04",
       "problems": "none"
     },
-    "numpy_path": "/home/wxie/.eic_python_pkgs/numpy/__init__.py",
+    "numpy_path": "/local/scratch/a/wxie/.eic_python_pkgs/numpy/__init__.py",
     "channel": "pK",
     "task": "hadpid",
     "model": "lightgbm",
     "dataset_tag": "bkg26071",
     "decision": "thresholds_at_c*",
     "class_cuts": {
-      "pi": 0.145,
-      "K": 0.28,
-      "p": 0.295
+      "pi": 0.115,
+      "K": 0.1975,
+      "p": 0.2925
     },
     "campaign": "26.07.1",
-    "written_at_utc": "2026-10-07T01:51:52.936669+00:00"
+    "written_at_utc": "2026-10-15T16:50:31.872716+00:00"
   },
   "data": [
     {
       "truth_class": "pi",
       "pred_class": "pi",
-      "n": 5032,
-      "row_fraction": 0.5128414187,
-      "n_truth": 9812,
+      "n": 8189,
+      "row_fraction": 0.4656280207,
+      "n_truth": 17587,
       "decision": "thresholds_at_c*",
       "insufficient_stats": false
     },
     {
       "truth_class": "pi",
       "pred_class": "K",
-      "n": 1525,
-      "row_fraction": 0.1554219323,
-      "n_truth": 9812,
+      "n": 3933,
+      "row_fraction": 0.2236310911,
+      "n_truth": 17587,
       "decision": "thresholds_at_c*",
       "insufficient_stats": false
     },
     {
       "truth_class": "pi",
       "pred_class": "p",
-      "n": 3255,
-      "row_fraction": 0.331736649,
-      "n_truth": 9812,
+      "n": 5465,
+      "row_fraction": 0.3107408882,
+      "n_truth": 17587,
       "decision": "thresholds_at_c*",
       "insufficient_stats": false
     },
@@ -81,34 +81,34 @@
       "pred_class": "none",
       "n": 0,
       "row_fraction": 0.0,
-      "n_truth": 9812,
+      "n_truth": 17587,
       "decision": "thresholds_at_c*",
       "insufficient_stats": false
     },
     {
       "truth_class": "K",
       "pred_class": "pi",
-      "n": 368,
-      "row_fraction": 0.3572815534,
-      "n_truth": 1030,
+      "n": 605,
+      "row_fraction": 0.3144490644,
+      "n_truth": 1924,
       "decision": "thresholds_at_c*",
       "insufficient_stats": false
     },
     {
       "truth_class": "K",
       "pred_class": "K",
-      "n": 216,
-      "row_fraction": 0.2097087379,
-      "n_truth": 1030,
+      "n": 554,
+      "row_fraction": 0.2879417879,
+      "n_truth": 1924,
       "decision": "thresholds_at_c*",
       "insufficient_stats": false
     },
     {
       "truth_class": "K",
       "pred_class": "p",
-      "n": 446,
-      "row_fraction": 0.4330097087,
-      "n_truth": 1030,
+      "n": 765,
+      "row_fraction": 0.3976091476,
+      "n_truth": 1924,
       "decision": "thresholds_at_c*",
       "insufficient_stats": false
     },
@@ -117,34 +117,34 @@
       "pred_class": "none",
       "n": 0,
       "row_fraction": 0.0,
-      "n_truth": 1030,
+      "n_truth": 1924,
       "decision": "thresholds_at_c*",
       "insufficient_stats": false
     },
     {
       "truth_class": "p",
       "pred_class": "pi",
-      "n": 215,
-      "row_fraction": 0.2189409369,
-      "n_truth": 982,
+      "n": 343,
+      "row_fraction": 0.1795811518,
+      "n_truth": 1910,
       "decision": "thresholds_at_c*",
       "insufficient_stats": false
     },
     {
       "truth_class": "p",
       "pred_class": "K",
-      "n": 166,
-      "row_fraction": 0.1690427699,
-      "n_truth": 982,
+      "n": 422,
+      "row_fraction": 0.2209424084,
+      "n_truth": 1910,
       "decision": "thresholds_at_c*",
       "insufficient_stats": false
     },
     {
       "truth_class": "p",
       "pred_class": "p",
-      "n": 601,
-      "row_fraction": 0.6120162933,
-      "n_truth": 982,
+      "n": 1145,
+      "row_fraction": 0.5994764398,
+      "n_truth": 1910,
       "decision": "thresholds_at_c*",
       "insufficient_stats": false
     },
@@ -153,7 +153,7 @@
       "pred_class": "none",
       "n": 0,
       "row_fraction": 0.0,
-      "n_truth": 982,
+      "n_truth": 1910,
       "decision": "thresholds_at_c*",
       "insufficient_stats": false
     }

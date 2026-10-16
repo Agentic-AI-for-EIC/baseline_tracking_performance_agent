@@ -854,6 +854,17 @@ A third, uglier catch: `rec_idx` — a column left behind by the association mer
     check_learners PASS everywhere (spreads <= 0.0049). Open: the §12.1
     gate adjudication (persists at 26.07.1 scale) + 3 train_test_auc_gap
     flags; hadpid stays exploratory.
+1f. **bkg26071 extended 275 -> 500 files (2026-10-15, done in ~4 h).**
+    Features/train/evaluate/performance/compare rerun for bkg only (clean
+    side untouched); 0 skipped, 0 tracebacks, check_learners still PASS.
+    Headline moved: eid eff at 1e-3 fake 0.922 -> 0.839 bkg (clean 0.945
+    unchanged) with AUC identical at 0.995 both runs. This is a
+    small-sample floor correction, not a regression: the old test set had
+    347 background rows (expect 0.03 passes at 1e-4: measuring zero was
+    ~97% Poisson luck, so the threshold was set aggressively); the new
+    671-row test set resolves the fake-rate curve and forces the honest,
+    more conservative working point. Textbook case for the no-quote-below-
+    statistics rule (§5e).
 2. **Hadron ID needs per-track Cherenkov/timing** (and is currently labelled
    `exploratory` in `config.CHANNELS` for exactly this reason — the calorimeter-only
    K/π and p/K results are baselines to be beaten, not deliverables). Three concrete routes, in cost order: (a) decode `DRICH*RawHits` cellIDs against the compact geometry to attach photons to the extrapolated `DRICH*Tracks` segment (AGENTS.md currently scopes cellID decoding out — a deliberate decision to revisit); (b) recover the `*_ParticleIDs` likelihoods by establishing the entry order of those collections (their `particle` relation is null, but the *multiplicity* pattern — 4 hypotheses/particle — may be alignable; time-box it); (c) request a production where the IRT `chargedParticle` relation is written (cid `1290518152` is not in the file).

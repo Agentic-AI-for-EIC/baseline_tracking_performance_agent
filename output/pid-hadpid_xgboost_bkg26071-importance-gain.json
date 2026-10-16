@@ -42,223 +42,199 @@
     "physics_check_passed": true,
     "physics_check_notes": "",
     "campaign": "26.07.1",
-    "written_at_utc": "2026-09-27T09:34:55.575415+00:00"
+    "written_at_utc": "2026-10-15T15:08:19.090214+00:00"
   },
   "data": [
     {
       "column": "log_e_over_p_forward",
       "family": "calorimeter",
-      "gain": 20.6200275421,
-      "gain_fraction": 0.0617828827,
+      "gain": 18.4992828369,
+      "gain_fraction": 0.0935206073,
       "rank": 1,
       "importance_kind": "gain"
     },
     {
       "column": "ecal_forward_E",
       "family": "calorimeter",
-      "gain": 20.1424713135,
-      "gain_fraction": 0.060352002,
+      "gain": 12.907377243,
+      "gain_fraction": 0.0652514895,
       "rank": 2,
       "importance_kind": "gain"
     },
     {
       "column": "e_over_p_forward",
       "family": "calorimeter",
-      "gain": 19.5650653839,
-      "gain_fraction": 0.058621946,
+      "gain": 12.8869180679,
+      "gain_fraction": 0.0651480609,
       "rank": 3,
-      "importance_kind": "gain"
-    },
-    {
-      "column": "ecal_forward_n",
-      "family": "calorimeter",
-      "gain": 19.1465740204,
-      "gain_fraction": 0.0573680387,
-      "rank": 4,
-      "importance_kind": "gain"
-    },
-    {
-      "column": "has_drich_aerogel",
-      "family": "cherenkov",
-      "gain": 17.7327213287,
-      "gain_fraction": 0.053131774,
-      "rank": 5,
-      "importance_kind": "gain"
-    },
-    {
-      "column": "ecal_forward_shape_0",
-      "family": "calorimeter",
-      "gain": 16.5991363525,
-      "gain_fraction": 0.0497352631,
-      "rank": 6,
       "importance_kind": "gain"
     },
     {
       "column": "drich_gas_pathlength",
       "family": "cherenkov",
-      "gain": 14.9599809647,
-      "gain_fraction": 0.0448239338,
-      "rank": 7,
+      "gain": 12.1056518555,
+      "gain_fraction": 0.0611984758,
+      "rank": 4,
       "importance_kind": "gain"
     },
     {
-      "column": "drich_aerogel_pathlength",
-      "family": "cherenkov",
-      "gain": 13.1203613281,
-      "gain_fraction": 0.0393119623,
-      "rank": 8,
-      "importance_kind": "gain"
-    },
-    {
-      "column": "hcal_forward_n",
-      "family": "other",
-      "gain": 12.4286584854,
-      "gain_fraction": 0.0372394435,
-      "rank": 9,
+      "column": "ecal_forward_n",
+      "family": "calorimeter",
+      "gain": 10.4278335571,
+      "gain_fraction": 0.0527164937,
+      "rank": 5,
       "importance_kind": "gain"
     },
     {
       "column": "leakage_forward",
       "family": "calorimeter",
-      "gain": 11.9203147888,
-      "gain_fraction": 0.0357163156,
-      "rank": 10,
+      "gain": 7.7896285057,
+      "gain_fraction": 0.039379407,
+      "rank": 6,
       "importance_kind": "gain"
     },
     {
-      "column": "ecal_forward_delta_r",
-      "family": "calorimeter",
-      "gain": 11.2717723846,
-      "gain_fraction": 0.0337731165,
-      "rank": 11,
-      "importance_kind": "gain"
-    },
-    {
-      "column": "chi2_per_ndf",
-      "family": "tracker",
-      "gain": 11.0570745468,
-      "gain_fraction": 0.0331298268,
-      "rank": 12,
-      "importance_kind": "gain"
-    },
-    {
-      "column": "chi2",
-      "family": "tracker",
-      "gain": 10.857175827,
-      "gain_fraction": 0.032530879,
-      "rank": 13,
+      "column": "hcal_forward_n",
+      "family": "other",
+      "gain": 7.785882473,
+      "gain_fraction": 0.0393604695,
+      "rank": 7,
       "importance_kind": "gain"
     },
     {
       "column": "e_hcal_forward",
       "family": "calorimeter",
-      "gain": 10.8354635239,
-      "gain_fraction": 0.0324658234,
-      "rank": 14,
+      "gain": 7.5640721321,
+      "gain_fraction": 0.0382391375,
+      "rank": 8,
       "importance_kind": "gain"
     },
     {
-      "column": "ecal_forward_shape_3",
+      "column": "drich_aerogel_pathlength",
+      "family": "cherenkov",
+      "gain": 7.5271530151,
+      "gain_fraction": 0.0380524979,
+      "rank": 9,
+      "importance_kind": "gain"
+    },
+    {
+      "column": "ecal_forward_delta_r",
       "family": "calorimeter",
-      "gain": 10.5864267349,
-      "gain_fraction": 0.0317196454,
-      "rank": 15,
+      "gain": 7.3183507919,
+      "gain_fraction": 0.0369969267,
+      "rank": 10,
+      "importance_kind": "gain"
+    },
+    {
+      "column": "ecal_forward_shape_0",
+      "family": "calorimeter",
+      "gain": 7.2381057739,
+      "gain_fraction": 0.0365912589,
+      "rank": 11,
+      "importance_kind": "gain"
+    },
+    {
+      "column": "ecal_forward_shape_4",
+      "family": "calorimeter",
+      "gain": 7.0960884094,
+      "gain_fraction": 0.0358733094,
+      "rank": 12,
+      "importance_kind": "gain"
+    },
+    {
+      "column": "ecal_forward_shape_1",
+      "family": "calorimeter",
+      "gain": 6.9605083466,
+      "gain_fraction": 0.0351879029,
+      "rank": 13,
+      "importance_kind": "gain"
+    },
+    {
+      "column": "chi2_per_ndf",
+      "family": "tracker",
+      "gain": 6.9415493011,
+      "gain_fraction": 0.035092058,
+      "rank": 14,
       "importance_kind": "gain"
     },
     {
       "column": "ecal_forward_shape_5",
       "family": "calorimeter",
-      "gain": 10.5292816162,
-      "gain_fraction": 0.031548424,
+      "gain": 6.8174638748,
+      "gain_fraction": 0.034464761,
+      "rank": 15,
+      "importance_kind": "gain"
+    },
+    {
+      "column": "chi2",
+      "family": "tracker",
+      "gain": 6.7758979797,
+      "gain_fraction": 0.0342546303,
       "rank": 16,
       "importance_kind": "gain"
     },
     {
       "column": "ecal_forward_shape_2",
       "family": "calorimeter",
-      "gain": 10.4840993881,
-      "gain_fraction": 0.0314130465,
+      "gain": 6.7422280312,
+      "gain_fraction": 0.0340844165,
       "rank": 17,
-      "importance_kind": "gain"
-    },
-    {
-      "column": "ecal_forward_shape_1",
-      "family": "calorimeter",
-      "gain": 10.3155136108,
-      "gain_fraction": 0.0309079203,
-      "rank": 18,
-      "importance_kind": "gain"
-    },
-    {
-      "column": "ecal_forward_shape_4",
-      "family": "calorimeter",
-      "gain": 10.2862358093,
-      "gain_fraction": 0.0308201965,
-      "rank": 19,
-      "importance_kind": "gain"
-    },
-    {
-      "column": "hcal_forward_E",
-      "family": "other",
-      "gain": 10.1660423279,
-      "gain_fraction": 0.0304600661,
-      "rank": 20,
       "importance_kind": "gain"
     },
     {
       "column": "hcal_forward_t",
       "family": "other",
-      "gain": 10.0151481628,
-      "gain_fraction": 0.0300079485,
-      "rank": 21,
-      "importance_kind": "gain"
-    },
-    {
-      "column": "ecal_forward_t",
-      "family": "calorimeter",
-      "gain": 9.7197914124,
-      "gain_fraction": 0.029122984,
-      "rank": 22,
-      "importance_kind": "gain"
-    },
-    {
-      "column": "proj_pathlength",
-      "family": "tracker",
-      "gain": 9.5163993835,
-      "gain_fraction": 0.0285135694,
-      "rank": 23,
+      "gain": 6.6252250671,
+      "gain_fraction": 0.0334929239,
+      "rank": 18,
       "importance_kind": "gain"
     },
     {
       "column": "hcal_forward_delta_r",
       "family": "other",
-      "gain": 9.2193832397,
-      "gain_fraction": 0.027623633,
-      "rank": 24,
+      "gain": 6.566485405,
+      "gain_fraction": 0.0331959735,
+      "rank": 19,
       "importance_kind": "gain"
     },
     {
-      "column": "ecal_forward_shape_6",
+      "column": "ecal_forward_shape_3",
       "family": "calorimeter",
-      "gain": 9.2054624557,
-      "gain_fraction": 0.0275819228,
-      "rank": 25,
+      "gain": 6.5288796425,
+      "gain_fraction": 0.0330058627,
+      "rank": 20,
+      "importance_kind": "gain"
+    },
+    {
+      "column": "proj_pathlength",
+      "family": "tracker",
+      "gain": 6.2903876305,
+      "gain_fraction": 0.0318001988,
+      "rank": 21,
       "importance_kind": "gain"
     },
     {
       "column": "ndf",
       "family": "tracker",
-      "gain": 8.1460094452,
-      "gain_fraction": 0.0244075303,
-      "rank": 26,
+      "gain": 6.2428016663,
+      "gain_fraction": 0.0315596344,
+      "rank": 22,
       "importance_kind": "gain"
     },
     {
-      "column": "has_hcal_forward",
+      "column": "ecal_forward_t",
       "family": "calorimeter",
-      "gain": 5.3032536507,
-      "gain_fraction": 0.015889906,
-      "rank": 27,
+      "gain": 6.1337227821,
+      "gain_fraction": 0.031008201,
+      "rank": 23,
+      "importance_kind": "gain"
+    },
+    {
+      "column": "ecal_forward_shape_6",
+      "family": "calorimeter",
+      "gain": 6.0382008553,
+      "gain_fraction": 0.0305253029,
+      "rank": 24,
       "importance_kind": "gain"
     },
     {
@@ -266,7 +242,7 @@
       "family": "calorimeter",
       "gain": 0.0,
       "gain_fraction": 0.0,
-      "rank": 28,
+      "rank": 25,
       "importance_kind": "gain"
     },
     {
@@ -274,15 +250,15 @@
       "family": "calorimeter",
       "gain": 0.0,
       "gain_fraction": 0.0,
-      "rank": 29,
+      "rank": 26,
       "importance_kind": "gain"
     },
     {
-      "column": "has_ecal_forward",
+      "column": "has_hcal_forward",
       "family": "calorimeter",
       "gain": 0.0,
       "gain_fraction": 0.0,
-      "rank": 30,
+      "rank": 27,
       "importance_kind": "gain"
     },
     {
@@ -290,12 +266,36 @@
       "family": "calorimeter",
       "gain": 0.0,
       "gain_fraction": 0.0,
-      "rank": 31,
+      "rank": 28,
       "importance_kind": "gain"
     },
     {
       "column": "has_drich_gas",
       "family": "cherenkov",
+      "gain": 0.0,
+      "gain_fraction": 0.0,
+      "rank": 29,
+      "importance_kind": "gain"
+    },
+    {
+      "column": "has_drich_aerogel",
+      "family": "cherenkov",
+      "gain": 0.0,
+      "gain_fraction": 0.0,
+      "rank": 30,
+      "importance_kind": "gain"
+    },
+    {
+      "column": "has_ecal_forward",
+      "family": "calorimeter",
+      "gain": 0.0,
+      "gain_fraction": 0.0,
+      "rank": 31,
+      "importance_kind": "gain"
+    },
+    {
+      "column": "hcal_forward_E",
+      "family": "other",
       "gain": 0.0,
       "gain_fraction": 0.0,
       "rank": 32,
