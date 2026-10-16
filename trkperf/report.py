@@ -219,6 +219,7 @@ def aggregate_eta_species(
     df: pd.DataFrame, value_col: str, err_col: str | None,
     count_cols: tuple[str, str] | None = None,
     eta_region_filter: str | None = None,
+    eta_window: tuple[float, float] | None = None,
 ) -> pd.DataFrame:
     """Aggregate a metric table over eta regions x species groups, recomputing
     the value from summed counts (exact for count-based metrics).
@@ -250,6 +251,16 @@ def aggregate_eta_species(
         # keep only that region's bins. Pair with the region-correct rule
         # (central JSONs for barrel, <region>-rule JSONs for endcaps).
         work = work[work["eta_region"] == eta_region_filter]
+        if work.empty:
+            return pd.DataFrame(
+                columns=["species_group", "eta_region", "pt_bin_center",
+                         value_col, err_col or "err", "n", "insufficient_stats"])
+    if eta_window is not None:
+        # Narrower-than-region slice (e.g. |eta| < 1.0 inside the barrel):
+        # keep bins whose centre falls in [lo, hi]. Composes with the region
+        # filter above (intersection).
+        lo, hi = eta_window
+        work = work[(work["eta_bin_center"] >= lo) & (work["eta_bin_center"] <= hi)]
         if work.empty:
             return pd.DataFrame(
                 columns=["species_group", "eta_region", "pt_bin_center",

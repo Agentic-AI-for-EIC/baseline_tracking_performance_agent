@@ -313,13 +313,25 @@ def _run_plot(args: argparse.Namespace):
                 n_plotted += 1
             continue
         if getattr(args, "grouped", False):
+            window = getattr(args, "eta_window", None)
+            window_pair = None
+            window_tag = ""
+            if window:
+                try:
+                    lo_s, hi_s = window.split(",")
+                    window_pair = (float(lo_s), float(hi_s))
+                except ValueError:
+                    raise SystemExit(
+                        f"--eta-window expects 'LO,HI' (got {window!r}).")
+                window_tag = f"_window_{window_pair[0]:+.2f}_{window_pair[1]:+.2f}"
             frame = report.aggregate_eta_species(
                 df, value_col, err_col,
                 count_cols=_GROUP_COUNTS.get((metric_name, value_col)),
-                eta_region_filter=getattr(args, "eta_region", None))
+                eta_region_filter=getattr(args, "eta_region", None),
+                eta_window=window_pair)
             region_tag = f"_{args.eta_region}" if getattr(args, "eta_region", None) else ""
             region_tag = region_tag.replace(" ", "_")
-            plot_path = f"{pbase}_{suffix}_grouped{region_tag}.png"
+            plot_path = f"{pbase}_{suffix}_grouped{region_tag}{window_tag}.png"
             group_col = "species_group"
             marker = "eta_region"
         else:
@@ -424,6 +436,14 @@ def build_parser() -> argparse.ArgumentParser:
         "plot (16 curves, one per 0.5-wide bin, no eta aggregation); writes "
         "<base>_<suffix>_eta_slices_<group>.png. For the acceptance survey "
         "(clean only); run once per region-rule JSON.",
+    )
+    p.add_argument(
+        "--eta-window",
+        default=None,
+        metavar="LO,HI",
+        help="With --grouped, additionally restrict to eta bins with centres "
+        "in [LO,HI] (e.g. -1.0,1.0 for the |eta|<1.0 core inside the "
+        "barrel); writes <base>_<suffix>_grouped[_<region>]_window_<LO>_<HI>.png.",
     )
     p.set_defaults(func=_run_plot)
 

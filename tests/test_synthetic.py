@@ -1106,6 +1106,28 @@ class TestEtaRegions(unittest.TestCase):
         self.assertEqual(len(agg), 1)
         self.assertAlmostEqual(agg.iloc[0]["acceptance"], 0.875)
 
+    def test_eta_window_restricts_to_bin_centers_in_range(self):
+        agg = report.aggregate_eta_species(
+            self._ratio_df(), "acceptance", "acceptance_err",
+            count_cols=("n_in_acceptance", "n_generated"),
+            eta_region_filter="barrel", eta_window=(-1.0, 1.0))
+        self.assertEqual(len(agg), 1)
+        # (-0.75 and +0.75 kept, -2.75 outside the barrel anyway):
+        # (50 + 300) / (100 + 300) = 0.875
+        self.assertAlmostEqual(agg.iloc[0]["acceptance"], 0.875)
+        narrow = report.aggregate_eta_species(
+            self._ratio_df(), "acceptance", "acceptance_err",
+            count_cols=("n_in_acceptance", "n_generated"),
+            eta_window=(0.0, 1.0))
+        self.assertEqual(len(narrow), 1)
+        # only the +0.75 bin: 300/300 = 1.0
+        self.assertAlmostEqual(narrow.iloc[0]["acceptance"], 1.0)
+        empty = report.aggregate_eta_species(
+            self._ratio_df(), "acceptance", "acceptance_err",
+            count_cols=("n_in_acceptance", "n_generated"),
+            eta_window=(3.0, 4.0))
+        self.assertTrue(empty.empty)
+
 
 class TestCollectionProbe(unittest.TestCase):
     """_collection_present must never mistake a transient open failure for a
