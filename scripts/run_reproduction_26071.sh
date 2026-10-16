@@ -166,6 +166,11 @@ for m in acceptance efficiency resolution fake-rate; do
       [[ -f $base ]] && python3 -m trkperf plot --json "$base" --grouped --eta-region "$r" \
         || { echo "[repro] plot skip $m/$tag/$r"; FAILED+=("plot-$m/$tag/$r"); }
     done
+    # |eta| < 1.0 core view inside the barrel, alongside the standard plots.
+    base=$(json_for "$m" "" "$tag")
+    [[ -f $base ]] && python3 -m trkperf plot --json "$base" --grouped \
+        --eta-region barrel --eta-window=-1.0,1.0 \
+      || { echo "[repro] plot skip $m/$tag/barrel-window"; FAILED+=("plot-$m/$tag/barrel-window"); }
   done
 done
 if (( ${#FAILED[@]} )); then
