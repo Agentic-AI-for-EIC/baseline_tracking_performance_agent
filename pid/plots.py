@@ -2,7 +2,7 @@
 
 Plain matplotlib, written to ``output/plots/`` next to the tables they come from,
 so a figure and its numbers always correspond to the same JSON. Physics-style
-axes (log fake-rate axis, pT on a log x axis) because the quantities span orders
+axes (log fake-rate axis, momentum p on a log x axis) because the quantities span orders
 of magnitude; every panel states the sample sizes it was made from, since a
 1e-4 rejection drawn from 400 pions is a hint, not a measurement.
 """
@@ -120,6 +120,45 @@ _VARIABLE_LABELS: dict[str, str] = {"pt": "reconstructed track $p_T$ [GeV]",
                                     "truth_pt": "truth $p_T$ [GeV]",
                                     "truth_p": "truth momentum $p$ [GeV]",
                                     "truth_eta": "truth $\\eta$"}
+
+
+def _axis_label(table, default: str = "reconstructed track momentum $p$ [GeV]") -> str:
+    """Momentum-axis label for a binned table, from the table's own variable.
+
+    Reads whichever binning-variable column the table carries (``bin_column`` /
+    ``variable`` / ``x_variable``) so a p-binned figure is never mislabelled
+    ``$p_T$`` and a legacy p_T table still reads correctly. Falls back to
+    *default* when the table declares no variable.
+    """
+    cols = getattr(table, "columns", [])
+    for c in ("bin_column", "variable", "x_variable"):
+        if c in cols:
+            vals = table[c].dropna()
+            if len(vals):
+                v = str(vals.iloc[0])
+                return _VARIABLE_LABELS.get(v, f"{v} [GeV]")
+    return default
+
+
+def _short_var(table, default: str = "p") -> str:
+    """Short momentum symbol (``p`` / ``$p_T$``) for a table or map dict."""
+    _sym = {"p": "p", "truth_p": "p", "pt": "$p_T$", "truth_pt": "$p_T$"}
+    cols = getattr(table, "columns", None)
+    if cols is None and isinstance(table, dict):  # a map_2d result dict
+        for k in ("x_variable", "bin_column", "variable"):
+            if table.get(k) is not None:
+                v = str(table[k])
+                return _sym.get(v, v)
+        return default
+    if cols is None:
+        return default
+    for c in ("bin_column", "variable", "x_variable"):
+        if c in cols:
+            vals = table[c].dropna()
+            if len(vals):
+                v = str(vals.iloc[0])
+                return _sym.get(v, v)
+    return default
 
 #: What each plotted column means, spelled out on the axis so a reader is not
 #: guessing whether "auc" is global or per-bin, and which pair it ranks.
@@ -599,7 +638,7 @@ def performance_package(*, channel: str, scan: pd.DataFrame, optimum: dict,
 
     All differential figures are drawn **at the channel working point c\\***, which
     is passed in as `cut` and annotated wherever a threshold enters (ROC operating
-    point, score-distribution line, per-pT-bin stars). n-sigma is the deliberate
+    point, score-distribution line, per-momentum-bin stars). n-sigma is the deliberate
     exception: it is a property of the score *distribution* (AUC / logit fits), so
     it does not depend on a cut - the working point is still recorded on the figure
     title so the package reads as one coherent selection.
@@ -643,10 +682,9 @@ def performance_package(*, channel: str, scan: pd.DataFrame, optimum: dict,
     if len(per_bin):
         written["optimal_cut_vs_p"] = note(
             "optimal_cut_vs_p",
-            optimal_cut_vs_p(per_bin, P("optimal_cut_vs_p"), title=f"$c^*(p_T)$ {tag}",
-                              global_cut=cut,
-                              xlabel=("truth $p_T$ [GeV]" if suffix == "_truthpt"
-                                      else "track $p_T$ [GeV]")))
+            optimal_cut_vs_p(per_bin, P("optimal_cut_vs_p"),
+                              title=f"$c^*({_short_var(per_bin)})$ {tag}",
+                              global_cut=cut))
 
     for name, key, func, extra in (
             ("eff_vs_p", "at_cut_global", efficiency_at_cut, "signal efficiency at $c^*$"),
@@ -687,7 +725,7 @@ def performance_package(*, channel: str, scan: pd.DataFrame, optimum: dict,
             "significance_vs_cut_by_p",
             significance_vs_cut_by_bin(curves, P("significance_vs_cut_by_p"),
                                        global_cut=optimum.get("threshold"),
-                                       title=f"FOM(c) per $p_T$ bin {tag}"))
+                                       title=f"FOM(c) per {_short_var(curves)} bin {tag}"))
         written["significance_vs_cut_panels"] = note(
             "significance_vs_cut_panels",
             significance_vs_cut_panels(curves, P("significance_vs_cut_panels"),
@@ -697,7 +735,8 @@ def performance_package(*, channel: str, scan: pd.DataFrame, optimum: dict,
         fname = "eff_map_p_vs_eta" if quantity == "efficiency" else "fake_map_p_vs_eta"
         written[fname] = note(
             fname, map_2d_figure(m, P(fname),
-                                 title=f"{quantity} in (pT, eta) at $c^*$ "
+                                 title=f"{quantity} in ({_short_var(m)}, "
+                                       f"{m.get('y_variable', 'eta')}) at $c^*$ "
                                        f"={m['cut']:.3f} {tag}"))
 
     if overtraining and overtraining.get("classes"):
@@ -748,11 +787,13 @@ def _stamp_exploratory(name: str, path: str, note_text: str) -> None:
 
 def optimal_cut_vs_p(per_bin: pd.DataFrame, path: str, *, title: str = "",
                       global_cut: float | None = None, xlabel: str | None = None) -> str:
-    """The optimal threshold as a function of pT, with unmeasurable bins as gaps.
+    """The optimal threshold as a function of momentum p, unmeasurable bins as gaps.
 
     The dashed line is the channel's global working point when `global_cut`
     is given; otherwise (legacy callers) it falls back to the median of the
-    plotted bin optima, honestly labelled as such.
+    plotted bin optima, honestly labelled as such. The x-axis label is taken
+    from the table's own ``bin_column`` (``p`` / ``truth_p`` / ``pt``) unless
+    *xlabel* overrides it.
     """
     t = per_bin.dropna(subset=["threshold"])
     fig, ax = plt.subplots(figsize=(5.8, 4.2))
@@ -771,7 +812,7 @@ def optimal_cut_vs_p(per_bin: pd.DataFrame, path: str, *, title: str = "",
                            label=f"median bin $c^*$ = {flat:.3f}")
     ax.set_yscale("linear")
     ax.set_ylim(0, 1)
-    ax.set_xlabel(xlabel or "track $p_T$ [GeV]")
+    ax.set_xlabel(xlabel or _axis_label(per_bin))
     ax.set_ylabel("optimal score cut $c^*$")
     ax.grid(alpha=0.3)
     if len(t):
@@ -780,7 +821,7 @@ def optimal_cut_vs_p(per_bin: pd.DataFrame, path: str, *, title: str = "",
     if title:
         ax.set_title(title, fontsize=9)
     if not len(t):
-        ax.text(0.5, 0.5, "no pT bin had both classes\nwith enough candidates",
+        ax.text(0.5, 0.5, "no momentum bin had both classes\nwith enough candidates",
                 transform=ax.transAxes, ha="center", fontsize=9, color="0.4")
     return _finish(fig, path)
 
@@ -800,23 +841,23 @@ def _bin_curve_groups(curves: pd.DataFrame):
 
 def significance_vs_cut_by_bin(curves: pd.DataFrame, path: str, *, title: str = "",
                               global_cut: float | None = None) -> str:
-    """FOM(c) = S/sqrt(S+B) in every pT bin, on one axis (absolute) and one (shape).
+    """FOM(c) = S/sqrt(S+B) in every momentum bin, on one axis (absolute) and one (shape).
 
     Left: the raw significance, so the vertical spread *is* the information about
-    where the statistical power lives - a low-pT curve reaching FOM 12 and a
-    high-pT curve topping out at 1.5 are not equally usable working points.
+    where the statistical power lives - a low-momentum curve reaching FOM 12 and a
+    high-momentum curve topping out at 1.5 are not equally usable working points.
 
     Right: each curve divided by its own maximum, which removes the luminosity
     factor and exposes the thing that actually varies with momentum: the position
     of the optimum. Stars mark each bin's c*.
     """
     groups = _bin_curve_groups(curves)
-    variable = str(curves["variable"].iloc[0]) if len(curves) else "pt"
+    variable = str(curves["variable"].iloc[0]) if len(curves) else "p"
     xlabel = _VARIABLE_LABELS.get(variable, f"{variable} bin")
     fig, (ax_abs, ax_norm) = plt.subplots(1, 2, figsize=(11.2, 4.4))
     if not groups:
         for ax in (ax_abs, ax_norm):
-            ax.text(0.5, 0.5, "no pT bin contained both classes\nwith enough candidates",
+            ax.text(0.5, 0.5, "no momentum bin contained both classes\nwith enough candidates",
                     transform=ax.transAxes, ha="center", fontsize=9, color="0.4")
             ax.set_xlabel("threshold $c$")
         fig.suptitle(title or "FOM(c) per bin", fontsize=10)
@@ -865,7 +906,7 @@ def significance_vs_cut_by_bin(curves: pd.DataFrame, path: str, *, title: str = 
 
 def significance_vs_cut_panels(curves: pd.DataFrame, path: str, *, title: str = "",
                                ncols: int = 4) -> str:
-    """One panel per pT bin: the full FOM(c) curve with c*, efficiency and purity at it.
+    """One panel per momentum bin: the full FOM(c) curve with c*, efficiency and purity at it.
 
     Drawn panel-by-panel because overlaying thirteen curves hides exactly what a
     working-point plot is for - whether a given bin's maximum is a sharp, stable
@@ -877,7 +918,7 @@ def significance_vs_cut_panels(curves: pd.DataFrame, path: str, *, title: str = 
     n_panels = max(len(all_centres), 1)
     ncols = int(max(2, min(ncols, n_panels)))
     nrows = int(np.ceil(n_panels / ncols))
-    variable = str(curves["variable"].iloc[0]) if len(curves) else "pt"
+    variable = str(curves["variable"].iloc[0]) if len(curves) else "p"
     fig, axes = plt.subplots(nrows, ncols, figsize=(2.75 * ncols, 2.35 * nrows),
                              squeeze=False, sharex=True)
     by_centre = dict(groups)

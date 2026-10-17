@@ -75,7 +75,7 @@ python -m trkperf fake-rate --file data/dataset_small/signal/RECO/*.root \
   beam background.
 - Statistics floor: `n_tracks >= 50` per bin; below that `insufficient_stats`.
 - Small fake rates are best read on the log-y companion plot
-  (`fake-rate_<tag>_vs_pt_logy.png`, ymin pinned at 1e-5).
+  (`fake-rate_<tag>_vs_p_logy.png`, ymin pinned at 1e-5).
 - Outputs: `output/fake-rate_{clean,bkg_mixed}.{json,md,root,png}` (linear +
   log-y plots) and `output/fake-rate_comparison.{json,md}`.
 

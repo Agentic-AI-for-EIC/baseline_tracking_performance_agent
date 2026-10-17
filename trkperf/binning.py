@@ -2,7 +2,7 @@
 
 Binning and fitting are kept separate from the metric modules so both can be
 tested/reused independently (e.g. a future PID module will want the same
-pT/eta binning without needing anything from resolution.py).
+p/eta binning without needing anything from resolution.py).
 """
 
 from __future__ import annotations
@@ -161,7 +161,7 @@ def fit_gaussian_core(
 
     The Gaussian's sigma is constrained (via TF1::SetParLimits) to
     [0, max_sigma]. Since resolution is defined on
-    Delta(pT)/pT = (pT_reco - pT_truth) / pT_truth, a width of 1.0 means a
+    Delta(p)/p = (p_reco - p_truth) / p_truth, a width of 1.0 means a
     100% resolution - the natural physical maximum. A fit that hits the upper
     bound, or otherwise fails to converge, is reported as ``converged=False``
     (sigma/NaN) rather than an unphysical huge number.
@@ -189,7 +189,7 @@ def fit_gaussian_core(
         f = ROOT.TF1(_next_root_name("f"), "gaus", rng[0], rng[1])
         # Only constrain sigma (the physical quantity of interest): lower bound
         # keeps it positive; upper bound = RESOLUTION_MAX_SIGMA (1.0) enforces
-        # the physical maximum on Delta(pT)/pT. Leave the amplitude free.
+        # the physical maximum on Delta(p)/p. Leave the amplitude free.
         f.SetParLimits(2, 1e-9, float(max_sigma))
         # Seed the parameters (amplitude, mean, sigma) from the data so they
         # start inside their bounds - avoids ROOT's "bounds outside current

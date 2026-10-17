@@ -42,7 +42,8 @@ def _add_region_args(p: argparse.ArgumentParser) -> None:
                    help="Comma-separated detector regions (barrel, forward endcap, "
                         "backward endcap): additionally write the tables/figures per "
                         "region on the candidates satisfying that region's "
-                        "acceptance rule (barrel Nhit>=4, endcaps Nhits>=2).")
+                        "acceptance rule (every region: >=4 total truth hits, "
+                        ">=3 silicon).")
     p.add_argument("--features", default=None,
                    help="Feature table (.pkl) the scores came from (default: "
                         "<out-dir>/pid-features_<tag>.pkl); carries the links the "
@@ -230,7 +231,7 @@ def cmd_evaluate(args) -> int:
         stem = os.path.join(config.plots_dir_for(args.out_dir, args.dataset_tag), f"pid-{res['tag']}")
         plots.roc(res["roc"], stem + "-roc.png", title=res["tag"])
         plots.efficiency_vs_fake(res["overall"], stem + "-eff_vs_fake.png", title=res["tag"])
-        for variable in ("pt", "eta"):
+        for variable in [v.strip() for v in args.by.split(",") if v.strip()]:
             if f"vs_{variable}" in res:
                 plots.metric_vs_bin(res[f"vs_{variable}"], stem + f"-auc_vs_{variable}.png",
                                     column="auc", title=res["tag"])
@@ -241,9 +242,11 @@ def cmd_evaluate(args) -> int:
             plots.roc(rres["roc"], stem_r + "-roc.png", title=rtag)
             plots.efficiency_vs_fake(rres["overall"], stem_r + "-eff_vs_fake.png",
                                      title=rtag)
-            if "vs_p" in rres:
-                plots.metric_vs_bin(rres["vs_p"], stem_r + "-auc_vs_p.png",
-                                     column="auc", title=rtag)
+            for variable in [v.strip() for v in args.by.split(",") if v.strip()]:
+                if f"vs_{variable}" in rres:
+                    plots.metric_vs_bin(rres[f"vs_{variable}"],
+                                        stem_r + f"-auc_vs_{variable}.png",
+                                        column="auc", title=rtag)
     return 0
 
 

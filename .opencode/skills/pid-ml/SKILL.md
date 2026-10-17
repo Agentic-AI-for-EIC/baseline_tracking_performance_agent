@@ -97,11 +97,11 @@ attribution gate is advisory (no per-track Cherenkov/timing exists to lead with)
 ### 4. Evaluate, importance, plots
 ```sh
 python -m pid evaluate --task eid --model lightgbm --dataset-tag clean \
-    --scores output/models/eid_lightgbm_clean/test_scores.pkl --by pt,eta --plot
+    --scores output/models/eid_lightgbm_clean/test_scores.pkl --by p,eta --plot
 python -m pid importance --dir output/models/eid_lightgbm_clean \
     --task eid --model lightgbm --dataset-tag clean --plot
 ```
-Outputs `output/pid-<task>_<lib>_<tag>-{overall,vs_pt,vs_eta,confusion,roc,calibration}`
+Outputs `output/pid-<task>_<lib>_<tag>-{overall,vs_p,vs_eta,confusion,roc,calibration}`
 as JSON + markdown + ROOT TNtuple (text columns → `*_code` with a legend in the
 metadata) plus PNGs in `output/plot_PID/plots/`. Quote efficiency at a fixed fake rate
 **with** its Garwood interval and check `meets_target` / `fake_at_*_err_hi`:
@@ -118,7 +118,7 @@ Channels `eid` (e/pi), `ehad` (e/hadron), `Kpi`, `pK`; hadron channels are reduc
 to `P(sig)/(P(sig)+P(bkg))` over the two truth classes, so **each channel's c\*
 lives in its own score space and cuts are not comparable across channels**.
 Per channel this writes FOM(c) globally, **FOM(c) in every p bin**
-(`pid-<ch>_significance_vs_cut_by_pt.png` absolute + self-normalised, and
+(`pid-<ch>_significance_vs_cut_by_p.png` absolute + self-normalised, and
 `..._panels.png` one panel per bin), c*(p), efficiency / mis-ID / purity at c*,
 2D (p,eta) maps, rejection vs p, n-sigma vs p, the held-out confusion matrix and
 the train-vs-test score check, plus `output/pid-working_points_<model>_<tag>`.
@@ -146,7 +146,7 @@ bin-source accounting, error conventions — use the `pid-performance` skill.
 
 ### 5. Clean vs background
 ```sh
-python -m pid compare --task eid --model lightgbm --artifact vs_pt
+python -m pid compare --task eid --model lightgbm --artifact vs_p
 python -m pid compare --task eid --model lightgbm --artifact all
 ```
 Requires both tags trained and evaluated; it refuses (naming the missing side)

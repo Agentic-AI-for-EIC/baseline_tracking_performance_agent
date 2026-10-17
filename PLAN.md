@@ -11,8 +11,8 @@ tracks what has actually been carried out).
 
 ## 0. Goal
 Measure ePIC craterlake tracking performance — geometric acceptance, momentum
-resolution, track-finding efficiency, fake rate — as a function of transverse
-momentum (pT), pseudorapidity (eta), and truth particle species, by matching
+resolution, track-finding efficiency, fake rate — as a function of momentum
+(p), pseudorapidity (eta), and truth particle species, by matching
 true GEANT tracks (MCParticles) to reconstructed tracks (CentralCKFTracks).
 All four metrics are computed for BOTH dataset types (clean / +background);
 the primary deliverable per metric is the comparison (ratio + difference)
@@ -166,7 +166,8 @@ layer number is needed (out of scope).
 There is no ForwardCKFTracks/BackwardCKFTracks collection in these
 productions: endcap tracks are reconstructed as `CentralCKFTracks` (the CKF
 extends through the endcap disks), so efficiency/resolution/fake-rate need no
-new reconstruction chain — but the central ≥4/7 acceptance rule calls nearly
+new reconstruction chain — but the central acceptance rule (>= 4 total truth
+hits, >= 3 silicon) calls nearly
 every endcap particle out-of-acceptance (backward e⁻: 0.002), which is
 correct yet useless. Acceptance and the within-acceptance efficiency
 denominator are therefore defined per region (`trkperf.config.TRACKING_REGIONS`,
@@ -460,7 +461,7 @@ found and fixed, both with regression tests:
   backward e- point at pT 7.82 (acc 0.821, n=771) is entirely the eta=-1.25
   bin; deeper backward bins have no high-pT electrons. Stiff transition
   tracks cross many central layers, so acceptance there rises steeply with
-  pT while the deep endcap stays ~0 under the central >=4/7 rule.
+  pT while the deep endcap stays ~0 under the central acceptance rule.
 
 ## 8.4 Same-campaign 26.07.1 reproduction (2026-09-26, as-built)
 

@@ -37,7 +37,6 @@ JOIN_KEYS: dict[str, list[str]] = {
     "overall": ["quantity", "signal", "against", "target_fake_rate"],
     "vs_p": ["variable", "signal", "against", "bin"],
     "vs_eta": ["variable", "signal", "against", "bin"],
-    "vs_p": ["variable", "signal", "against", "bin"],
     "confusion": ["truth_class", "pred_class"],
     "calibration": ["bin"],
     "importance-gain": ["column"],

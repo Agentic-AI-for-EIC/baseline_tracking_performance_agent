@@ -1,5 +1,5 @@
 """Fake rate: what fraction of reconstructed tracks have no genuine truth
-match, binned in the *reconstructed* track's own (pT, eta).
+match, binned in the *reconstructed* track's own (p, eta).
 
 Deliberately no species axis here - a fake track has no true species by
 construction (see AGENTS.md). Deliberately no acceptance dependence either -
@@ -47,11 +47,11 @@ def compute_fake_rate(
     # be binned: count them separately instead of silently dropping them from
     # the denominator. Out-of-range but finite kinematics below are ordinary
     # phase-space exclusions, not this.
-    n_unmeasurable = int(flagged["pt"].isna().sum())
+    n_unmeasurable = int(flagged["p"].isna().sum())
     if n_unmeasurable:
         print(
             f"[fake-rate] WARNING: {n_unmeasurable} reconstructed tracks have "
-            "unmeasurable (NaN) pT/eta and cannot be binned - counted in "
+            "unmeasurable (NaN) p/eta and cannot be binned - counted in "
             "run_params, excluded from n_tracks.",
         )
     flagged = flagged.dropna(subset=["p_bin", "eta_bin"])

@@ -285,11 +285,16 @@ def optimal_cut_in_bins(score, y, x, *, bins=None, weights=None,
                         min_candidates: int = config.MIN_CANDIDATES_PER_WP_BIN,
                         thresholds=None,
                         **kw) -> pd.DataFrame:
-    """Per-bin optimum c*(x) - usually x = pT.
+    """Per-bin optimum c*(x) - usually x = momentum p.
 
     Bins that cannot support a working point return NaN with a `reason`, never a
-    borrowed value from a neighbouring bin: a flat c*(pT) line drawn through
+    borrowed value from a neighbouring bin: a flat c*(p) line drawn through
     unmeasurable bins is how a fabricated momentum dependence gets published.
+
+    ``bins`` MUST match the variable ``x`` is binned in (p / truth_p -> the
+    ``P_*_PERFORMANCE`` edges, pt -> the legacy ``PT_BINS_PERFORMANCE``); callers
+    that bin in p pass ``bins=`` explicitly. The ``None`` default falls back to
+    the legacy pT edges for backwards compatibility with pT callers only.
 
     `thresholds` fixes the scan grid (callers plotting per-bin FOM curves must
     pass the same grid they draw, or the table optimum and the drawn star can

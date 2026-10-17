@@ -41,9 +41,9 @@ both.
 ### 0. Evaluate one task (fixed-fake-rate merits + n-sigma)
 ```sh
 python -m pid evaluate --task eid --model lightgbm --dataset-tag clean \
-    --scores output/models/eid_lightgbm_clean/test_scores.pkl --by pt,eta --plot
+    --scores output/models/eid_lightgbm_clean/test_scores.pkl --by p,eta --plot
 ```
-`output/pid-<task>_<lib>_<tag>-{overall,vs_pt,vs_eta,confusion,roc,calibration}`.
+`output/pid-<task>_<lib>_<tag>-{overall,vs_p,vs_eta,confusion,roc,calibration}`.
 The `overall` row set is **stable across tags** (needed for comparison):
 `auc`, `signal_peak`, `background_peak`, `n_sigma_lower_limit` (always present,
 NaN when it does not apply), `n_sigma`, `efficiency` at 1e-2/1e-3/1e-4.
@@ -100,8 +100,8 @@ absolutes).
 
 ### 2. Clean vs +background
 ```sh
-python -m pid compare --task eid --model lightgbm --artifact vs_pt
-python -m pid compare --task eid --model lightgbm --artifact all   # overall,vs_pt,vs_eta
+python -m pid compare --task eid --model lightgbm --artifact vs_p
+python -m pid compare --task eid --model lightgbm --artifact all   # overall,vs_p,vs_eta
 ```
 Row identity is declared per artifact in `pid/compare.py::JOIN_KEYS` (string
 bin labels, never float centres; `overall` includes `target_fake_rate`, whose
@@ -130,7 +130,7 @@ pid/scripts/run_pid.sh status
 ```
 Signature: tag, filelist, max_failures, cache_dir, tasks, seed. One detached
 job does features (`--jobs ${JOBS:-6}`, parallel per-file workers) → train
-(all three learner libraries) → evaluate (`--by pt,eta --plot`, plus
+(all three learner libraries) → evaluate (`--by p,eta --plot`, plus
 per-region tables/figures for barrel/backward/forward by default via
 `$ETA_REGIONS`) → importance per task, then `check_learners.py`, then a
 cross-learner ROC `overlay` per task. Performance packages go through

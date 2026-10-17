@@ -2,9 +2,10 @@
 
 The tracking half of this project measures acceptance/efficiency/resolution
 per detector region (``trkperf``: barrel ``|eta| < 1.5``, forward/backward
-endcaps beyond) with a region-correct truth-hit rule — ``>= 4`` of the 7
-central collections in the barrel, ``>= 2`` of the endcap collections in
-each endcap (``trkperf.config.TRACKING_REGIONS``). PID performance plots use
+endcaps beyond) with a region-correct truth-hit rule — every region requires
+``>= 4`` total individual truth hits of which ``>= 3`` are silicon
+(``trkperf.config.TRACKING_REGIONS``; the silicon core is the shared CKF seed
+requirement). PID performance plots use
 the same split: one plot per region, each drawn on the candidates that
 satisfy that region's rule.
 
@@ -14,9 +15,9 @@ What this module does
 ``all_scores.pkl`` shape):
 
 * ``eta_region`` — ``"barrel"`` / ``"forward endcap"`` / ``"backward endcap"``
-  from the candidate's **truth** ``eta`` (geometry decides the rule, exactly
+  from the candidate's **truth** ``eta`` (geometry decides the rule,   exactly
   as in tracking; the same ``trkperf.report.eta_region`` function, so the
-  ``|eta| = 1`` boundary cannot drift between the two halves), ``"unknown"``
+  ``|eta| = 1.5`` boundary cannot drift between the two halves), ``"unknown"``
   where the truth partner is missing;
 * ``n_hits_total`` / ``n_hits_si`` — individual truth hits, total and in
   silicon, counted over the
@@ -59,7 +60,7 @@ from trkperf import truth as tk_truth
 ETA_REGIONS: tuple[str, ...] = ("barrel", "forward endcap", "backward endcap")
 
 #: eta_region -> the trkperf tracking-region rule that defines its
-#: acceptance ("barrel: Nhit >= 4", endcaps: "Nhits >= 2").
+#: acceptance (every region: ">= 4 total truth hits, >= 3 silicon").
 REGION_RULE: dict[str, str] = {
     "barrel": "central",
     "forward endcap": "forward",

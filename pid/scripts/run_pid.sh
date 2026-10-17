@@ -102,7 +102,7 @@ echo "launched pid_features_${TAG} (pid $!) -> $LOG"
 echo "follow with: tail -f $LOG    |    status: pid/scripts/run_pid.sh status"
 echo
 echo "when BOTH tags are done, compare them:"
-echo "  python -m pid compare --task eid --model lightgbm --artifact vs_pt"
+echo "  python -m pid compare --task eid --model lightgbm --artifact vs_p"
 echo "  python -m pid compare --task eid --model lightgbm --artifact all"
 echo "and run the working-point package per region (same criteria as tracking plots):"
 echo "  python -m pid performance --dataset-tag $TAG --model lightgbm --bin-source both \\"

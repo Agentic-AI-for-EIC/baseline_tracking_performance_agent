@@ -98,7 +98,7 @@ def compute_resolution(
     rows = []
     group_cols = ["species", "p_bin", "eta_bin", "p_bin_center", "eta_bin_center"]
     for keys, group in matched.groupby(group_cols, observed=True):
-        species_name, p_bin, eta_bin, pt_center, eta_center = keys
+        species_name, p_bin, eta_bin, p_center, eta_center = keys
         n_matched = len(group)
         insufficient = n_matched < config.MIN_ENTRIES_PER_BIN
         if insufficient:
@@ -110,7 +110,7 @@ def compute_resolution(
                 "species": species_name,
                 "p_bin": p_bin,
                 "eta_bin": eta_bin,
-                "p_bin_center": pt_center,
+                "p_bin_center": p_center,
                 "eta_bin_center": eta_center,
                 "n_matched": n_matched,
                 "mu": fit.mu,

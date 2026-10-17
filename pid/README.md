@@ -31,7 +31,7 @@ warning — that is deliberate, see §4.
 | `pid features` | per-track feature table over a file list (cached per file) | `output/pid-features_<tag>.pkl` |
 | `pid train` | grouped CV, hyper-parameter search, gates, calibration | `output/models/<task>_<lib>_<tag>/{model.joblib,report.json,test_scores.pkl,all_scores.pkl,gain.csv}` |
 | `pid performance` | maximum-significance working points (FOM(c), c*, c*(p)) and the full differential package | see "Working points by maximum significance" |
-| `pid evaluate` | AUC, efficiency at fixed fake rate, n-sigma, confusion, ROC, calibration | `output/pid-<task>_<lib>_<tag>-{overall,vs_pt,vs_eta,confusion,roc,calibration}.{json,md,root}` |
+| `pid evaluate` | AUC, efficiency at fixed fake rate, n-sigma, confusion, ROC, calibration | `output/pid-<task>_<lib>_<tag>-{overall,vs_p,vs_eta,confusion,roc,calibration}.{json,md,root}` |
 | `pid importance` | gain, **exact** SHAP, permutation + the physics check | `output/pid-<task>_<lib>_<tag>-importance-*.…` |
 | `pid compare` | clean vs +background, via `trkperf.compare` | `output/pid-<task>_<lib>_<artifact>_comparison.{json,md}` |
 | `pid overlay` | cross-learner ROC overlay (one curve per library, same task+tag) | `output/plot_PID/plot_model_eval/<clean|bkgmix>/pid-<task>_overlay_<tag>-roc.png` |
@@ -55,7 +55,7 @@ estimate, drawn as upward triangles. Full derivation and validation:
 python -m pid performance --dataset-tag clean --model lightgbm
 python -m pid performance --dataset-tag bkg_mixed --model lightgbm
 python -m pid performance --dataset-tag clean --model lightgbm --channels Kpi,pK
-python -m pid compare --task eid --model lightgbm --artifact vs_pt
+python -m pid compare --task eid --model lightgbm --artifact vs_p
 ```
 
 Channels: `eid` (e/π), `ehad` (e/hadrons), `Kpi` (K/π), `pK` (p/K). A hadron channel
@@ -148,7 +148,7 @@ python -m pid features --file-list filelists/bkg_200.txt --dataset-tag bkg_mixed
     --out output/pid-features_bkg_mixed.pkl
 python -m pid train --task eid --model lightgbm --dataset-tag bkg_mixed \
     --features output/pid-features_bkg_mixed.pkl
-python -m pid compare --task eid --model lightgbm --artifact vs_pt
+python -m pid compare --task eid --model lightgbm --artifact vs_p
 ```
 
 Feature extraction is the slow step on the overseas endpoint (it touches ~20
@@ -164,7 +164,7 @@ copies via the login00-pinned xrootd tunnel — see AGENTS.md). Full chain ran
 2026-09-26/27: 24/24 models (4 tasks x 3 learners x 2 tags, 0 skipped files),
 24 evaluates incl. per-region outputs, working-point packages, cross-learner
 overlays, and the first campaign-matched comparisons
-(`output/pid-{eid,ehad}_lightgbm_{overall,vs_pt,vs_eta}_clean26071-vs-bkg26071_comparison.*`).
+(`output/pid-{eid,ehad}_lightgbm_{overall,vs_p,vs_eta}_clean26071-vs-bkg26071_comparison.*`).
 Headline eid e/pi efficiency at 1e-3 fake: 0.945 clean -> 0.922 bkg.
 Performance figure packages live per tag (`output/plot_PID/plots_clean_pid_perform/,
 `output/plot_PID/plots_bkgmix_pid_perform/` — channel figure names carry no tag, so a shared

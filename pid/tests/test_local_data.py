@@ -209,7 +209,7 @@ class TestMetricTables(_FeatureMixin):
         scores = os.path.join(report["artifact_dir"], "test_scores.pkl")
         out = pid_evaluate.evaluate(scores, task="eid", dataset_tag="clean",
                                     model="lightgbm", out_dir=os.path.join(_CACHE, "out"),
-                                    by=("pt",), quiet=True)
+                                    by=("p",), quiet=True)
         overall = out["overall"]
         self.assertIn("auc", set(overall["quantity"]))
         self.assertGreater(float(overall[overall["quantity"] == "auc"]["value"].iloc[0]), 0.9)
@@ -236,7 +236,7 @@ class TestMetricTables(_FeatureMixin):
         from pid import evaluate as pid_evaluate
         pid_evaluate.evaluate(os.path.join(report["artifact_dir"], "test_scores.pkl"),
                               task="eid", dataset_tag="clean", model="lightgbm",
-                              out_dir=out, by=("pt",), quiet=True)
+                              out_dir=out, by=("p",), quiet=True)
         with open(os.path.join(out, "pid-eid_lightgbm_clean-overall.json")) as fh:
             meta = json.load(fh)["meta"]
         for key in ("n_files_scored", "n_events_scored", "n_rows_scored",

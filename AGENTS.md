@@ -2,8 +2,8 @@
 
 ## What this project does
 Measure ePIC craterlake tracking performance — geometric acceptance, momentum
-resolution, track-finding efficiency, fake rate — as a function of transverse
-momentum (pT), pseudorapidity (eta), and truth particle species, by matching
+resolution, track-finding efficiency, fake rate — as a function of momentum
+(p), pseudorapidity (eta), and truth particle species, by matching
 true GEANT tracks (MCParticles) to reconstructed tracks (CentralCKFTracks).
 All four metrics are computed for both dataset types, clean and +background,
 using identical binning/species/thresholds. The primary deliverable per
@@ -245,8 +245,8 @@ any PID number.
   (species, truth_species, reco_species) become integer `*_code` branches
   (order = config.SPECIES; `-1` = unknown); the code legend plus run metadata
   are stored as TNamed objects in the same file (`species_code_<n> = <name>`,
-  `meta_<key> = <value>`). String pt_bin/eta_bin intervals are dropped — their
-  centres (pt_bin_center/eta_bin_center) carry the same info.
+  `meta_<key> = <value>`). String p_bin/eta_bin intervals are dropped — their
+  centres (p_bin_center/eta_bin_center) carry the same info.
 - `report.to_root(df, path, tree_name=..., meta=...)` is the writer; the CLI
   calls it automatically so every run produces the `.root` file.
 - ROOT is a heavy dependency; `binning.py` and `report.py` import it lazily
@@ -281,7 +281,7 @@ its measured values; a missing `[run_pid] done` with a dead PID means relaunch
 
 ## Extending this project (e.g. particle identification)
 `trkperf/matching.py` is the single choke point producing a truth<->reco
-matched-pairs table (truth PDG/pT/eta + reco track params + match weight). A
+matched-pairs table (truth PDG/p/eta + reco track params + match weight). A
 future `trkperf/pid/*.py` module should reuse that exact table, pull whatever
 extra PID branches it needs via `trkperf/io.py`, and report through the same
 `trkperf/binning.py` / `trkperf/report.py` helpers — no changes to existing

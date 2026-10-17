@@ -142,7 +142,7 @@ TRACKING_REGIONS: dict[str, dict] = {
 }
 
 # ---------------------------------------------------------------------------
-# Statistics floor: a (pT, eta[, species]) bin with fewer raw entries than
+# Statistics floor: a (p, eta[, species]) bin with fewer raw entries than
 # this is reported as "insufficient statistics" rather than a number, per
 # AGENTS.md's Definition of done.
 # ---------------------------------------------------------------------------
@@ -154,11 +154,11 @@ MIN_ENTRIES_PER_BIN: int = 50
 # clear of non-Gaussian tails (bremsstrahlung, hard scattering, mis-fits)
 # without needing a hand-tuned window per bin.
 # ---------------------------------------------------------------------------
-RESOLUTION_FIT_HIST_RANGE: tuple[float, float] = (-0.5, 0.5)  # in Delta(pT)/pT
+RESOLUTION_FIT_HIST_RANGE: tuple[float, float] = (-0.5, 0.5)  # in Delta(p)/p
 RESOLUTION_FIT_HIST_BINS: int = 100
 RESOLUTION_FIT_CORE_SIGMA: float = 3.0  # refit window = +/- N * first-pass sigma
 # Physical upper bound on the reported resolution: sigma on
-# Delta(pT)/pT = (pT_reco - pT_truth) / pT_truth. A width of 1.0 means a 100%
+# Delta(p)/p = (p_reco - p_truth) / p_truth. A width of 1.0 means a 100%
 # resolution; anything >= that is unphysical (the reconstructed pT is
 # uncorrelated with truth / a diverged fit) and must be flagged rather than
 # reported as a real measurement. The ROOT Gaussian fit constrains sigma to

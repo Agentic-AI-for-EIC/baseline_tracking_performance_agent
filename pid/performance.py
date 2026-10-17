@@ -6,7 +6,7 @@ this module
 1. finds the working point that maximises FOM(c) = S(c)/sqrt(S(c)+B(c)), globally
    and per momentum (p) bin,
 2. evaluates efficiency, mis-ID (fake) rate, purity and rejection **at that cut**,
-   differentially in pT and p and in 2D (pT, η),
+   differentially in momentum p and in 2D (p, η),
 3. adds the extended suite: Gaussian-equivalent nσ vs p, the multi-class confusion
    matrix, and the train-vs-test score comparison that exposes memorisation,
 4. writes every table (JSON + markdown + ROOT TNtuple) and figure, plus one
@@ -51,9 +51,9 @@ from . import config, dataset, evaluate, plots, regions as pid_regions, report, 
 #: Every binned merit can be computed against either the RECONSTRUCTED track
 #: kinematics (what an analysis actually has event by event, and what a cut is
 #: applied to) or the TRUTH partner's (what the tracking metrics of this project
-#: bin in, per AGENTS.md "bin in truth pT/eta", and free of resolution
+#: bin in, per AGENTS.md "bin in truth p/eta", and free of resolution
 #: migration). The two are NOT interchangeable: the measured difference in bin
-#: populations for one clean file is ~3 % in the lowest pT bin, and the
+#: populations for one clean file is ~3 % in the lowest momentum bin, and the
 #: convention is recorded in every table (`variable`) and figure (x-axis label).
 BIN_VARIABLES: dict[str, dict] = {
     "pt":        {"column": "pt",        "edges": "PT_BINS_PERFORMANCE",
@@ -987,11 +987,9 @@ def _run_region_package(*, channel, basis, suffix, frame, region_info,
                 figures_r[fname] = out_path
                 return out_path
 
-            _fig(plots.optimal_cut_vs_p, "optimal_cut_vs_p",
-                 tables_r[f"optimal_cut_vs_p{suffix}_{slug}"],
-                 title=f"$c^*(p_T)$ {rtag}", global_cut=global_cut,
-                 xlabel=("truth $p_T$ [GeV]" if suffix == "_truthpt"
-                         else "track $p_T$ [GeV]"))
+            _oc = tables_r[f"optimal_cut_vs_p{suffix}_{slug}"]
+            _fig(plots.optimal_cut_vs_p, "optimal_cut_vs_p", _oc,
+                 title=f"$c^*({plots._short_var(_oc)})$ {rtag}", global_cut=global_cut)
             _fig(plots.efficiency_at_cut, "eff_vs_p",
                  tables_r[f"at_cut_global{suffix}_{slug}"],
                  title=f"signal efficiency at $c^*$ {rtag}")
@@ -1011,7 +1009,7 @@ def _run_region_package(*, channel, basis, suffix, frame, region_info,
                 curves_r = tables_r[f"significance_by_p{suffix}_{slug}"]
                 _fig(plots.significance_vs_cut_by_bin, "significance_vs_cut_by_p",
                      curves_r, global_cut=global_cut,
-                     title=f"FOM(c) per $p_T$ bin {rtag}")
+                     title=f"FOM(c) per {plots._short_var(curves_r)} bin {rtag}")
                 _fig(plots.significance_vs_cut_panels, "significance_vs_cut_panels",
                      curves_r, title=f"per-bin working points {rtag}")
             if not quiet:
@@ -1089,7 +1087,7 @@ def run(*, channels: tuple[str, ...] = ("eid", "ehad", "Kpi", "pK"),
     differential tables and figures are additionally produced per detector
     region on the candidates satisfying that region's acceptance rule
     (``pid.regions.attach``) — one plot per region, each using its own
-    criterion (barrel ``Nhit >= 4``, endcaps ``Nhits >= 2``), at the
+    criterion (>= 4 total truth hits, >= 3 silicon), at the
     channel's global working point. Region outputs are extras: they never
     enter the deliverables manifest. Needs ``features`` (default
     ``<out_dir>/pid-features_<dataset_tag>.pkl``).

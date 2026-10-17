@@ -770,7 +770,7 @@ def _sample_tables(df, tag, *, task, signal, targets, by, out_dir, model,
 
 def evaluate(scores_path: str, *, task: str, dataset_tag: str, model: str = "",
              signal=None, targets=config.FAKE_RATE_TARGETS, out_dir=config.OUTPUT_DIR,
-             by=("pt", "eta"), quiet=False, eta_regions=None, features=None,
+             by=("p", "eta"), quiet=False, eta_regions=None, features=None,
              max_failures: int = 0, cache_dir: str | None = None) -> dict:
     """Evaluate a saved score table and write every output file.
 

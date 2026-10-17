@@ -236,10 +236,10 @@ reports fabrications:
   need more files.
 
 Figures per channel (in `output/plot_PID/plot_model_eval/`, named as requested):
-`significance_vs_cut`, `significance_vs_cut_by_pt` (FOM(c) for every pT bin, absolute
+`significance_vs_cut`, `significance_vs_cut_by_p` (FOM(c) for every momentum bin, absolute
 + self-normalised), `significance_vs_cut_panels` (one panel per bin with c*, FOM, ε,
-fake), `optimal_cut_vs_pt`, `roc`, `eff_vs_pt`, `misid_vs_pt`, `purity_vs_pt`,
-`nsigma_vs_p`, `eff_map_pt_vs_eta`, `fake_map_pt_vs_eta`, `pion_rejection_vs_p` (e-ID),
+fake), `optimal_cut_vs_p`, `roc`, `eff_vs_p`, `misid_vs_p`, `purity_vs_p`,
+`nsigma_vs_p`, `eff_map_p_vs_eta`, `fake_map_p_vs_eta`, `pion_rejection_vs_p` (e-ID),
 `rejection_vs_p`, `score_dist_train_vs_test` (with a KS statistic per class), plus
 task-level `pid-hadpid_lightgbm_clean-nsigma_vs_p` (K/π and p/K) and
 `pid-hadpid_lightgbm_clean-confusion_matrix`
@@ -251,9 +251,10 @@ task and is undefined for the binary channels, so the manifest can neither requi
 nor sensibly miss it (see §5e). Every table also exists as JSON/markdown/ROOT
 TNtuple, and
 `output/pid-working_points_<model>_<tag>` summarises (c*, peak FOM, ε, fake, purity,
-rejection + limit, caution) per channel. Binning: 13 uniform pT bins over
-0.5–10 GeV/c and 14 momentum bins to 20 GeV/c (`config.PT_BINS_PERFORMANCE`,
-`P_BINS_PERFORMANCE`) — deliberately *not* the log-spaced tracking bins.
+rejection + limit, caution) per channel. Binning: momentum `p` — 14 non-uniform
+bins to 20 GeV/c (`config.P_BINS_PERFORMANCE`), with the legacy 13 uniform pT bins
+to 10 GeV/c (`PT_BINS_PERFORMANCE`) kept only for the `pt` basis — deliberately
+*not* the log-spaced tracking bins.
 
 ## 5c. Definitions of every figure of merit and metric
 
@@ -275,7 +276,7 @@ output).
 | tie-break | the **highest** tied `c` wins | `optimal_cut` (sort by `[significance desc, threshold desc]`) | FOM is flat between the last rejected background candidate and the next signal one; choosing the top of the plateau is the more rejective, conservative choice |
 | `rejects_background` | `fake_rate(c*) < 0.5` | `optimal_cut` | a working point is only a selection if it rejects something |
 | `caution` | `degenerate` (eff and fake both 1 ⇒ no separation), `permissive optimum` (fake > 0.5), `optimum at zero cut` (statistics-limited, since FOM → `sqrt(S)` when `B → 0`), `pinned at the top of the score range`, `< 5 background accepted` | `optimal_cut` | **always read this column.** Three of the four local channels currently carry a caution; presenting those c\* values as working points would be wrong |
-| `c*(pT)` | the same maximisation inside each pT bin (13 uniform bins, 0.5–10 GeV/c) | `optimal_cut_in_bins`, `significance_curves_by_bin` | a bin without both species or with `< 20` candidates yields **no curve and no cut** (NaN + reason), never an interpolated or borrowed one |
+| `c*(p)` | the same maximisation inside each momentum bin (default: 14 `p` bins to 20 GeV/c) | `optimal_cut_in_bins`, `significance_curves_by_bin` | a bin without both species or with `< 20` candidates yields **no curve and no cut** (NaN + reason), never an interpolated or borrowed one |
 | plateau fraction | share of the scanned range within 1e-9 of the maximum, annotated "flat top: N% of range" | `pid/plots.py::significance_vs_cut_panels` | how arbitrary the cut choice really is in that bin |
 
 ### Selection merits at a chosen cut
@@ -464,7 +465,7 @@ measurement. `pid.train` writes both partitions into `all_scores.pkl` with a
 | FOM(c), c\*, AUC, ROC, nσ, purity, fake, rejection | the classifier output for that channel (reco detector response only) | truth partner of the track, as above | `--bin-source` basis (see below) | per-row `w` from `flux_weights`/`lumi_scale`, default 1 |
 | efficiency ε | `S(c)/S_tot`, S over truth-matched signal rows | same | same | same |
 | confusion matrix | `argmax` of `proba_<class>` | `truth_class` | (none; global) | n/a — **held-out rows only** |
-| kinematic acceptance / tracking efficiency (not a PID merit) | — | truth particle | truth `pT`, `eta` | n/a; lives in `trkperf`, keyed the other way round |
+| kinematic acceptance / tracking efficiency (not a PID merit) | — | truth particle | truth `p`, `eta` | n/a; lives in `trkperf`, keyed the other way round |
 
 The truth particle contributes **labels and (optionally) the binning axis only**. It
 never enters a score: `pid.dataset` blocks every `truth_*` column and every
@@ -476,7 +477,7 @@ truth-electron tracks passing c*" a legitimate statement rather than circularity
 Every binned merit can be partitioned by the **reconstructed** `p, pT, eta` (default:
 what a cut is actually applied to in an analysis) or by the truth partner's
 `truth_p, truth_pt, truth_eta` (what `trkperf`'s tracking metrics bin in, per
-AGENTS.md "bin in truth pT/eta", and free of resolution migration).
+AGENTS.md "bin in truth p/eta", and free of resolution migration).
 
 * **Same candidates, different partition.** Verified on the clean file (held-out
   rows): both bases give identical `sum(n_signal) = 204` and `sum(n_background) = 10`; 2 of 5 pT bins
@@ -486,12 +487,13 @@ AGENTS.md "bin in truth pT/eta", and free of resolution migration).
   `|pT − truth_pt| / truth_pt = 1.5 %`, median `|eta − truth_eta| = 0.0017`.
 * **The basis is recorded, never implied**: `variable`, `binning_basis` and
   `bin_column` columns in every table, `binning_basis` in every JSON `meta`, the
-  x-axis label of every figure (`track p_T` vs `truth p_T`), and `*_truthpt` file
+  x-axis label of every figure (momentum `p`, or legacy `p_T` when the `pt` basis is shown),
+  and `*_truthpt` file
   suffixes when both bases are produced in one run.
 * **A global merit does not depend on the basis** — c\*, global FOM, ε, fake and
   purity are computed over the whole channel, so `--bin-source both` reports them
   once per basis with identical values by construction. Only the differential tables
-  and the per-bin c\*(pT) differ.
+  and the per-bin c\*(p) differ.
 * Older score tables lack the truth columns; the code then names the missing column
   and says to re-train rather than silently falling back to the reco basis.
 
@@ -736,8 +738,8 @@ A third, uglier catch: `rec_idx` — a column left behind by the association mer
     New `pid/regions.py`: `attach()` adds `eta_region` (truth eta, same
     `|eta| = 1.5` boundary as tracking - moved from 1.0 on 2026-10-06, PLAN.md 8.6), `n_layers_hit` and `in_acceptance`
     to any score frame via `trkperf.truth` reads (shared io cache, no
-    second reader), applying each region's own rule (barrel `>= 4/7`,
-    endcaps `>= 2`). `pid evaluate` / `pid performance --eta-region`
+    second reader), applying each region's rule (>= 4 total truth hits,
+    >= 3 silicon). `pid evaluate` / `pid performance --eta-region`
     additionally write per-region tables + figures (`_<slug>` tag) at the
     channel's global cut; region outputs never enter the manifest; training
     untouched (leg-scoped). Proven on the local smoke chain (203/214
@@ -871,4 +873,4 @@ A third, uglier catch: `rec_idx` — a column left behind by the association mer
 3. **Muon class**: measured 4 muons in 4,242 matched tracks (0.09 %) in one clean file — decay-in-flight background, not a generator class here. Keeping it out of `CLASS_OF_ABS_PDG`; revisit with a dedicated sample if e/μ separation is ever wanted.
 4. ~~Skills + AGENTS.md~~ **done**: `.opencode/skills/pid-ml/SKILL.md` (the runbook, including which links to re-audit on a new production), `.opencode/skills/pid-performance/SKILL.md` (evaluate / working points / compare mechanics + grid launcher), and a "PID data model (verified live)" section in AGENTS.md, so the next session does not re-derive §3.
 5. **Optional**: gun-sample efficiency calibration (never fake rate), `E/p` region normalisation for the campaign-drift cross-check, matching-threshold sensitivity at 0.8.
-6. **Deferred by design (audited, not forgotten):** space-angle ΔR (unweighted dφ overweights near-beamline winners — documented in `links.delta_r`; changing it moves every match); file-grouped calibration CV splits (row-wise inside train files today); early stopping (gap gate carries that load instead); SHAP sign check (rank-only today); geometric pT bin centres (arithmetic mids today); `evaluate binned_table by="p"` reusing pT edges; duplicate per-basis CAUTION lines.
+6. **Deferred by design (audited, not forgotten):** space-angle ΔR (unweighted dφ overweights near-beamline winners — documented in `links.delta_r`; changing it moves every match); file-grouped calibration CV splits (row-wise inside train files today); early stopping (gap gate carries that load instead); SHAP sign check (rank-only today); geometric pT bin centres (arithmetic mids today); duplicate per-basis CAUTION lines.
