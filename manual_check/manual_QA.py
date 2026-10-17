@@ -5,25 +5,29 @@ Usage:
 
 What it does (the same physics as trkperf, with all packaging stripped):
   0. prints the first n_dump events (default 2) as plain text - truth
-     particles, their hit collections, reco tracks and associations - so a
+     particles, their hit counts, reco tracks and associations - so a
      reader can eyeball the whole chain without reading any code,
   1. reads truth particles, truth-hit links, reco tracks and associations,
   2. splits truth particles into 3 detector regions by truth eta,
-  3. applies each region's own acceptance rule
-         barrel          (|eta| < 1.5) : >= 4 of the 7 central collections
-         backward endcap (eta < -1.5)  : >= 2 of {BackwardMPGD, TrackerEndcap, TOF}
-         forward endcap  (eta > +1.5)  : >= 2 of {ForwardMPGD,  TrackerEndcap, TOF}
+  3. applies the acceptance rule to each region's own collection set:
+     >= 4 INDIVIDUAL truth hits, >= 3 of them in silicon (the CKF seed)
+         barrel          (|eta| < 1.5) : 7 central collections
+         backward endcap (eta < -1.5)  : {BackwardMPGD, TrackerEndcap, TOF}
+         forward endcap  (eta > +1.5)  : {ForwardMPGD,  TrackerEndcap, TOF}
+     the silicon subset is the region's collections that are silicon
+     (TrackerEndcap in every region, plus the barrel Si collections).
   4. matches truth <-> reco at association weight >= 0.5 (best match wins),
-  5. draws one plot per region: acceptance & efficiency vs pT (the
+  5. draws one plot per region: acceptance & efficiency vs p (the
      resolution core width + tail fraction are in the figure title); prints per-region totals and
      a file-wide fake rate (no plot - a fake has no truth species/region).
 
 Conventions deliberately identical to trkperf: primaries only
-(generatorStatus == 1), 8 species, (lo, hi] bins over pT (0.1, 20] and
-eta (-4, 4], region by eta-bin centre, match at weight >= 0.5 with the
-single best association winning. Deliberately simpler: 7 wide pT bins,
-a robust MAD core width instead of the ROOT Gaussian-core fit, per-bin points hidden
-below 5 entries (trkperf uses 50), with the bin's n= printed in grey.
+(generatorStatus == 1), 8 species, (lo, hi] bins over momentum p (0.1, 100]
+and eta (-4, 4], region by eta-bin centre, match at weight >= 0.5 with the
+single best association winning, individual-hit acceptance counts. Deliberately
+simpler: 7 wide p bins, a robust MAD core width instead of the ROOT
+Gaussian-core fit, per-bin points hidden below 5 entries (trkperf uses 50),
+with the bin's n= printed in grey.
 
 Only dependency besides the standard scientific stack: uproot.
 """
@@ -42,16 +46,24 @@ import uproot
 # --------------------------------------------------------------------------
 # Binning and cuts (kept tiny on purpose: this is a QA macro, not a paper)
 # --------------------------------------------------------------------------
-# pT bins cover the WHOLE analysis phase space (0.1-20 GeV, same as trkperf),
-# so every plotted particle lands in the bin it belongs to - nothing is
-# folded into an edge bin.
-PT_EDGES = np.array([0.1, 0.2, 0.5, 1.0, 2.0, 5.0, 10.0, 20.0])  # GeV
-PT_CENTERS = np.sqrt(PT_EDGES[:-1] * PT_EDGES[1:])               # log centres
+# Momentum bins cover the WHOLE analysis phase space (0.1-100 GeV, same as
+# trkperf), so every plotted particle lands in the bin it belongs to -
+# nothing is folded into an edge bin.
+P_EDGES = np.array([0.1, 0.2, 0.5, 1.0, 2.0, 5.0, 20.0, 100.0])  # GeV
+P_CENTERS = np.sqrt(P_EDGES[:-1] * P_EDGES[1:])                  # log centres
 MATCH_WEIGHT = 0.5  # a match is genuine if >= half the track hits agree
-# Phase space shared with trkperf: pT in (0.1, 20], eta in (-4, 4]; rows
+# Phase space shared with trkperf: p in (0.1, 100], eta in (-4, 4]; rows
 # outside are dropped, not clipped (trkperf/binning.py::assign_bins does
 # the same via pd.cut -> NaN).
-PT_MIN, PT_MAX = PT_EDGES[0], PT_EDGES[-1]
+P_MIN, P_MAX = P_EDGES[0], P_EDGES[-1]
+
+# Acceptance (trkperf/config.py, 2026-10): >= 4 INDIVIDUAL truth hits in a
+# region's collection set, >= 3 of them in its silicon subset - the CKF
+# 3-hit seed requirement. Counts are raw hit entries (multiplicity), not
+# distinct collections.
+ACCEPTANCE_MIN_HITS = 4
+ACCEPTANCE_MIN_SILICON_HITS = 3
+SILICON_COLLECTIONS = {"SiBarrelHits", "VertexBarrelHits", "TrackerEndcapHits"}
 
 # Region of a particle = region of its 0.5-wide eta BIN CENTRE (|centre| <
 # BARREL_ETA_MAX is barrel), identical to trkperf.report.eta_region.
@@ -76,24 +88,23 @@ def eta_bin_centre(eta):
     return np.where(ok, centre[np.clip(i, 0, len(centre) - 1)], np.nan)
 
 
-# region -> (eta selector, hit collections, min hits)
+# region -> (eta selector, hit collections). The acceptance thresholds are the
+# global ACCEPTANCE_MIN_HITS / ACCEPTANCE_MIN_SILICON_HITS above, applied to
+# the region's collections resp. its silicon subset (collections & SILICON_...).
 REGIONS = {
     "barrel": (
         lambda eta: np.abs(eta_bin_centre(eta)) < BARREL_ETA_MAX,
         ["SiBarrelHits", "VertexBarrelHits", "TrackerEndcapHits",
          "MPGDBarrelHits", "OuterMPGDBarrelHits",
          "BackwardMPGDEndcapHits", "ForwardMPGDEndcapHits"],
-        4,
     ),
     "backward endcap": (
         lambda eta: eta_bin_centre(eta) < -BARREL_ETA_MAX,
         ["BackwardMPGDEndcapHits", "TrackerEndcapHits", "TOFEndcapHits"],
-        2,
     ),
     "forward endcap": (
         lambda eta: eta_bin_centre(eta) > BARREL_ETA_MAX,
         ["ForwardMPGDEndcapHits", "TrackerEndcapHits", "TOFEndcapHits"],
-        2,
     ),
 }
 
@@ -135,20 +146,21 @@ def main(path, outdir, n_dump=2):
             # [-1, 1], where arccos would return NaN for a valid track
             theta = np.arccos(np.clip(pz[i] / ptot, -1.0, 1.0))
             eta = -np.log(np.tan(theta / 2.0))
-            rows.append((ev, i, p, pt, float(eta)))
+            rows.append((ev, i, p, pt, ptot, float(eta)))
     # structured array: each row keeps (event, index) so later joins need no
     # extra bookkeeping - position i within the event IS the MCParticles index
     # that the hit/match relations point at
     truth = np.array(rows, dtype=[("event", int), ("idx", int), ("pdg", int),
-                                 ("pt", float), ("eta", float)])
+                                 ("pt", float), ("p", float), ("eta", float)])
     print(f"primaries of interest: {len(truth)} in {n_ev} events")
 
-    # --- 2. truth-hit layer counts -----------------------------------------
+    # --- 2. truth-hit counts (individual hits) -----------------------------
     # _<Collection>_particle.index lists, per hit, which MCParticles entry
-    # made it.  Counting distinct collections per particle = "layers hit".
-    hit_by_particle = {}  # (event, idx) -> set(collections)
+    # made it.  One entry == one individual hit, so counting entries per
+    # (particle, collection) is exactly trkperf.truth.read_truth_hit_counts.
+    hit_by_particle = {}  # (event, idx) -> {collection: n_hits}
     missing = set()  # collections absent/unreadable in this file
-    for coll in {c for _, cols, _ in REGIONS.values() for c in cols}:
+    for coll in {c for _, cols in REGIONS.values() for c in cols}:
         branch = f"_{coll}_particle/_{coll}_particle.index"
         try:
             # library="ak" (not "np") because these are jagged int lists
@@ -169,7 +181,9 @@ def main(path, outdir, n_dump=2):
                 j = it["index"] if isinstance(it, dict) else it
                 # int(): normalize uproot's int32 to plain Python ints so all
                 # dict keys below have one identical type
-                hit_by_particle.setdefault((ev, int(j)), set()).add(coll)
+                key = (ev, int(j))
+                per = hit_by_particle.setdefault(key, {})
+                per[coll] = per.get(coll, 0) + 1
 
     # --- 3. reco tracks ----------------------------------------------------
     # NOTE: CentralCKFTracks.momentum is all zeros in these files; the real
@@ -178,7 +192,7 @@ def main(path, outdir, n_dump=2):
                        "CentralCKFTrackParameters/CentralCKFTrackParameters.theta",
                        "CentralCKFTrackParameters/CentralCKFTrackParameters.phi"],
                       library="np")
-    reco_pt = {}  # (event, track idx) -> (pt, eta); finite values only
+    reco_p = {}  # (event, track idx) -> (p, eta); finite values only
     for ev in range(n_ev):
         # np.asarray(..., dtype=float): the per-event entries are object
         # arrays; this makes them real float vectors for the math below
@@ -189,15 +203,14 @@ def main(path, outdir, n_dump=2):
         # qOverP = charge/momentum, so p = 1/|qOverP|; qOverP == 0 would mean
         # infinite momentum (perfectly straight track) -> NaN, filtered next
         p = np.where(np.abs(q) > 0, 1.0 / np.abs(q), np.nan)
-        pt = p * np.sin(th)
         # theta = 0 gives tan(0/2) = 0 and -log(0) = +inf: a forward-going
         # track with formally infinite eta; errstate keeps it quiet and the
         # isfinite filter below drops it (trkperf counts these separately)
         with np.errstate(divide="ignore", invalid="ignore"):
             eta = -np.log(np.tan(th / 2.0))
-        for i, (v, e) in enumerate(zip(pt, eta)):
+        for i, (v, e) in enumerate(zip(p, eta)):
             if np.isfinite(v) and np.isfinite(e):
-                reco_pt[(ev, i)] = (float(v), float(e))
+                reco_p[(ev, i)] = (float(v), float(e))
 
     # --- 4. associations ---------------------------------------------------
     # best match per truth particle AND per reco track (highest weight wins;
@@ -256,63 +269,72 @@ def main(path, outdir, n_dump=2):
         rows_ev = truth[truth["event"] == ev]
         print(f"  MC primaries of interest: {len(rows_ev)}")
         for r in rows_ev:
-            hits = sorted(hit_by_particle.get((int(r['event']), int(r['idx'])), set()))
+            hc = hit_by_particle.get((int(r['event']), int(r['idx'])), {})
+            n_tot = sum(hc.values())
+            n_si = sum(v for c, v in hc.items() if c in SILICON_COLLECTIONS)
+            hits_desc = ",".join(f"{short(c)}x{v}" for c, v in sorted(hc.items())) or "-"
             w_r = best.get((int(r['event']), int(r['idx'])))
             match = (f"-> reco {w_r[1]} w={w_r[0]:.2f} "
                      f"{'MATCH' if w_r[0] >= MATCH_WEIGHT else 'below-threshold'}"
                      if w_r is not None else "-> no association")
             print(f"    truth {int(r['idx']):3d} {WANT_PDG[int(r['pdg'])] if int(r['pdg']) in WANT_PDG else r['pdg']:>8s} "
-                  f"pt={r['pt']:7.3f} eta={r['eta']:+6.2f} [{region_of(r['eta'])}] "
-                  f"hits({len(hits)}):{','.join(short(c) for c in hits) or '-'} {match}")
+                  f"p={r['p']:7.3f} eta={r['eta']:+6.2f} [{region_of(r['eta'])}] "
+                  f"hits(total={n_tot},Si={n_si}):{hits_desc} {match}")
         print(f"  reco tracks with finite kinematics: "
-              f"{sum(1 for (e, _) in reco_pt if e == ev)}")
-        for (e, i), (pt, eta) in sorted(reco_pt.items()):
+              f"{sum(1 for (e, _) in reco_p if e == ev)}")
+        for (e, i), (pval, eta) in sorted(reco_p.items()):
             if e != ev:
                 continue
             w = best_track.get((e, i))
             verdict = ("fake" if w is None or w < MATCH_WEIGHT
                        else f"matched w={w:.2f}")
-            print(f"    reco {i:3d} pt={pt:7.3f} eta={eta:+6.2f} -> {verdict}")
+            print(f"    reco {i:3d} p={pval:7.3f} eta={eta:+6.2f} -> {verdict}")
         print()
 
     # --- 5. per-region numbers ----------------------------------------------
     os.makedirs(outdir, exist_ok=True)
-    for region, (in_region, collections, n_min) in REGIONS.items():
+    for region, (in_region, collections) in REGIONS.items():
         sel = in_region(truth["eta"])
         t = truth[sel]
         # phase-space cut shared with trkperf: drop out-of-range rows
-        # (lo, hi] like pd.cut: pT == PT_MIN is OUTSIDE (trkperf drops it)
-        t = t[(t["pt"] > PT_MIN) & (t["pt"] <= PT_MAX)
+        # (lo, hi] like pd.cut: p == P_MIN is OUTSIDE (trkperf drops it)
+        t = t[(t["p"] > P_MIN) & (t["p"] <= P_MAX)
               & (t["eta"] > ETA_EDGES[0]) & (t["eta"] <= ETA_EDGES[-1])]
-        # acceptance: >= n_min distinct collections hit (restricted to
-        # this region's own collection list for an exact rule count)
-        n_hit = np.array([len(hit_by_particle.get((e, i), set()) & set(collections))
+        # acceptance: >= 4 individual hits total AND >= 3 silicon, over this
+        # region's own collection list (silicon = the region collections that
+        # are silicon - trkperf.truth.read_truth_hit_counts + config rule).
+        si_cols = [c for c in collections if c in SILICON_COLLECTIONS]
+        n_tot = np.array([sum(hit_by_particle.get((e, i), {}).get(c, 0)
+                              for c in collections)
                           for e, i in zip(t["event"], t["idx"])])
-        in_acc = n_hit >= n_min
+        n_si = np.array([sum(hit_by_particle.get((e, i), {}).get(c, 0)
+                             for c in si_cols)
+                         for e, i in zip(t["event"], t["idx"])])
+        in_acc = (n_tot >= ACCEPTANCE_MIN_HITS) & (n_si >= ACCEPTANCE_MIN_SILICON_HITS)
         # matching: best association weight >= threshold (reco kinematics
         # only needed for the residual, not for the match decision itself)
         matched = np.zeros(len(t), dtype=bool)
-        delta = np.full(len(t), np.nan)  # (reco - truth)/truth pT
-        for k, (e, i, p, pt, _) in enumerate(zip(
-                t["event"], t["idx"], t["pdg"], t["pt"], t["eta"])):
+        delta = np.full(len(t), np.nan)  # (reco - truth)/truth p
+        for k, (e, i, _pdg, pval, _eta) in enumerate(zip(
+                t["event"], t["idx"], t["pdg"], t["p"], t["eta"])):
             w_r = best.get((int(e), int(i)))
             if w_r is not None and w_r[0] >= MATCH_WEIGHT:
                 matched[k] = True
-                info = reco_pt.get((int(e), w_r[1]))
-                if info is not None and pt > 0:
-                    delta[k] = (info[0] - pt) / pt
-        # bin in pT
+                info = reco_p.get((int(e), w_r[1]))
+                if info is not None and pval > 0:
+                    delta[k] = (info[0] - pval) / pval
+        # bin in p
         # (lo, hi] bins exactly like pd.cut (see eta_bin_centre). Rows are
-        # already inside (PT_MIN, PT_MAX] by the cut above, so every row has
-        # a valid bin 0..6; the assert guards that invariant loudly instead
+        # already inside (P_MIN, P_MAX] by the cut above, so every row has
+        # a valid bin; the assert guards that invariant loudly instead
         # of letting an out-of-range row wrap to bin -1 (searchsorted gives
         # index 0, minus 1) and silently join the last bin.
-        b = np.searchsorted(PT_EDGES, t["pt"], side='left') - 1
-        assert b.min(initial=0) >= 0 and b.max(initial=0) < len(PT_CENTERS), \
-            "pT binning invariant broken: rows outside (PT_MIN, PT_MAX] reached the binner"
-        acc, eff = np.full_like(PT_CENTERS, np.nan), np.full_like(PT_CENTERS, np.nan)
-        n_bin = np.array([(b == j).sum() for j in range(len(PT_CENTERS))])
-        for j in range(len(PT_CENTERS)):
+        b = np.searchsorted(P_EDGES, t["p"], side='left') - 1
+        assert b.min(initial=0) >= 0 and b.max(initial=0) < len(P_CENTERS), \
+            "p binning invariant broken: rows outside (P_MIN, P_MAX] reached the binner"
+        acc, eff = np.full_like(P_CENTERS, np.nan), np.full_like(P_CENTERS, np.nan)
+        n_bin = np.array([(b == j).sum() for j in range(len(P_CENTERS))])
+        for j in range(len(P_CENTERS)):
             m = b == j
             if m.sum() >= 5:  # tiny-statistics guard for a 1-file QA
                 acc[j] = in_acc[m].mean()
@@ -320,9 +342,9 @@ def main(path, outdir, n_dump=2):
                 eff[j] = ((matched[m] & in_bin).sum() / in_bin.sum()
                           if in_bin.sum() else np.nan)
         # Resolution = robust CORE width (1.4826 x median-absolute-deviation
-        # = sigma for a Gaussian), not the plain RMS: residuals have heavy
-        # tails (mis-reconstruction, brems), and a plain RMS of the forward
-        # region is ~10x the core width. tail_frac = share beyond 3 sigma.
+        # = sigma for a Gaussian) of Delta(p)/p, not the plain RMS: residuals
+        # have heavy tails (mis-reconstruction, brems), and a plain RMS of the
+        # forward region is ~10x the core width. tail_frac = share beyond 3 sigma.
         # (Named `resid`, not `d`: the loop above already uses that name for
         # the per-bin in-acceptance mask.)
         resid = delta[matched & np.isfinite(delta)]
@@ -341,23 +363,23 @@ def main(path, outdir, n_dump=2):
 
         # --- plot: one figure per region ------------------------------------
         fig, ax = plt.subplots(figsize=(6, 4.2))
-        ax.plot(PT_CENTERS, acc, "o-", label="acceptance")
-        ax.plot(PT_CENTERS, eff, "s-", label="efficiency (in acceptance)")
+        ax.plot(P_CENTERS, acc, "o-", label="acceptance")
+        ax.plot(P_CENTERS, eff, "s-", label="efficiency (in acceptance)")
         ax.set_xscale("log")
         # full analysis range, so hidden (low-statistics) bins stay on-axis
-        ax.set_xlim(PT_MIN, PT_MAX)
-        ax.set_xlabel("truth pT [GeV]")
+        ax.set_xlim(P_MIN, P_MAX)
+        ax.set_xlabel("truth p [GeV]")
         ax.set_ylabel("fraction")
         ax.set_ylim(-0.05, 1.05)
         ax.grid(alpha=0.3)
-        # Say WHY a pT bin has no point: fewer than 5 particles (hidden on
+        # Say WHY a p bin has no point: fewer than 5 particles (hidden on
         # purpose), shown as a grey tick with its count along the bottom.
         for j, nj in enumerate(n_bin):
             if nj < 5:
-                ax.annotate(f"n={nj}", (PT_CENTERS[j], -0.03), ha="center",
+                ax.annotate(f"n={nj}", (P_CENTERS[j], -0.03), ha="center",
                             fontsize=7, color="0.45")
         ax.legend(fontsize=8, loc="center right")
-        ax.set_title(f"{region}: acceptance & efficiency vs pT\n"
+        ax.set_title(f"{region}: acceptance & efficiency vs p\n"
                      f"n={len(t)} primaries, "
                      f"core resolution (MAD)={res_core:.3f}, "
                      f"{100 * tail_frac:.0f}% beyond 3 sigma",
@@ -376,17 +398,17 @@ def main(path, outdir, n_dump=2):
     # --- file-wide fake rate (no truth species by construction) --------------
     # a track is fake if its OWN best association is missing/below threshold.
     # Same phase-space rule as trkperf: only binnable tracks count (finite
-    # pT in range); unbinnable ones are reported separately, not dropped
+    # p in range); unbinnable ones are reported separately, not dropped
     # silently into the denominator.
-    binnable = {k: v for k, v in reco_pt.items()
-                if PT_MIN < v[0] <= PT_MAX
+    binnable = {k: v for k, v in reco_p.items()
+                if P_MIN < v[0] <= P_MAX
                 and ETA_EDGES[0] < v[1] <= ETA_EDGES[-1]}
     n_tracks = len(binnable)
     # .get(key, 0.0): a track with no association at all counts as weight 0,
     # i.e. fake - same as trkperf's fillna(0) before the threshold comparison
     n_fake = sum(1 for key in binnable
                  if best_track.get(key, 0.0) < MATCH_WEIGHT)
-    n_unbinnable = len(reco_pt) - n_tracks
+    n_unbinnable = len(reco_p) - n_tracks
     print(f"fake rate: {n_fake}/{n_tracks} = "
           f"{(n_fake / n_tracks if n_tracks else float('nan')):.4f} "
           f"({n_unbinnable} unbinnable tracks excluded)")
