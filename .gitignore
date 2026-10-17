@@ -27,6 +27,11 @@ output/pid-features_*.pkl
 cache/clean26071_files/
 cache/bkg26071_files/
 
+# Per-file PID feature cache (thousands of small pickles, regenerable offline
+# via `python -m pid features --cache-dir cache/pid_features`); the concatenated
+# tables it feeds (output/pid-features_*.pkl) are ignored above.
+cache/pid_features/
+
 # Full-sample score tables for the 26.07.1 grid (pooled/clean reach ~90 MB):
 # regenerable offline via `python -m pid train --task <t> --model <lib>
 # --dataset-tag clean26071|bkg26071 --features output/pid-features_<tag>.pkl`;
