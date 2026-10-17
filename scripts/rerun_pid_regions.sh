@@ -3,7 +3,8 @@
 # Mirrors the original 26071 invocations (run_pid.sh): same models/scores
 # (no retraining), same flags; only the boundary constant changed.
 set -uo pipefail
-cd /home/wxie/eic/baseline_tracking_performance_agent
+HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+cd "$HERE"
 export PYTHONUNBUFFERED=1
 REGIONS="barrel,forward endcap,backward endcap"
 CACHE=cache/pid_features
@@ -13,16 +14,22 @@ for TAG in clean26071 bkg26071; do
   if [ "$TAG" = clean26071 ]; then MF=5; FL=filelists/clean26071_local.txt
   else MF=20; FL=filelists/bkg26071_local.txt; fi
   FEAT="output/pid-features_${TAG}.pkl"
-  echo "[pid-regions] features $TAG"
-  python3 -m pid features --file-list "$FL" --dataset-tag "$TAG" \
-    --max-file-failures "$MF" --cache-dir "$CACHE" --out "$FEAT" --jobs 6 || FAIL=1
+  # Feature tables are inputs, not results: reuse them (the region attach and
+  # the score tables were built from exactly these). Rebuild only if missing.
+  if [ -f "$FEAT" ]; then
+    echo "[pid-regions] features $TAG present, reusing $FEAT"
+  else
+    echo "[pid-regions] features $TAG (missing - building)"
+    python3 -m pid features --file-list "$FL" --dataset-tag "$TAG" \
+      --max-file-failures "$MF" --cache-dir "$CACHE" --out "$FEAT" --jobs 6 || FAIL=1
+  fi
   for task in eid ehad hadpid pooled; do
     for lib in lightgbm xgboost sklearn_hgb; do
       S="output/models/${task}_${lib}_${TAG}/test_scores.pkl"
       [ -f "$S" ] || { echo "[pid-regions] SKIP missing $S"; continue; }
       echo "[pid-regions] evaluate $task/$lib/$TAG"
       python3 -m pid evaluate --task "$task" --model "$lib" --dataset-tag "$TAG" \
-        --scores "$S" --by pt,eta --plot \
+        --scores "$S" --by p,eta --plot \
         --eta-region "$REGIONS" --features "$FEAT" \
         --max-file-failures "$MF" --cache-dir "$CACHE" || FAIL=1
     done
@@ -37,4 +44,10 @@ for TAG in clean26071 bkg26071; do
     --features "output/pid-features_${TAG}.pkl" \
     --max-file-failures "$MF" --cache-dir "$CACHE" --plots-dir "$PDIR" || FAIL=1
 done
+# Cross-learner agreement gate (advisory) and the clean-vs-bkg comparison.
+for TAG in clean26071 bkg26071; do
+  python3 "$HERE/pid/scripts/check_learners.py" --dataset-tag "$TAG" \
+    --tasks "eid,ehad,hadpid,pooled" || true
+done
+python3 -m pid compare --task eid --model lightgbm --artifact all || FAIL=1
 echo "[pid-regions] DONE fail=$FAIL"
