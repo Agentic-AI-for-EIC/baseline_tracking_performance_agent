@@ -28,14 +28,14 @@ def _read_json_meta(path: str) -> dict:
 
 
 #: Row-identity columns per PID artifact. trkperf.compare auto-detects the
-#: tracking metrics' (species, pt_bin_center, eta_bin_center); PID tables are keyed
+#: tracking metrics' (species, p_bin_center, eta_bin_center); PID tables are keyed
 #: differently, and guessing would silently compare an electron row against a
 #: pion row, so each artifact declares its identity explicitly. String bin
 #: labels are preferred over float centres: centres survive a JSON round-trip
 #: exactly in practice, but labels are robust by construction.
 JOIN_KEYS: dict[str, list[str]] = {
     "overall": ["quantity", "signal", "against", "target_fake_rate"],
-    "vs_pt": ["variable", "signal", "against", "bin"],
+    "vs_p": ["variable", "signal", "against", "bin"],
     "vs_eta": ["variable", "signal", "against", "bin"],
     "vs_p": ["variable", "signal", "against", "bin"],
     "confusion": ["truth_class", "pred_class"],
@@ -60,7 +60,7 @@ def compare_artifact(name: str, *, task: str, model: str = "",
     """Compare ``output/pid-<task>_<model>_<tag>-<name>.json`` for both tags.
 
     ``clean``/``bkg`` override the two input paths; ``name`` is the artifact
-    (``overall``, ``vs_pt``, ``vs_eta``, ``confusion``, ``roc``, an importance
+    (``overall``, ``vs_p``, ``vs_eta``, ``confusion``, ``roc``, an importance
     kind...).
     """
     stem = f"{task}_{model}_" if model else f"{task}_"
@@ -121,7 +121,7 @@ def compare_artifact(name: str, *, task: str, model: str = "",
 
 
 def compare_all(*, task: str, model: str = "", out_dir: str = config.OUTPUT_DIR,
-                artifacts: tuple[str, ...] = ("overall", "vs_pt", "vs_eta")) -> dict:
+                artifacts: tuple[str, ...] = ("overall", "vs_p", "vs_eta")) -> dict:
     """Compare every clean/background tag pair that has both sides evaluated."""
     out = {}
     stem = f"{task}_{model}_" if model else f"{task}_"

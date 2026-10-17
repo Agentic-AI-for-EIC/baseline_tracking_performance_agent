@@ -42,24 +42,26 @@ def _next_root_name(base: str) -> str:
 
 def assign_bins(
     df: pd.DataFrame,
-    pt_col: str = "pt",
+    p_col: str = "p",
     eta_col: str = "eta",
-    pt_edges: np.ndarray = config.PT_BIN_EDGES,
+    p_edges: np.ndarray = config.P_BIN_EDGES,
     eta_edges: np.ndarray = config.ETA_BIN_EDGES,
 ) -> pd.DataFrame:
-    """Add categorical pt_bin/eta_bin columns, plus their numeric centers.
+    """Add categorical p_bin/eta_bin columns, plus their numeric centers.
 
-    Rows falling outside [pt_edges[0], pt_edges[-1]] or
-    [eta_edges[0], eta_edges[-1]] get pt_bin/eta_bin = NaN (pandas' default
+    Binning is in TOTAL momentum p (criterion change 2026-10; the frames fed
+    here carry truth p for the truth-side metrics and the track's own p for
+    the fake rate). Rows falling outside [p_edges[0], p_edges[-1]] or
+    [eta_edges[0], eta_edges[-1]] get p_bin/eta_bin = NaN (pandas' default
     pd.cut behaviour) - callers should drop these before computing a metric,
     they are out of the analysis' defined phase space, not a bug.
     """
     out = df.copy()
-    out["pt_bin"] = pd.cut(out[pt_col], bins=pt_edges)
+    out["p_bin"] = pd.cut(out[p_col], bins=p_edges)
     out["eta_bin"] = pd.cut(out[eta_col], bins=eta_edges)
     # astype(float): on an empty frame Series.apply preserves the input's
     # categorical dtype, which would poison every downstream fillna/merge.
-    out["pt_bin_center"] = out["pt_bin"].apply(
+    out["p_bin_center"] = out["p_bin"].apply(
         lambda i: i.mid if pd.notna(i) else np.nan
     ).astype(float)
     out["eta_bin_center"] = out["eta_bin"].apply(
@@ -80,7 +82,7 @@ def _bin_categories(edges: np.ndarray) -> pd.IntervalIndex:
 
 
 def full_bin_grid(species: list[str] | None) -> pd.DataFrame:
-    """Cartesian species x pt x eta grid (categorical bins + centers).
+    """Cartesian species x p x eta grid (categorical bins + centers).
 
     A groupby only yields observed bins, so bins with zero entries would be
     silently absent from a metric table. AGENTS.md requires those reported as
@@ -89,20 +91,20 @@ def full_bin_grid(species: list[str] | None) -> pd.DataFrame:
     The categoricals are built from the same edges ``assign_bins`` cuts with,
     so the merge keys match exactly.
     """
-    pt = _bin_categories(config.PT_BIN_EDGES)
+    p = _bin_categories(config.P_BIN_EDGES)
     eta = _bin_categories(config.ETA_BIN_EDGES)
     recs = []
     specs: list = [None] if species is None else list(species)
     for s in specs:
-        for pi in pt:
+        for pi in p:
             for ei in eta:
                 recs.append((s, pi, ei, pi.mid, ei.mid))
     grid = pd.DataFrame(
-        recs, columns=["species", "pt_bin", "eta_bin", "pt_bin_center", "eta_bin_center"]
+        recs, columns=["species", "p_bin", "eta_bin", "p_bin_center", "eta_bin_center"]
     )
     if species is None:
         grid = grid.drop(columns=["species"])
-    grid["pt_bin"] = pd.Categorical(grid["pt_bin"], categories=pt)
+    grid["p_bin"] = pd.Categorical(grid["p_bin"], categories=p)
     grid["eta_bin"] = pd.Categorical(grid["eta_bin"], categories=eta)
     return grid
 

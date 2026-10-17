@@ -45,7 +45,7 @@ class TestAxisLabels(unittest.TestCase):
 class TestMetricVsBin(unittest.TestCase):
     def test_writes_a_figure(self):
         with tempfile.TemporaryDirectory() as tmp:
-            path = os.path.join(tmp, "sub", "auc_vs_pt.png")
+            path = os.path.join(tmp, "sub", "auc_vs_p.png")
             out = plots.metric_vs_bin(_table("pt"), path, column="auc", title="x")
             self.assertEqual(out, path)
             self.assertTrue(os.path.exists(path))

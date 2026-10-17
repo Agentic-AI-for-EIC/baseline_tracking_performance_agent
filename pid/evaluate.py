@@ -579,7 +579,8 @@ def binned_table(df, *, task, by="pt", signal=None, targets=config.FAKE_RATE_TAR
         raise KeyError(
             f"pid.evaluate.binned_table: this score table has no {column!r} column; "
             "truth-binned tables need a score table written by the current pid.train.")
-    edges = config.ETA_BIN_EDGES if truth_col == "eta" else config.PT_BIN_EDGES
+    edges = {"pt": config.PT_BIN_EDGES, "p": config.P_BIN_EDGES,
+             "eta": config.ETA_BIN_EDGES}[truth_col]
     work["_bin"] = pd.cut(work[column], bins=edges)
     n_out_of_range = int(work["_bin"].isna().sum())
     if n_out_of_range:

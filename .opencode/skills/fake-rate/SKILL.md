@@ -3,7 +3,7 @@ name: fake-rate
 description: >-
   Compute ePIC craterlake fake-track rate — fraction of reconstructed
   CentralCKFTracks with no valid truth match (weight >= 0.5), binned in the
-  track's OWN reconstructed pT (log) and eta (0.5 bins) — deliberately no
+  track's OWN reconstructed p (log) and eta (0.5 bins) — deliberately no
   species axis (a fake track has no true species) — then compared between the
   clean (Type 1) and +background (Type 2, bkg_mixed) datasets. Use when asked
   about fake tracks, ghost/background track rates, or reconstruction
@@ -15,7 +15,7 @@ description: >-
 
 ## What I do
 Runs `python -m trkperf fake-rate ...` on the clean and bkg_mixed datasets,
-then the clean-vs-bkg comparison. Output is one row per (pt_bin, eta_bin) —
+then the clean-vs-bkg comparison. Output is one row per (p_bin, eta_bin) —
 **no species axis** — with `n_tracks`, `n_fake`, `fake_rate`,
 `fake_rate_err`, `insufficient_stats`.
 
@@ -30,10 +30,10 @@ comparison / provenance details that apply to every metric, load the
 A reconstructed track is "fake" when no `CentralCKFTrackAssociations` match
 to any truth particle has weight >= 0.5 (i.e. less than half its hits come
 from a single truth particle). fake_rate = n_fake / n_tracks per
-reconstructed-(pT, eta) bin, with binomial errors. Two deliberate
+reconstructed-(p, eta) bin, with binomial errors. Two deliberate
 conventions:
 
-- Binned in the **reconstructed** track's own (pT, eta) — a fake has no true
+- Binned in the **reconstructed** track's own (p, eta) — a fake has no true
   momentum, so truth binning is impossible.
 - **No species axis** — a fake track has no true species by construction.
   Never bin fake rate by species.

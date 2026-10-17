@@ -216,7 +216,7 @@ class TestMetricTables(_FeatureMixin):
         conf = out["confusion"]
         for _, group in conf.groupby("truth_class"):
             self.assertAlmostEqual(float(group["row_fraction"].sum()), 1.0, places=6)
-        self.assertTrue({"roc", "vs_pt"} <= set(out))
+        self.assertTrue({"roc", "vs_p"} <= set(out))
         # Every artifact must exist in all three formats the project promises.
         for name, stem in out["paths"].items():
             self.assertTrue(os.path.exists(stem + ".json"), name)

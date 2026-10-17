@@ -40,15 +40,15 @@ class TestTruthAndReco(unittest.TestCase):
         self.assertTrue((primary["generator_status"] == 1).all())
         self.assertTrue(primary["species"].notna().all())
 
-    def test_truth_hit_layer_counts_are_within_valid_range(self):
+    def test_truth_hit_counts_are_within_valid_range(self):
         found: list = []
-        counts = truth.read_truth_hit_layer_counts([_local_file("clean")], found_collections=found)
+        counts = truth.read_truth_hit_counts([_local_file("clean")], found_collections=found)
         self.assertGreater(len(counts), 0)
-        n_collections = len(config.CENTRAL_TRACKING_TRUTH_HIT_COLLECTIONS)
-        # Every row here came from at least one hit, and can hit at most
-        # once per distinct collection (nunique), so 1 <= n <= n_collections.
-        self.assertTrue((counts["n_layers_hit"] >= 1).all())
-        self.assertTrue((counts["n_layers_hit"] <= n_collections).all())
+        # Every row here came from at least one hit; the silicon subset is
+        # always a subset of the total count.
+        self.assertTrue((counts["n_hits_total"] >= 1).all())
+        self.assertTrue((counts["n_hits_si"] >= 0).all())
+        self.assertTrue((counts["n_hits_si"] <= counts["n_hits_total"]).all())
         # The local clean file carries every central collection: nothing may
         # silently degrade to 0 here (cf. the 26.07.1 probe flake, where a
         # transient open failure zeroed whole collections for a run).
@@ -161,7 +161,7 @@ class TestMetricsEndToEnd(unittest.TestCase):
         # wherever the truth species has any matches.
         present = df[df["n_truth_total_in_bin"] > 0]
         sums = present.groupby(
-            ["pt_bin", "eta_bin", "truth_species"], observed=True)["confusion_frac"].sum()
+            ["p_bin", "eta_bin", "truth_species"], observed=True)["confusion_frac"].sum()
         self.assertTrue(((sums - 1.0).abs() < 1e-9).all())
         # truth_species column should be populated (non-null).
         self.assertTrue(df["truth_species"].notna().all())

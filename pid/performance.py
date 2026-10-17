@@ -4,7 +4,7 @@ For each physics channel - electron ID (e/π, e/hadrons) and hadron ID (K/π, p/
 this module
 
 1. finds the working point that maximises FOM(c) = S(c)/sqrt(S(c)+B(c)), globally
-   and per pT bin,
+   and per momentum (p) bin,
 2. evaluates efficiency, mis-ID (fake) rate, purity and rejection **at that cut**,
    differentially in pT and p and in 2D (pT, η),
 3. adds the extended suite: Gaussian-equivalent nσ vs p, the multi-class confusion
@@ -174,12 +174,12 @@ def working_point(df: pd.DataFrame, channel: str, *, mode: str = "s_over_sqrt",
     return {"optimum": opt, "scan": table}
 
 
-def working_points_vs_pt(df: pd.DataFrame, channel: str, *, bins=None,
+def working_points_vs_p(df: pd.DataFrame, channel: str, *, bins=None,
                          weights: np.ndarray | None = None,
                          lumi_scale: float = config.DEFAULT_LUMI_SCALE,
-                         mode: str = "s_over_sqrt", variable: str = "pt",
+                         mode: str = "s_over_sqrt", variable: str = "p",
                          n_thresholds: int | None = None) -> pd.DataFrame:
-    """c*(pT), bin by bin. `variable` selects the binning basis (see BIN_VARIABLES).
+    """c*(p), bin by bin. `variable` selects the binning basis (see BIN_VARIABLES).
 
     `n_thresholds` fixes the scan grid to the one the per-bin FOM-curve
     figures draw: two optima from two grids can disagree on flat plateaus.
@@ -207,13 +207,13 @@ def working_points_vs_pt(df: pd.DataFrame, channel: str, *, bins=None,
 # ---------------------------------------------------------------------------
 
 def at_cut_table(df: pd.DataFrame, channel: str, *, cut: float | None = None,
-                 cut_per_bin: pd.DataFrame | None = None, variable: str = "pt",
+                 cut_per_bin: pd.DataFrame | None = None, variable: str = "p",
                  bins: np.ndarray | None = None,
                  weights: np.ndarray | None = None) -> pd.DataFrame:
     """Efficiency, fake rate, purity and rejection per bin at a fixed (or per-bin) cut.
 
     ``cut`` applies one global threshold; ``cut_per_bin`` (from
-    :func:`working_points_vs_pt`) applies each bin's own optimum. Pass both to see
+    :func:`working_points_vs_p`) applies each bin's own optimum. Pass both to see
     how much a per-bin working point buys - which is the whole argument for
     kinematic-dependent PID cuts, and can only be shown by comparing them.
 
@@ -358,7 +358,7 @@ def _hi(k: int, n: int, cl: float = config.REJECTION_CL) -> float:
 # Significance vs threshold, per kinematic bin (the working-point finder, drawn)
 # ---------------------------------------------------------------------------
 
-def significance_curves_by_bin(df: pd.DataFrame, channel: str, *, variable: str = "pt",
+def significance_curves_by_bin(df: pd.DataFrame, channel: str, *, variable: str = "p",
                                bins: np.ndarray | None = None,
                                weights: np.ndarray | None = None,
                                mode: str = "s_over_sqrt",
@@ -450,22 +450,22 @@ def bin_optima_from_curves(curves: pd.DataFrame) -> pd.DataFrame:
 # ---------------------------------------------------------------------------
 
 def map_tidy(m: dict) -> pd.DataFrame:
-    """Long-format version of a 2D map: one row per (pT, eta) cell.
+    """Long-format version of a 2D map: one row per (x, eta) cell.
 
     The plotting layer needs the matrix, but the *record* of it must be queryable
     (a 2D block in a JSON is unreadable and cannot go into a TNtuple), so each cell
     becomes a row with its own statistics flags.
     """
-    pt_c = 0.5 * (m["pt_edges"][:-1] + m["pt_edges"][1:])
+    x_c = 0.5 * (m["x_edges"][:-1] + m["x_edges"][1:])
     et_c = 0.5 * (m["eta_edges"][:-1] + m["eta_edges"][1:])
     rows = []
-    for i, ptc in enumerate(pt_c):
+    for i, xc in enumerate(x_c):
         for j, etc in enumerate(et_c):
             value = float(m["value"][i, j])
             rows.append({"channel": m["channel"], "quantity": m["quantity"],
-                         "cut": m["cut"], "x_variable": m.get("x_variable", "pt"),
+                         "cut": m["cut"], "x_variable": m.get("x_variable", "p"),
                          "y_variable": m.get("y_variable", "eta"),
-                         "pt_bin_center": float(ptc),
+                         "x_bin_center": float(xc),
                          "eta_bin_center": float(etc), "n_candidates": float(m["counts"][i, j]),
                          m["quantity"]: value,
                          "insufficient_stats": bool(not np.isfinite(value))})
@@ -473,9 +473,9 @@ def map_tidy(m: dict) -> pd.DataFrame:
 
 
 def map_2d(df: pd.DataFrame, channel: str, *, cut: float, quantity: str = "efficiency",
-           x_variable: str = "pt", y_variable: str = "eta",
-           pt_bins=None, eta_bins=None, weights: np.ndarray | None = None) -> dict:
-    """(pT, η) matrix of ``efficiency`` / ``fake_rate`` / ``purity`` / counts.
+           x_variable: str = "p", y_variable: str = "eta",
+           x_bins=None, y_bins=None, weights: np.ndarray | None = None) -> dict:
+    """(x, η) matrix of ``efficiency`` / ``fake_rate`` / ``purity`` / counts.
 
     Empty and statistics-starved cells are NaN (masked, never zero) so a
     calorimeter transition shows up as a *hole or a dip* against populated
@@ -488,22 +488,22 @@ def map_2d(df: pd.DataFrame, channel: str, *, cut: float, quantity: str = "effic
     """
     x_column, x_edges_default, x_label, x_basis = resolve_bin_variable(x_variable, df)
     y_column, y_edges_default, y_label, y_basis = resolve_bin_variable(y_variable, df)
-    pt_bins = x_edges_default if pt_bins is None else np.asarray(pt_bins)
-    eta_bins = y_edges_default if eta_bins is None else np.asarray(eta_bins)
+    x_bins = x_edges_default if x_bins is None else np.asarray(x_bins)
+    y_bins = y_edges_default if y_bins is None else np.asarray(y_bins)
     y = df["y"].to_numpy()
     sc = df["score"].to_numpy(dtype=float)
-    pt = df[x_column].to_numpy(dtype=float)
+    xv = df[x_column].to_numpy(dtype=float)
     eta = df[y_column].to_numpy(dtype=float)
-    ok = np.isfinite(sc) & np.isfinite(pt) & np.isfinite(eta)
-    y, sc, pt, eta = y[ok], sc[ok], pt[ok], eta[ok]
+    ok = np.isfinite(sc) & np.isfinite(xv) & np.isfinite(eta)
+    y, sc, xv, eta = y[ok], sc[ok], xv[ok], eta[ok]
     w = np.ones(len(y), dtype=float) if weights is None else np.asarray(weights, dtype=float)[ok]
-    ib = np.clip(np.digitize(pt, pt_bins[1:-1], right=True), 0, len(pt_bins) - 2)
-    je = np.clip(np.digitize(eta, eta_bins[1:-1], right=True), 0, len(eta_bins) - 2)
-    value = np.full((len(pt_bins) - 1, len(eta_bins) - 1), np.nan)
+    ib = np.clip(np.digitize(xv, x_bins[1:-1], right=True), 0, len(x_bins) - 2)
+    je = np.clip(np.digitize(eta, y_bins[1:-1], right=True), 0, len(y_bins) - 2)
+    value = np.full((len(x_bins) - 1, len(y_bins) - 1), np.nan)
     counts = np.zeros_like(value, dtype=float)
     pass_flag = sc >= cut
-    for i in range(len(pt_bins) - 1):
-        for j in range(len(eta_bins) - 1):
+    for i in range(len(x_bins) - 1):
+        for j in range(len(y_bins) - 1):
             sel = (ib == i) & (je == j)
             n_sig, n_bkg = int((sel & (y == 1)).sum()), int((sel & (y == 0)).sum())
             counts[i, j] = n_sig + n_bkg
@@ -524,7 +524,7 @@ def map_2d(df: pd.DataFrame, channel: str, *, cut: float, quantity: str = "effic
             else:
                 raise ValueError(f"unknown map quantity {quantity!r}")
     return {"value": value, "counts": counts,
-            "pt_edges": np.asarray(pt_bins), "eta_edges": np.asarray(eta_bins),
+            "x_edges": np.asarray(x_bins), "eta_edges": np.asarray(y_bins),
             "x_label": x_label, "y_label": y_label,
             "x_variable": x_variable, "y_variable": y_variable,
             "cut": float(cut), "quantity": quantity, "channel": channel,
@@ -817,9 +817,9 @@ def verify_deliverables(written: dict[str, str], *, channel: str, status: str,
             present.append(key)
             continue
         path = written.get(key) or (written.get(alt) if alt else None)
-        if not has_working_point and key in ("roc", "eff_vs_pt", "misid_vs_pt",
-                                            "purity_vs_pt", "eff_map_pt_vs_eta",
-                                            "fake_map_pt_vs_eta", "rejection_vs_p"):
+        if not has_working_point and key in ("roc", "eff_vs_p", "misid_vs_p",
+                                            "purity_vs_p", "eff_map_p_vs_eta",
+                                            "fake_map_p_vs_eta", "rejection_vs_p"):
             missing.append({"figure": key + suffix, "label": label,
                             "reason": "needs a valid working point c*; none exists "
                                       "because the FOM maximum is degenerate"})
@@ -913,7 +913,7 @@ def _run_region_package(*, channel, basis, suffix, frame, region_info,
                         quiet, summary) -> None:
     """Per-region differential package: same figures, region-selected sample.
 
-    Each requested region re-runs the differential tables (c*(pT), at-cut
+    Each requested region re-runs the differential tables (c*(p), at-cut
     merits, rejection, n-sigma, FOM curves) on the candidates satisfying that
     region's acceptance rule, at the channel's GLOBAL working point — the cut
     is fixed, only the sample (and its criterion) varies, exactly like the
@@ -944,16 +944,16 @@ def _run_region_package(*, channel, basis, suffix, frame, region_info,
                 f"({rule_text}){mark}")
         w_r = (None if bkg_scale == 1.0 else significance.flux_weights(
             sub["y"].to_numpy(), signal=1, background=0, bkg_scale=bkg_scale))
-        per_bin_r = working_points_vs_pt(sub, channel, weights=w_r, mode=mode,
+        per_bin_r = working_points_vs_p(sub, channel, weights=w_r, mode=mode,
                                          lumi_scale=lumi_scale,
-                                         variable=names["pt"],
+                                         variable=names["p"],
                                          n_thresholds=n_thresholds)
         tables_r = {
-            f"optimal_cut_vs_pt{suffix}_{slug}": per_bin_r,
+            f"optimal_cut_vs_p{suffix}_{slug}": per_bin_r,
             f"at_cut_global{suffix}_{slug}": at_cut_table(
-                sub, channel, cut=global_cut, variable=names["pt"], weights=w_r),
+                sub, channel, cut=global_cut, variable=names["p"], weights=w_r),
             f"at_cut_per_bin{suffix}_{slug}": at_cut_table(
-                sub, channel, cut_per_bin=per_bin_r, variable=names["pt"],
+                sub, channel, cut_per_bin=per_bin_r, variable=names["p"],
                 weights=w_r),
             f"rejection_vs_p{suffix}_{slug}": at_cut_table(
                 sub, channel, cut=global_cut, variable=names["p"], weights=w_r),
@@ -961,9 +961,9 @@ def _run_region_package(*, channel, basis, suffix, frame, region_info,
                 sub, channel, variable=names["p"], nsigma_method=nsigma_method),
         }
         if binned_curves:
-            tables_r[f"significance_by_pt{suffix}_{slug}"] = (
+            tables_r[f"significance_by_p{suffix}_{slug}"] = (
                 significance_curves_by_bin(
-                    sub, channel, variable=names["pt"], weights=w_r, mode=mode,
+                    sub, channel, variable=names["p"], weights=w_r, mode=mode,
                     lumi_scale=lumi_scale, n_thresholds=n_thresholds))
         figures_r: dict[str, str] = {}
         if write:
@@ -987,18 +987,18 @@ def _run_region_package(*, channel, basis, suffix, frame, region_info,
                 figures_r[fname] = out_path
                 return out_path
 
-            _fig(plots.optimal_cut_vs_pt, "optimal_cut_vs_pt",
-                 tables_r[f"optimal_cut_vs_pt{suffix}_{slug}"],
+            _fig(plots.optimal_cut_vs_p, "optimal_cut_vs_p",
+                 tables_r[f"optimal_cut_vs_p{suffix}_{slug}"],
                  title=f"$c^*(p_T)$ {rtag}", global_cut=global_cut,
                  xlabel=("truth $p_T$ [GeV]" if suffix == "_truthpt"
                          else "track $p_T$ [GeV]"))
-            _fig(plots.efficiency_at_cut, "eff_vs_pt",
+            _fig(plots.efficiency_at_cut, "eff_vs_p",
                  tables_r[f"at_cut_global{suffix}_{slug}"],
                  title=f"signal efficiency at $c^*$ {rtag}")
-            _fig(plots.misid_at_cut, "misid_vs_pt",
+            _fig(plots.misid_at_cut, "misid_vs_p",
                  tables_r[f"at_cut_global{suffix}_{slug}"],
                  title=f"mis-ID fake rate at $c^*$ {rtag}")
-            _fig(plots.purity_at_cut, "purity_vs_pt",
+            _fig(plots.purity_at_cut, "purity_vs_p",
                  tables_r[f"at_cut_global{suffix}_{slug}"],
                  title=f"purity at $c^*$ {rtag}")
             _fig(plots.rejection_vs_p, "rejection_vs_p",
@@ -1008,8 +1008,8 @@ def _run_region_package(*, channel, basis, suffix, frame, region_info,
                  [tables_r[f"nsigma_vs_p{suffix}_{slug}"]],
                  title=f"n_sigma vs $p$ {rtag}")
             if binned_curves:
-                curves_r = tables_r[f"significance_by_pt{suffix}_{slug}"]
-                _fig(plots.significance_vs_cut_by_bin, "significance_vs_cut_by_pt",
+                curves_r = tables_r[f"significance_by_p{suffix}_{slug}"]
+                _fig(plots.significance_vs_cut_by_bin, "significance_vs_cut_by_p",
                      curves_r, global_cut=global_cut,
                      title=f"FOM(c) per $p_T$ bin {rtag}")
                 _fig(plots.significance_vs_cut_panels, "significance_vs_cut_panels",
@@ -1158,16 +1158,16 @@ def run(*, channels: tuple[str, ...] = ("eid", "ehad", "Kpi", "pK"),
             names = BIN_BASES[basis]
             suffix = "" if basis == "reco" else "_truthpt"
             try:
-                per_bin = working_points_vs_pt(frame, channel, weights=weights, mode=mode,
-                                               lumi_scale=lumi_scale, variable=names["pt"],
+                per_bin = working_points_vs_p(frame, channel, weights=weights, mode=mode,
+                                               lumi_scale=lumi_scale, variable=names["p"],
                                                n_thresholds=n_thresholds)
                 tables = {
                     **{k + suffix: v for k, v in base_tables.items()},
-                    "optimal_cut_vs_pt" + suffix: per_bin,
+                    "optimal_cut_vs_p" + suffix: per_bin,
                     "at_cut_global" + suffix: at_cut_table(frame, channel, cut=global_cut,
-                                                           variable=names["pt"], weights=weights),
+                                                           variable=names["p"], weights=weights),
                     "at_cut_per_bin" + suffix: at_cut_table(frame, channel, cut_per_bin=per_bin,
-                                                            variable=names["pt"], weights=weights),
+                                                            variable=names["p"], weights=weights),
                     "rejection_vs_p" + suffix: at_cut_table(frame, channel, cut=global_cut,
                                                             variable=names["p"], weights=weights),
                     "efficiency_vs_eta" + suffix: at_cut_table(frame, channel, cut=global_cut,
@@ -1180,14 +1180,14 @@ def run(*, channels: tuple[str, ...] = ("eid", "ehad", "Kpi", "pK"),
                 print(f"[performance/{channel}/{basis}] SKIPPED: {exc}", file=sys.stderr)
                 continue
             if binned_curves:
-                tables["significance_by_pt" + suffix] = significance_curves_by_bin(
-                    frame, channel, variable=names["pt"], weights=weights, mode=mode,
+                tables["significance_by_p" + suffix] = significance_curves_by_bin(
+                    frame, channel, variable=names["p"], weights=weights, mode=mode,
                     lumi_scale=lumi_scale, n_thresholds=n_thresholds)
             maps = {}
             if global_cut is not None:
                 for q in ("efficiency", "fake_rate"):
                     maps[q] = map_2d(frame, channel, cut=global_cut, quantity=q,
-                                     x_variable=names["pt"], y_variable=names["eta"])
+                                     x_variable=names["p"], y_variable=names["eta"])
 
             # The multi-class confusion matrix describes the TASK (pi/K/p), not one
             # hypothesis pair, and uses held-out rows only: a matrix built from
@@ -1254,8 +1254,8 @@ def run(*, channels: tuple[str, ...] = ("eid", "ehad", "Kpi", "pK"),
                                        "optimal_cut": global_cut,
                                        "n_rows_channel": int(len(frame))})
                 for q, m in maps.items():
-                    long_name = ("eff_map_pt_vs_eta" if q == "efficiency"
-                                 else "fake_map_pt_vs_eta") + suffix
+                    long_name = ("eff_map_p_vs_eta" if q == "efficiency"
+                                 else "fake_map_p_vs_eta") + suffix
                     report.write(map_tidy(m), f"{stem_base}-{long_name}",
                                  tree_name=("pid_" + channel + "_" + long_name).replace("-", "_")[:31],
                                  meta={"channel": channel, "model": model,

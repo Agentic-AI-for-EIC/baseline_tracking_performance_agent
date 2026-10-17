@@ -18,9 +18,12 @@ What this module does
   as in tracking; the same ``trkperf.report.eta_region`` function, so the
   ``|eta| = 1`` boundary cannot drift between the two halves), ``"unknown"``
   where the truth partner is missing;
-* ``n_layers_hit`` — distinct truth-hit collections hit, counted over the
+* ``n_hits_total`` / ``n_hits_si`` — individual truth hits, total and in
+  silicon, counted over the
   candidate's **own region rule** collections (NaN where unclassifiable);
-* ``in_acceptance`` — ``n_layers_hit >= N_min`` for that rule.
+* ``in_acceptance`` — ``>= ACCEPTANCE_MIN_HITS total hits AND >=
+  ACCEPTANCE_MIN_SILICON_HITS of them silicon`` for that rule (CKF seed
+  requirement; trkperf.config, 2026-10 criterion).
 
 The truth-hit counts come from :mod:`trkperf.truth` (same reader, same
 ``{particle_idx: branch}`` column scheme, so the ``trkperf`` io cache is
@@ -30,7 +33,8 @@ their rows get ``in_acceptance = False`` and are counted in the returned
 
 Deliberately NOT here
 ---------------------
-* No model input: ``eta_region`` / ``in_acceptance`` / ``n_layers_hit`` are
+* No model input: ``eta_region`` / ``in_acceptance`` / ``n_hits_total`` /
+  ``n_hits_si`` are
   truth-derived and live in :data:`pid.dataset.KEY_COLUMNS` (never-model).
 * No retraining: the classifiers keep their leg-scoped training samples;
   the region selection applies at *plot* time (``pid evaluate`` /
@@ -74,7 +78,7 @@ REGION_SLUGS: dict[str, str] = {
 def describe_rule(region: str) -> str:
     """Short human description of the acceptance rule, for titles and meta."""
     rule = tk_config.TRACKING_REGIONS[REGION_RULE[region]]
-    return (f"Nhit >= {rule['min_layers']} over "
+    return (f">= {rule['min_hits']} hits (>= {rule['min_silicon_hits']} silicon) over "
             f"{len(rule['collections'])} {REGION_RULE[region]} collections")
 
 
@@ -94,7 +98,8 @@ def attach(frame: pd.DataFrame, *, features: pd.DataFrame,
            regions: tuple[str, ...] = ETA_REGIONS,
            max_failures: int = 0, cache_dir: str | None = None,
            ) -> tuple[pd.DataFrame, dict]:
-    """Add ``eta_region`` / ``n_layers_hit`` / ``in_acceptance`` to a score frame.
+    """Add ``eta_region`` / ``n_hits_total`` / ``n_hits_si`` / ``in_acceptance``
+    to a score frame.
 
     Parameters
     ----------
@@ -149,7 +154,8 @@ def attach(frame: pd.DataFrame, *, features: pd.DataFrame,
 
     out = merged
     out["eta_region"] = out["truth_eta"].map(tk_report.eta_region)
-    out["n_layers_hit"] = np.nan
+    out["n_hits_total"] = np.nan
+    out["n_hits_si"] = np.nan
     out["in_acceptance"] = False
     info: dict = {"regions": {}, "skipped_files": [],
                   "n_unclassified": 0, "n_files": len(files)}
@@ -167,15 +173,17 @@ def attach(frame: pd.DataFrame, *, features: pd.DataFrame,
         rule = tk_config.TRACKING_REGIONS[rule_name]
         found: list = []
         try:
-            counts = tk_truth.read_truth_hit_layer_counts(
+            counts = tk_truth.read_truth_hit_counts(
                 files, max_failures=max_failures, shared_failures=shared,
                 collections=rule["collections"], found_collections=found,
                 keep_particles=keep_particles)
         except RuntimeError as exc:
             raise SystemExit(f"pid.regions.attach: {exc}") from exc
         hit = counts.rename(columns={"idx": "truth_idx",
-                                      "n_layers_hit": f"_n_{rule_name}"})
-        out = out.merge(hit[["file_id", "event", "truth_idx", f"_n_{rule_name}"]],
+                                     "n_hits_total": f"_tot_{rule_name}",
+                                     "n_hits_si": f"_si_{rule_name}"})
+        out = out.merge(hit[["file_id", "event", "truth_idx",
+                             f"_tot_{rule_name}", f"_si_{rule_name}"]],
                         on=["file_id", "event", "truth_idx"], how="left")
         # A matched particle with zero hits in every collection of this rule
         # has no count row (trkperf.truth contract) - that is a genuine 0,
@@ -184,16 +192,19 @@ def attach(frame: pd.DataFrame, *, features: pd.DataFrame,
         # (truth_idx NaN never joins).
         skipped_ids = {i for i, p in enumerate(files)
                        if p in set(shared.get("skipped", []))}
-        count_col = f"_n_{rule_name}"
+        tot_col, si_col = f"_tot_{rule_name}", f"_si_{rule_name}"
         has_truth = out["truth_idx"].notna()
         readable = ~out["file_id"].isin(skipped_ids)
-        out.loc[has_truth & readable, count_col] = (
-            out.loc[has_truth & readable, count_col].fillna(0))
+        ok_rows = has_truth & readable
+        out.loc[ok_rows, tot_col] = out.loc[ok_rows, tot_col].fillna(0)
+        out.loc[ok_rows, si_col] = out.loc[ok_rows, si_col].fillna(0)
         sel = out["eta_region"] == region
-        out.loc[sel, "n_layers_hit"] = out.loc[sel, count_col]
+        out.loc[sel, "n_hits_total"] = out.loc[sel, tot_col]
+        out.loc[sel, "n_hits_si"] = out.loc[sel, si_col]
         out.loc[sel, "in_acceptance"] = (
-            out.loc[sel, f"_n_{rule_name}"].fillna(-1) >= rule["min_layers"])
-        out = out.drop(columns=[f"_n_{rule_name}"])
+            (out.loc[sel, tot_col].fillna(-1) >= rule["min_hits"])
+            & (out.loc[sel, si_col].fillna(-1) >= rule["min_silicon_hits"]))
+        out = out.drop(columns=[tot_col, si_col])
         if set(found) != set(rule["collections"]):
             missing = sorted(set(rule['collections']) - set(found))
             print(f"[regions] WARNING: {region} acceptance degraded "
@@ -202,7 +213,8 @@ def attach(frame: pd.DataFrame, *, features: pd.DataFrame,
                   "do not quote these numbers as full-rule acceptance",
                   file=sys.stderr)
         info["regions"][region] = {
-            "rule": rule_name, "min_layers": rule["min_layers"],
+            "rule": rule_name, "min_hits": rule["min_hits"],
+            "min_silicon_hits": rule["min_silicon_hits"],
             "collections": list(rule["collections"]),
             "collections_found": list(found),
             "n_rows": int(sel.sum()),
@@ -213,7 +225,7 @@ def attach(frame: pd.DataFrame, *, features: pd.DataFrame,
     # region, unmatched truth, or a skipped file).
     need = out["eta_region"].isin(list(regions))
     info["n_unclassified"] = int(
-        (need & out["n_layers_hit"].isna()).sum())
+        (need & out["n_hits_total"].isna()).sum())
     parts = "; ".join(
         f"{r}: {info['regions'][r]['n_in_acceptance']}/"
         f"{info['regions'][r]['n_rows']} in acceptance" for r in regions)

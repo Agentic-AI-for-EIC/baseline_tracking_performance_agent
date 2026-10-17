@@ -41,13 +41,14 @@ def _features(rows):
     return pd.DataFrame(rows)
 
 
-def _counts(n, files=("f0",)):
+def _counts(total, si=None, files=("f0",)):
+    si = total if si is None else si
     out = []
     for fi, _ in enumerate(files):
         for ev in range(2):
             for idx in range(4):
                 out.append({"file_id": fi, "event": ev, "idx": idx,
-                            "n_layers_hit": n})
+                            "n_hits_total": total, "n_hits_si": si})
     return pd.DataFrame(out)
 
 
@@ -59,10 +60,10 @@ class TestRegionMaps(unittest.TestCase):
         self.assertEqual(regions.REGION_RULE["barrel"], "central")
         self.assertEqual(regions.REGION_RULE["forward endcap"], "forward")
         self.assertEqual(regions.REGION_RULE["backward endcap"], "backward")
-        central = tk_config.TRACKING_REGIONS["central"]
-        self.assertEqual(central["min_layers"], 4)
-        for end in ("forward", "backward"):
-            self.assertEqual(tk_config.TRACKING_REGIONS[end]["min_layers"], 2)
+        for region in ("central", "forward", "backward"):
+            spec = tk_config.TRACKING_REGIONS[region]
+            self.assertEqual(spec["min_hits"], 4, region)
+            self.assertEqual(spec["min_silicon_hits"], 3, region)
 
     def test_unknown_region_refused(self):
         with self.assertRaises(ValueError):
@@ -77,12 +78,13 @@ class TestRegionMaps(unittest.TestCase):
 
 class TestAttach(unittest.TestCase):
     def _run(self, frame_rows, feat_rows, counts_n, regions_wanted,
-             files=("f0",)):
+             files=("f0",)):  # counts_n = (total, si)
         from pid import regions as R
 
         feats = _features(feat_rows)
-        with mock.patch("trkperf.truth.read_truth_hit_layer_counts",
-                        side_effect=lambda files_, **kw: _counts(counts_n, files_)):
+        with mock.patch("trkperf.truth.read_truth_hit_counts",
+                        side_effect=lambda files_, **kw: _counts(counts_n[0], counts_n[1],
+                                                       files=tuple(files_))):
             with mock.patch("trkperf.io.set_cache_dir"):
                 return R.attach(_frame(frame_rows), features=feats,
                                 regions=regions_wanted)
@@ -91,8 +93,9 @@ class TestAttach(unittest.TestCase):
         return {"file_id": file_id, "event": event, "track_idx": track_idx,
                 "source_file": "f0", "truth_idx": truth_idx}
 
-    def test_barrel_needs_four_endcap_needs_two(self):
-        # Same hit count (3) passes the endcap rule but fails the barrel one.
+    def test_silicon_floor_applies_in_every_region(self):
+        # 3 total hits fails everywhere now; the silicon floor is checked by
+        # test_total_four_but_two_silicon_fails below.
         frame = _frame([
             {"file_id": 0, "event": 0, "track_idx": 0, "truth_eta": 0.25},
             {"file_id": 0, "event": 0, "track_idx": 1, "truth_eta": -2.5},
@@ -102,8 +105,8 @@ class TestAttach(unittest.TestCase):
             {**self._link(track_idx=1, truth_eta=-2.5), "truth_idx": 1},
         ])
         from pid import regions as R
-        with mock.patch("trkperf.truth.read_truth_hit_layer_counts",
-                        side_effect=lambda files_, **kw: _counts(3, files_)):
+        with mock.patch("trkperf.truth.read_truth_hit_counts",
+                        side_effect=lambda files_, **kw: _counts(3, 3, files=tuple(files_))):
             with mock.patch("trkperf.io.set_cache_dir"):
                 out, info = R.attach(frame, features=feats,
                                      regions=("barrel", "backward endcap"))
@@ -111,25 +114,45 @@ class TestAttach(unittest.TestCase):
         back = out[out["track_idx"] == 1].iloc[0]
         self.assertEqual(barrel["eta_region"], "barrel")
         self.assertEqual(back["eta_region"], "backward endcap")
-        self.assertEqual(barrel["n_layers_hit"], 3)
-        self.assertFalse(barrel["in_acceptance"])   # 3 < 4
-        self.assertTrue(back["in_acceptance"])      # 3 >= 2
+        self.assertEqual(barrel["n_hits_total"], 3)
+        self.assertFalse(barrel["in_acceptance"])   # 3 < 4 total
+        self.assertFalse(back["in_acceptance"])     # 3 < 4 total (same rule now)
         self.assertEqual(info["regions"]["barrel"]["n_in_acceptance"], 0)
-        self.assertEqual(info["regions"]["backward endcap"]["n_in_acceptance"], 1)
+        self.assertEqual(info["regions"]["backward endcap"]["n_in_acceptance"], 0)
+
+    def test_total_four_but_two_silicon_fails(self):
+        # The CKF-seed floor: 5 hits with only 2 in silicon is NOT acceptance
+        # in either region, even though the total clears 4.
+        frame = _frame([
+            {"file_id": 0, "event": 0, "track_idx": 0, "truth_eta": 0.25},
+            {"file_id": 0, "event": 0, "track_idx": 1, "truth_eta": -2.5},
+        ])
+        feats = _features([
+            {**self._link(track_idx=0, truth_eta=0.25), "truth_idx": 0},
+            {**self._link(track_idx=1, truth_eta=-2.5), "truth_idx": 1},
+        ])
+        from pid import regions as R
+        with mock.patch("trkperf.truth.read_truth_hit_counts",
+                        side_effect=lambda files_, **kw: _counts(5, 2, files=tuple(files_))):
+            with mock.patch("trkperf.io.set_cache_dir"):
+                out, info = R.attach(frame, features=feats,
+                                     regions=("barrel", "backward endcap"))
+        self.assertFalse(out["in_acceptance"].any())
+        self.assertEqual(int(out["n_hits_si"].iloc[0]), 2)
 
     def test_unmatched_truth_is_unclassifiable(self):
         frame = _frame([{"file_id": 0, "event": 0, "track_idx": 0,
                          "truth_eta": np.nan}])
         feats = _features([{**self._link(truth_eta=np.nan), "truth_idx": np.nan}])
         out, info = self._run(frame.to_dict("records"), feats.to_dict("records"),
-                              7, ("barrel",))
+                              (7, 7), ("barrel",))
         self.assertEqual(out.iloc[0]["eta_region"], "unknown")
         self.assertFalse(out.iloc[0]["in_acceptance"])
         self.assertEqual(info["n_unclassified"], 0)  # unknown region, not requested
 
     def test_zero_hit_particle_is_zero_not_unclassifiable(self):
         # A matched particle absent from the count table has 0 hits in the
-        # rule's collections (trkperf.truth contract): n_layers_hit must be 0
+        # rule's collections (trkperf.truth contract): n_hits_total must be 0
         # (fails acceptance honestly), not NaN "unclassifiable".
         frame = _frame([
             {"file_id": 0, "event": 0, "track_idx": 0, "truth_eta": -2.5},
@@ -140,16 +163,17 @@ class TestAttach(unittest.TestCase):
             {**self._link(track_idx=1), "truth_idx": 1},
         ])
         counts = pd.DataFrame([{"file_id": 0, "event": 0, "idx": 0,
-                                "n_layers_hit": 3}])
+                                "n_hits_total": 4, "n_hits_si": 3}])
         from pid import regions as R
-        with mock.patch("trkperf.truth.read_truth_hit_layer_counts",
+        with mock.patch("trkperf.truth.read_truth_hit_counts",
                         return_value=counts):
             with mock.patch("trkperf.io.set_cache_dir"):
                 out, info = R.attach(frame, features=feats,
                                      regions=("backward endcap",))
         zero = out[out["track_idx"] == 1].iloc[0]
-        self.assertEqual(zero["n_layers_hit"], 0)
+        self.assertEqual(zero["n_hits_total"], 0)
         self.assertFalse(zero["in_acceptance"])
+        self.assertTrue(out[out["track_idx"] == 0].iloc[0]["in_acceptance"])  # 4/3 passes
         self.assertEqual(info["n_unclassified"], 0)
 
     def test_mismatched_features_refuse(self):
@@ -158,12 +182,13 @@ class TestAttach(unittest.TestCase):
         feats = _features([self._link(track_idx=0)])
         with self.assertRaises(SystemExit):
             self._run(frame.to_dict("records"), feats.to_dict("records"),
-                      7, ("barrel",))
+                      (7, 7), ("barrel",))
 
     def test_region_columns_never_train(self):
         self.assertIn("eta_region", dataset.KEY_COLUMNS)
         self.assertIn("in_acceptance", dataset.KEY_COLUMNS)
-        self.assertIn("n_layers_hit", dataset.KEY_COLUMNS)
+        self.assertIn("n_hits_total", dataset.KEY_COLUMNS)
+        self.assertIn("n_hits_si", dataset.KEY_COLUMNS)
 
 
 class TestRegionPackage(unittest.TestCase):
@@ -191,7 +216,8 @@ class TestRegionPackage(unittest.TestCase):
         perf._run_region_package(
             channel="eid", basis="reco", suffix="", frame=frame,
             region_info={"regions": {
-                "backward endcap": {"rule": "backward", "min_layers": 2,
+                "backward endcap": {"rule": "backward", "min_hits": 4,
+                                    "min_silicon_hits": 3,
                                     "collections": ["a", "b", "c"],
                                     "collections_found": ["a", "b", "c"],
                                     "n_rows": n, "n_in_acceptance": n}}},
@@ -208,7 +234,7 @@ class TestRegionPackage(unittest.TestCase):
         self.assertEqual(row["eta_region"], "backward endcap")
         self.assertEqual(row["threshold"], 0.6)
         self.assertTrue(row["valid"])
-        self.assertIn("Nhit >= 2", row["acceptance_rule"])
+        self.assertIn(">= 4 hits (>= 3 silicon)", row["acceptance_rule"])
         self.assertEqual(row["n_rows"], n)
 
 
@@ -238,7 +264,8 @@ class TestAttachLocalFile(unittest.TestCase):
         central_found = set(info["regions"]["barrel"]["collections_found"])
         self.assertEqual(central_found,
                          set(tk_config.CENTRAL_TRACKING_TRUTH_HIT_COLLECTIONS))
-        classified = out[out["n_layers_hit"].notna()]
+        classified = out[out["n_hits_total"].notna()]
         self.assertGreater(len(classified), 0)
-        self.assertTrue(((classified["n_layers_hit"] >= 0)
-                         & (classified["n_layers_hit"] <= 7)).all())
+        self.assertTrue((classified["n_hits_total"] >= 0).all())
+        # The silicon subset is always a subset of the total hit count.
+        self.assertTrue((classified["n_hits_si"] <= classified["n_hits_total"]).all())

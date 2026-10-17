@@ -79,7 +79,7 @@ setsid nohup bash -c "
           --features \"$FEATURES\" --seed \"$SEED\" --n-iter 24 || echo \"[run_pid] train \$task/\$lib failed (statistics?)\"
       if [ -f \"output/models/\${task}_\${lib}_${TAG}/test_scores.pkl\" ]; then
         $PY -m pid evaluate --task \"\$task\" --model \"\$lib\" --dataset-tag \"$TAG\" \
-            --scores \"output/models/\${task}_\${lib}_${TAG}/test_scores.pkl\" --by pt,eta --plot \
+            --scores \"output/models/\${task}_\${lib}_${TAG}/test_scores.pkl\" --by p,eta --plot \
             --eta-region \"$ETA_REGIONS\" --features \"$FEATURES\" \
             --max-file-failures \"$MAXFAIL\" --cache-dir \"$CACHE\"
         $PY -m pid importance --dir \"output/models/\${task}_\${lib}_${TAG}\" \

@@ -431,17 +431,17 @@ def nsigma_vs_p_table(tables: list[pd.DataFrame], path: str, *, title: str = "")
 
 
 def map_2d_figure(m: dict, path: str, *, title: str = "") -> str:
-    """2D (pT, eta) map; cells without statistics are left white, not coloured zero."""
+    """2D (x, eta) map; cells without statistics are left white, not coloured zero."""
     value = np.ma.masked_invalid(np.asarray(m["value"], dtype=float))
     fig, ax = plt.subplots(figsize=(6.4, 4.4))
-    mesh = ax.pcolormesh(m["pt_edges"], m["eta_edges"], value.T, cmap="viridis",
+    mesh = ax.pcolormesh(m["x_edges"], m["eta_edges"], value.T, cmap="viridis",
                          shading="flat", rasterized=True)
     if np.isfinite(value.compressed()).size:
         vmin = float(np.nanmin(value)) if np.isfinite(np.nanmin(value)) else 0.0
         vmax = float(np.nanmax(value)) if np.isfinite(np.nanmax(value)) else 1.0
         mesh.set_clim(vmin, vmax if vmax > vmin else vmin + 1e-6)
     ax.set_xscale("log")
-    ax.set_xlabel(m.get("x_label", "track $p_T$ [GeV]"))
+    ax.set_xlabel(m.get("x_label", "track momentum $p$ [GeV]"))
     ax.set_ylabel(m.get("y_label", "track $\\eta$"))
     cbar = fig.colorbar(mesh, ax=ax, pad=0.02)
     cbar.set_label(m["quantity"], fontsize=8)
@@ -455,7 +455,7 @@ def map_2d_figure(m: dict, path: str, *, title: str = "") -> str:
         for j in range(value.shape[1]):
             n = m["counts"][i, j]
             if n >= 1 and np.isfinite(raw[i, j]):
-                ax.text(0.5 * (m["pt_edges"][i] + m["pt_edges"][i + 1]),
+                ax.text(0.5 * (m["x_edges"][i] + m["x_edges"][i + 1]),
                         0.5 * (m["eta_edges"][j] + m["eta_edges"][j + 1]), f"{int(n)}",
                         ha="center", va="center", fontsize=5,
                         color="white" if raw[i, j] < median_ref else "black")
@@ -641,22 +641,22 @@ def performance_package(*, channel: str, scan: pd.DataFrame, optimum: dict,
                                                optimum.get("threshold"))))
 
     if len(per_bin):
-        written["optimal_cut_vs_pt"] = note(
-            "optimal_cut_vs_pt",
-            optimal_cut_vs_pt(per_bin, P("optimal_cut_vs_pt"), title=f"$c^*(p_T)$ {tag}",
+        written["optimal_cut_vs_p"] = note(
+            "optimal_cut_vs_p",
+            optimal_cut_vs_p(per_bin, P("optimal_cut_vs_p"), title=f"$c^*(p_T)$ {tag}",
                               global_cut=cut,
                               xlabel=("truth $p_T$ [GeV]" if suffix == "_truthpt"
                                       else "track $p_T$ [GeV]")))
 
     for name, key, func, extra in (
-            ("eff_vs_pt", "at_cut_global", efficiency_at_cut, "signal efficiency at $c^*$"),
-            ("misid_vs_pt", "at_cut_global", misid_at_cut, "mis-ID fake rate at $c^*$"),
-            ("purity_vs_pt", "at_cut_global", purity_at_cut, "purity at $c^*$")):
+            ("eff_vs_p", "at_cut_global", efficiency_at_cut, "signal efficiency at $c^*$"),
+            ("misid_vs_p", "at_cut_global", misid_at_cut, "mis-ID fake rate at $c^*$"),
+            ("purity_vs_p", "at_cut_global", purity_at_cut, "purity at $c^*$")):
         table = tables.get(key)
         if table is None or not len(table):
             continue
-        col = {"eff_vs_pt": "efficiency", "misid_vs_pt": "fake_rate",
-               "purity_vs_pt": "purity"}[name]
+        col = {"eff_vs_p": "efficiency", "misid_vs_p": "fake_rate",
+               "purity_vs_p": "purity"}[name]
         if not table[col].notna().any():
             continue
         written[name] = note(name, func(table, P(name),
@@ -681,11 +681,11 @@ def performance_package(*, channel: str, scan: pd.DataFrame, optimum: dict,
                               title=f"n_sigma vs $p$ {tag}"
                                     + (f"  [{method}]" if method else "")))
 
-    curves = tables.get("significance_by_pt")
+    curves = tables.get("significance_by_p")
     if curves is not None and len(curves):
-        written["significance_vs_cut_by_pt"] = note(
-            "significance_vs_cut_by_pt",
-            significance_vs_cut_by_bin(curves, P("significance_vs_cut_by_pt"),
+        written["significance_vs_cut_by_p"] = note(
+            "significance_vs_cut_by_p",
+            significance_vs_cut_by_bin(curves, P("significance_vs_cut_by_p"),
                                        global_cut=optimum.get("threshold"),
                                        title=f"FOM(c) per $p_T$ bin {tag}"))
         written["significance_vs_cut_panels"] = note(
@@ -694,7 +694,7 @@ def performance_package(*, channel: str, scan: pd.DataFrame, optimum: dict,
                                        title=f"per-bin working points {tag}"))
 
     for quantity, m in maps.items():
-        fname = "eff_map_pt_vs_eta" if quantity == "efficiency" else "fake_map_pt_vs_eta"
+        fname = "eff_map_p_vs_eta" if quantity == "efficiency" else "fake_map_p_vs_eta"
         written[fname] = note(
             fname, map_2d_figure(m, P(fname),
                                  title=f"{quantity} in (pT, eta) at $c^*$ "
@@ -746,7 +746,7 @@ def _stamp_exploratory(name: str, path: str, note_text: str) -> None:
         pass
 
 
-def optimal_cut_vs_pt(per_bin: pd.DataFrame, path: str, *, title: str = "",
+def optimal_cut_vs_p(per_bin: pd.DataFrame, path: str, *, title: str = "",
                       global_cut: float | None = None, xlabel: str | None = None) -> str:
     """The optimal threshold as a function of pT, with unmeasurable bins as gaps.
 

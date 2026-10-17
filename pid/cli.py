@@ -241,8 +241,8 @@ def cmd_evaluate(args) -> int:
             plots.roc(rres["roc"], stem_r + "-roc.png", title=rtag)
             plots.efficiency_vs_fake(rres["overall"], stem_r + "-eff_vs_fake.png",
                                      title=rtag)
-            if "vs_pt" in rres:
-                plots.metric_vs_bin(rres["vs_pt"], stem_r + "-auc_vs_pt.png",
+            if "vs_p" in rres:
+                plots.metric_vs_bin(rres["vs_p"], stem_r + "-auc_vs_p.png",
                                      column="auc", title=rtag)
     return 0
 
@@ -471,7 +471,7 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--model", default="")
     p.add_argument("--dataset-tag", required=True, choices=sorted(config.CAMPAIGN_BY_DATASET_TAG))
     p.add_argument("--signal", default=None, help="Class of interest for multiclass tasks.")
-    p.add_argument("--by", default="pt,eta", help="Comma list of slicing variables (pt,p,eta).")
+    p.add_argument("--by", default="p,eta", help="Comma list of slicing variables (pt,p,eta).")
     p.add_argument("--out-dir", default=config.OUTPUT_DIR)
     p.add_argument("--plot", action="store_true")
     _add_region_args(p)
@@ -534,7 +534,7 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--task", required=True, choices=sorted(config.TASKS))
     p.add_argument("--model", default="")
     p.add_argument("--artifact", default="overall",
-                   help="'overall', 'vs_pt', 'vs_eta', 'confusion', or 'all'.")
+                   help="'overall', 'vs_p', 'vs_eta', 'confusion', or 'all'.")
     p.add_argument("--clean", default=None)
     p.add_argument("--bkg", default=None)
     p.add_argument("--out-dir", default=config.OUTPUT_DIR)
@@ -568,7 +568,7 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--n-splits", type=int, default=3)
     p.add_argument("--n-jobs", type=int, default=config.N_JOBS)
     p.add_argument("--seed", type=int, default=config.RANDOM_SEED)
-    p.add_argument("--by", default="pt,eta")
+    p.add_argument("--by", default="p,eta")
     p.add_argument("--include-kinematics", action="store_true")
     p.add_argument("--no-calibrate", action="store_true",
                    help="Skip probability calibration (smoke runs: tiny samples).")

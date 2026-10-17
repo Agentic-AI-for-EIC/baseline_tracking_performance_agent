@@ -4,7 +4,7 @@ description: >-
   Compute ePIC craterlake track-finding efficiency — fraction of truth
   particles actually reconstructed as CentralCKFTracks, reported both
   within-acceptance (matched / in-acceptance truth) and absolute (matched /
-  all generated truth), with binomial errors — binned in truth pT (log) and
+  all generated truth), with binomial errors — binned in truth p (log) and
   truth eta (0.5 bins) per species, then compared between the clean (Type 1)
   and +background (Type 2, bkg_mixed) datasets. Use when asked about
   reconstruction/tracking efficiency, matched fractions, or efficiency-loss
@@ -15,7 +15,7 @@ description: >-
 
 ## What I do
 Runs `python -m trkperf efficiency ...` on the clean and bkg_mixed datasets,
-then the clean-vs-bkg comparison. Output is one row per (species, pt_bin,
+then the clean-vs-bkg comparison. Output is one row per (species, p_bin,
 eta_bin) with `n_truth`, `n_in_acceptance`, `n_matched`,
 `efficiency_within_acceptance`, `efficiency_within_acceptance_err`,
 `efficiency_absolute`, `efficiency_absolute_err`, `insufficient_stats`.
@@ -37,9 +37,9 @@ multiplying a separate acceptance table with a conditional efficiency — so
 - **within-acceptance**: matched & in-acceptance / in-acceptance truth.
 - **absolute**: matched / all generated truth.
 
-Acceptance uses the same >= 4-of-7 truth-hit-collection definition as the
-`acceptance` metric (`ACCEPTANCE_MIN_LAYERS`); "layer" is a collection-level
-proxy (documented simplification). Truth selection is primary-only.
+Acceptance uses the same rule as the `acceptance` metric: >= 4 individual truth
+hits, of which >= 3 in the silicon tracker, counted over the region's truth-hit
+collections. Truth selection is primary-only.
 
 ## Procedure
 Follow `trkperf-grid-workflow` for discovery/escalation/compare. The commands:
@@ -79,7 +79,7 @@ python -m trkperf efficiency --file data/dataset_small/signal/RECO/*.root \
   launch it simultaneously with other heavy bkg jobs; the read cache means a
   kill/re-launch only redoes compute, not downloads.
 - Outputs: `output/efficiency_{clean,bkg_mixed}.{json,md,root,png}`
-  (absolute + within-acceptance vs pT plots) and
+  (absolute + within-acceptance vs p plots) and
   `output/efficiency_comparison.{json,md}`.
 
 ## Definition of done

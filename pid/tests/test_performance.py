@@ -170,7 +170,7 @@ class TestMaps(unittest.TestCase):
 
     def test_thin_cells_are_masked_not_zeroed(self):
         m = perf.map_2d(self.fr, "eid", cut=0.5, quantity="efficiency",
-                        pt_bins=np.linspace(0.5, 10, 8), eta_bins=np.arange(-4, 4.1, 0.5))
+                        x_bins=np.linspace(0.5, 10, 8), y_bins=np.arange(-4, 4.1, 0.5))
         thin = m["counts"] < config.MIN_CANDIDATES_PER_WP_BIN
         self.assertTrue(bool(np.isnan(m["value"][thin]).all()))
         self.assertGreater(m["masked_cells"], 0)
@@ -331,12 +331,12 @@ class TestRun(unittest.TestCase):
             for column in ("threshold", "significance", "efficiency", "purity",
                            "rejection_lower_limit", "caution"):
                 self.assertIn(column, summary.columns)
-            figures = os.listdir(os.path.join(out, "plots"))
-            for name in ("pid-eid_significance_vs_cut.png", "pid-eid_eff_vs_pt.png",
-                         "pid-eid_misid_vs_pt.png", "pid-eid_purity_vs_pt.png",
-                         "pid-eid_roc.png", "pid-eid_optimal_cut_vs_pt.png",
-                         "pid-eid_pion_rejection_vs_p.png", "pid-eid_eff_map_pt_vs_eta.png",
-                         "pid-eid_fake_map_pt_vs_eta.png",
+            figures = os.listdir(os.path.join(out, "plot_PID", "plot_model_eval", "clean"))
+            for name in ("pid-eid_significance_vs_cut.png", "pid-eid_eff_vs_p.png",
+                         "pid-eid_misid_vs_p.png", "pid-eid_purity_vs_p.png",
+                         "pid-eid_roc.png", "pid-eid_optimal_cut_vs_p.png",
+                         "pid-eid_pion_rejection_vs_p.png", "pid-eid_eff_map_p_vs_eta.png",
+                         "pid-eid_fake_map_p_vs_eta.png",
                          "pid-eid_score_dist_train_vs_test.png"):
                 self.assertIn(name, figures, name)
             self.assertTrue(os.path.exists(os.path.join(out, "pid-working_points_lightgbm_clean.json")))
@@ -390,7 +390,7 @@ class TestRun(unittest.TestCase):
                               out_dir=os.path.join(tmp, "out"), model_root=root, quiet=True)
             self.assertEqual(len(result["summary"]), 1)
             self.assertFalse(os.path.exists(
-                os.path.join(tmp, "out", "plots", "pid-eid_score_dist_train_vs_test.png")))
+                os.path.join(tmp, "out", "plot_PID", "plot_model_eval", "clean", "pid-eid_score_dist_train_vs_test.png")))
 
 
 if __name__ == "__main__":
@@ -443,14 +443,14 @@ class TestDeliverableManifest(unittest.TestCase):
         mf = perf.verify_deliverables({}, channel="Kpi", status="exploratory",
                                       has_working_point=False)
         reasons = {m["figure"]: m["reason"] for m in mf["missing"]}
-        self.assertIn("eff_vs_pt", reasons)
-        self.assertIn("working point", reasons["eff_vs_pt"])
+        self.assertIn("eff_vs_p", reasons)
+        self.assertIn("working point", reasons["eff_vs_p"])
 
     def test_disabled_curves_are_reported_as_disabled_not_lost(self):
         mf = perf.verify_deliverables({}, channel="eid", status="headline",
                                       has_working_point=False, binned_curves=False)
         reasons = {m["figure"]: m["reason"] for m in mf["missing"]}
-        self.assertIn("--no-binned-curves", reasons["significance_vs_cut_by_pt"])
+        self.assertIn("--no-binned-curves", reasons["significance_vs_cut_by_p"])
 
     def test_electron_rejection_alias_satisfies_the_requirement(self):
         # eid ships rejection_vs_p under the physics name pion_rejection_vs_p.
@@ -489,7 +489,7 @@ class TestDeliverableManifest(unittest.TestCase):
 
     def test_manifest_table_is_flat_and_queryable(self):
         mf = [{"channel": "eid", "status": "headline", "binning_suffix": "reco",
-               "present": ["roc"], "missing": [{"figure": "eff_vs_pt",
+               "present": ["roc"], "missing": [{"figure": "eff_vs_p",
                                                 "reason": "no c*"}],
                "shared_with_other_basis": [],
                "n_required": 2, "n_present": 1, "complete": False}]
@@ -498,7 +498,7 @@ class TestDeliverableManifest(unittest.TestCase):
         self.assertTrue({"channel", "status", "binning_basis", "figure", "label",
                          "present", "reason", "shared_with_reco_run"}
                         <= set(table.columns))
-        self.assertTrue(bool(table.loc[table["figure"] == "eff_vs_pt", "present"].
+        self.assertTrue(bool(table.loc[table["figure"] == "eff_vs_p", "present"].
                              map(lambda v: not bool(v)).all()))
 
     def test_shared_figures_count_as_delivered_but_are_marked(self):
@@ -523,7 +523,7 @@ class TestDeliverableManifest(unittest.TestCase):
         self.assertIn("roc", config.BASIS_INDEPENDENT_FIGURES)
         self.assertIn("significance_vs_cut", config.BASIS_INDEPENDENT_FIGURES)
         # a binned figure must NOT be in it
-        self.assertNotIn("eff_vs_pt", config.BASIS_INDEPENDENT_FIGURES)
+        self.assertNotIn("eff_vs_p", config.BASIS_INDEPENDENT_FIGURES)
 
 
 class TestBinningBasis(unittest.TestCase):
@@ -644,8 +644,8 @@ class TestSignificanceCurvesPerBin(unittest.TestCase):
         self.curves = perf.significance_curves_by_bin(self.fr, "eid")
 
     def test_bin_candidate_counts_are_conserved(self):
-        edges = config.PT_BINS_PERFORMANCE
-        idx = np.clip(np.digitize(self.fr["pt"].to_numpy(float), edges[1:-1], right=True),
+        edges = config.P_BINS_PERFORMANCE  # default variable is now "p"
+        idx = np.clip(np.digitize(self.fr["p"].to_numpy(float), edges[1:-1], right=True),
                       0, len(edges) - 2)
         counts = np.bincount(idx, minlength=len(edges) - 1)
         per_bin = self.curves.drop_duplicates("bin_center")[["bin_center", "n_signal_bin",
@@ -660,7 +660,8 @@ class TestSignificanceCurvesPerBin(unittest.TestCase):
     def test_curve_maximum_agrees_with_the_independent_optimum_search(self):
         # Two code paths (curve scan with is_optimum flag vs optimal_cut_in_bins)
         # must land on the same c*; disagreement would mean a silent bug in one.
-        other = sg.optimal_cut_in_bins(self.fr["score"], self.fr["y"], self.fr["pt"])
+        other = sg.optimal_cut_in_bins(self.fr["score"], self.fr["y"], self.fr["p"],
+                                       bins=config.P_BINS_PERFORMANCE)
         mine = perf.bin_optima_from_curves(self.curves)
         merged = mine.merge(other[["bin_center", "threshold"]], on="bin_center",
                             suffixes=("_curve", "_bins"))
@@ -722,8 +723,8 @@ class TestBinnedCurveFigures(unittest.TestCase):
     def test_both_new_figures_are_written(self):
         with tempfile.TemporaryDirectory() as tmp:
             self._run(tmp)
-            figures = set(os.listdir(os.path.join(tmp, "out", "plots")))
-            self.assertIn("pid-eid_significance_vs_cut_by_pt.png", figures)
+            figures = set(os.listdir(os.path.join(tmp, "out", "plot_PID", "plot_model_eval", "clean")))
+            self.assertIn("pid-eid_significance_vs_cut_by_p.png", figures)
             self.assertIn("pid-eid_significance_vs_cut_panels.png", figures)
 
     def test_curve_table_is_written_and_queryable(self):
@@ -731,7 +732,7 @@ class TestBinnedCurveFigures(unittest.TestCase):
 
         with tempfile.TemporaryDirectory() as tmp:
             self._run(tmp)
-            path = os.path.join(tmp, "out", "pid-eid_lightgbm_clean-significance_by_pt.json")
+            path = os.path.join(tmp, "out", "pid-eid_lightgbm_clean-significance_by_p.json")
             self.assertTrue(os.path.exists(path))
             with open(path) as fh:
                 payload = json.load(fh)
@@ -744,13 +745,13 @@ class TestBinnedCurveFigures(unittest.TestCase):
     def test_binned_curves_can_be_skipped(self):
         with tempfile.TemporaryDirectory() as tmp:
             self._run(tmp, binned_curves=False)
-            figures = set(os.listdir(os.path.join(tmp, "out", "plots")))
-            self.assertNotIn("pid-eid_significance_vs_cut_by_pt.png", figures)
+            figures = set(os.listdir(os.path.join(tmp, "out", "plot_PID", "plot_model_eval", "clean")))
+            self.assertNotIn("pid-eid_significance_vs_cut_by_p.png", figures)
             self.assertNotIn("pid-eid_significance_vs_cut_panels.png", figures)
 
     def test_panels_figure_is_nontrivial(self):
         with tempfile.TemporaryDirectory() as tmp:
             self._run(tmp)
-            size = os.path.getsize(os.path.join(tmp, "out", "plots",
+            size = os.path.getsize(os.path.join(tmp, "out", "plot_PID", "plot_model_eval", "clean",
                                                 "pid-eid_significance_vs_cut_panels.png"))
             self.assertGreater(size, 20_000, "a near-blank panel figure would be a bug")

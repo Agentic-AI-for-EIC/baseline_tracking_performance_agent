@@ -3,8 +3,9 @@ name: acceptance
 description: >-
   Compute ePIC craterlake geometric tracking acceptance — the fraction of
   generated truth particles that could in principle be reconstructed, defined
-  as >= 4 (ACCEPTANCE_MIN_LAYERS) of the 7 central-tracking truth-hit
-  collections registering a hit — binned in truth pT (log) and truth eta (0.5
+  as >= 4 individual truth hits (ACCEPTANCE_MIN_HITS), of which >= 3 fall in
+  the silicon tracker (ACCEPTANCE_MIN_SILICON_HITS) — the CKF seed requirement
+  — over the region's 7 central-tracking truth-hit collections — binned in truth p (log) and truth eta (0.5
   bins) per species, then compared between the clean (Type 1) and +background
   (Type 2, bkg_mixed) datasets. The single metric that needs no truth<->reco
   matching, so it doubles as a cross-check for campaign/geometry drift. Use
@@ -17,7 +18,7 @@ description: >-
 ## What I do
 Runs `python -m trkperf acceptance ...` on the clean and bkg_mixed datasets,
 then the clean-vs-bkg comparison. Acceptance output is one row per
-(species, pt_bin, eta_bin) with `n_generated`, `n_in_acceptance`,
+(species, p_bin, eta_bin) with `n_generated`, `n_in_acceptance`,
 `acceptance`, `acceptance_err`, `insufficient_stats`.
 
 ## When to use me
@@ -27,13 +28,14 @@ discovery / escalation / comparison / provenance details that apply to every
 metric, load the `trkperf-grid-workflow` skill too.
 
 ## Metric definition
-Acceptance = fraction of primary truth particles with hits in >= 4 of the 7
-central-tracking truth-hit collections (`SiBarrelHits`, `VertexBarrelHits`,
-`TrackerEndcapHits`, `MPGDBarrelHits`, `OuterMPGDBarrelHits`,
-`BackwardMPGDEndcapHits`, `ForwardMPGDEndcapHits`). "Layer" here means
-"distinct collection hit" — a collection-level proxy for a physical sensor
-layer (documented simplification; decoding true layer numbers would need
-subsystem cellID geometry). Purely truth/geometry-level: no matching, no
+Acceptance = fraction of primary truth particles with >= 4 **individual** truth
+hits, of which >= 3 in the silicon tracker (`SiBarrelHits`, `VertexBarrelHits`,
+`TrackerEndcapHits`), counted over the region's central-tracking truth-hit
+collection set (`SiBarrelHits`, `VertexBarrelHits`, `TrackerEndcapHits`,
+`MPGDBarrelHits`, `OuterMPGDBarrelHits`, `BackwardMPGDEndcapHits`,
+`ForwardMPGDEndcapHits`). The >= 3 silicon floor is the CKF seed requirement;
+hit counts come from the per-collection truth-hit entries, so no decoded cellID
+layer number is needed. Purely truth/geometry-level: no matching, no
 reconstruction — therefore background-independent and the built-in
 cross-check for campaign/software/geometry drift between 26.02.0 and 26.07.1.
 

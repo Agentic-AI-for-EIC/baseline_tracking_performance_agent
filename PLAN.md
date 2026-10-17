@@ -60,12 +60,12 @@ the endcap bins were always present but thin).
 │   └── signal_BKG_mix/{GEANT4,RECO}/...# campaign 26.07.1, +background
 ├── trkperf/                            # importable, modularized analysis package
 │   ├── __init__.py
-│   ├── config.py         # species PDG table; pT/eta bin edges; match-weight threshold;
+│   ├── config.py         # species PDG table; p/eta bin edges; match-weight threshold;
 │   │                      # acceptance N_min; dataset registry (paths + minQ2 tiers + escalation order)
 │   ├── io.py              # open local path or root:// URL with uproot; generic jagged->flat
 │   │                      # DataFrame helper; no physics
-│   ├── truth.py           # MCParticles -> pT/eta/species; truth-hit layer counts for acceptance
-│   ├── reco.py            # CentralCKFTracks -> reconstructed pT/eta/charge/pdg
+│   ├── truth.py           # MCParticles -> p/eta/species; truth-hit counts for acceptance
+│   ├── reco.py            # CentralCKFTracks -> reconstructed p/eta/charge/pdg
 │   ├── matching.py        # CentralCKFTrackAssociations -> shared truth<->reco matched-pairs table,
 │   │                      # and the fake-track finder
 │   ├── binning.py         # bin-edge assignment, Gaussian-core fit helper
@@ -154,9 +154,12 @@ for reference but are no longer quoted.
   VertexBarrelHits, TrackerEndcapHits, MPGDBarrelHits, OuterMPGDBarrelHits,
   BackwardMPGDEndcapHits, ForwardMPGDEndcapHits.
 
-"Layer" for acceptance purposes = one of these 7 collections having >=1 hit
-from the particle (a collection-level proxy; not a decoded physical sensor
-layer number, which would need subsystem-specific cellID geometry decoding).
+Acceptance (2026-10 update) = >= 4 **individual** truth hits, of which >= 3 in
+the silicon tracker (`SiBarrelHits`, `VertexBarrelHits`, `TrackerEndcapHits`) —
+the CKF seed requirement — counted over the region's truth-hit collection set.
+This replaces the earlier collection-level ">= 4 of 7 layers" proxy; the hit
+counts come from the per-collection truth-hit entries, so no decoded cellID
+layer number is needed (out of scope).
 
 ### 4.1 Tracking regions: central, forward (hadron endcap), backward (electron endcap)
 
@@ -213,8 +216,9 @@ Explicitly out of scope (measured, not assumed):
 - No `SiEndcapTrackerHits` truth relation exists under that name, so silicon
   endcap disks enter only via `TrackerEndcapHits`.
 
-Momentum resolution is defined on pT specifically: Delta(pT)/pT =
-(pT_reco - pT_truth) / pT_truth, consistent with binning everything in pT/eta.
+Momentum resolution is defined on total momentum p specifically: Delta(p)/p =
+(p_reco - p_truth) / p_truth, consistent with binning everything in p/eta
+(2026-10: swept pT -> p across all performance tables/plots).
 
 ## 5. Skills (.opencode/skills/<name>/SKILL.md)
 The four tracking skills (acceptance, momentum-resolution, track-efficiency,
@@ -384,7 +388,7 @@ failed to OPEN file 0 (transient `[ERROR] Operation expired`) and mistaken
 it for genuine absence. Those outputs were deleted as wrong, never plotted.
 Fix: the probe now skips unopenable files (first successfully opened file
 decides; all-unopenable returns True so reads fail loudly via the failure
-budget), and `read_truth_hit_layer_counts` reports `found_collections`,
+budget), and `read_truth_hit_counts` reports `found_collections`,
 recorded in every acceptance/efficiency JSON's `collections_found` metadata.
 `acceptance_backward/efficiency_backward_bkg_mixed` finished WITHOUT probe
 NOTEs (12/17 files skipped, recorded) and are valid; `acceptance_forward`
@@ -470,12 +474,12 @@ the bottleneck, first passes pay network, repeats replay from disk.
 - Access: login00 pin (see §3); remote daemon needs
   `LD_LIBRARY_PATH=<...>/4.2.1/lib64` (`libXrdServer.so.2`); a stale
   daemon holding port 1294 from a killed session must be cleared first.
-- OOM #1: `read_truth_hit_layer_counts` hoarded every raw background hit
+- OOM #1: the truth-hit-count reader (`.read_truth_hit_counts`) hoarded every raw background hit
   row before the nunique groupby - bkg acceptance OOM-killed at 65 min on
   the 15 GB box. Fix: `keep_particles` (the truth table the caller merges
   onto) filters rows per-file inside `read_flat_multi`'s accumulation,
   after the raw cache stash; bit-identical (proven by
-  `TestLayerCountKeepFilter`). Bkg acceptance then finished in ~70 s.
+  `TestHitCountKeepFilter`). Bkg acceptance then finished in ~70 s.
 - Chunking (`--chunk-files`, default 0 = historical path): efficiency
   splits into `_chunk_counts` (counts merged before ratios), resolution
   into `_chunk_residuals` (residuals merged before fits; the non-finite
@@ -503,7 +507,7 @@ region-rule JSON, one figure per species group (e, pi, K, proton,
 antiproton separate) with ALL of that rule's own eta bins as curves
 (5/6/5 since the 2026-10-06 boundary change, was 6/4/6; Δη = 0.5, ordered "eta bin" legend, trusted bins only) - 15
 figures, clean only (acceptance is background-free). Legend fix en route:
-`plot_metric_vs_pt` built its colour map only with a marker column, so
+`plot_metric_vs_p` (then `plot_metric_vs_pt`) built its colour map only with a marker column, so
 marker-less multi-curve figures shipped legend-free; colour+legend now
 follow the named group alone (regression-tested).
 

@@ -82,18 +82,18 @@ class TestFullBinGrid(unittest.TestCase):
         from trkperf import config
 
         grid = binning.full_bin_grid(["pi+", "K+"])
-        n_pt = len(config.PT_BIN_EDGES) - 1
+        n_p = len(config.P_BIN_EDGES) - 1
         n_eta = len(config.ETA_BIN_EDGES) - 1
-        self.assertEqual(len(grid), 2 * n_pt * n_eta)
-        self.assertTrue((grid["pt_bin_center"] > 0).all())
+        self.assertEqual(len(grid), 2 * n_p * n_eta)
+        self.assertTrue((grid["p_bin_center"] > 0).all())
 
     def test_grid_bins_match_assign_bins_categories(self):
-        df = pd.DataFrame({"pt": [0.5, 5.0], "eta": [0.1, -2.0]})
+        df = pd.DataFrame({"p": [0.5, 5.0], "eta": [0.1, -2.0]})
         binned = binning.assign_bins(df)
         grid = binning.full_bin_grid(None)
         self.assertEqual(
-            list(grid["pt_bin"].cat.categories),
-            list(binned["pt_bin"].cat.categories),
+            list(grid["p_bin"].cat.categories),
+            list(binned["p_bin"].cat.categories),
         )
         self.assertEqual(
             list(grid["eta_bin"].cat.categories),
@@ -117,23 +117,27 @@ class TestEmptyInputGrids(unittest.TestCase):
             "file_id": pd.Series(dtype="int64"), "event": pd.Series(dtype="int64"),
             "idx": pd.Series(dtype="int64"), "generator_status": pd.Series(dtype="int64"),
             "species": pd.Series(dtype="object"), "pt": pd.Series(dtype="float64"),
-            "eta": pd.Series(dtype="float64"),
+            "p": pd.Series(dtype="float64"), "eta": pd.Series(dtype="float64"),
         })
         empty_layers = pd.DataFrame({
             "file_id": pd.Series(dtype="int64"), "event": pd.Series(dtype="int64"),
-            "idx": pd.Series(dtype="int64"), "n_layers_hit": pd.Series(dtype="int64"),
+            "idx": pd.Series(dtype="int64"),
+            "n_hits_total": pd.Series(dtype="int64"),
+            "n_hits_si": pd.Series(dtype="int64"),
         })
         with mock.patch("trkperf.truth.read_truth_particles", return_value=empty_truth), \
-             mock.patch("trkperf.truth.read_truth_hit_layer_counts", return_value=empty_layers):
+             mock.patch("trkperf.truth.read_truth_hit_counts", return_value=empty_layers):
             result = acceptance.compute_acceptance(["unreadable.root"])
-        n_pt = len(config.PT_BIN_EDGES) - 1
+        n_p = len(config.P_BIN_EDGES) - 1
         n_eta = len(config.ETA_BIN_EDGES) - 1
-        self.assertEqual(len(result), len(config.SPECIES) * n_pt * n_eta)
+        self.assertEqual(len(result), len(config.SPECIES) * n_p * n_eta)
         self.assertTrue(result["insufficient_stats"].all())
         self.assertTrue((result["n_generated"] == 0).all())
         self.assertTrue(result["acceptance"].isna().all())
         self.assertIn("skipped_files", result.attrs)
-        self.assertEqual(result.attrs["run_params"]["min_layers"], config.ACCEPTANCE_MIN_LAYERS)
+        self.assertEqual(result.attrs["run_params"]["min_hits"], config.ACCEPTANCE_MIN_HITS)
+        self.assertEqual(result.attrs["run_params"]["min_silicon_hits"],
+                         config.ACCEPTANCE_MIN_SILICON_HITS)
 
     def test_resolution_empty_matches_keep_schema(self):
         from trkperf import config
@@ -142,6 +146,7 @@ class TestEmptyInputGrids(unittest.TestCase):
         empty_pairs = pd.DataFrame({
             "species": pd.Series(dtype="object"), "is_matched": pd.Series(dtype="bool"),
             "reco_pt": pd.Series(dtype="float64"), "pt": pd.Series(dtype="float64"),
+            "reco_p": pd.Series(dtype="float64"), "p": pd.Series(dtype="float64"),
             "eta": pd.Series(dtype="float64"),
         })
         with mock.patch("trkperf.truth.read_truth_particles", return_value=empty_pairs), \
@@ -150,9 +155,9 @@ class TestEmptyInputGrids(unittest.TestCase):
              mock.patch("trkperf.matching.read_associations", return_value=empty_pairs), \
              mock.patch("trkperf.matching.build_matched_pairs", return_value=empty_pairs):
             result = resolution.compute_resolution(["unreadable.root"])
-        n_pt = len(config.PT_BIN_EDGES) - 1
+        n_p = len(config.P_BIN_EDGES) - 1
         n_eta = len(config.ETA_BIN_EDGES) - 1
-        self.assertEqual(len(result), len(config.SPECIES) * n_pt * n_eta)
+        self.assertEqual(len(result), len(config.SPECIES) * n_p * n_eta)
         for col in ("mu", "sigma", "mu_err", "sigma_err", "chi2_ndf"):
             self.assertIn(col, result.columns)
             self.assertTrue(result[col].isna().all())
@@ -165,7 +170,7 @@ class TestCompareMetric(unittest.TestCase):
         clean = pd.DataFrame(
             {
                 "species": ["pi+", "pi+"],
-                "pt_bin_center": [1.0, 2.0],
+                "p_bin_center": [1.0, 2.0],
                 "eta_bin_center": [0.0, 0.0],
                 "acceptance": [0.8, 0.9],
                 "acceptance_err": [0.02, 0.01],
@@ -183,7 +188,7 @@ class TestCompareMetric(unittest.TestCase):
             report.to_json(bkg, str(bkg_path))
             merged = compare.compare_metric(str(clean_path), str(bkg_path))
 
-        merged = merged.sort_values("pt_bin_center")
+        merged = merged.sort_values("p_bin_center")
         np.testing.assert_allclose(
             merged["acceptance_ratio_bkg_over_clean"].to_numpy(), [0.4 / 0.8, 0.6 / 0.9]
         )
@@ -195,7 +200,7 @@ class TestCompareMetric(unittest.TestCase):
     def test_zero_clean_value_gives_nan_ratio_not_a_crash(self):
         clean = pd.DataFrame(
             {
-                "pt_bin_center": [1.0],
+                "p_bin_center": [1.0],
                 "eta_bin_center": [0.0],
                 "fake_rate": [0.0],
                 "fake_rate_err": [0.0],
@@ -203,7 +208,7 @@ class TestCompareMetric(unittest.TestCase):
         )
         bkg = pd.DataFrame(
             {
-                "pt_bin_center": [1.0],
+                "p_bin_center": [1.0],
                 "eta_bin_center": [0.0],
                 "fake_rate": [0.1],
                 "fake_rate_err": [0.02],
@@ -224,7 +229,7 @@ class TestCompareMetric(unittest.TestCase):
             {
                 "species": ["pi+", "pi+", "K+", "K+"],
                 "reco_species": ["pi+", "K+", "pi+", "K+"],
-                "pt_bin_center": [1.0, 1.0, 1.0, 1.0],
+                "p_bin_center": [1.0, 1.0, 1.0, 1.0],
                 "eta_bin_center": [0.0, 0.0, 0.0, 0.0],
                 "confusion_frac": [0.9, 0.1, 0.2, 0.8],
                 "confusion_frac_err": [0.03, 0.03, 0.04, 0.04],
@@ -264,7 +269,7 @@ class TestCompareMetric(unittest.TestCase):
         # (pi+ -> K+) row joined a bkg (pi- -> K+) row in the same bin and
         # the "comparison" compared different truth species.
         cols = {
-            "pt_bin_center": [1.0],
+            "p_bin_center": [1.0],
             "eta_bin_center": [0.0],
             "reco_species": ["K+"],
             "confusion_frac_err": [0.03],
@@ -291,9 +296,9 @@ class TestCompareMetric(unittest.TestCase):
         clean = pd.DataFrame(
             {
                 "species": ["pi+"],
-                "pt_bin": ["(0.5, 1.0]"],
+                "p_bin": ["(0.5, 1.0]"],
                 "eta_bin": ["(0.0, 0.5]"],
-                "pt_bin_center": [0.75],
+                "p_bin_center": [0.75],
                 "eta_bin_center": [0.25],
                 "acceptance": [0.8],
                 "acceptance_err": [0.02],
@@ -317,7 +322,7 @@ class TestCompareMetric(unittest.TestCase):
         # R = 0 is well-defined (b = 0); its error is db/|c|, not NaN.
         clean = pd.DataFrame(
             {
-                "pt_bin_center": [1.0],
+                "p_bin_center": [1.0],
                 "eta_bin_center": [0.0],
                 "fake_rate": [0.5],
                 "fake_rate_err": [0.05],
@@ -325,7 +330,7 @@ class TestCompareMetric(unittest.TestCase):
         )
         bkg = pd.DataFrame(
             {
-                "pt_bin_center": [1.0],
+                "p_bin_center": [1.0],
                 "eta_bin_center": [0.0],
                 "fake_rate": [0.0],
                 "fake_rate_err": [0.02],
@@ -347,7 +352,7 @@ class TestCompareMetric(unittest.TestCase):
         # to_numpy(dtype=float) exception.
         clean = pd.DataFrame(
             {
-                "pt_bin_center": [1.0],
+                "p_bin_center": [1.0],
                 "eta_bin_center": [0.0],
                 "fake_rate": [0.5],
                 "fake_rate_err": [None],
@@ -355,7 +360,7 @@ class TestCompareMetric(unittest.TestCase):
         )
         bkg = pd.DataFrame(
             {
-                "pt_bin_center": [1.0],
+                "p_bin_center": [1.0],
                 "eta_bin_center": [0.0],
                 "fake_rate": [0.4],
                 "fake_rate_err": [0.03],
@@ -376,7 +381,7 @@ class TestCompareMetric(unittest.TestCase):
         # opposite, never silently vanish from the comparison.
         clean = pd.DataFrame(
             {
-                "pt_bin_center": [1.0],
+                "p_bin_center": [1.0],
                 "eta_bin_center": [0.0],
                 "fake_rate": [0.5],
                 "fake_rate_err": [0.05],
@@ -384,7 +389,7 @@ class TestCompareMetric(unittest.TestCase):
         )
         bkg = pd.DataFrame(
             {
-                "pt_bin_center": [1.0],
+                "p_bin_center": [1.0],
                 "eta_bin_center": [0.0],
                 "fake_rate": [0.4],
                 "fake_rate_err": [0.03],
@@ -599,7 +604,7 @@ class TestPerFileFilter(unittest.TestCase):
 
 
 class TestLayerCountKeepFilter(unittest.TestCase):
-    """`read_truth_hit_layer_counts(keep_particles=...)` must drop
+    """`read_truth_hit_counts(keep_particles=...)` must drop
     background-particle hit rows DURING accumulation (that is the OOM fix)
     while returning exactly the counts the merge-on-truth would have kept."""
 
@@ -630,10 +635,13 @@ class TestLayerCountKeepFilter(unittest.TestCase):
         with mock.patch.object(io, "open_tree", side_effect=fake_open), \
              mock.patch.object(io, "read_flat", side_effect=fake_read), \
              mock.patch.object(truth, "_collection_present", return_value=True):
-            return truth.read_truth_hit_layer_counts(
-                ["A", "B"], collections=("C1", "C2"), keep_particles=keep)
+            return truth.read_truth_hit_counts(
+                ["A", "B"], collections=("C1", "C2"), silicon=("C1",),
+                keep_particles=keep)
 
     def test_keep_matches_merge_then_zero_fill(self):
+        # _HITS: particle 0 hits C1 and C2 (total 2, si 1); particle 1 only
+        # C1; particle 7 (background) C1+C2; particle 3 (file B) only C1.
         full = self._read(None)
         # Unfiltered table carries the background particle's row...
         self.assertIn(7, set(full["idx"]))
@@ -643,23 +651,26 @@ class TestLayerCountKeepFilter(unittest.TestCase):
         # ...and it (plus any other non-kept particle) must be gone.
         self.assertNotIn(7, set(got["idx"]))
         expect = pd.DataFrame({"file_id": [0, 0, 1], "event": [0, 0, 0],
-                               "idx": [0, 1, 3], "n_layers_hit": [2, 1, 1]})
-        cols = ["file_id", "event", "idx", "n_layers_hit"]
+                               "idx": [0, 1, 3],
+                               "n_hits_total": [2, 1, 1], "n_hits_si": [1, 1, 1]})
+        cols = ["file_id", "event", "idx", "n_hits_total", "n_hits_si"]
         pd.testing.assert_frame_equal(
-            got[cols].sort_values(cols, ignore_index=True), expect)
-        # Bit-identity claim: merging full counts onto the same keys and
-        # zero-filling gives the identical table.
+            got[cols].sort_values(cols, ignore_index=True).reset_index(drop=True),
+            expect)
+        # Bit-identity claim: merging full counts onto the same keys gives the
+        # identical table.
         merged = (keep.merge(full, on=["file_id", "event", "idx"], how="inner")
-                  [cols].sort_values(cols, ignore_index=True))
+                  [cols].sort_values(cols, ignore_index=True).reset_index(drop=True))
         pd.testing.assert_frame_equal(
-            got[cols].sort_values(cols, ignore_index=True), merged)
+            got[cols].sort_values(cols, ignore_index=True).reset_index(drop=True),
+            merged)
 
     def test_keep_empty_returns_empty_contract(self):
         keep = pd.DataFrame({"file_id": [], "event": [], "idx": []})
         got = self._read(keep)
         self.assertEqual(len(got), 0)
         self.assertEqual(list(got.columns),
-                         ["file_id", "event", "idx", "n_layers_hit"])
+                         ["file_id", "event", "idx", "n_hits_total", "n_hits_si"])
 
 
 class TestReadCache(unittest.TestCase):
@@ -761,7 +772,7 @@ class TestChunkedMetrics(unittest.TestCase):
                 ):
                     rows.append({"file_id": fid, "event": 0, "idx": j,
                                  "generator_status": 1, "species": sp,
-                                 "pt": pt + v, "eta": eta})
+                                 "pt": pt + v, "p": pt + v, "eta": eta})
             return pd.DataFrame(rows)
 
         def _layers(file_paths, **kw):
@@ -770,9 +781,10 @@ class TestChunkedMetrics(unittest.TestCase):
                 for j, n in enumerate([4, 0, 4]):
                     if n:
                         rows.append({"file_id": fid, "event": 0, "idx": j,
-                                     "n_layers_hit": n})
+                                     "n_hits_total": n,
+                                     "n_hits_si": n})
             return pd.DataFrame(rows, columns=["file_id", "event", "idx",
-                                               "n_layers_hit"])
+                                               "n_hits_total", "n_hits_si"])
 
         def _reco(file_paths, **kw):
             rows = []
@@ -795,7 +807,7 @@ class TestChunkedMetrics(unittest.TestCase):
             return pd.DataFrame(rows)
 
         return (mock.patch("trkperf.truth.read_truth_particles", side_effect=_truth),
-                mock.patch("trkperf.truth.read_truth_hit_layer_counts", side_effect=_layers),
+                mock.patch("trkperf.truth.read_truth_hit_counts", side_effect=_layers),
                 mock.patch("trkperf.reco.read_reco_tracks", side_effect=_reco),
                 mock.patch("trkperf.matching.read_associations", side_effect=_assoc))
 
@@ -854,10 +866,10 @@ class TestTrackingRegions(unittest.TestCase):
 
         for region, spec in config.TRACKING_REGIONS.items():
             self.assertTrue(len(spec["collections"]) >= 2, region)
-            self.assertGreaterEqual(spec["min_layers"], 1, region)
-            self.assertLessEqual(spec["min_layers"], len(spec["collections"]), region)
-        self.assertEqual(config.TRACKING_REGIONS["central"]["min_layers"],
-                         config.ACCEPTANCE_MIN_LAYERS)
+            self.assertGreaterEqual(spec["min_hits"], 1, region)
+            self.assertLessEqual(spec["min_silicon_hits"], spec["min_hits"], region)
+        self.assertEqual(config.TRACKING_REGIONS["central"]["min_hits"],
+                         config.ACCEPTANCE_MIN_HITS)
 
     def test_unknown_region_raises(self):
         from trkperf.metrics import acceptance, efficiency
@@ -876,14 +888,14 @@ class TestTrackingRegions(unittest.TestCase):
         truth = pd.DataFrame({
             "file_id": [0, 0], "event": [0, 0], "idx": [0, 1],
             "generator_status": [1, 1], "species": ["e-", "e-"],
-            "pt": [1.0, 1.0], "eta": [-2.75, -2.75],
+            "pt": [1.0, 1.0], "p": [3.0, 3.0], "eta": [-2.75, -2.75],
         })
         layers = pd.DataFrame({
             "file_id": [0], "event": [0], "idx": [0],
-            "n_layers_hit": [2],
+            "n_hits_total": [4], "n_hits_si": [3],
         })
         with mock.patch("trkperf.truth.read_truth_particles", return_value=truth), \
-             mock.patch("trkperf.truth.read_truth_hit_layer_counts",
+             mock.patch("trkperf.truth.read_truth_hit_counts",
                         return_value=layers) as rl:
             result = acceptance.compute_acceptance(["f.root"], region="backward")
         _, kwargs = rl.call_args
@@ -900,13 +912,13 @@ class TestEtaRegions(unittest.TestCase):
         # Two eta bins in barrel (-0.75, +0.75), one backward:
         # regional acceptance must equal summed counts, never mean of ratios.
         return pd.DataFrame([
-            {"species": "e-", "pt_bin_center": 1.0, "eta_bin_center": -0.75,
+            {"species": "e-", "p_bin_center": 1.0, "eta_bin_center": -0.75,
              "acceptance": 0.5, "acceptance_err": 0.1, "n_generated": 100,
              "n_in_acceptance": 50, "insufficient_stats": False},
-            {"species": "e-", "pt_bin_center": 1.0, "eta_bin_center": 0.75,
+            {"species": "e-", "p_bin_center": 1.0, "eta_bin_center": 0.75,
              "acceptance": 1.0, "acceptance_err": 0.0, "n_generated": 300,
              "n_in_acceptance": 300, "insufficient_stats": False},
-            {"species": "e-", "pt_bin_center": 1.0, "eta_bin_center": -2.75,
+            {"species": "e-", "p_bin_center": 1.0, "eta_bin_center": -2.75,
              "acceptance": 0.0, "acceptance_err": 0.0, "n_generated": 1000,
              "n_in_acceptance": 0, "insufficient_stats": False},
         ])
@@ -952,10 +964,10 @@ class TestEtaRegions(unittest.TestCase):
         self.assertNotEqual(groups["proton"], groups["antiproton"])
         # charge-conjugate merge is exact: (30 + 70) / (100 + 100) = 0.5
         df = pd.DataFrame([
-            {"species": "e-", "pt_bin_center": 1.0, "eta_bin_center": 0.25,
+            {"species": "e-", "p_bin_center": 1.0, "eta_bin_center": 0.25,
              "acceptance": 0.3, "acceptance_err": 0.05, "n_generated": 100,
              "n_in_acceptance": 30, "insufficient_stats": False},
-            {"species": "e+", "pt_bin_center": 1.0, "eta_bin_center": 0.25,
+            {"species": "e+", "p_bin_center": 1.0, "eta_bin_center": 0.25,
              "acceptance": 0.7, "acceptance_err": 0.05, "n_generated": 100,
              "n_in_acceptance": 70, "insufficient_stats": False},
         ])
@@ -969,13 +981,13 @@ class TestEtaRegions(unittest.TestCase):
 
     def test_eta_slice_keeps_eta_granularity(self):
         df = pd.DataFrame([
-            {"species": "e-", "pt_bin_center": 1.0, "eta_bin_center": 0.25,
+            {"species": "e-", "p_bin_center": 1.0, "eta_bin_center": 0.25,
              "acceptance": 0.3, "acceptance_err": 0.05, "n_generated": 100,
              "n_in_acceptance": 30, "insufficient_stats": False},
-            {"species": "e+", "pt_bin_center": 1.0, "eta_bin_center": 0.25,
+            {"species": "e+", "p_bin_center": 1.0, "eta_bin_center": 0.25,
              "acceptance": 0.7, "acceptance_err": 0.05, "n_generated": 100,
              "n_in_acceptance": 70, "insufficient_stats": False},
-            {"species": "e-", "pt_bin_center": 1.0, "eta_bin_center": -2.75,
+            {"species": "e-", "p_bin_center": 1.0, "eta_bin_center": -2.75,
              "acceptance": 1.0, "acceptance_err": 0.01, "n_generated": 1000,
              "n_in_acceptance": 1000, "insufficient_stats": False},
         ])
@@ -996,24 +1008,25 @@ class TestEtaRegions(unittest.TestCase):
         self.assertTrue(empty.empty)
         self.assertIn("species_group", empty.columns)
 
-    def test_markerless_plot_still_gets_a_colour_legend(self):        # Regression: with marker_col=None, plot_metric_vs_pt used to leave
+    def test_markerless_plot_still_gets_a_colour_legend(self):
+        # Regression: with marker_col=None, plot_metric_vs_p used to leave
         # color_map unset, so multi-curve figures shipped with NO legend.
         import matplotlib
         from unittest import mock
 
         matplotlib.use("Agg")
         frame = pd.DataFrame([
-            {"eta_label": "[0.00,0.50]", "pt_bin_center": 1.0,
+            {"eta_label": "[0.00,0.50]", "p_bin_center": 1.0,
              "acceptance": 0.5, "acceptance_err": 0.05,
              "insufficient_stats": False},
-            {"eta_label": "[0.50,1.00]", "pt_bin_center": 1.0,
+            {"eta_label": "[0.50,1.00]", "p_bin_center": 1.0,
              "acceptance": 0.7, "acceptance_err": 0.05,
              "insufficient_stats": False},
         ])
         with tempfile.TemporaryDirectory() as tmp:
             path = os.path.join(tmp, "legend.png")
             with mock.patch.object(matplotlib.pyplot, "close"):
-                report.plot_metric_vs_pt(
+                report.plot_metric_vs_p(
                     frame, "acceptance", "acceptance_err", path,
                     group_col="eta_label", marker_col=None, legend_title="eta bin")
             self.assertTrue(os.path.exists(path))
@@ -1061,13 +1074,13 @@ class TestEtaRegions(unittest.TestCase):
 
     def test_sigma_inverse_variance(self):
         df = pd.DataFrame([
-            {"species": "pi+", "pt_bin_center": 1.0, "eta_bin_center": -0.25,
+            {"species": "pi+", "p_bin_center": 1.0, "eta_bin_center": -0.25,
              "sigma": 0.10, "sigma_err": 0.01, "n_matched": 200,
              "fit_converged": True, "insufficient_stats": False},
-            {"species": "pi+", "pt_bin_center": 1.0, "eta_bin_center": 0.25,
+            {"species": "pi+", "p_bin_center": 1.0, "eta_bin_center": 0.25,
              "sigma": 0.20, "sigma_err": 0.02, "n_matched": 200,
              "fit_converged": True, "insufficient_stats": False},
-            {"species": "pi+", "pt_bin_center": 1.0, "eta_bin_center": 0.75,
+            {"species": "pi+", "p_bin_center": 1.0, "eta_bin_center": 0.75,
              "sigma": 9.99, "sigma_err": 0.001, "n_matched": 200,
              "fit_converged": False, "insufficient_stats": False},
         ])

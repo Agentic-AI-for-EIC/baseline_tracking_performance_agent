@@ -54,17 +54,17 @@ FAKE_RATE_NAME = "fake-rate"
 #: than the default upper right. Adding a metric here is optional -
 #: _write_outputs falls back to no plot if a metric name is not listed.
 _PLOT_SPEC: dict[str, list[tuple]] = {
-    "acceptance": [("acceptance", "acceptance_err", "vs_pt")],
+    "acceptance": [("acceptance", "acceptance_err", "vs_p")],
     "resolution": [
-        ("sigma", "sigma_err", "sigma_vs_pt"),
-        ("sigma", "sigma_err", "sigma_vs_pt_logy", True),
+        ("sigma", "sigma_err", "sigma_vs_p"),
+        ("sigma", "sigma_err", "sigma_vs_p_logy", True),
     ],
     "efficiency": [
-        ("efficiency_absolute", "efficiency_absolute_err", "absolute_vs_pt"),
+        ("efficiency_absolute", "efficiency_absolute_err", "absolute_vs_p"),
         (
             "efficiency_within_acceptance",
             "efficiency_within_acceptance_err",
-            "within_acceptance_vs_pt",
+            "within_acceptance_vs_p",
         ),
     ],
     # The fake-rate linear plot plus a log-y companion, so very small fake
@@ -73,8 +73,8 @@ _PLOT_SPEC: dict[str, list[tuple]] = {
     # range is pinned to ymin=1e-5 and the legend sits lower-right so it does
     # not cover the high-pT falloff in the top-right.
     FAKE_RATE_NAME: [
-        ("fake_rate", "fake_rate_err", "vs_pt", False, None, "upper right"),
-        ("fake_rate", "fake_rate_err", "vs_pt_logy", True, 1e-5, "lower right"),
+        ("fake_rate", "fake_rate_err", "vs_p", False, None, "upper right"),
+        ("fake_rate", "fake_rate_err", "vs_p_logy", True, 1e-5, "lower right"),
     ],
     # pid-confusion: no single group axis works for a two-species-axis
     # matrix — JSON/markdown output is the primary deliverable here.
@@ -206,7 +206,7 @@ def _write_outputs(
             getattr(args, "plots_dir", None) or "output/plot_tracking", plot_name)
         group_col = "species" if metric_name != FAKE_RATE_NAME else "__no_species_axis__"
         group_color = "black" if metric_name == FAKE_RATE_NAME else None
-        report.plot_metric_vs_pt(
+        report.plot_metric_vs_p(
             df, value_col, err_col, plot_path, group_col=group_col,
             marker_col="eta_bin_center", group_color=group_color, log_y=log_y,
             ymin=ymin, marker_legend_loc=marker_loc,
@@ -257,7 +257,7 @@ _GROUP_COUNTS: dict[tuple[str, str], tuple[str, str] | None] = {
 
 
 def _run_plot(args: argparse.Namespace):
-    """Re-render the metric-vs-pT PNG(s) for an existing JSON result, without
+    """Re-render the metric-vs-p PNG(s) for an existing JSON result, without
     touching the grid — used to restyle a finished run's plots (e.g. after a
     plotting change). Reads the value/err column spec from _PLOT_SPEC so the
     output matches what the metric run itself would produce."""
@@ -301,7 +301,7 @@ def _run_plot(args: argparse.Namespace):
             for group, sub in allf.groupby("species_group", observed=True):
                 slug = str(group).split("/")[0].rstrip("+-")
                 plot_path = f"{pbase}_{suffix}_eta_slices_{slug}.png"
-                report.plot_metric_vs_pt(
+                report.plot_metric_vs_p(
                     sub, value_col, err_col, plot_path, group_col="eta_label",
                     marker_col=None, group_color=None, log_y=log_y,
                     ymin=ymin, marker_legend_loc=marker_loc,
@@ -340,7 +340,7 @@ def _run_plot(args: argparse.Namespace):
             group_col = "species" if metric_name != FAKE_RATE_NAME else "__no_species_axis__"
             marker = "eta_bin_center"
         group_color = "black" if metric_name == FAKE_RATE_NAME else None
-        report.plot_metric_vs_pt(
+        report.plot_metric_vs_p(
             frame, value_col, err_col, plot_path, group_col=group_col,
             marker_col=marker, group_color=group_color, log_y=log_y,
             ymin=ymin, marker_legend_loc=marker_loc,
@@ -398,7 +398,7 @@ def build_parser() -> argparse.ArgumentParser:
 
     p = sub.add_parser(
         "plot",
-        help="Re-render the metric-vs-pT PNG(s) for an existing JSON result "
+        help="Re-render the metric-vs-p PNG(s) for an existing JSON result "
         "(no grid access) - useful after a plotting change.",
     )
     p.add_argument("--json", required=True, help="Path to a metric-run JSON output.")

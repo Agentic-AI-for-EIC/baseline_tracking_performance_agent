@@ -41,6 +41,12 @@ PDG_TO_SPECIES: dict[int, str] = {pdg: name for name, pdg in SPECIES.items()}
 # campaigns (roughly 0.1-20 GeV for DIS final-state particles at 10x100).
 PT_BIN_EDGES: np.ndarray = np.logspace(np.log10(0.1), np.log10(20.0), 9)
 
+# Total-momentum bins (2026-10: all performance tables/plots bin in p, not
+# pT). 9 edges -> 8 log-spaced bins, 0.1-100 GeV: the top reaches the beam
+# momentum of forward protons; thinly populated high bins are reported as
+# insufficient statistics, never merged away.
+P_BIN_EDGES: np.ndarray = np.logspace(np.log10(0.1), np.log10(100.0), 9)
+
 # 0.5-wide eta bins spanning the central + far-forward/backward acceptance.
 ETA_BIN_EDGES: np.ndarray = np.arange(-4.0, 4.01, 0.5)
 
@@ -68,23 +74,24 @@ BARREL_ETA_MAX: float = 1.5
 MATCH_WEIGHT_THRESHOLD: float = 0.5
 
 # ---------------------------------------------------------------------------
-# Acceptance: minimum number of the 7 central-tracking truth-hit collections
-# (see CENTRAL_TRACKING_TRUTH_HIT_COLLECTIONS) that must register >= 1 hit
-# from a truth particle for it to be counted "in acceptance" (i.e. it could
-# in principle be reconstructed as a 3D track). 4 is the minimal requirement
-# for an unambiguous 3D space-point track fit (fewer than 4 hits cannot
-# over-constrain a helix in the presence of multiple scattering).
-#
-# NOTE: "collection" here is a proxy for "layer". A truth particle can leave
-# several hits within the *same* collection (e.g. multiple SiBarrelHits) if
-# that subsystem has several physical sensor layers; decoding the true
-# per-layer count would require subsystem-specific cellID bit-unpacking
-# against the detector's compact geometry description, which this project
-# deliberately does not depend on. Counting "distinct collections hit" is a
-# simpler, geometry-independent stand-in. Revisit if this proxy turns out to
-# be too coarse (e.g. if SiBarrel alone has >= 4 physical layers, this
-# definition would call a particle "in acceptance" from Si hits alone).
-ACCEPTANCE_MIN_LAYERS: int = 4
+# Acceptance (criterion change 2026-10-16): a truth particle is in acceptance
+# when it leaves >= ACCEPTANCE_MIN_HITS INDIVIDUAL truth hits in its region's
+# tracking collections AND >= ACCEPTANCE_MIN_SILICON_HITS of them in silicon
+# (the SVT). The silicon floor mirrors the reconstruction: the CKF needs a
+# >= 3-hit silicon seed to start tracking, so a particle whose hits live only
+# in gaseous/timing detectors is not reconstructible regardless of count.
+# (This replaces the old collection-proxy rule ">= N of M collections fired",
+# which the previous comment itself flagged as too coarse.)
+# ---------------------------------------------------------------------------
+ACCEPTANCE_MIN_HITS: int = 4
+ACCEPTANCE_MIN_SILICON_HITS: int = 3
+
+#: The three silicon (MAPS/SVT) truth-hit collections.
+SILICON_TRACKING_TRUTH_HIT_COLLECTIONS: tuple[str, ...] = (
+    "SiBarrelHits",
+    "VertexBarrelHits",
+    "TrackerEndcapHits",
+)
 
 CENTRAL_TRACKING_TRUTH_HIT_COLLECTIONS: tuple[str, ...] = (
     "SiBarrelHits",
@@ -98,16 +105,17 @@ CENTRAL_TRACKING_TRUTH_HIT_COLLECTIONS: tuple[str, ...] = (
 
 # ---------------------------------------------------------------------------
 # Tracking regions (see PLAN.md 4.1). The central CKF reconstructs endcap
-# tracks, so no new reconstruction chain is needed - but the central >=4/7
-# acceptance rule calls nearly every endcap particle out of acceptance.
-# Each region therefore defines its own truth-hit collections and N_min
-# (2 = the stereo minimum: two independent measurements make a segment),
-# with the measured joint fractions in PLAN.md as justification.
+# tracks, so no new reconstruction chain is needed - but each region counts
+# hits in its own detector systems. The acceptance test itself is the global
+# >= ACCEPTANCE_MIN_HITS total / >= ACCEPTANCE_MIN_SILICON_HITS silicon rule
+# above, applied to the region's collection set (silicon hits outside the
+# region's set cannot help the silicon floor).
 # ---------------------------------------------------------------------------
 TRACKING_REGIONS: dict[str, dict] = {
     "central": {
         "collections": CENTRAL_TRACKING_TRUTH_HIT_COLLECTIONS,
-        "min_layers": ACCEPTANCE_MIN_LAYERS,  # 4
+        "min_hits": ACCEPTANCE_MIN_HITS,            # 4
+        "min_silicon_hits": ACCEPTANCE_MIN_SILICON_HITS,  # 3
     },
     "backward": {
         "collections": (
@@ -115,7 +123,8 @@ TRACKING_REGIONS: dict[str, dict] = {
             "TrackerEndcapHits",
             "TOFEndcapHits",
         ),
-        "min_layers": 2,
+        "min_hits": ACCEPTANCE_MIN_HITS,
+        "min_silicon_hits": ACCEPTANCE_MIN_SILICON_HITS,
     },
     "forward": {
         # Endcap disks only: 2 MPGD disks (one collection) + 5 Si disks
@@ -127,7 +136,8 @@ TRACKING_REGIONS: dict[str, dict] = {
             "TrackerEndcapHits",
             "TOFEndcapHits",
         ),
-        "min_layers": 2,
+        "min_hits": ACCEPTANCE_MIN_HITS,
+        "min_silicon_hits": ACCEPTANCE_MIN_SILICON_HITS,
     },
 }
 

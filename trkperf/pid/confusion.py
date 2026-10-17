@@ -32,8 +32,8 @@ def compute_pid_confusion(
 
     Returns
     -------
-    One row per (pt_bin, eta_bin, truth_species, reco_species):
-        pt_bin, eta_bin, pt_bin_center, eta_bin_center,
+    One row per (p_bin, eta_bin, truth_species, reco_species):
+        p_bin, eta_bin, p_bin_center, eta_bin_center,
         truth_species, reco_species,
         n_matchedinbin,                        # matches of this (truth, reco)
                                                # pair in this bin
@@ -64,7 +64,7 @@ def compute_pid_confusion(
 
     pairs = matching.build_matched_pairs(truth_df, reco_df, assoc_df, weight_threshold)
     matched = pairs[pairs["is_matched"]].copy()
-    _EMPTY_COLS = ["pt_bin", "eta_bin", "pt_bin_center", "eta_bin_center",
+    _EMPTY_COLS = ["p_bin", "eta_bin", "p_bin_center", "eta_bin_center",
                    "truth_species", "reco_species", "n_matchedinbin",
                    "confusion_frac", "confusion_frac_err", "efficiency",
                    "efficiency_err", "n_truth_total_in_bin", "insufficient_stats"]
@@ -77,9 +77,9 @@ def compute_pid_confusion(
     matched["reco_species"] = matched["reco_pdg"].map(config.PDG_TO_SPECIES).fillna("unknown")
 
     matched = binning.assign_bins(matched)
-    matched = matched.dropna(subset=["pt_bin", "eta_bin"])
+    matched = matched.dropna(subset=["p_bin", "eta_bin"])
 
-    bin_cols = ["pt_bin", "eta_bin", "pt_bin_center", "eta_bin_center"]
+    bin_cols = ["p_bin", "eta_bin", "p_bin_center", "eta_bin_center"]
     group_cols = [*bin_cols, "species", "reco_species"]
 
     counts = (

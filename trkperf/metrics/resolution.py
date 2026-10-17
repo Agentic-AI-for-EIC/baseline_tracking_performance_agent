@@ -1,10 +1,12 @@
-"""Momentum resolution: Delta(pT)/pT between the reconstructed and the true
-GEANT track, for truth-matched pairs, Gaussian-fit per (species, pt_bin,
-eta_bin).
+"""Momentum resolution: Delta(p)/p between the reconstructed and the true
+GEANT track, for truth-matched pairs, Gaussian-fit per (species, p_bin,
+eta_bin). (Criterion change 2026-10: the project measures and bins in total
+momentum p; this was Delta(pT)/pT before.)
 """
 
 from __future__ import annotations
 
+import numpy as np
 import pandas as pd
 
 from .. import binning, config, matching, reco, truth
@@ -19,12 +21,12 @@ def _chunk_residuals(
 ) -> pd.DataFrame:
     """Per-chunk stage of the resolution computation: read truth, reco and
     associations for one file-list chunk, build the matched pairs, and keep
-    only the slim (bin keys, Delta(pT)/pT) frame the per-bin fits need.
+    only the slim (bin keys, Delta(p)/p) frame the per-bin fits need.
 
     The wide truth/reco intermediates are dropped with the call frame, so
     peak memory stays proportional to one chunk. `shared` (skip-set +
     failure budget) is caller-owned and accumulates across chunks. The
-    Delta(pT)/pT values (including any non-finite ones) are passed through
+    Delta(p)/p values (including any non-finite ones) are passed through
     exactly as the single pass would produce them - `binning.fit_gaussian_core`
     filters non-finite entries at fit time, so fitted sigmas are identical.
     """
@@ -40,14 +42,15 @@ def _chunk_residuals(
 
     pairs = matching.build_matched_pairs(truth_df, reco_df, assoc_df, weight_threshold)
     matched = pairs[pairs["is_matched"]].copy()
-    matched["delta_pt_over_pt"] = (matched["reco_pt"] - matched["pt"]) / matched["pt"]
+    with np.errstate(divide="ignore", invalid="ignore"):
+        matched["delta_p_over_p"] = (matched["reco_p"] - matched["p"]) / matched["p"]
 
     matched = binning.assign_bins(matched)
-    matched = matched.dropna(subset=["pt_bin", "eta_bin"])
+    matched = matched.dropna(subset=["p_bin", "eta_bin"])
 
     return matched[
-        ["species", "pt_bin", "eta_bin", "pt_bin_center", "eta_bin_center",
-         "delta_pt_over_pt"]
+        ["species", "p_bin", "eta_bin", "p_bin_center", "eta_bin_center",
+         "delta_p_over_p"]
     ]
 
 
@@ -62,15 +65,15 @@ def compute_resolution(
 
     Returns
     -------
-    One row per (species, pt_bin, eta_bin):
-        species, pt_bin, eta_bin, pt_bin_center, eta_bin_center, n_matched,
+    One row per (species, p_bin, eta_bin):
+        species, p_bin, eta_bin, p_bin_center, eta_bin_center, n_matched,
         mu, sigma, mu_err, sigma_err, chi2_ndf, insufficient_stats,
         fit_converged.
 
-    `mu`/`sigma` are on Delta(pT)/pT = (pT_reco - pT_truth) / pT_truth (see
-    AGENTS.md - this project defines resolution on pT specifically, not
-    total momentum, for consistency with the pT/eta binning used
-    everywhere).
+    `mu`/`sigma` are on Delta(p)/p = (p_reco - p_truth) / p_truth, with truth
+    p defining the bin (2026-10 criterion change: the whole project bins and
+    resolves in total momentum; this superseded the earlier Delta(pT)/pT
+    definition).
 
     `chunk_files` bounds peak memory by processing the file list in
     consecutive groups of at most that many files (0/None = one pass, the
@@ -93,21 +96,21 @@ def compute_resolution(
     )
 
     rows = []
-    group_cols = ["species", "pt_bin", "eta_bin", "pt_bin_center", "eta_bin_center"]
+    group_cols = ["species", "p_bin", "eta_bin", "p_bin_center", "eta_bin_center"]
     for keys, group in matched.groupby(group_cols, observed=True):
-        species_name, pt_bin, eta_bin, pt_center, eta_center = keys
+        species_name, p_bin, eta_bin, pt_center, eta_center = keys
         n_matched = len(group)
         insufficient = n_matched < config.MIN_ENTRIES_PER_BIN
         if insufficient:
             fit = binning.GaussianFitResult(n_matched, *([float("nan")] * 4), float("nan"), 0, False)
         else:
-            fit = binning.fit_gaussian_core(group["delta_pt_over_pt"].to_numpy())
+            fit = binning.fit_gaussian_core(group["delta_p_over_p"].to_numpy())
         rows.append(
             {
                 "species": species_name,
-                "pt_bin": pt_bin,
+                "p_bin": p_bin,
                 "eta_bin": eta_bin,
-                "pt_bin_center": pt_center,
+                "p_bin_center": pt_center,
                 "eta_bin_center": eta_center,
                 "n_matched": n_matched,
                 "mu": fit.mu,
@@ -127,9 +130,9 @@ def compute_resolution(
         result = pd.DataFrame(
             {
                 "species": grid["species"],
-                "pt_bin": grid["pt_bin"],
+                "p_bin": grid["p_bin"],
                 "eta_bin": grid["eta_bin"],
-                "pt_bin_center": grid["pt_bin_center"],
+                "p_bin_center": grid["p_bin_center"],
                 "eta_bin_center": grid["eta_bin_center"],
                 "n_matched": 0,
                 "mu": float("nan"),
@@ -143,9 +146,9 @@ def compute_resolution(
         )
     else:
         result = result.merge(
-            grid, on=["species", "pt_bin", "eta_bin"], how="right", suffixes=("", "_grid")
+            grid, on=["species", "p_bin", "eta_bin"], how="right", suffixes=("", "_grid")
         )
-        result["pt_bin_center"] = result["pt_bin_center"].fillna(result.pop("pt_bin_center_grid"))
+        result["p_bin_center"] = result["p_bin_center"].fillna(result.pop("p_bin_center_grid"))
         result["eta_bin_center"] = result["eta_bin_center"].fillna(result.pop("eta_bin_center_grid"))
     result["n_matched"] = result["n_matched"].fillna(0).astype(int)
     result["insufficient_stats"] = result["insufficient_stats"].fillna(True).astype(bool)

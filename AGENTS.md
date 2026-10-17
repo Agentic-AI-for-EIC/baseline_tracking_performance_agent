@@ -124,11 +124,13 @@ impact of beam-induced background on tracking performance.
   `VertexBarrelHits`, `TrackerEndcapHits`, `MPGDBarrelHits`,
   `OuterMPGDBarrelHits`, `BackwardMPGDEndcapHits`, `ForwardMPGDEndcapHits`.
   Each has a `_<Collection>_particle` relation back to the `MCParticles` entry
-  that produced it (verified live on a real file). "Layer" in this project
-  means "one of these 7 collections has >=1 hit from the particle" — a
-  collection-level proxy for a physical sensor layer, not a decoded cellID
-  layer number (that would need subsystem-specific geometry decoding, out of
-  scope here). Document this simplification wherever acceptance is reported.
+  that produced it (verified live on a real file). Acceptance counts
+  **individual truth hits** per particle (not one-per-collection): a particle is
+  accepted when it has >= 4 total hits and >= 3 of them in the silicon tracker
+  (`SiBarrelHits` + `VertexBarrelHits` + `TrackerEndcapHits`) — the CKF seed
+  requirement — within the region's collection set. This replaces the earlier
+  collection-level ">= 4 of 7 layers" proxy: hit counts come from the per-collection
+  truth-hit entries, so no decoded cellID layer number is needed (out of scope).
 - Reconstructed tracks: `CentralCKFTracks` — `.charge`, `.pdg`, `.chi2`,
   `.ndf`. CRITICAL data-model fact (verified live on real files):
   `CentralCKFTracks.momentum.x/y/z` is *all zeros* in every campaign file we
@@ -195,18 +197,19 @@ any PID number.
   the model to beat a balanced label-permutation control.
 
 ## Conventions
-- Bin in truth pT (log-spaced) and truth eta (bins of ~0.5), per species.
-- Acceptance: >= N_min=4 of the 7 central-tracking truth-hit collections have
-  a hit (see the "Layer" note above).
-- Momentum resolution: Delta(pT)/pT = (pT_reco - pT_truth) / pT_truth
-  (pT specifically, consistent with the pT/eta binning used everywhere else
+- Bin in truth momentum p (log-spaced) and truth eta (bins of ~0.5), per species.
+- Acceptance: >= ACCEPTANCE_MIN_HITS=4 individual truth hits, of which
+  >= ACCEPTANCE_MIN_SILICON_HITS=3 fall in the silicon tracker, counted over the
+  region's truth-hit collection set (see the hit note above).
+- Momentum resolution: Delta(p)/p = (p_reco - p_truth) / p_truth
+  (p specifically, consistent with the p/eta binning used everywhere else
   in this project); Gaussian fit to the core, done with **ROOT**
   (`TH1F.Fit(TF1("gaus"))`, not scipy) — see the "ROOT" note below.
 - Efficiency: report both within-acceptance (matched / in-acceptance truth)
   and absolute (matched / all generated truth) efficiency; Wilson score-interval
   errors (conservative half-width, never zero-width at eff = 1, NaN at n = 0).
 - Fake rate: reconstructed tracks with no valid truth match / all
-  reconstructed tracks, binned in the track's own (pT, eta) — not species (a
+  reconstructed tracks, binned in the track's own (p, eta) — not species (a
   fake has no true species). Always name the dataset/minQ2 tier(s) used.
 - Every metric is run on both Type 1 and Type 2, then compared (ratio and
   difference, per bin, with propagated uncertainty) via `trkperf/compare.py`.
@@ -231,7 +234,7 @@ any PID number.
   exactly and the fitted TF1 can be drawn with standard ROOT tools.
 - **Physical maximum:** sigma is bound to [0, RESOLUTION_MAX_SIGMA] where
   `RESOLUTION_MAX_SIGMA = 1.0`. Since resolution is sigma on
-  Delta(pT)/pT = (pT_reco - pT_truth)/pT_truth, a width of 1.0 means a 100%
+  Delta(p)/p = (p_reco - p_truth)/p_truth, a width of 1.0 means a 100%
   resolution — the natural physical ceiling. `TF1::SetParLimits` enforces it,
   and a fit that pins sigma against the bound (i.e. the data is not
   describable by any physical resolution) is reported `fit_converged=False`
@@ -257,13 +260,13 @@ any PID number.
   insufficient_stats rows, never silent gaps.
 - Momentum-resolution fits: chi2/ndf of order 1.
 - Momentum-resolution sigma is always within [0, 1] (the physical maximum on
-  Delta(pT)/pT); a bin whose raw width exceeds that is flagged non-converged,
+  Delta(p)/p); a bin whose raw width exceeds that is flagged non-converged,
   never reported as a big number.
 - Trends are physically sensible; a wildly non-monotonic point is flagged, not
   silently reported.
 - Always state dataset(s), minQ2 tier(s), file counts, matching threshold, and
   the trkperf command used, so the run is reproducible. The CLI records all of
-  these — plus layers/species selection, skipped files, and the command line —
+  these — plus hit-count/species selection, skipped files, and the command line —
   in each output's metadata automatically.
 
 ## Grid-job reporting (twice daily on request)

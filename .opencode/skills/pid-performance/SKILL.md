@@ -3,7 +3,7 @@ name: pid-performance
 description: >-
   Quantify PID performance in `pid/` — fixed-fake-rate merits (`pid evaluate`:
   efficiency, n_sigma, confusion, ROC, calibration), maximum-significance
-  working points (`pid performance`: FOM(c), c*, c*(pT), 13-figure manifest),
+  working points (`pid performance`: FOM(c), c*, c*(p), 13-figure manifest),
   and the clean-vs-+background comparison (`pid compare`), plus the
   `run_pid.sh` grid workflow with the cross-learner agreement check. Use when
   asked for a working point, FOM, c*, significance scan, n_sigma, rejection
@@ -23,7 +23,7 @@ under `output/` (text columns → `*_code` with a legend in the metadata).
 Conventions: `PLAN_pid.md` §5c–§5e; runbook: `pid/README.md`.
 
 ## When to use me
-Working points, FOM(c) scans, c* and c*(pT), n-sigma separation, rejection at a
+Working points, FOM(c) scans, c* and c*(p), n-sigma separation, rejection at a
 fixed fake rate, confusion at a cut, calibration, the 13-figure deliverables
 manifest, clean-vs-bkg PID comparison, or launching/reading the PID grid runs.
 For training, features, gates, or SHAP mechanics use `pid-ml`; for the

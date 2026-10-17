@@ -163,34 +163,35 @@ def _keep_particle_filter(keep_particles: pd.DataFrame):
     return filt
 
 
-def read_truth_hit_layer_counts(file_paths: list[str], *, max_failures: int = 0,
-                                 shared_failures: dict | None = None,
-                                 collections: tuple[str, ...] | None = None,
-                                 found_collections: list | None = None,
-                                 keep_particles: pd.DataFrame | None = None,
-                                 ) -> pd.DataFrame:
-    """Count, per truth particle, how many central-tracking truth-hit
-    collections registered >= 1 hit from it (see AGENTS.md / config.py for
-    why "collection" is used as a proxy for "layer").
+def read_truth_hit_counts(file_paths: list[str], *, max_failures: int = 0,
+                           shared_failures: dict | None = None,
+                           collections: tuple[str, ...] | None = None,
+                           silicon: tuple[str, ...] | None = None,
+                           found_collections: list | None = None,
+                           keep_particles: pd.DataFrame | None = None,
+                           ) -> pd.DataFrame:
+    """Count INDIVIDUAL truth hits per truth particle, in total and in silicon.
 
-    `collections` selects the detector region (see
-    ``config.TRACKING_REGIONS``); None means the central seven. A collection
-    whose branch is absent in a campaign degrades to 0 hits with a printed
-    NOTE rather than aborting the run. Every collection actually read is
-    appended to `found_collections` (when given) so the caller can record in
-    its output metadata which collections the numbers rest on — a run that
-    silently degraded must be distinguishable from a full one after the fact.
+    The acceptance criterion (config.py, 2026-10): >= 4 total hits AND >= 3
+    of them in the silicon tracker (the CKF needs a 3-hit silicon seed).
+    This counts raw GEANT hits, replacing the old "distinct collections hit"
+    proxy, which the config comment itself had flagged as too coarse.
+
+    `collections` selects the region's detector systems (see
+    ``config.TRACKING_REGIONS``); None means the central seven. `silicon`
+    is the subset counted toward the silicon floor (default:
+    ``SILICON_TRACKING_TRUTH_HIT_COLLECTIONS`` intersected with
+    `collections`). A collection whose branch is absent in a campaign
+    degrades to 0 hits with a printed NOTE rather than aborting the run;
+    every collection actually read is appended to `found_collections`.
 
     Returns
     -------
-    DataFrame with columns file_id, event, idx (idx = the MCParticles
-    position this row's counts refer to), n_layers_hit.
+    DataFrame with columns file_id, event, idx (the MCParticles position the
+    counts refer to), n_hits_total, n_hits_si.
 
-    Particles with zero hits in every collection do not appear in the
-    intermediate per-collection tables (there is nothing to count), so
-    callers must left-merge this onto the full truth-particle table and
-    fill missing values with 0 - see acceptance.compute_acceptance for the
-    canonical example.
+    Particles with zero hits appear in no per-collection table, so callers
+    must left-merge and fill 0 - see add_acceptance_flag.
 
     `keep_particles` (optional DataFrame with file_id, event, idx — e.g. the
     truth-primary table the caller is about to merge onto) restricts the
@@ -199,18 +200,22 @@ def read_truth_hit_layer_counts(file_paths: list[str], *, max_failures: int = 0,
     beam-background particles per file; hoarding every one of their rows for
     a run's full file list is what OOM-killed the first 26.07.1 bkg
     acceptance. Every consumer of this function left-merges onto exactly
-    this particle set (acceptance/efficiency via add_acceptance_flag,
-    pid.regions onto matched truth), so the filtered accumulation is
-    bit-identical to the full one. The read cache still holds the RAW
-    per-file tables (io.read_flat_multi stashes before filtering), so a
-    consumer that needs the full ancestor list loses nothing.
+    this particle set, so the filtered accumulation is bit-identical to the
+    full one. The read cache still holds the RAW per-file tables
+    (io.read_flat_multi stashes before filtering), so a consumer that needs
+    the full ancestor list loses nothing.
     """
     import sys
 
     if collections is None:
         collections = config.CENTRAL_TRACKING_TRUTH_HIT_COLLECTIONS
+    if silicon is None:
+        silicon = tuple(c for c in collections
+                        if c in config.SILICON_TRACKING_TRUTH_HIT_COLLECTIONS)
+    else:
+        silicon = tuple(c for c in silicon if c in collections)
     filt = _keep_particle_filter(keep_particles) if keep_particles is not None else None
-    frames = []
+    per_collection: dict[str, pd.DataFrame] = {}
     for collection in collections:
         # Campaign-wide absence (a collection a production never wrote) must
         # NOT consume the shared failure budget: probing the first file keeps
@@ -224,10 +229,9 @@ def read_truth_hit_layer_counts(file_paths: list[str], *, max_failures: int = 0,
         # Each truth hit has exactly one `particle` relation (OneToOne) back
         # to the MCParticles entry that produced it. Name the requested
         # value column "particle_idx" (NOT "idx") - read_flat already uses
-        # "idx" for the hit's own bookkeeping position, and re-using that
-        # name would produce two columns both called "idx" after the rename
-        # below (pandas allows duplicate column names; groupby then breaks,
-        # since `df["idx"]` returns a 2-column DataFrame, not a Series).
+        # "idx" for the hit's own bookkeeping position; the rename to "idx"
+        # happens only after the per-collection size() (whose key is the
+        # particle), so the two never collide.
         columns = {"particle_idx": branch}
         try:
             hits = io.read_flat_multi(file_paths, columns, max_failures=max_failures,
@@ -237,48 +241,58 @@ def read_truth_hit_layer_counts(file_paths: list[str], *, max_failures: int = 0,
             print(f"[truth] NOTE: {collection} unreadable ({exc.__class__.__name__}); "
                   "counting 0 hits from it in this run", file=sys.stderr)
             continue
-        hits["collection"] = collection
-        # Select only the columns we need FIRST (dropping the hit's own,
-        # now-irrelevant bookkeeping "idx"), then rename - so there is only
-        # ever one "idx" column, meaning "position within MCParticles".
-        hits = hits[["file_id", "event", "particle_idx", "collection"]].rename(
-            columns={"particle_idx": "idx"}
-        )
-        frames.append(hits)
+        # Aggregate to one row per hit particle IMMEDIATELY: raw hit rows are
+        # the memory hogs; the counts are not.
+        counts = (hits.groupby(["file_id", "event", "particle_idx"], sort=False)
+                  .size()
+                  .rename(f"n_{collection}")
+                  .reset_index()
+                  .rename(columns={"particle_idx": "idx"}))
+        per_collection[collection] = counts
         if found_collections is not None:
             found_collections.append(collection)
 
-    if not frames:
+    keys = ["file_id", "event", "idx"]
+    if not per_collection:
         # No collection readable: return the contract columns with their
         # real dtypes (object-dtype empties poison downstream merges with
         # "Invalid value '[]'" setitem errors instead of clean NaN counts).
-        return pd.DataFrame({c: pd.Series(dtype=d) for c, d in
-                             (("file_id", "int64"), ("event", "int64"),
-                              ("idx", "int64"), ("n_layers_hit", "int64"))})
+        return pd.DataFrame({c: pd.Series(dtype="int64") for c in
+                             (*keys, "n_hits_total", "n_hits_si")})
 
-    all_hits = pd.concat(frames, ignore_index=True)
-    counts = (
-        all_hits.groupby(["file_id", "event", "idx"])["collection"]
-        .nunique()
-        .reset_index(name="n_layers_hit")
-    )
-    return counts
+    acc: pd.DataFrame | None = None
+    for name in collections:
+        tab = per_collection.get(name)
+        if tab is None:
+            continue
+        acc = tab if acc is None else acc.merge(tab, on=keys, how="outer")
+    total_cols = [f"n_{c}" for c in collections if c in per_collection]
+    si_cols = [f"n_{c}" for c in silicon if c in per_collection]
+    assert acc is not None  # per_collection non-empty guarantees at least one
+    acc["n_hits_total"] = acc[total_cols].fillna(0).sum(axis=1).astype("int64")
+    acc["n_hits_si"] = (acc[si_cols].fillna(0).sum(axis=1).astype("int64")
+                        if si_cols else 0)
+    return acc[keys + ["n_hits_total", "n_hits_si"]]
 
 
 def add_acceptance_flag(
     truth_df: pd.DataFrame,
-    layer_counts: pd.DataFrame,
-    min_layers: int = config.ACCEPTANCE_MIN_LAYERS,
+    hit_counts: pd.DataFrame,
+    min_hits: int = config.ACCEPTANCE_MIN_HITS,
+    min_silicon_hits: int = config.ACCEPTANCE_MIN_SILICON_HITS,
 ) -> pd.DataFrame:
-    """Left-merge truth-hit layer counts onto a truth-particle table and add
-    an `in_acceptance` boolean column.
+    """Left-merge truth-hit counts onto a truth-particle table and add an
+    `in_acceptance` boolean column: >= `min_hits` total hits AND >=
+    `min_silicon_hits` of them silicon (CKF seed requirement; config.py).
 
-    Particles absent from `layer_counts` (no hits in any tracked collection)
-    are treated as n_layers_hit = 0, not dropped.
+    Particles absent from `hit_counts` (no hits at all) are treated as 0,
+    not dropped.
     """
     merged = truth_df.merge(
-        layer_counts, on=["file_id", "event", "idx"], how="left"
+        hit_counts, on=["file_id", "event", "idx"], how="left"
     )
-    merged["n_layers_hit"] = merged["n_layers_hit"].fillna(0).astype(int)
-    merged["in_acceptance"] = merged["n_layers_hit"] >= min_layers
+    for col in ("n_hits_total", "n_hits_si"):
+        merged[col] = merged[col].fillna(0).astype(int)
+    merged["in_acceptance"] = ((merged["n_hits_total"] >= min_hits)
+                               & (merged["n_hits_si"] >= min_silicon_hits))
     return merged

@@ -25,7 +25,7 @@ from . import config
 #: They are stringified for JSON/markdown output; the *_center columns carry
 #: the numeric information forward for plotting and for compare.py's
 #: bin-alignment join.
-_INTERVAL_COLUMNS = ("pt_bin", "eta_bin")
+_INTERVAL_COLUMNS = ("p_bin", "eta_bin")
 
 
 def _import_root():
@@ -91,7 +91,7 @@ def to_root(df: pd.DataFrame, path: str, tree_name: str = "data", meta: dict | N
     Intended for *manual* follow-up analysis and plotting in a ROOT session:
     the same per-bin numbers that go into the JSON/markdown output are exposed
     as a flat tuple a human can query with ROOT cut expressions (e.g.
-    ``Tree->Draw("sigma:pt_bin_center", "fit_converged && !insufficient_stats",
+    ``Tree->Draw("sigma:p_bin_center", "fit_converged && !insufficient_stats",
     "colz")`` for the resolution rows worth trusting).
 
     Just as with :func:`fit_gaussian_core`, the ROOT output is produced with
@@ -104,8 +104,8 @@ def to_root(df: pd.DataFrame, path: str, tree_name: str = "data", meta: dict | N
     alongside the ``meta_<key>`` provenance entries - not a RunInfo TTree
     (PyROOT does not transparently reflect Python-str reassignment into a
     char[] branch buffer, which silently drops the strings). All numeric/boolean columns become TNtuple
-    branches (booleans as 0/1, NaN stays NaN). The ``pt_bin``/``eta_bin``
-    string intervals are dropped - their centres (pt_bin_center /
+    branches (booleans as 0/1, NaN stays NaN). The ``p_bin``/``eta_bin``
+    string intervals are dropped - their centres (p_bin_center /
     eta_bin_center) carry the same information and are kept.
 
     Parameters
@@ -141,7 +141,7 @@ def to_root(df: pd.DataFrame, path: str, tree_name: str = "data", meta: dict | N
             branch = f"{col}_code"
             branch_names.append(branch)
             branches.append((branch, df[col].map(code_for).astype(float).tolist()))
-        elif col in ("pt_bin", "eta_bin"):
+        elif col in ("p_bin", "eta_bin"):
             continue  # centres carry the bin information
         else:
             try:
@@ -228,16 +228,16 @@ def aggregate_eta_species(
     ----------
     count_cols:
         ``(numerator, denominator)`` count columns to sum within each
-        (species group, eta region, pT bin), e.g. ``("n_in_acceptance",
+        (species group, eta region, p bin), e.g. ``("n_in_acceptance",
         "n_generated")``. The value becomes numerator/denominator with a
         Wilson error. If None (resolution sigmas), the value is the
         inverse-variance weighted mean over the group and `err_col` its
         propagated error instead.
 
     Returns a DataFrame with ``species_group``, ``eta_region``,
-    ``pt_bin_center``, the value/err columns, summed ``n`` and a recomputed
+    ``p_bin_center``, the value/err columns, summed ``n`` and a recomputed
     ``insufficient_stats`` flag (summed n < 50) - shaped so
-    :func:`plot_metric_vs_pt` draws it with ``group_col="species_group"``
+    :func:`plot_metric_vs_p` draws it with ``group_col="species_group"``
     and ``marker_col="eta_region"``.
     """
     from . import binning
@@ -253,7 +253,7 @@ def aggregate_eta_species(
         work = work[work["eta_region"] == eta_region_filter]
         if work.empty:
             return pd.DataFrame(
-                columns=["species_group", "eta_region", "pt_bin_center",
+                columns=["species_group", "eta_region", "p_bin_center",
                          value_col, err_col or "err", "n", "insufficient_stats"])
     if eta_window is not None:
         # Narrower-than-region slice (e.g. |eta| < 1.0 inside the barrel):
@@ -263,9 +263,9 @@ def aggregate_eta_species(
         work = work[(work["eta_bin_center"] >= lo) & (work["eta_bin_center"] <= hi)]
         if work.empty:
             return pd.DataFrame(
-                columns=["species_group", "eta_region", "pt_bin_center",
+                columns=["species_group", "eta_region", "p_bin_center",
                          value_col, err_col or "err", "n", "insufficient_stats"])
-    group_keys = ["species_group", "eta_region", "pt_bin_center"]
+    group_keys = ["species_group", "eta_region", "p_bin_center"]
     rows = []
     for keys, sub in work.groupby(group_keys, observed=True):
         row = dict(zip(group_keys, keys))
@@ -360,7 +360,7 @@ def aggregate_species_eta_bin(
     sub = df[df["eta_bin_center"] == eta_center].copy()
     if sub.empty:
         return pd.DataFrame(
-            columns=["species_group", "pt_bin_center",
+            columns=["species_group", "p_bin_center",
                      value_col, err_col or "err", "n", "insufficient_stats"])
     out = aggregate_eta_species(sub, value_col, err_col, count_cols=count_cols,
                                 eta_region_filter=None)
@@ -373,13 +373,13 @@ def _markers_for(values: list) -> dict:
     return {v: _MARKER_STYLES[i % len(_MARKER_STYLES)] for i, v in enumerate(values)}
 
 
-def plot_metric_vs_pt(
+def plot_metric_vs_p(
     df: pd.DataFrame,
     value_col: str,
     err_col: str | None,
     path: str,
     group_col: str = "species",
-    x_col: str = "pt_bin_center",
+    x_col: str = "p_bin_center",
     title: str | None = None,
     y_label: str | None = None,
     log_x: bool = True,
@@ -473,7 +473,7 @@ def plot_metric_vs_pt(
         ax.set_yscale("log")
     if ymin is not None:
         ax.set_ylim(bottom=ymin)
-    ax.set_xlabel("pT [GeV]")
+    ax.set_xlabel("p [GeV]")
     ax.set_ylabel(y_label or value_col)
     if title:
         ax.set_title(title)

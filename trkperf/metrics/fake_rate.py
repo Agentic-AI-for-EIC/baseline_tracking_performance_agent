@@ -29,8 +29,8 @@ def compute_fake_rate(
 
     Returns
     -------
-    One row per (pt_bin, eta_bin):
-        pt_bin, eta_bin, pt_bin_center, eta_bin_center, n_tracks, n_fake,
+    One row per (p_bin, eta_bin):
+        p_bin, eta_bin, p_bin_center, eta_bin_center, n_tracks, n_fake,
         fake_rate, fake_rate_err, insufficient_stats.
     """
     shared: dict = {}
@@ -54,9 +54,9 @@ def compute_fake_rate(
             "unmeasurable (NaN) pT/eta and cannot be binned - counted in "
             "run_params, excluded from n_tracks.",
         )
-    flagged = flagged.dropna(subset=["pt_bin", "eta_bin"])
+    flagged = flagged.dropna(subset=["p_bin", "eta_bin"])
 
-    group_cols = ["pt_bin", "eta_bin", "pt_bin_center", "eta_bin_center"]
+    group_cols = ["p_bin", "eta_bin", "p_bin_center", "eta_bin_center"]
     result = (
         flagged.groupby(group_cols, observed=True)
         .agg(n_tracks=("is_fake", "size"), n_fake=("is_fake", "sum"))
@@ -66,9 +66,9 @@ def compute_fake_rate(
     # grid so they are explicitly reported as insufficient statistics.
     grid = binning.full_bin_grid(None)
     result = result.merge(
-        grid, on=["pt_bin", "eta_bin"], how="right", suffixes=("", "_grid")
+        grid, on=["p_bin", "eta_bin"], how="right", suffixes=("", "_grid")
     )
-    result["pt_bin_center"] = result["pt_bin_center"].fillna(result.pop("pt_bin_center_grid"))
+    result["p_bin_center"] = result["p_bin_center"].fillna(result.pop("p_bin_center_grid"))
     result["eta_bin_center"] = result["eta_bin_center"].fillna(result.pop("eta_bin_center_grid"))
     result["n_tracks"] = result["n_tracks"].fillna(0).astype(int)
     result["n_fake"] = result["n_fake"].fillna(0).astype(int)

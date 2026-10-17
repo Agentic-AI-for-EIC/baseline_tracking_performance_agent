@@ -1,6 +1,7 @@
 """Geometric acceptance: what fraction of generated truth particles could in
-principle be reconstructed (>= N truth-tracking layers hit), independent of
-whether the reconstruction algorithm actually succeeded.
+principle be reconstructed (>= 4 truth hits of which >= 3 in silicon - the
+CKF seed requirement), independent of whether the reconstruction algorithm
+actually succeeded.
 
 This is the only metric that needs no truth<->reco matching at all - it is
 purely a property of the truth particle and the detector geometry it passed
@@ -20,7 +21,8 @@ from .. import binning, config, truth
 def compute_acceptance(
     file_paths: list[str],
     species: list[str] | None = None,
-    min_layers: int | None = None,
+    min_hits: int | None = None,
+    min_silicon_hits: int | None = None,
     max_failures: int = 0,
     region: str = "central",
 ) -> pd.DataFrame:
@@ -34,45 +36,48 @@ def compute_acceptance(
     species:
         Species names (keys of config.SPECIES) to include. None = every
         species trkperf knows about.
-    min_layers:
-        Override config.ACCEPTANCE_MIN_LAYERS if needed for a study of the
-        threshold's own sensitivity.
+    min_hits / min_silicon_hits:
+        Override the config defaults (4 total / 3 silicon) if needed for a
+        study of the thresholds' own sensitivity.
 
     Returns
     -------
-    One row per (species, pt_bin, eta_bin):
-        species, pt_bin, eta_bin, pt_bin_center, eta_bin_center,
+    One row per (species, p_bin, eta_bin):
+        species, p_bin, eta_bin, p_bin_center, eta_bin_center,
         n_generated, n_in_acceptance, acceptance, acceptance_err,
         insufficient_stats.
 
     `region` selects the detector region whose truth-hit collections define
-    "could be reconstructed" (see config.TRACKING_REGIONS); an explicit
-    `min_layers` overrides the region default.
+    "could be reconstructed" (see config.TRACKING_REGIONS); explicit
+    thresholds override the region defaults.
     """
     if region not in config.TRACKING_REGIONS:
         raise ValueError(f"unknown tracking region {region!r}; "
                          f"choices {sorted(config.TRACKING_REGIONS)}")
     spec = config.TRACKING_REGIONS[region]
-    if min_layers is None:
-        min_layers = spec["min_layers"]
+    if min_hits is None:
+        min_hits = spec["min_hits"]
+    if min_silicon_hits is None:
+        min_silicon_hits = spec["min_silicon_hits"]
     truth_df = truth.read_truth_particles(
         file_paths, max_failures=max_failures, primary_only=True,
         shared_failures=(shared := {}),
     )
     truth_df = truth.select_primary(truth_df, species=species)
 
-    layer_counts = truth.read_truth_hit_layer_counts(
+    hit_counts = truth.read_truth_hit_counts(
         file_paths, max_failures=max_failures, shared_failures=shared,
         collections=spec["collections"], found_collections=(found := []),
         keep_particles=truth_df[["file_id", "event", "idx"]],
     )
-    truth_df = truth.add_acceptance_flag(truth_df, layer_counts, min_layers=min_layers)
+    truth_df = truth.add_acceptance_flag(truth_df, hit_counts, min_hits=min_hits,
+                                         min_silicon_hits=min_silicon_hits)
 
     truth_df = binning.assign_bins(truth_df)
-    truth_df = truth_df.dropna(subset=["pt_bin", "eta_bin"])
+    truth_df = truth_df.dropna(subset=["p_bin", "eta_bin"])
 
     grouped = truth_df.groupby(
-        ["species", "pt_bin", "eta_bin", "pt_bin_center", "eta_bin_center"], observed=True
+        ["species", "p_bin", "eta_bin", "p_bin_center", "eta_bin_center"], observed=True
     )
     result = grouped.agg(
         n_generated=("in_acceptance", "size"),
@@ -83,9 +88,9 @@ def compute_acceptance(
     # grid so they are explicitly reported as insufficient statistics.
     grid = binning.full_bin_grid(species if species is not None else list(config.SPECIES))
     result = result.merge(
-        grid, on=["species", "pt_bin", "eta_bin"], how="right", suffixes=("", "_grid")
+        grid, on=["species", "p_bin", "eta_bin"], how="right", suffixes=("", "_grid")
     )
-    result["pt_bin_center"] = result["pt_bin_center"].fillna(result.pop("pt_bin_center_grid"))
+    result["p_bin_center"] = result["p_bin_center"].fillna(result.pop("p_bin_center_grid"))
     result["eta_bin_center"] = result["eta_bin_center"].fillna(result.pop("eta_bin_center_grid"))
     result["n_generated"] = result["n_generated"].fillna(0).astype(int)
     result["n_in_acceptance"] = result["n_in_acceptance"].fillna(0).astype(int)
@@ -97,7 +102,9 @@ def compute_acceptance(
     )
     result["insufficient_stats"] = result["n_generated"] < config.MIN_ENTRIES_PER_BIN
     result.attrs["skipped_files"] = sorted(shared.get("skipped", []))
-    result.attrs["run_params"] = {"min_layers": min_layers, "species": species,
+    result.attrs["run_params"] = {"min_hits": min_hits,
+                                  "min_silicon_hits": min_silicon_hits,
+                                  "species": species,
                                   "region": region,
                                   "collections": list(spec["collections"]),
                                   "collections_found": found}

@@ -4,7 +4,7 @@ description: >-
   Compute the ePIC craterlake PID confusion matrix — for each truth species
   that was successfully track-matched, what species the reconstruction's
   mass-hypothesis PID assigns, row-normalised (how often X is classified as
-  Y) and column-adjacent efficiency/purity — binned in truth pT (log) and
+  Y) and column-adjacent efficiency/purity — binned in truth p (log) and
   truth eta (0.5 bins), one row per (bin, truth_species, reco_species), then
   compared between the clean (Type 1) and +background (Type 2, bkg_mixed)
   datasets. Use when asked about particle identification, misidentification,
@@ -15,14 +15,14 @@ description: >-
 
 ## What I do
 Runs `python -m trkperf pid-confusion ...` on the clean and bkg_mixed
-datasets, then the clean-vs-bkg comparison. Output is one row per (pt_bin,
+datasets, then the clean-vs-bkg comparison. Output is one row per (p_bin,
 eta_bin, truth_species, reco_species) with `n_matchedinbin`,
 `confusion_frac`, `confusion_frac_err`, `efficiency`, `efficiency_err`,
 `n_truth_total_in_bin`, `insufficient_stats`.
 
 ## When to use me
 Any request about particle identification, misidentification rates, π/K (or
-other species) confusion, or PID purity/efficiency vs pT/eta, including how
+other species) confusion, or PID purity/efficiency vs p/eta, including how
 beam background shifts those numbers. For the file discovery / escalation /
 comparison / provenance details that apply to every metric, load the
 `trkperf-grid-workflow` skill too.

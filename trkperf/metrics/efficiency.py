@@ -15,7 +15,8 @@ def _chunk_counts(
     file_paths: list[str],
     species: list[str] | None,
     weight_threshold: float,
-    min_layers: int,
+    min_hits: int,
+    min_silicon_hits: int,
     max_failures: int,
     region: str,
     shared: dict,
@@ -37,12 +38,13 @@ def _chunk_counts(
     )
     truth_df = truth.select_primary(truth_df, species=species)
 
-    layer_counts = truth.read_truth_hit_layer_counts(
+    hit_counts = truth.read_truth_hit_counts(
         file_paths, max_failures=max_failures, shared_failures=shared,
         collections=spec["collections"], found_collections=found,
         keep_particles=truth_df[["file_id", "event", "idx"]],
     )
-    truth_df = truth.add_acceptance_flag(truth_df, layer_counts, min_layers=min_layers)
+    truth_df = truth.add_acceptance_flag(truth_df, hit_counts, min_hits=min_hits,
+                                         min_silicon_hits=min_silicon_hits)
 
     reco_df = reco.read_reco_tracks(file_paths, max_failures=max_failures, shared_failures=shared)
     assoc_df = matching.read_associations(
@@ -51,14 +53,14 @@ def _chunk_counts(
     pairs = matching.build_matched_pairs(truth_df, reco_df, assoc_df, weight_threshold)
 
     pairs = binning.assign_bins(pairs)
-    pairs = pairs.dropna(subset=["pt_bin", "eta_bin"])
+    pairs = pairs.dropna(subset=["p_bin", "eta_bin"])
 
     # Precompute as a plain column (rather than a groupby-agg lambda that
     # reaches back into the outer frame) - simpler to read and avoids any
     # doubt about index alignment inside the aggregation.
     pairs["matched_in_acceptance"] = pairs["is_matched"] & pairs["in_acceptance"]
 
-    group_cols = ["species", "pt_bin", "eta_bin", "pt_bin_center", "eta_bin_center"]
+    group_cols = ["species", "p_bin", "eta_bin", "p_bin_center", "eta_bin_center"]
     grouped = pairs.groupby(group_cols, observed=True)
 
     return grouped.agg(
@@ -73,7 +75,8 @@ def compute_efficiency(
     file_paths: list[str],
     species: list[str] | None = None,
     weight_threshold: float = config.MATCH_WEIGHT_THRESHOLD,
-    min_layers: int | None = None,
+    min_hits: int | None = None,
+    min_silicon_hits: int | None = None,
     max_failures: int = 0,
     region: str = "central",
     chunk_files: int = 0,
@@ -82,8 +85,8 @@ def compute_efficiency(
 
     Returns
     -------
-    One row per (species, pt_bin, eta_bin):
-        species, pt_bin, eta_bin, pt_bin_center, eta_bin_center,
+    One row per (species, p_bin, eta_bin):
+        species, p_bin, eta_bin, p_bin_center, eta_bin_center,
         n_truth (all generated), n_in_acceptance, n_matched,
         efficiency_within_acceptance, efficiency_within_acceptance_err,
         efficiency_absolute, efficiency_absolute_err, insufficient_stats.
@@ -98,7 +101,8 @@ def compute_efficiency(
 
     `region` selects the detector region for the within-acceptance
     denominator (see config.TRACKING_REGIONS); the absolute efficiency is
-    region-independent. An explicit `min_layers` overrides the region default.
+    region-independent. Explicit `min_hits`/`min_silicon_hits` override
+    the region defaults.
 
     `chunk_files` bounds peak memory by processing the file list in
     consecutive groups of at most that many files (0/None = one pass, the
@@ -113,8 +117,10 @@ def compute_efficiency(
         raise ValueError(f"unknown tracking region {region!r}; "
                          f"choices {sorted(config.TRACKING_REGIONS)}")
     spec = config.TRACKING_REGIONS[region]
-    if min_layers is None:
-        min_layers = spec["min_layers"]
+    if min_hits is None:
+        min_hits = spec["min_hits"]
+    if min_silicon_hits is None:
+        min_silicon_hits = spec["min_silicon_hits"]
     shared: dict = {}
     found: list = []
     n_files = len(file_paths)
@@ -124,14 +130,14 @@ def compute_efficiency(
         chunks = [list(file_paths)]
     counts = pd.concat(
         [
-            _chunk_counts(c, species, weight_threshold, min_layers,
+            _chunk_counts(c, species, weight_threshold, min_hits, min_silicon_hits,
                           max_failures, region, shared, found)
             for c in chunks
         ],
         ignore_index=True,
     )
     if len(chunks) > 1:
-        group_cols = ["species", "pt_bin", "eta_bin", "pt_bin_center", "eta_bin_center"]
+        group_cols = ["species", "p_bin", "eta_bin", "p_bin_center", "eta_bin_center"]
         counts = (
             counts.groupby(group_cols, observed=True)[
                 ["n_truth", "n_in_acceptance", "n_matched", "n_matched_in_acceptance"]
@@ -145,9 +151,9 @@ def compute_efficiency(
     # grid so they are explicitly reported as insufficient statistics.
     grid = binning.full_bin_grid(species if species is not None else list(config.SPECIES))
     result = result.merge(
-        grid, on=["species", "pt_bin", "eta_bin"], how="right", suffixes=("", "_grid")
+        grid, on=["species", "p_bin", "eta_bin"], how="right", suffixes=("", "_grid")
     )
-    result["pt_bin_center"] = result["pt_bin_center"].fillna(result.pop("pt_bin_center_grid"))
+    result["p_bin_center"] = result["p_bin_center"].fillna(result.pop("p_bin_center_grid"))
     result["eta_bin_center"] = result["eta_bin_center"].fillna(result.pop("eta_bin_center_grid"))
     for col in ("n_truth", "n_in_acceptance", "n_matched", "n_matched_in_acceptance"):
         result[col] = result[col].fillna(0).astype(int)
@@ -171,7 +177,8 @@ def compute_efficiency(
     result["insufficient_stats"] = result["n_in_acceptance"] < config.MIN_ENTRIES_PER_BIN
     result.attrs["skipped_files"] = sorted(shared.get("skipped", []))
     result.attrs["run_params"] = {
-        "weight_threshold": weight_threshold, "min_layers": min_layers, "species": species,
+        "weight_threshold": weight_threshold, "min_hits": min_hits,
+        "min_silicon_hits": min_silicon_hits, "species": species,
         "region": region, "collections": list(spec["collections"]),
         "collections_found": list(dict.fromkeys(found)),
         "chunk_files": chunk_files or 0, "n_chunks": len(chunks),

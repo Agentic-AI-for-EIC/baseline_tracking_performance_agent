@@ -117,10 +117,10 @@ python -m pid performance --dataset-tag bkg_mixed --model lightgbm
 Channels `eid` (e/pi), `ehad` (e/hadron), `Kpi`, `pK`; hadron channels are reduced
 to `P(sig)/(P(sig)+P(bkg))` over the two truth classes, so **each channel's c\*
 lives in its own score space and cuts are not comparable across channels**.
-Per channel this writes FOM(c) globally, **FOM(c) in every pT bin**
+Per channel this writes FOM(c) globally, **FOM(c) in every p bin**
 (`pid-<ch>_significance_vs_cut_by_pt.png` absolute + self-normalised, and
-`..._panels.png` one panel per bin), c*(pT), efficiency / mis-ID / purity at c*,
-2D (pT,eta) maps, rejection vs p, n-sigma vs p, the held-out confusion matrix and
+`..._panels.png` one panel per bin), c*(p), efficiency / mis-ID / purity at c*,
+2D (p,eta) maps, rejection vs p, n-sigma vs p, the held-out confusion matrix and
 the train-vs-test score check, plus `output/pid-working_points_<model>_<tag>`.
 
 **State the binning basis.** `--bin-source reco|truth|both` partitions every binned
@@ -136,7 +136,7 @@ sqrt(S) when the background is scarce, so with few candidates its maximum sits a
 "accept everything"; the code labels that `degenerate` or `permissive optimum`
 instead of presenting it as a selection, and reports
 `rejection_lower_limit` rather than 1/0. The per-bin panels show the same
-disease bin by bin - a grey "no curve" panel means that pT slice has too few
+disease bin by bin - a grey "no curve" panel means that p slice has too few
 candidates of one species, which is the direct argument for how many grid files
 to run. Weighting knobs (`--bkg-scale`, `--lumi-scale`) are recorded in every
 output, because FOM is not scale-invariant: it grows as sqrt(luminosity), and the

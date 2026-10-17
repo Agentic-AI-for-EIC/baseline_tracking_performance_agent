@@ -30,7 +30,7 @@ warning — that is deliberate, see §4.
 | `pid schema-check` | ML-stack preflight, dead-end registry, per-file relation audit (`podio_metadata` collectionIDs) | `output/pid-schema-audit_<tag>.csv` |
 | `pid features` | per-track feature table over a file list (cached per file) | `output/pid-features_<tag>.pkl` |
 | `pid train` | grouped CV, hyper-parameter search, gates, calibration | `output/models/<task>_<lib>_<tag>/{model.joblib,report.json,test_scores.pkl,all_scores.pkl,gain.csv}` |
-| `pid performance` | maximum-significance working points (FOM(c), c*, c*(pT)) and the full differential package | see "Working points by maximum significance" |
+| `pid performance` | maximum-significance working points (FOM(c), c*, c*(p)) and the full differential package | see "Working points by maximum significance" |
 | `pid evaluate` | AUC, efficiency at fixed fake rate, n-sigma, confusion, ROC, calibration | `output/pid-<task>_<lib>_<tag>-{overall,vs_pt,vs_eta,confusion,roc,calibration}.{json,md,root}` |
 | `pid importance` | gain, **exact** SHAP, permutation + the physics check | `output/pid-<task>_<lib>_<tag>-importance-*.…` |
 | `pid compare` | clean vs +background, via `trkperf.compare` | `output/pid-<task>_<lib>_<artifact>_comparison.{json,md}` |
@@ -75,11 +75,11 @@ python -m pid evaluate --task eid --model lightgbm --dataset-tag clean \
 
 Same plotting style as the tracking metrics: one plot per detector region
 (`|eta| < 1.5` barrel, endcaps beyond — `trkperf.config.BARREL_ETA_MAX`, the same boundary function), each drawn
-on the candidates satisfying that region's truth-hit rule (barrel `Nhit >= 4`
-of the 7 central collections, endcaps `Nhits >= 2` of their collections;
-`pid.regions`). The channel's global working point is kept — only the sample
+on the candidates satisfying that region's truth-hit rule (`>= 4` individual
+truth hits, `>= 3` of them silicon — the CKF seed requirement — over the
+region's collections; `pid.regions`). The channel's global working point is kept — only the sample
 (and its criterion) varies. Tables/figures carry a `_<slug>` tag
-(`pid-eid_lightgbm_clean_barrel-...`, `pid-eid_eff_vs_pt_backward_endcap.png`);
+(`pid-eid_lightgbm_clean_barrel-...`, `pid-eid_eff_vs_p_backward_endcap.png`);
 region outputs never enter the deliverables manifest. Needs the feature table
 (`--features`, default `<out-dir>/pid-features_<tag>.pkl`) for the file links,
 plus `--max-file-failures` / `--cache-dir` for the acceptance reads on the
@@ -90,12 +90,12 @@ Figures written per channel into `output/plot_PID/plot_model_eval/<clean|bkgmix>
 | file | content |
 |---|---|
 | `pid-<ch>_significance_vs_cut.png` | FOM(c) over the whole channel + the optimum, and what the cut costs |
-| `pid-<ch>_significance_vs_cut_by_pt.png` | FOM(c) in **every pT bin** (colour = bin): absolute and self-normalised, each c* starred |
-| `pid-<ch>_significance_vs_cut_panels.png` | one panel per pT bin with c*, FOM, efficiency, fake rate; unusable bins drawn grey with the reason |
-| `pid-<ch>_optimal_cut_vs_pt.png` | c*(pT) |
+| `pid-<ch>_significance_vs_cut_by_p.png` | FOM(c) in **every p bin** (colour = bin): absolute and self-normalised, each c* starred |
+| `pid-<ch>_significance_vs_cut_panels.png` | one panel per p bin with c*, FOM, efficiency, fake rate; unusable bins drawn grey with the reason |
+| `pid-<ch>_optimal_cut_vs_p.png` | c*(p) |
 | `pid-<ch>_roc.png` | ROC in that channel's score space |
-| `pid-<ch>_eff_vs_pt.png`, `_misid_vs_pt.png`, `_purity_vs_pt.png` | efficiency / fake rate / purity at c* |
-| `pid-<ch>_eff_map_pt_vs_eta.png`, `_fake_map_pt_vs_eta.png` | 2D maps (masked where statistics do not support them) |
+| `pid-<ch>_eff_vs_p.png`, `_misid_vs_p.png`, `_purity_vs_p.png` | efficiency / fake rate / purity at c* |
+| `pid-<ch>_eff_map_p_vs_eta.png`, `_fake_map_p_vs_eta.png` | 2D maps (masked where statistics do not support them) |
 | `pid-eid_pion_rejection_vs_p.png`, `pid-<ch>_rejection_vs_p.png` | 1/fake vs p, log scale; 95 % CL **lower limits** where no background passed |
 | `pid-hadpid_lightgbm_clean-nsigma_vs_p.png` | nσ(p) for K/π and p/K together (task-level names carry model_tag; per-tag plots live in `output/plot_PID/plots_<tag>_pid_perform/`) |
 | `pid-hadpid_lightgbm_clean-confusion_matrix.png` | row-normalised multi-class confusion (held-out rows only) |
@@ -140,7 +140,7 @@ python -m pid features --file-list filelists/clean_150.txt --dataset-tag clean \
 python -m pid train --task eid --model lightgbm --dataset-tag clean \
     --features output/pid-features_clean.pkl --n-iter 24
 python -m pid evaluate --task eid --model lightgbm --dataset-tag clean \
-    --scores output/models/eid_lightgbm_clean/test_scores.pkl --by pt,eta --plot
+    --scores output/models/eid_lightgbm_clean/test_scores.pkl --by p,eta --plot
 
 # +background (Type 2, flaky endpoint - tolerate failures, always cache)
 python -m pid features --file-list filelists/bkg_200.txt --dataset-tag bkg_mixed \

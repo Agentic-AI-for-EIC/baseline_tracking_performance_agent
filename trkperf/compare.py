@@ -22,8 +22,8 @@ from . import report
 #: first: float centers survive a JSON round-trip exactly in practice, but
 #: joining on the human-meaningful interval strings is robust by
 #: construction, and near-tie floats can never silently misalign rows.
-_JOIN_KEY_CANDIDATES = ("species", "truth_species", "reco_species", "pt_bin", "eta_bin",
-                         "pt_bin_center", "eta_bin_center")
+_JOIN_KEY_CANDIDATES = ("species", "truth_species", "reco_species", "p_bin", "eta_bin",
+                         "p_bin_center", "eta_bin_center")
 
 
 def _safe_divide(numerator: np.ndarray, denominator: np.ndarray) -> np.ndarray:
@@ -69,7 +69,7 @@ def compare_metric(
     ----------
     join_keys:
         Columns identifying a row in both tables. Default: auto-detect from
-        ``species / reco_species / pt_bin_center / eta_bin_center``.
+        ``species / reco_species / p_bin_center / eta_bin_center``.
 
     Returns
     -------
@@ -84,7 +84,7 @@ def compare_metric(
 
     # `join_keys` lets a caller with a non-tracking-shaped table (e.g. the PID
     # results, whose rows are keyed by quantity/signal/target fake rate rather
-    # than by (pt_bin, eta_bin, species)) state its identity columns explicitly
+    # than by (p_bin, eta_bin, species)) state its identity columns explicitly
     # instead of relying on the candidate list below.
     join_keys = list(join_keys) if join_keys else _detect_join_keys(clean_df, bkg_df)
     if not join_keys:

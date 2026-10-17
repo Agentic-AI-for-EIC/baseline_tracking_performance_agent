@@ -39,6 +39,7 @@ from trkperf import config as tk_config
 MATCH_WEIGHT_THRESHOLD: float = tk_config.MATCH_WEIGHT_THRESHOLD  # 0.5
 MIN_ENTRIES_PER_BIN: int = tk_config.MIN_ENTRIES_PER_BIN  # 50
 PT_BIN_EDGES: np.ndarray = tk_config.PT_BIN_EDGES
+P_BIN_EDGES: np.ndarray = tk_config.P_BIN_EDGES
 ETA_BIN_EDGES: np.ndarray = tk_config.ETA_BIN_EDGES
 DATASETS: dict = tk_config.DATASETS
 LOCAL_REFERENCE_FILES: dict = tk_config.LOCAL_REFERENCE_FILES
@@ -244,18 +245,18 @@ MIN_CANDIDATES_PER_WP_BIN: int = 20
 #: is the file stem used inside output/plot_PID/plot_model_eval/ (or the per-tag dir).
 REQUIRED_FIGURES: tuple[tuple[str, str], ...] = (
     ("roc", "ROC"),
-    ("eff_vs_pt", "signal efficiency at c* vs pT"),
-    ("misid_vs_pt", "mis-ID fake rate at c* vs pT"),
-    ("purity_vs_pt", "purity at c* vs pT"),
-    ("eff_map_pt_vs_eta", "2D efficiency map at c*"),
-    ("fake_map_pt_vs_eta", "2D fake-rate map at c*"),
+    ("eff_vs_p", "signal efficiency at c* vs p"),
+    ("misid_vs_p", "mis-ID fake rate at c* vs p"),
+    ("purity_vs_p", "purity at c* vs p"),
+    ("eff_map_p_vs_eta", "2D efficiency map at c*"),
+    ("fake_map_p_vs_eta", "2D fake-rate map at c*"),
     ("rejection_vs_p", "rejection 1/fake at c* vs p"),
     ("nsigma_vs_p", "n_sigma vs p (per-bin, at the channel working point)"),
     ("score_dist_train_vs_test", "train vs test score distributions (overtraining)"),
     ("significance_vs_cut", "FOM(c) and the optimum c*"),
-    ("significance_vs_cut_by_pt", "FOM(c) in every pT bin"),
-    ("significance_vs_cut_panels", "per-pT-bin FOM(c) panels with each c*"),
-    ("optimal_cut_vs_pt", "c*(pT)"),
+    ("significance_vs_cut_by_p", "FOM(c) in every p bin"),
+    ("significance_vs_cut_panels", "per-p-bin FOM(c) panels with each c*"),
+    ("optimal_cut_vs_p", "c*(p)"),
 )
 
 #: Deliverables that describe the channel's score, not a binned quantity, so they
