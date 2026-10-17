@@ -34,7 +34,7 @@
       "ROOT": "6.40.04",
       "problems": "none"
     },
-    "numpy_path": "/home/wxie/.eic_python_pkgs/numpy/__init__.py",
+    "numpy_path": "/local/scratch/a/wxie/.eic_python_pkgs/numpy/__init__.py",
     "artifact": "roc",
     "task": "ehad",
     "model": "sklearn_hgb",
@@ -42,11 +42,11 @@
     "scores_table": "output/models/ehad_sklearn_hgb_clean26071/test_scores.pkl",
     "n_files_scored": 75,
     "n_events_scored": 1409,
-    "n_rows_scored": 103505,
-    "n_signal": 97748,
-    "n_background": 5757,
+    "n_rows_scored": 106950,
+    "n_signal": 100063,
+    "n_background": 6887,
     "eta_region": "backward endcap",
-    "acceptance_rule": "backward: Nhit >= 2 over 3 backward collections",
+    "acceptance_rule": "backward: >= 4 hits (>= 3 silicon) over 3 backward collections",
     "acceptance_collections": [
       "BackwardMPGDEndcapHits",
       "TrackerEndcapHits",
@@ -57,10 +57,10 @@
       "TrackerEndcapHits",
       "TOFEndcapHits"
     ],
-    "n_rows_region": 103505,
+    "n_rows_region": 106950,
     "skipped_files": [],
     "campaign": "26.07.1",
-    "written_at_utc": "2026-10-06T23:46:10.525309+00:00"
+    "written_at_utc": "2026-10-17T01:57:57.646436+00:00"
   },
   "data": [
     {
@@ -72,1387 +72,1387 @@
     },
     {
       "fake_rate": 0.0,
-      "efficiency": 0.0010332692,
-      "threshold": 0.9996676565,
+      "efficiency": 0.001149276,
+      "threshold": 0.9996666312,
       "signal": "e",
       "against": "hadron"
     },
     {
       "fake_rate": 0.0,
-      "efficiency": 0.0018107787,
-      "threshold": 0.9996607074,
+      "efficiency": 0.002058703,
+      "threshold": 0.9996574274,
       "signal": "e",
       "against": "hadron"
     },
     {
       "fake_rate": 0.0,
-      "efficiency": 0.0031714204,
-      "threshold": 0.9996522623,
+      "efficiency": 0.0037576327,
+      "threshold": 0.9996468682,
       "signal": "e",
       "against": "hadron"
     },
     {
       "fake_rate": 0.0,
-      "efficiency": 0.0042660719,
-      "threshold": 0.9996426942,
+      "efficiency": 0.0053866064,
+      "threshold": 0.9996382447,
       "signal": "e",
       "against": "hadron"
     },
     {
       "fake_rate": 0.0,
-      "efficiency": 0.0058927037,
-      "threshold": 0.9996363451,
+      "efficiency": 0.0067557439,
+      "threshold": 0.9996301244,
       "signal": "e",
       "against": "hadron"
     },
     {
       "fake_rate": 0.0,
-      "efficiency": 0.007058968,
-      "threshold": 0.999629418,
-      "signal": "e",
-      "against": "hadron"
-    },
-    {
-      "fake_rate": 0.0,
-      "efficiency": 0.0082559234,
+      "efficiency": 0.0080649191,
       "threshold": 0.999623806,
       "signal": "e",
       "against": "hadron"
     },
     {
       "fake_rate": 0.0,
-      "efficiency": 0.0090948152,
-      "threshold": 0.9996207476,
+      "efficiency": 0.009014321,
+      "threshold": 0.9996201309,
       "signal": "e",
       "against": "hadron"
     },
     {
       "fake_rate": 0.0,
-      "efficiency": 0.010353153,
-      "threshold": 0.999617061,
+      "efficiency": 0.0104034458,
+      "threshold": 0.9996164889,
       "signal": "e",
       "against": "hadron"
     },
     {
       "fake_rate": 0.0,
-      "efficiency": 0.0112022752,
-      "threshold": 0.9996138938,
+      "efficiency": 0.0116326714,
+      "threshold": 0.9996130734,
       "signal": "e",
       "against": "hadron"
     },
     {
       "fake_rate": 0.0,
-      "efficiency": 0.0125219953,
-      "threshold": 0.9996121291,
+      "efficiency": 0.0128119285,
+      "threshold": 0.999610976,
       "signal": "e",
       "against": "hadron"
     },
     {
       "fake_rate": 0.0,
-      "efficiency": 0.0135961861,
-      "threshold": 0.9996106458,
+      "efficiency": 0.0145908078,
+      "threshold": 0.9996085329,
       "signal": "e",
       "against": "hadron"
     },
     {
       "fake_rate": 0.0,
-      "efficiency": 0.0150898228,
-      "threshold": 0.9996082026,
-      "signal": "e",
-      "against": "hadron"
-    },
-    {
-      "fake_rate": 0.0,
-      "efficiency": 0.016123092,
+      "efficiency": 0.0157500775,
       "threshold": 0.9996057717,
       "signal": "e",
       "against": "hadron"
     },
     {
       "fake_rate": 0.0,
-      "efficiency": 0.0171972828,
-      "threshold": 0.9996028873,
+      "efficiency": 0.0169393282,
+      "threshold": 0.9996026682,
       "signal": "e",
       "against": "hadron"
     },
     {
       "fake_rate": 0.0,
-      "efficiency": 0.0189364488,
-      "threshold": 0.9996003247,
+      "efficiency": 0.0188481257,
+      "threshold": 0.9995996335,
       "signal": "e",
       "against": "hadron"
     },
     {
       "fake_rate": 0.0,
-      "efficiency": 0.0204403159,
-      "threshold": 0.9995988638,
+      "efficiency": 0.0205170742,
+      "threshold": 0.9995980214,
       "signal": "e",
       "against": "hadron"
     },
     {
       "fake_rate": 0.0,
-      "efficiency": 0.0215861194,
-      "threshold": 0.9995969002,
+      "efficiency": 0.0223459221,
+      "threshold": 0.9995959913,
       "signal": "e",
       "against": "hadron"
     },
     {
       "fake_rate": 0.0,
-      "efficiency": 0.0236731186,
-      "threshold": 0.9995955743,
+      "efficiency": 0.0239049399,
+      "threshold": 0.9995944192,
       "signal": "e",
       "against": "hadron"
     },
     {
       "fake_rate": 0.0,
-      "efficiency": 0.0246552359,
-      "threshold": 0.9995939693,
-      "signal": "e",
-      "against": "hadron"
-    },
-    {
-      "fake_rate": 0.0,
-      "efficiency": 0.0258931129,
+      "efficiency": 0.0252940647,
       "threshold": 0.9995923814,
       "signal": "e",
       "against": "hadron"
     },
     {
       "fake_rate": 0.0,
-      "efficiency": 0.0275913574,
-      "threshold": 0.9995909275,
+      "efficiency": 0.0272028622,
+      "threshold": 0.9995908008,
       "signal": "e",
       "against": "hadron"
     },
     {
       "fake_rate": 0.0,
-      "efficiency": 0.0288087736,
-      "threshold": 0.9995894908,
+      "efficiency": 0.0285320248,
+      "threshold": 0.999588863,
       "signal": "e",
       "against": "hadron"
     },
     {
       "fake_rate": 0.0,
-      "efficiency": 0.029821582,
-      "threshold": 0.9995879405,
+      "efficiency": 0.0295214015,
+      "threshold": 0.9995876154,
       "signal": "e",
       "against": "hadron"
     },
     {
       "fake_rate": 0.0,
-      "efficiency": 0.0307730081,
-      "threshold": 0.9995866514,
+      "efficiency": 0.0311903501,
+      "threshold": 0.9995860855,
       "signal": "e",
       "against": "hadron"
     },
     {
       "fake_rate": 0.0,
-      "efficiency": 0.032297336,
-      "threshold": 0.9995858322,
+      "efficiency": 0.0328992735,
+      "threshold": 0.9995851088,
       "signal": "e",
       "against": "hadron"
     },
     {
       "fake_rate": 0.0,
-      "efficiency": 0.0338216639,
-      "threshold": 0.9995849354,
-      "signal": "e",
-      "against": "hadron"
-    },
-    {
-      "fake_rate": 0.0,
-      "efficiency": 0.0350493105,
+      "efficiency": 0.0342384298,
       "threshold": 0.9995842584,
       "signal": "e",
       "against": "hadron"
     },
     {
       "fake_rate": 0.0,
-      "efficiency": 0.0360928101,
-      "threshold": 0.9995835387,
+      "efficiency": 0.0355176239,
+      "threshold": 0.9995834169,
       "signal": "e",
       "against": "hadron"
     },
     {
       "fake_rate": 0.0,
-      "efficiency": 0.0376375987,
-      "threshold": 0.9995830642,
+      "efficiency": 0.0370866354,
+      "threshold": 0.9995828207,
       "signal": "e",
       "against": "hadron"
     },
     {
       "fake_rate": 0.0,
-      "efficiency": 0.0388243238,
-      "threshold": 0.9995823235,
+      "efficiency": 0.0396450236,
+      "threshold": 0.9995820352,
       "signal": "e",
       "against": "hadron"
     },
     {
       "fake_rate": 0.0,
-      "efficiency": 0.0412080043,
-      "threshold": 0.9995818503,
+      "efficiency": 0.0411140981,
+      "threshold": 0.9995814468,
       "signal": "e",
       "against": "hadron"
     },
     {
       "fake_rate": 0.0,
-      "efficiency": 0.0425788763,
-      "threshold": 0.9995812234,
+      "efficiency": 0.0426331411,
+      "threshold": 0.9995804809,
       "signal": "e",
       "against": "hadron"
     },
     {
       "fake_rate": 0.0,
-      "efficiency": 0.0441338953,
-      "threshold": 0.9995804289,
-      "signal": "e",
-      "against": "hadron"
-    },
-    {
-      "fake_rate": 0.0,
-      "efficiency": 0.0456889144,
+      "efficiency": 0.0446318819,
       "threshold": 0.9995798251,
       "signal": "e",
       "against": "hadron"
     },
     {
       "fake_rate": 0.0,
-      "efficiency": 0.0472848549,
-      "threshold": 0.9995793555,
+      "efficiency": 0.0464107612,
+      "threshold": 0.9995793073,
       "signal": "e",
       "against": "hadron"
     },
     {
       "fake_rate": 0.0,
-      "efficiency": 0.04847158,
-      "threshold": 0.9995790364,
+      "efficiency": 0.0479797727,
+      "threshold": 0.999578641,
       "signal": "e",
       "against": "hadron"
     },
     {
       "fake_rate": 0.0,
-      "efficiency": 0.0500572902,
-      "threshold": 0.9995784099,
+      "efficiency": 0.0493788913,
+      "threshold": 0.9995780719,
       "signal": "e",
       "against": "hadron"
     },
     {
       "fake_rate": 0.0,
-      "efficiency": 0.0510700986,
-      "threshold": 0.9995778059,
+      "efficiency": 0.0503882554,
+      "threshold": 0.9995775617,
       "signal": "e",
       "against": "hadron"
     },
     {
       "fake_rate": 0.0,
-      "efficiency": 0.0523488972,
-      "threshold": 0.9995772195,
+      "efficiency": 0.0520971788,
+      "threshold": 0.9995769785,
       "signal": "e",
       "against": "hadron"
     },
     {
       "fake_rate": 0.0,
-      "efficiency": 0.0534435487,
-      "threshold": 0.9995769504,
+      "efficiency": 0.0539660014,
+      "threshold": 0.9995766405,
       "signal": "e",
       "against": "hadron"
     },
     {
       "fake_rate": 0.0,
-      "efficiency": 0.0552031755,
-      "threshold": 0.9995766857,
+      "efficiency": 0.0560646793,
+      "threshold": 0.9995762176,
       "signal": "e",
       "against": "hadron"
     },
     {
       "fake_rate": 0.0,
-      "efficiency": 0.0571162581,
-      "threshold": 0.9995762596,
+      "efficiency": 0.0579834704,
+      "threshold": 0.9995758282,
       "signal": "e",
       "against": "hadron"
     },
     {
       "fake_rate": 0.0,
-      "efficiency": 0.0587633507,
-      "threshold": 0.9995759625,
+      "efficiency": 0.0603319908,
+      "threshold": 0.9995755315,
       "signal": "e",
       "against": "hadron"
     },
     {
       "fake_rate": 0.0,
-      "efficiency": 0.0607889675,
-      "threshold": 0.999575609,
+      "efficiency": 0.0630003098,
+      "threshold": 0.9995752009,
       "signal": "e",
       "against": "hadron"
     },
     {
       "fake_rate": 0.0,
-      "efficiency": 0.0625792855,
-      "threshold": 0.9995753685,
+      "efficiency": 0.0644094221,
+      "threshold": 0.9995748764,
       "signal": "e",
       "against": "hadron"
     },
     {
       "fake_rate": 0.0,
-      "efficiency": 0.0651982649,
-      "threshold": 0.9995750902,
-      "signal": "e",
-      "against": "hadron"
-    },
-    {
-      "fake_rate": 0.0,
-      "efficiency": 0.0664566027,
-      "threshold": 0.9995748215,
-      "signal": "e",
-      "against": "hadron"
-    },
-    {
-      "fake_rate": 0.0,
-      "efficiency": 0.0674080288,
+      "efficiency": 0.0658485154,
       "threshold": 0.9995744434,
       "signal": "e",
       "against": "hadron"
     },
     {
       "fake_rate": 0.0,
-      "efficiency": 0.0685845235,
-      "threshold": 0.9995741678,
+      "efficiency": 0.0672076592,
+      "threshold": 0.9995740548,
       "signal": "e",
       "against": "hadron"
     },
     {
       "fake_rate": 0.0,
-      "efficiency": 0.0700576994,
-      "threshold": 0.9995737944,
+      "efficiency": 0.0689465637,
+      "threshold": 0.9995736491,
       "signal": "e",
       "against": "hadron"
     },
     {
       "fake_rate": 0.0,
-      "efficiency": 0.0719298605,
-      "threshold": 0.9995734155,
+      "efficiency": 0.0706654807,
+      "threshold": 0.999573308,
       "signal": "e",
       "against": "hadron"
     },
     {
       "fake_rate": 0.0,
-      "efficiency": 0.0728096739,
-      "threshold": 0.9995731607,
+      "efficiency": 0.0721245615,
+      "threshold": 0.999572997,
       "signal": "e",
       "against": "hadron"
     },
     {
       "fake_rate": 0.0,
-      "efficiency": 0.0745386095,
-      "threshold": 0.9995729221,
+      "efficiency": 0.074403126,
+      "threshold": 0.9995727341,
       "signal": "e",
       "against": "hadron"
     },
     {
       "fake_rate": 0.0,
-      "efficiency": 0.0766767606,
-      "threshold": 0.9995726348,
-      "signal": "e",
-      "against": "hadron"
-    },
-    {
-      "fake_rate": 0.0,
-      "efficiency": 0.0780783239,
+      "efficiency": 0.0762719487,
       "threshold": 0.9995723355,
       "signal": "e",
       "against": "hadron"
     },
     {
       "fake_rate": 0.0,
-      "efficiency": 0.0790911323,
-      "threshold": 0.999572089,
+      "efficiency": 0.0780308406,
+      "threshold": 0.9995720754,
       "signal": "e",
       "against": "hadron"
     },
     {
       "fake_rate": 0.0,
-      "efficiency": 0.0807586856,
-      "threshold": 0.9995718437,
+      "efficiency": 0.0792100976,
+      "threshold": 0.9995717775,
       "signal": "e",
       "against": "hadron"
     },
     {
       "fake_rate": 0.0,
-      "efficiency": 0.0881859475,
-      "threshold": 0.999571589,
+      "efficiency": 0.0887141101,
+      "threshold": 0.9995714444,
       "signal": "e",
       "against": "hadron"
     },
     {
       "fake_rate": 0.0,
-      "efficiency": 0.0946106314,
-      "threshold": 0.9995713064,
+      "efficiency": 0.0942806032,
+      "threshold": 0.9995711639,
       "signal": "e",
       "against": "hadron"
     },
     {
       "fake_rate": 0.0,
-      "efficiency": 0.097127307,
-      "threshold": 0.9995710851,
+      "efficiency": 0.0963393062,
+      "threshold": 0.9995708344,
       "signal": "e",
       "against": "hadron"
     },
     {
       "fake_rate": 0.0,
-      "efficiency": 0.098866473,
-      "threshold": 0.9995707997,
-      "signal": "e",
-      "against": "hadron"
-    },
-    {
-      "fake_rate": 0.0,
-      "efficiency": 0.1004419528,
+      "efficiency": 0.0981181855,
       "threshold": 0.9995705426,
       "signal": "e",
       "against": "hadron"
     },
     {
       "fake_rate": 0.0,
-      "efficiency": 0.1014547612,
-      "threshold": 0.9995701929,
+      "efficiency": 0.10039675,
+      "threshold": 0.9995701776,
       "signal": "e",
       "against": "hadron"
     },
     {
       "fake_rate": 0.0,
-      "efficiency": 0.1042271965,
-      "threshold": 0.9995700057,
+      "efficiency": 0.1024554531,
+      "threshold": 0.9995698855,
       "signal": "e",
       "against": "hadron"
     },
     {
       "fake_rate": 0.0,
-      "efficiency": 0.1072860826,
-      "threshold": 0.9995697166,
+      "efficiency": 0.1053136524,
+      "threshold": 0.9995696278,
       "signal": "e",
       "against": "hadron"
     },
     {
       "fake_rate": 0.0,
-      "efficiency": 0.1122273602,
-      "threshold": 0.9995694981,
+      "efficiency": 0.1115797048,
+      "threshold": 0.999569337,
       "signal": "e",
       "against": "hadron"
     },
     {
       "fake_rate": 0.0,
-      "efficiency": 0.11485657,
-      "threshold": 0.9995692283,
+      "efficiency": 0.1139382189,
+      "threshold": 0.999568986,
       "signal": "e",
       "against": "hadron"
     },
     {
       "fake_rate": 0.0,
-      "efficiency": 0.1167389614,
-      "threshold": 0.9995689602,
-      "signal": "e",
-      "against": "hadron"
-    },
-    {
-      "fake_rate": 0.0,
-      "efficiency": 0.1184269755,
+      "efficiency": 0.1156871171,
       "threshold": 0.9995686156,
       "signal": "e",
       "against": "hadron"
     },
     {
       "fake_rate": 0.0,
-      "efficiency": 0.1233887138,
-      "threshold": 0.9995684808,
+      "efficiency": 0.1211236921,
+      "threshold": 0.9995684434,
       "signal": "e",
       "against": "hadron"
     },
     {
       "fake_rate": 0.0,
-      "efficiency": 0.1270716536,
-      "threshold": 0.9995682129,
+      "efficiency": 0.125041224,
+      "threshold": 0.9995681684,
       "signal": "e",
       "against": "hadron"
     },
     {
       "fake_rate": 0.0,
-      "efficiency": 0.1289131235,
-      "threshold": 0.9995680131,
+      "efficiency": 0.1265702607,
+      "threshold": 0.9995677867,
       "signal": "e",
       "against": "hadron"
     },
     {
       "fake_rate": 0.0,
-      "efficiency": 0.1301510005,
-      "threshold": 0.9995675841,
+      "efficiency": 0.127979373,
+      "threshold": 0.9995674237,
       "signal": "e",
       "against": "hadron"
     },
     {
       "fake_rate": 0.0,
-      "efficiency": 0.1313070344,
-      "threshold": 0.9995673525,
+      "efficiency": 0.1297982271,
+      "threshold": 0.9995670762,
       "signal": "e",
       "against": "hadron"
     },
     {
       "fake_rate": 0.0,
-      "efficiency": 0.133087122,
-      "threshold": 0.9995670541,
+      "efficiency": 0.132706395,
+      "threshold": 0.9995667594,
       "signal": "e",
       "against": "hadron"
     },
     {
       "fake_rate": 0.0,
-      "efficiency": 0.1357367926,
-      "threshold": 0.9995667665,
+      "efficiency": 0.1362641536,
+      "threshold": 0.9995664688,
       "signal": "e",
       "against": "hadron"
     },
     {
       "fake_rate": 0.0,
-      "efficiency": 0.1383148504,
-      "threshold": 0.9995665051,
+      "efficiency": 0.1400517674,
+      "threshold": 0.9995662476,
       "signal": "e",
       "against": "hadron"
     },
     {
       "fake_rate": 0.0,
-      "efficiency": 0.1424070058,
-      "threshold": 0.9995662967,
+      "efficiency": 0.1440092742,
+      "threshold": 0.9995660274,
       "signal": "e",
       "against": "hadron"
     },
     {
       "fake_rate": 0.0,
-      "efficiency": 0.1459057986,
-      "threshold": 0.9995661112,
+      "efficiency": 0.1469074483,
+      "threshold": 0.9995657381,
       "signal": "e",
       "against": "hadron"
     },
     {
       "fake_rate": 0.0,
-      "efficiency": 0.1488316897,
-      "threshold": 0.9995659479,
+      "efficiency": 0.1532734377,
+      "threshold": 0.9995655071,
       "signal": "e",
       "against": "hadron"
     },
     {
       "fake_rate": 0.0,
-      "efficiency": 0.1514711298,
-      "threshold": 0.9995656911,
+      "efficiency": 0.1581703527,
+      "threshold": 0.9995652219,
       "signal": "e",
       "against": "hadron"
     },
     {
       "fake_rate": 0.0,
-      "efficiency": 0.1577218971,
-      "threshold": 0.999565468,
+      "efficiency": 0.1617780798,
+      "threshold": 0.999565029,
       "signal": "e",
       "against": "hadron"
     },
     {
       "fake_rate": 0.0,
-      "efficiency": 0.1618345132,
-      "threshold": 0.9995652224,
+      "efficiency": 0.1673945414,
+      "threshold": 0.9995647006,
       "signal": "e",
       "against": "hadron"
     },
     {
       "fake_rate": 0.0,
-      "efficiency": 0.1650059336,
-      "threshold": 0.9995650694,
+      "efficiency": 0.1840940208,
+      "threshold": 0.9995642807,
       "signal": "e",
       "against": "hadron"
     },
     {
       "fake_rate": 0.0,
-      "efficiency": 0.1670827025,
-      "threshold": 0.9995647603,
+      "efficiency": 0.3185593076,
+      "threshold": 0.9995639809,
       "signal": "e",
       "against": "hadron"
     },
     {
       "fake_rate": 0.0,
-      "efficiency": 0.1846789704,
-      "threshold": 0.9995644464,
+      "efficiency": 0.3801704926,
+      "threshold": 0.9995637152,
       "signal": "e",
       "against": "hadron"
     },
     {
       "fake_rate": 0.0,
-      "efficiency": 0.1951753489,
-      "threshold": 0.9995641544,
-      "signal": "e",
-      "against": "hadron"
-    },
-    {
-      "fake_rate": 0.0,
-      "efficiency": 0.3267176822,
-      "threshold": 0.9995638874,
-      "signal": "e",
-      "against": "hadron"
-    },
-    {
-      "fake_rate": 0.0,
-      "efficiency": 0.3971129844,
-      "threshold": 0.9995636678,
-      "signal": "e",
-      "against": "hadron"
-    },
-    {
-      "fake_rate": 0.0,
-      "efficiency": 0.4045913983,
+      "efficiency": 0.3952310045,
       "threshold": 0.9995634075,
       "signal": "e",
       "against": "hadron"
     },
     {
       "fake_rate": 0.0,
-      "efficiency": 0.426975488,
-      "threshold": 0.9995631467,
+      "efficiency": 0.4173670588,
+      "threshold": 0.9995631003,
       "signal": "e",
       "against": "hadron"
     },
     {
       "fake_rate": 0.0,
-      "efficiency": 0.4293796293,
-      "threshold": 0.9995629766,
+      "efficiency": 0.4274606998,
+      "threshold": 0.9995629256,
       "signal": "e",
       "against": "hadron"
     },
     {
       "fake_rate": 0.0,
-      "efficiency": 0.4405307525,
-      "threshold": 0.9995627548,
+      "efficiency": 0.4313782317,
+      "threshold": 0.9995626337,
       "signal": "e",
       "against": "hadron"
     },
     {
       "fake_rate": 0.0,
-      "efficiency": 0.4490731268,
-      "threshold": 0.9995625663,
+      "efficiency": 0.4416417657,
+      "threshold": 0.9995623301,
       "signal": "e",
       "against": "hadron"
     },
     {
       "fake_rate": 0.0,
-      "efficiency": 0.4572676679,
-      "threshold": 0.9995622918,
+      "efficiency": 0.4490371066,
+      "threshold": 0.9995621526,
       "signal": "e",
       "against": "hadron"
     },
     {
       "fake_rate": 0.0,
-      "efficiency": 0.4598354954,
-      "threshold": 0.9995621248,
-      "signal": "e",
-      "against": "hadron"
-    },
-    {
-      "fake_rate": 0.0,
-      "efficiency": 0.463989033,
+      "efficiency": 0.4532544497,
       "threshold": 0.9995619339,
       "signal": "e",
       "against": "hadron"
     },
     {
       "fake_rate": 0.0,
-      "efficiency": 0.4677845071,
-      "threshold": 0.9995617932,
+      "efficiency": 0.4577216354,
+      "threshold": 0.999561776,
       "signal": "e",
       "against": "hadron"
     },
     {
       "fake_rate": 0.0,
-      "efficiency": 0.4709763883,
-      "threshold": 0.9995616476,
+      "efficiency": 0.4607797088,
+      "threshold": 0.9995615321,
       "signal": "e",
       "against": "hadron"
     },
     {
       "fake_rate": 0.0,
-      "efficiency": 0.4748127839,
-      "threshold": 0.9995614226,
+      "efficiency": 0.4647671967,
+      "threshold": 0.9995613337,
       "signal": "e",
       "against": "hadron"
     },
     {
       "fake_rate": 0.0,
-      "efficiency": 0.4856672259,
-      "threshold": 0.9995612469,
+      "efficiency": 0.4783986089,
+      "threshold": 0.9995610477,
       "signal": "e",
       "against": "hadron"
     },
     {
       "fake_rate": 0.0,
-      "efficiency": 0.4904243565,
-      "threshold": 0.9995609967,
+      "efficiency": 0.5101486064,
+      "threshold": 0.9995608427,
       "signal": "e",
       "against": "hadron"
     },
     {
       "fake_rate": 0.0,
-      "efficiency": 0.5475406146,
-      "threshold": 0.9995608239,
-      "signal": "e",
-      "against": "hadron"
-    },
-    {
-      "fake_rate": 0.0,
-      "efficiency": 0.5628657364,
+      "efficiency": 0.5498435985,
       "threshold": 0.9995606524,
       "signal": "e",
       "against": "hadron"
     },
     {
       "fake_rate": 0.0,
-      "efficiency": 0.5927896223,
-      "threshold": 0.9995604916,
+      "efficiency": 0.5823231364,
+      "threshold": 0.9995604781,
       "signal": "e",
       "against": "hadron"
     },
     {
       "fake_rate": 0.0,
-      "efficiency": 0.604769407,
-      "threshold": 0.9995603582,
+      "efficiency": 0.5915873,
+      "threshold": 0.9995602922,
       "signal": "e",
       "against": "hadron"
     },
     {
       "fake_rate": 0.0,
-      "efficiency": 0.6067029504,
-      "threshold": 0.9995601088,
+      "efficiency": 0.5977134405,
+      "threshold": 0.9995600004,
       "signal": "e",
       "against": "hadron"
     },
     {
       "fake_rate": 0.0,
-      "efficiency": 0.6213017146,
-      "threshold": 0.9995599175,
+      "efficiency": 0.6126240469,
+      "threshold": 0.9995598171,
       "signal": "e",
       "against": "hadron"
     },
     {
       "fake_rate": 0.0,
-      "efficiency": 0.6288005893,
-      "threshold": 0.9995597306,
+      "efficiency": 0.624096819,
+      "threshold": 0.9995595663,
       "signal": "e",
       "against": "hadron"
     },
     {
       "fake_rate": 0.0,
-      "efficiency": 0.6397982567,
-      "threshold": 0.9995595223,
+      "efficiency": 0.6303528777,
+      "threshold": 0.9995592252,
       "signal": "e",
       "against": "hadron"
     },
     {
       "fake_rate": 0.0,
-      "efficiency": 0.6452715145,
-      "threshold": 0.9995592311,
+      "efficiency": 0.6346401767,
+      "threshold": 0.999558947,
       "signal": "e",
       "against": "hadron"
     },
     {
       "fake_rate": 0.0,
-      "efficiency": 0.6492409052,
-      "threshold": 0.9995589923,
+      "efficiency": 0.6368487853,
+      "threshold": 0.9995586368,
       "signal": "e",
       "against": "hadron"
     },
     {
       "fake_rate": 0.0,
-      "efficiency": 0.6515325122,
-      "threshold": 0.9995587003,
+      "efficiency": 0.6530485794,
+      "threshold": 0.9995583941,
       "signal": "e",
       "against": "hadron"
     },
     {
       "fake_rate": 0.0,
-      "efficiency": 0.6675635307,
-      "threshold": 0.9995584783,
+      "efficiency": 0.6614832655,
+      "threshold": 0.9995580783,
       "signal": "e",
       "against": "hadron"
     },
     {
       "fake_rate": 0.0,
-      "efficiency": 0.669599378,
-      "threshold": 0.9995582609,
+      "efficiency": 0.6739853892,
+      "threshold": 0.9995578178,
       "signal": "e",
       "against": "hadron"
     },
     {
       "fake_rate": 0.0,
-      "efficiency": 0.6780496788,
-      "threshold": 0.9995580298,
+      "efficiency": 0.6780128519,
+      "threshold": 0.9995575997,
       "signal": "e",
       "against": "hadron"
     },
     {
       "fake_rate": 0.0,
-      "efficiency": 0.6902136105,
-      "threshold": 0.9995577904,
+      "efficiency": 0.6892058003,
+      "threshold": 0.9995572839,
       "signal": "e",
       "against": "hadron"
     },
     {
       "fake_rate": 0.0,
-      "efficiency": 0.6940295454,
-      "threshold": 0.9995576003,
+      "efficiency": 0.6946223879,
+      "threshold": 0.9995569617,
       "signal": "e",
       "against": "hadron"
     },
     {
       "fake_rate": 0.0,
-      "efficiency": 0.7053648156,
-      "threshold": 0.9995573149,
+      "efficiency": 0.7000589629,
+      "threshold": 0.9995565936,
       "signal": "e",
       "against": "hadron"
     },
     {
       "fake_rate": 0.0,
-      "efficiency": 0.7074927364,
-      "threshold": 0.9995570439,
+      "efficiency": 0.7062850404,
+      "threshold": 0.999556313,
       "signal": "e",
       "against": "hadron"
     },
     {
       "fake_rate": 0.0,
-      "efficiency": 0.7118201907,
-      "threshold": 0.9995567201,
+      "efficiency": 0.7098927676,
+      "threshold": 0.9995560667,
       "signal": "e",
       "against": "hadron"
     },
     {
       "fake_rate": 0.0,
-      "efficiency": 0.7192372222,
-      "threshold": 0.999556441,
+      "efficiency": 0.7122712691,
+      "threshold": 0.9995557932,
       "signal": "e",
       "against": "hadron"
     },
     {
       "fake_rate": 0.0,
-      "efficiency": 0.725580063,
-      "threshold": 0.9995562429,
+      "efficiency": 0.714030161,
+      "threshold": 0.9995554236,
       "signal": "e",
       "against": "hadron"
     },
     {
       "fake_rate": 0.0,
-      "efficiency": 0.72681794,
-      "threshold": 0.9995560361,
+      "efficiency": 0.7157790592,
+      "threshold": 0.999555059,
       "signal": "e",
       "against": "hadron"
     },
     {
       "fake_rate": 0.0,
-      "efficiency": 0.7291300078,
-      "threshold": 0.9995557959,
+      "efficiency": 0.7177977874,
+      "threshold": 0.999554713,
       "signal": "e",
       "against": "hadron"
     },
     {
       "fake_rate": 0.0,
-      "efficiency": 0.7306236445,
-      "threshold": 0.9995554634,
+      "efficiency": 0.7212955838,
+      "threshold": 0.9995542571,
       "signal": "e",
       "against": "hadron"
     },
     {
       "fake_rate": 0.0,
-      "efficiency": 0.7322605066,
-      "threshold": 0.9995551547,
+      "efficiency": 0.7232443561,
+      "threshold": 0.9995539211,
       "signal": "e",
       "against": "hadron"
     },
     {
       "fake_rate": 0.0,
-      "efficiency": 0.7335393052,
-      "threshold": 0.99955483,
+      "efficiency": 0.7257627695,
+      "threshold": 0.9995536505,
       "signal": "e",
       "against": "hadron"
     },
     {
       "fake_rate": 0.0,
-      "efficiency": 0.7367516471,
-      "threshold": 0.9995544764,
+      "efficiency": 0.7286709373,
+      "threshold": 0.9995533374,
       "signal": "e",
       "against": "hadron"
     },
     {
       "fake_rate": 0.0,
-      "efficiency": 0.7392580922,
-      "threshold": 0.9995541539,
+      "efficiency": 0.7301300181,
+      "threshold": 0.9995530425,
       "signal": "e",
       "against": "hadron"
     },
     {
       "fake_rate": 0.0,
-      "efficiency": 0.7406698858,
-      "threshold": 0.9995538937,
+      "efficiency": 0.7313892248,
+      "threshold": 0.9995527703,
       "signal": "e",
       "against": "hadron"
     },
     {
       "fake_rate": 0.0,
-      "efficiency": 0.7429308017,
-      "threshold": 0.9995536616,
+      "efficiency": 0.7373554661,
+      "threshold": 0.9995525424,
       "signal": "e",
       "against": "hadron"
     },
     {
       "fake_rate": 0.0,
-      "efficiency": 0.7443221345,
-      "threshold": 0.9995533833,
+      "efficiency": 0.738774572,
+      "threshold": 0.9995522921,
       "signal": "e",
       "against": "hadron"
     },
     {
       "fake_rate": 0.0,
-      "efficiency": 0.7468695012,
-      "threshold": 0.999553103,
-      "signal": "e",
-      "against": "hadron"
-    },
-    {
-      "fake_rate": 0.0,
-      "efficiency": 0.7481687605,
-      "threshold": 0.999552947,
-      "signal": "e",
-      "against": "hadron"
-    },
-    {
-      "fake_rate": 0.0,
-      "efficiency": 0.7509105046,
-      "threshold": 0.9995526435,
-      "signal": "e",
-      "against": "hadron"
-    },
-    {
-      "fake_rate": 0.0,
-      "efficiency": 0.7553198019,
-      "threshold": 0.9995524676,
-      "signal": "e",
-      "against": "hadron"
-    },
-    {
-      "fake_rate": 0.0,
-      "efficiency": 0.7563837623,
-      "threshold": 0.9995522313,
-      "signal": "e",
-      "against": "hadron"
-    },
-    {
-      "fake_rate": 0.0,
-      "efficiency": 0.7582252322,
+      "efficiency": 0.7406833695,
       "threshold": 0.9995517743,
       "signal": "e",
       "against": "hadron"
     },
     {
       "fake_rate": 0.0,
-      "efficiency": 0.7593914965,
-      "threshold": 0.9995513935,
+      "efficiency": 0.742152444,
+      "threshold": 0.9995513514,
       "signal": "e",
       "against": "hadron"
     },
     {
       "fake_rate": 0.0,
-      "efficiency": 0.7605679912,
-      "threshold": 0.9995509388,
+      "efficiency": 0.7436115247,
+      "threshold": 0.9995506601,
       "signal": "e",
       "against": "hadron"
     },
     {
       "fake_rate": 0.0,
-      "efficiency": 0.7618774809,
-      "threshold": 0.9995504255,
+      "efficiency": 0.7446908448,
+      "threshold": 0.9995502024,
       "signal": "e",
       "against": "hadron"
     },
     {
       "fake_rate": 0.0,
-      "efficiency": 0.7653660433,
-      "threshold": 0.9995499795,
+      "efficiency": 0.7526658205,
+      "threshold": 0.9995496735,
       "signal": "e",
       "against": "hadron"
     },
     {
       "fake_rate": 0.0,
-      "efficiency": 0.7708699922,
-      "threshold": 0.9995495559,
+      "efficiency": 0.7542448258,
+      "threshold": 0.9995492174,
       "signal": "e",
       "against": "hadron"
     },
     {
       "fake_rate": 0.0,
-      "efficiency": 0.7730388346,
-      "threshold": 0.999549187,
+      "efficiency": 0.7576526788,
+      "threshold": 0.9995486105,
       "signal": "e",
       "against": "hadron"
     },
     {
       "fake_rate": 0.0,
-      "efficiency": 0.7755759709,
-      "threshold": 0.9995486191,
+      "efficiency": 0.7591517344,
+      "threshold": 0.9995480245,
       "signal": "e",
       "against": "hadron"
     },
     {
       "fake_rate": 0.0,
-      "efficiency": 0.7769468429,
-      "threshold": 0.9995481069,
+      "efficiency": 0.7604709033,
+      "threshold": 0.9995474981,
       "signal": "e",
       "against": "hadron"
     },
     {
       "fake_rate": 0.0,
-      "efficiency": 0.7781233376,
-      "threshold": 0.9995477054,
+      "efficiency": 0.7617600911,
+      "threshold": 0.999546962,
       "signal": "e",
       "against": "hadron"
     },
     {
       "fake_rate": 0.0,
-      "efficiency": 0.7791975283,
-      "threshold": 0.9995472452,
+      "efficiency": 0.7627494678,
+      "threshold": 0.9995462238,
       "signal": "e",
       "against": "hadron"
     },
     {
       "fake_rate": 0.0,
-      "efficiency": 0.7803024103,
-      "threshold": 0.9995465743,
+      "efficiency": 0.7640786305,
+      "threshold": 0.9995450917,
       "signal": "e",
       "against": "hadron"
     },
     {
       "fake_rate": 0.0,
-      "efficiency": 0.781059459,
-      "threshold": 0.9995460657,
+      "efficiency": 0.7652678812,
+      "threshold": 0.999543382,
       "signal": "e",
       "against": "hadron"
     },
     {
       "fake_rate": 0.0,
-      "efficiency": 0.7822564145,
-      "threshold": 0.9995449332,
+      "efficiency": 0.7732228696,
+      "threshold": 0.9995423027,
       "signal": "e",
       "against": "hadron"
     },
     {
       "fake_rate": 0.0,
-      "efficiency": 0.783351066,
-      "threshold": 0.9995434142,
+      "efficiency": 0.7784595705,
+      "threshold": 0.9995410627,
       "signal": "e",
       "against": "hadron"
     },
     {
       "fake_rate": 0.0,
-      "efficiency": 0.7852436879,
-      "threshold": 0.9995425227,
+      "efficiency": 0.7800485694,
+      "threshold": 0.9995396195,
       "signal": "e",
       "against": "hadron"
     },
     {
       "fake_rate": 0.0,
-      "efficiency": 0.7955559193,
-      "threshold": 0.9995415569,
+      "efficiency": 0.7817474991,
+      "threshold": 0.9995376471,
       "signal": "e",
       "against": "hadron"
     },
     {
       "fake_rate": 0.0,
-      "efficiency": 0.7978168351,
-      "threshold": 0.9995402952,
+      "efficiency": 0.7831765987,
+      "threshold": 0.9995350273,
       "signal": "e",
       "against": "hadron"
     },
     {
       "fake_rate": 0.0,
-      "efficiency": 0.7991877072,
-      "threshold": 0.9995386699,
+      "efficiency": 0.7848655347,
+      "threshold": 0.9995265614,
       "signal": "e",
       "against": "hadron"
     },
     {
       "fake_rate": 0.0,
-      "efficiency": 0.8005381184,
-      "threshold": 0.9995371615,
+      "efficiency": 0.7865744581,
+      "threshold": 0.9995186231,
       "signal": "e",
       "against": "hadron"
     },
     {
       "fake_rate": 0.0,
-      "efficiency": 0.8019396816,
-      "threshold": 0.9995339781,
+      "efficiency": 0.7887630793,
+      "threshold": 0.9995038083,
       "signal": "e",
       "against": "hadron"
     },
     {
       "fake_rate": 0.0,
-      "efficiency": 0.8034128576,
-      "threshold": 0.9995265999,
+      "efficiency": 0.7903820593,
+      "threshold": 0.9994943603,
       "signal": "e",
       "against": "hadron"
     },
     {
       "fake_rate": 0.0,
-      "efficiency": 0.8051008716,
-      "threshold": 0.9995191278,
+      "efficiency": 0.7921309575,
+      "threshold": 0.9994865992,
       "signal": "e",
       "against": "hadron"
     },
     {
       "fake_rate": 0.0,
-      "efficiency": 0.8069423415,
-      "threshold": 0.9995061929,
+      "efficiency": 0.7933501894,
+      "threshold": 0.9994832665,
       "signal": "e",
       "against": "hadron"
     },
     {
       "fake_rate": 0.0,
-      "efficiency": 0.8085996644,
-      "threshold": 0.9994977654,
+      "efficiency": 0.795388905,
+      "threshold": 0.9994772517,
       "signal": "e",
       "against": "hadron"
     },
     {
       "fake_rate": 0.0,
-      "efficiency": 0.8099398453,
-      "threshold": 0.9994904506,
+      "efficiency": 0.7971677843,
+      "threshold": 0.9994725773,
       "signal": "e",
       "against": "hadron"
     },
     {
       "fake_rate": 0.0,
-      "efficiency": 0.8111572615,
-      "threshold": 0.9994852738,
+      "efficiency": 0.7989366699,
+      "threshold": 0.9994694251,
       "signal": "e",
       "against": "hadron"
     },
     {
       "fake_rate": 0.0,
-      "efficiency": 0.8124258297,
-      "threshold": 0.9994824855,
+      "efficiency": 0.8012252281,
+      "threshold": 0.9994615222,
       "signal": "e",
       "against": "hadron"
     },
     {
       "fake_rate": 0.0,
-      "efficiency": 0.8142059173,
-      "threshold": 0.9994772669,
+      "efficiency": 0.8031040445,
+      "threshold": 0.9994357105,
       "signal": "e",
       "against": "hadron"
     },
     {
       "fake_rate": 0.0,
-      "efficiency": 0.8156688628,
-      "threshold": 0.9994738641,
+      "efficiency": 0.8496946923,
+      "threshold": 0.9985371059,
       "signal": "e",
       "against": "hadron"
     },
     {
-      "fake_rate": 0.0,
-      "efficiency": 0.8171727299,
-      "threshold": 0.9994707215,
+      "fake_rate": 0.0023232177,
+      "efficiency": 0.9600351778,
+      "threshold": 0.8440909489,
       "signal": "e",
       "against": "hadron"
     },
     {
-      "fake_rate": 0.0,
-      "efficiency": 0.8194438761,
-      "threshold": 0.9994670775,
+      "fake_rate": 0.0047916364,
+      "efficiency": 0.9678102795,
+      "threshold": 0.7087798408,
       "signal": "e",
       "against": "hadron"
     },
     {
-      "fake_rate": 0.0,
-      "efficiency": 0.8209068216,
-      "threshold": 0.999455309,
+      "fake_rate": 0.0072600552,
+      "efficiency": 0.9710882144,
+      "threshold": 0.6350371908,
       "signal": "e",
       "against": "hadron"
     },
     {
-      "fake_rate": 0.0,
-      "efficiency": 0.8229324385,
-      "threshold": 0.9994138802,
+      "fake_rate": 0.0100188761,
+      "efficiency": 0.9739863886,
+      "threshold": 0.5528986252,
       "signal": "e",
       "against": "hadron"
     },
     {
-      "fake_rate": 0.0003474032,
-      "efficiency": 0.9493084257,
-      "threshold": 0.9932228282,
+      "fake_rate": 0.0127776971,
+      "efficiency": 0.9761550223,
+      "threshold": 0.4810275544,
       "signal": "e",
       "against": "hadron"
     },
     {
-      "fake_rate": 0.0027792253,
-      "efficiency": 0.9834370013,
-      "threshold": 0.7925453552,
+      "fake_rate": 0.0152461159,
+      "efficiency": 0.9769745061,
+      "threshold": 0.4476602405,
       "signal": "e",
       "against": "hadron"
     },
     {
-      "fake_rate": 0.0052110474,
-      "efficiency": 0.9891557884,
-      "threshold": 0.6433256382,
+      "fake_rate": 0.0177145346,
+      "efficiency": 0.9784935491,
+      "threshold": 0.380484082,
       "signal": "e",
       "against": "hadron"
     },
     {
-      "fake_rate": 0.0083376759,
-      "efficiency": 0.9919691451,
-      "threshold": 0.5299878237,
+      "fake_rate": 0.0201829534,
+      "efficiency": 0.9794829258,
+      "threshold": 0.3415330414,
       "signal": "e",
       "against": "hadron"
     },
     {
-      "fake_rate": 0.0109431996,
-      "efficiency": 0.9932070221,
-      "threshold": 0.4511557529,
+      "fake_rate": 0.0232321766,
+      "efficiency": 0.9806421954,
+      "threshold": 0.2852541628,
       "signal": "e",
       "against": "hadron"
     },
     {
-      "fake_rate": 0.0138961265,
-      "efficiency": 0.9941277571,
-      "threshold": 0.3803028317,
+      "fake_rate": 0.0261361986,
+      "efficiency": 0.9819913455,
+      "threshold": 0.2360674748,
       "signal": "e",
       "against": "hadron"
     },
     {
-      "fake_rate": 0.0166753517,
-      "efficiency": 0.9949871097,
-      "threshold": 0.295979715,
+      "fake_rate": 0.0290402207,
+      "efficiency": 0.9826709173,
+      "threshold": 0.2136059126,
       "signal": "e",
       "against": "hadron"
     },
     {
-      "fake_rate": 0.0206704881,
-      "efficiency": 0.9957441584,
-      "threshold": 0.218322368,
+      "fake_rate": 0.0313634384,
+      "efficiency": 0.9833704766,
+      "threshold": 0.19827518,
       "signal": "e",
       "against": "hadron"
     },
     {
-      "fake_rate": 0.023623415,
-      "efficiency": 0.996337521,
-      "threshold": 0.172975179,
+      "fake_rate": 0.0347030637,
+      "efficiency": 0.9843498596,
+      "threshold": 0.1799564461,
       "signal": "e",
       "against": "hadron"
     },
     {
-      "fake_rate": 0.0270974466,
-      "efficiency": 0.9967467365,
-      "threshold": 0.1386592839,
+      "fake_rate": 0.0373166836,
+      "efficiency": 0.9852492929,
+      "threshold": 0.1683929839,
       "signal": "e",
       "against": "hadron"
     },
     {
-      "fake_rate": 0.0331770019,
-      "efficiency": 0.9970741089,
-      "threshold": 0.1113071653,
+      "fake_rate": 0.0403659068,
+      "efficiency": 0.9858988837,
+      "threshold": 0.161103298,
       "signal": "e",
       "against": "hadron"
     },
     {
-      "fake_rate": 0.0375195414,
-      "efficiency": 0.9974321725,
-      "threshold": 0.0837504438,
+      "fake_rate": 0.0428343255,
+      "efficiency": 0.9866284241,
+      "threshold": 0.1526980429,
       "signal": "e",
       "against": "hadron"
     },
     {
-      "fake_rate": 0.0432516936,
-      "efficiency": 0.9976367803,
-      "threshold": 0.0690422347,
+      "fake_rate": 0.0460287498,
+      "efficiency": 0.9871880715,
+      "threshold": 0.1439703549,
       "signal": "e",
       "against": "hadron"
     },
     {
-      "fake_rate": 0.0508945631,
-      "efficiency": 0.9978720792,
-      "threshold": 0.0568374234,
+      "fake_rate": 0.0493683752,
+      "efficiency": 0.9878076812,
+      "threshold": 0.1362281239,
       "signal": "e",
       "against": "hadron"
     },
     {
-      "fake_rate": 0.0568004169,
-      "efficiency": 0.9981176085,
-      "threshold": 0.0455796395,
+      "fake_rate": 0.0525627995,
+      "efficiency": 0.9886771334,
+      "threshold": 0.1280559931,
       "signal": "e",
       "against": "hadron"
     },
     {
-      "fake_rate": 0.0663540038,
-      "efficiency": 0.9983324467,
-      "threshold": 0.0375511382,
+      "fake_rate": 0.0553216204,
+      "efficiency": 0.9893866864,
+      "threshold": 0.1233478807,
       "signal": "e",
       "against": "hadron"
     },
     {
-      "fake_rate": 0.0760812923,
-      "efficiency": 0.9985370545,
-      "threshold": 0.031378875,
+      "fake_rate": 0.0580804414,
+      "efficiency": 0.9901562016,
+      "threshold": 0.1186798694,
       "signal": "e",
       "against": "hadron"
     },
     {
-      "fake_rate": 0.0906722251,
-      "efficiency": 0.9987109711,
-      "threshold": 0.0251864746,
+      "fake_rate": 0.0599680558,
+      "efficiency": 0.9907658175,
+      "threshold": 0.1154192989,
       "signal": "e",
       "against": "hadron"
     },
     {
-      "fake_rate": 0.115164148,
-      "efficiency": 0.9989155788,
-      "threshold": 0.0177507013,
+      "fake_rate": 0.0625816756,
+      "efficiency": 0.9913054775,
+      "threshold": 0.1116316907,
       "signal": "e",
       "against": "hadron"
     },
     {
-      "fake_rate": 0.1412193851,
-      "efficiency": 0.999079265,
-      "threshold": 0.012625602,
+      "fake_rate": 0.0651952955,
+      "efficiency": 0.9919950431,
+      "threshold": 0.107272253,
       "signal": "e",
       "against": "hadron"
     },
     {
-      "fake_rate": 0.1605002606,
-      "efficiency": 0.9992327209,
-      "threshold": 0.0102292586,
+      "fake_rate": 0.0683897198,
+      "efficiency": 0.992574678,
+      "threshold": 0.1030913629,
       "signal": "e",
       "against": "hadron"
     },
     {
-      "fake_rate": 0.1943720688,
-      "efficiency": 0.9993861767,
-      "threshold": 0.0075981862,
+      "fake_rate": 0.0712937418,
+      "efficiency": 0.9931443191,
+      "threshold": 0.0992297308,
       "signal": "e",
       "against": "hadron"
     },
     {
-      "fake_rate": 0.3029355567,
-      "efficiency": 0.9995498629,
-      "threshold": 0.0039256726,
+      "fake_rate": 0.0739073617,
+      "efficiency": 0.9935940358,
+      "threshold": 0.0958992338,
       "signal": "e",
       "against": "hadron"
     },
     {
-      "fake_rate": 0.3527879104,
-      "efficiency": 0.9996930883,
+      "fake_rate": 0.0768113838,
+      "efficiency": 0.9941336958,
+      "threshold": 0.0910386501,
+      "signal": "e",
+      "against": "hadron"
+    },
+    {
+      "fake_rate": 0.080005808,
+      "efficiency": 0.994563425,
+      "threshold": 0.0870348585,
+      "signal": "e",
+      "against": "hadron"
+    },
+    {
+      "fake_rate": 0.0836358356,
+      "efficiency": 0.9950731039,
+      "threshold": 0.0822688867,
+      "signal": "e",
+      "against": "hadron"
+    },
+    {
+      "fake_rate": 0.0868302599,
+      "efficiency": 0.9955528017,
+      "threshold": 0.0762019544,
+      "signal": "e",
+      "against": "hadron"
+    },
+    {
+      "fake_rate": 0.0910410919,
+      "efficiency": 0.9959125751,
+      "threshold": 0.0697318788,
+      "signal": "e",
+      "against": "hadron"
+    },
+    {
+      "fake_rate": 0.0971395383,
+      "efficiency": 0.9962323736,
+      "threshold": 0.0625549474,
+      "signal": "e",
+      "against": "hadron"
+    },
+    {
+      "fake_rate": 0.1020763758,
+      "efficiency": 0.9965621658,
+      "threshold": 0.0553834406,
+      "signal": "e",
+      "against": "hadron"
+    },
+    {
+      "fake_rate": 0.108029621,
+      "efficiency": 0.996961914,
+      "threshold": 0.0463457005,
+      "signal": "e",
+      "against": "hadron"
+    },
+    {
+      "fake_rate": 0.1184841005,
+      "efficiency": 0.9972117566,
+      "threshold": 0.0395653265,
+      "signal": "e",
+      "against": "hadron"
+    },
+    {
+      "fake_rate": 0.1244373457,
+      "efficiency": 0.9974715929,
+      "threshold": 0.0354381677,
+      "signal": "e",
+      "against": "hadron"
+    },
+    {
+      "fake_rate": 0.1337302163,
+      "efficiency": 0.9976914544,
+      "threshold": 0.0318490971,
+      "signal": "e",
+      "against": "hadron"
+    },
+    {
+      "fake_rate": 0.14868593,
+      "efficiency": 0.9979013222,
+      "threshold": 0.0268556675,
+      "signal": "e",
+      "against": "hadron"
+    },
+    {
+      "fake_rate": 0.159866415,
+      "efficiency": 0.9981611585,
+      "threshold": 0.0234132463,
+      "signal": "e",
+      "against": "hadron"
+    },
+    {
+      "fake_rate": 0.1772905474,
+      "efficiency": 0.9984010074,
+      "threshold": 0.019098981,
+      "signal": "e",
+      "against": "hadron"
+    },
+    {
+      "fake_rate": 0.1964570931,
+      "efficiency": 0.998580894,
+      "threshold": 0.0154942227,
+      "signal": "e",
+      "against": "hadron"
+    },
+    {
+      "fake_rate": 0.2186728619,
+      "efficiency": 0.998750787,
+      "threshold": 0.0127617873,
+      "signal": "e",
+      "against": "hadron"
+    },
+    {
+      "fake_rate": 0.2343545811,
+      "efficiency": 0.9989306737,
+      "threshold": 0.0111467758,
+      "signal": "e",
+      "against": "hadron"
+    },
+    {
+      "fake_rate": 0.2615071875,
+      "efficiency": 0.9991405415,
+      "threshold": 0.0087293366,
+      "signal": "e",
+      "against": "hadron"
+    },
+    {
+      "fake_rate": 0.3002758821,
+      "efficiency": 0.9993204281,
+      "threshold": 0.0064715399,
+      "signal": "e",
+      "against": "hadron"
+    },
+    {
+      "fake_rate": 0.392768985,
+      "efficiency": 0.9994803274,
+      "threshold": 0.0037951383,
+      "signal": "e",
+      "against": "hadron"
+    },
+    {
+      "fake_rate": 0.4326992885,
+      "efficiency": 0.9996502204,
       "threshold": 0.0031850967,
       "signal": "e",
       "against": "hadron"
     },
     {
-      "fake_rate": 0.4273058885,
-      "efficiency": 0.9998567746,
-      "threshold": 0.0024376108,
+      "fake_rate": 0.5092202701,
+      "efficiency": 0.999830107,
+      "threshold": 0.0023550225,
       "signal": "e",
       "against": "hadron"
     },

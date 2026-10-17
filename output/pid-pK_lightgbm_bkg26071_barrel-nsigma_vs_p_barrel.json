@@ -42,9 +42,9 @@
     "significance_mode": "s_over_sqrt",
     "lumi_scale": 1.0,
     "bkg_scale": 1.0,
-    "n_rows_channel": 1,
+    "n_rows_channel": 2,
     "eta_region": "barrel",
-    "acceptance_rule": "central: Nhit >= 4 over 7 central collections",
+    "acceptance_rule": "central: >= 4 hits (>= 3 silicon) over 7 central collections",
     "acceptance_collections": [
       "SiBarrelHits",
       "VertexBarrelHits",
@@ -63,11 +63,11 @@
       "BackwardMPGDEndcapHits",
       "ForwardMPGDEndcapHits"
     ],
-    "n_rows_region": 1,
+    "n_rows_region": 2,
     "optimal_cut": 0.335,
     "binning_basis": "reco",
     "campaign": "26.07.1",
-    "written_at_utc": "2026-10-15T16:50:28.522615+00:00"
+    "written_at_utc": "2026-10-17T02:20:39.104619+00:00"
   },
   "data": [
     {
@@ -105,7 +105,7 @@
       "bin_column": "p",
       "bin": "(1, 1.5]",
       "bin_center": 1.25,
-      "n_signal": 1,
+      "n_signal": 2,
       "n_background": 0,
       "auc": null,
       "n_sigma": null,

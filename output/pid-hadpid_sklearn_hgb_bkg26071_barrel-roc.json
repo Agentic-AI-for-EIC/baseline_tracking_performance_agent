@@ -40,13 +40,13 @@
     "model": "sklearn_hgb",
     "dataset_tag": "bkg26071",
     "scores_table": "output/models/hadpid_sklearn_hgb_bkg26071/test_scores.pkl",
-    "n_files_scored": 1,
-    "n_events_scored": 1,
-    "n_rows_scored": 1,
+    "n_files_scored": 6,
+    "n_events_scored": 7,
+    "n_rows_scored": 7,
     "n_signal": null,
     "n_background": null,
     "eta_region": "barrel",
-    "acceptance_rule": "central: Nhit >= 4 over 7 central collections",
+    "acceptance_rule": "central: >= 4 hits (>= 3 silicon) over 7 central collections",
     "acceptance_collections": [
       "SiBarrelHits",
       "VertexBarrelHits",
@@ -65,23 +65,44 @@
       "BackwardMPGDEndcapHits",
       "ForwardMPGDEndcapHits"
     ],
-    "n_rows_region": 1,
+    "n_rows_region": 7,
     "skipped_files": [],
     "campaign": "26.07.1",
-    "written_at_utc": "2026-10-15T15:21:24.619769+00:00"
+    "written_at_utc": "2026-10-17T02:10:35.021687+00:00"
   },
   "data": [
     {
       "fake_rate": 0.0,
-      "efficiency": null,
+      "efficiency": 0.0,
       "threshold": null,
       "signal": "pi",
       "against": "K+p"
     },
     {
-      "fake_rate": 1.0,
-      "efficiency": null,
+      "fake_rate": 0.5,
+      "efficiency": 0.0,
       "threshold": 0.4221489851,
+      "signal": "pi",
+      "against": "K+p"
+    },
+    {
+      "fake_rate": 0.5,
+      "efficiency": 0.8,
+      "threshold": 0.2817673933,
+      "signal": "pi",
+      "against": "K+p"
+    },
+    {
+      "fake_rate": 1.0,
+      "efficiency": 0.8,
+      "threshold": 0.2726371519,
+      "signal": "pi",
+      "against": "K+p"
+    },
+    {
+      "fake_rate": 1.0,
+      "efficiency": 1.0,
+      "threshold": 0.2334089794,
       "signal": "pi",
       "against": "K+p"
     }
