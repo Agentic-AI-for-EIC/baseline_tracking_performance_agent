@@ -3,6 +3,12 @@
 # background jobs against the flaky overseas xrootd endpoint.
 # Each job tolerates up to MAXFAIL failing files (skipped with warnings).
 #
+# This drives the FULL-STATISTICS twgrid background (26.07.1), kept separate from
+# the local 26.07.1 reproduction pair. The clean-vs-background COMPARISON is run
+# on the same-campaign reproduction pair (scripts/run_comparisons.sh /
+# run_reproduction_26071.sh, tags clean26071/bkg26071); the legacy ("clean",
+# "bkg_mixed") comparison pair is retired because Type-1 26.02.0 is purged.
+#
 # Detachment note: these are multi-hour jobs and the per-session container is
 # torn down when the session ends. setsid() puts each job in its own session
 # (best-effort protection against process-group cleanup), and --cache-dir makes

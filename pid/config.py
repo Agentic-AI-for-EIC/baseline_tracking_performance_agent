@@ -48,18 +48,26 @@ LOCAL_REFERENCE_FILES: dict = tk_config.LOCAL_REFERENCE_FILES
 # (26.02.0 and 26.07.1 differ by ~1650 branches), so every branch lookup is
 # keyed on this, never on "the file we happen to be reading".
 CAMPAIGN_BY_DATASET_TAG: dict[str, str] = {
+    # Historical mixed-campaign pair. The clean (26.02.0) /volatile copies are
+    # PURGED (tape-only at JLab; see AGENTS.md), so this pair can no longer be
+    # regenerated as a comparison - its pre-migration pT outputs are archived
+    # under output/_archive_pT_4of7/ and it is NOT in DATASET_TAG_PAIRS. bkg_mixed
+    # (26.07.1, twgrid) remains a valid one-sided full-statistics background tag.
     "clean": "26.02.0",
     "bkg_mixed": "26.07.1",
     # Same-campaign reproduction pair (local gautschi copies, campaign
-    # 26.07.1 both sides): the schema is the 26.07.1 one already supported.
+    # 26.07.1 both sides): the current primary comparison. Schema is the
+    # 26.07.1 one already supported.
     "clean26071": "26.07.1",
     "bkg26071": "26.07.1",
 }
 
 #: (clean-side, background-side) tag pairs that `pid compare --artifact all`
-#: will compare whenever both sides have been evaluated.
+#: will compare whenever both sides have been evaluated. The legacy
+#: ("clean", "bkg_mixed") pair is retired: its Type-1 (26.02.0) source is purged
+#: and its outputs predate the p / hit-count acceptance rework (archived), so the
+#: reproducible canonical comparison is the same-campaign 26.07.1 pair below.
 DATASET_TAG_PAIRS: tuple[tuple[str, str], ...] = (
-    ("clean", "bkg_mixed"),
     ("clean26071", "bkg26071"),
 )
 

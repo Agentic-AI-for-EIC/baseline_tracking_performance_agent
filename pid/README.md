@@ -16,7 +16,7 @@ cd /home/wxie/eic/baseline_tracking_performance_agent
 python -m pid schema-check --dataset clean \
     --file data/dataset_small/signal/RECO/*.root          # M0 gate: links + ML stack
 python -m unittest discover -s pid/tests -v                # 255 tests, ~3.5 min first run
-python -m pid all --dataset-tag clean --plot              # features -> train -> evaluate -> importance
+python -m pid all --dataset-tag clean26071 --plot              # features -> train -> evaluate -> importance
 ```
 
 `all` uses only the local reference file in `data/dataset_small/`, holds out by
@@ -52,9 +52,9 @@ estimate, drawn as upward triangles. Full derivation and validation:
 ### Working points by maximum significance
 
 ```sh
-python -m pid performance --dataset-tag clean --model lightgbm
-python -m pid performance --dataset-tag bkg_mixed --model lightgbm
-python -m pid performance --dataset-tag clean --model lightgbm --channels Kpi,pK
+python -m pid performance --dataset-tag clean26071 --model lightgbm
+python -m pid performance --dataset-tag bkg26071 --model lightgbm
+python -m pid performance --dataset-tag clean26071 --model lightgbm --channels Kpi,pK
 python -m pid compare --task eid --model lightgbm --artifact vs_p
 ```
 
@@ -66,10 +66,10 @@ e/π cut of 0.62 are not comparable numbers.
 ### Per-region plots (barrel / endcaps, region-correct acceptance)
 
 ```sh
-python -m pid performance --dataset-tag clean --model lightgbm \
+python -m pid performance --dataset-tag clean26071 --model lightgbm \
     --eta-region "barrel,forward endcap,backward endcap"
-python -m pid evaluate --task eid --model lightgbm --dataset-tag clean \
-    --scores output/models/eid_lightgbm_clean/test_scores.pkl --plot \
+python -m pid evaluate --task eid --model lightgbm --dataset-tag clean26071 \
+    --scores output/models/eid_lightgbm_clean26071/test_scores.pkl --plot \
     --eta-region "barrel,forward endcap,backward endcap"
 ```
 
@@ -97,8 +97,8 @@ Figures written per channel into `output/plot_PID/plot_model_eval/<clean|bkgmix>
 | `pid-<ch>_eff_vs_p.png`, `_misid_vs_p.png`, `_purity_vs_p.png` | efficiency / fake rate / purity at c* |
 | `pid-<ch>_eff_map_p_vs_eta.png`, `_fake_map_p_vs_eta.png` | 2D maps (masked where statistics do not support them) |
 | `pid-eid_pion_rejection_vs_p.png`, `pid-<ch>_rejection_vs_p.png` | 1/fake vs p, log scale; 95 % CL **lower limits** where no background passed |
-| `pid-hadpid_lightgbm_clean-nsigma_vs_p.png` | nσ(p) for K/π and p/K together (task-level names carry model_tag; per-tag plots live in `output/plot_PID/plots_<tag>_pid_perform/`) |
-| `pid-hadpid_lightgbm_clean-confusion_matrix.png` | row-normalised multi-class confusion (held-out rows only) |
+| `pid-hadpid_lightgbm_clean26071-nsigma_vs_p.png` | nσ(p) for K/π and p/K together (task-level names carry model_tag; per-tag plots live in `output/plot_PID/plots_<tag>_pid_perform/`) |
+| `pid-hadpid_lightgbm_clean26071-confusion_matrix.png` | row-normalised multi-class confusion (held-out rows only) |
 | `pid-<ch>_score_dist_train_vs_test.png` | overtraining check, log y, with a KS statistic per class |
 
 Two extra switches: `--bin-source reco|truth|both` (see below) and
@@ -135,19 +135,19 @@ Learners (`--model`): `lightgbm` (default) · `xgboost` · `sklearn_hgb`.
 
 ```bash
 # clean (Type 1, JLab endpoint - keep it strict)
-python -m pid features --file-list filelists/clean_150.txt --dataset-tag clean \
-    --cache-dir cache/pid_features --out output/pid-features_clean.pkl
-python -m pid train --task eid --model lightgbm --dataset-tag clean \
-    --features output/pid-features_clean.pkl --n-iter 24
-python -m pid evaluate --task eid --model lightgbm --dataset-tag clean \
-    --scores output/models/eid_lightgbm_clean/test_scores.pkl --by p,eta --plot
+python -m pid features --file-list filelists/clean26071_local.txt --dataset-tag clean26071 \
+    --cache-dir cache/pid_features --out output/pid-features_clean26071.pkl
+python -m pid train --task eid --model lightgbm --dataset-tag clean26071 \
+    --features output/pid-features_clean26071.pkl --n-iter 24
+python -m pid evaluate --task eid --model lightgbm --dataset-tag clean26071 \
+    --scores output/models/eid_lightgbm_clean26071/test_scores.pkl --by p,eta --plot
 
-# +background (Type 2, flaky endpoint - tolerate failures, always cache)
-python -m pid features --file-list filelists/bkg_200.txt --dataset-tag bkg_mixed \
+# +background (Type 2 reproduction side - streamed over the tunnel; tolerate transient drops, always cache)
+python -m pid features --file-list filelists/bkg26071_local.txt --dataset-tag bkg26071 \
     --max-file-failures 20 --cache-dir cache/pid_features \
-    --out output/pid-features_bkg_mixed.pkl
-python -m pid train --task eid --model lightgbm --dataset-tag bkg_mixed \
-    --features output/pid-features_bkg_mixed.pkl
+    --out output/pid-features_bkg26071.pkl
+python -m pid train --task eid --model lightgbm --dataset-tag bkg26071 \
+    --features output/pid-features_bkg26071.pkl
 python -m pid compare --task eid --model lightgbm --artifact vs_p
 ```
 
@@ -181,7 +181,7 @@ seed, gate results). Every table also exists as a ROOT TNtuple with text columns
 factorised to `*_code` plus a legend in the file metadata, so:
 
 ```bash
-root -l 'output/pid-eid_lightgbm_clean-overall.root'
+root -l 'output/pid-eid_lightgbm_clean26071-overall.root'
 > pid_eid_overall->Draw("value:n_background","quantity_code==5")   # efficiency rows
 ```
 

@@ -40,8 +40,8 @@ both.
 
 ### 0. Evaluate one task (fixed-fake-rate merits + n-sigma)
 ```sh
-python -m pid evaluate --task eid --model lightgbm --dataset-tag clean \
-    --scores output/models/eid_lightgbm_clean/test_scores.pkl --by p,eta --plot
+python -m pid evaluate --task eid --model lightgbm --dataset-tag clean26071 \
+    --scores output/models/eid_lightgbm_clean26071/test_scores.pkl --by p,eta --plot
 ```
 `output/pid-<task>_<lib>_<tag>-{overall,vs_p,vs_eta,confusion,roc,calibration}`.
 The `overall` row set is **stable across tags** (needed for comparison):
@@ -59,8 +59,8 @@ eid/ehad only.
 
 ### 1. Maximum-significance working points (the performance package)
 ```sh
-python -m pid performance --dataset-tag clean     --model lightgbm --bin-source both --require-figures
-python -m pid performance --dataset-tag bkg_mixed --model lightgbm
+python -m pid performance --dataset-tag clean26071     --model lightgbm --bin-source both --require-figures
+python -m pid performance --dataset-tag bkg26071 --model lightgbm
 ```
 Channels `eid` (e/π), `ehad` (e/hadron), `Kpi`, `pK`; hadron channels reduce to
 `P(sig)/(P(sig)+P(bkg))`, so **each channel's c\* lives in its own score space
@@ -112,7 +112,9 @@ named, never half-compared. Also run the **cross-application** check (train
 clean → evaluate bkg and vice versa) before attributing a difference to
 background: the campaigns differ in schema (PLAN_pid.md §3.3).
 Tag pairs are declared in `pid.config.DATASET_TAG_PAIRS`
-(`clean`/`bkg_mixed`, `clean26071`/`bkg26071`); summaries label the actual
+(`clean26071`/`bkg26071`; the retired mixed-campaign `clean`/`bkg_mixed` pair is
+archived — see AGENTS.md — and cross-application should only be attempted between
+the same-campaign reproduction tags); summaries label the actual
 tags compared, and non-default pairs write
 `pid-<stem><artifact>_<cleanTag>-vs-<bkgTag>_comparison.*`.
 Cross-learner overlays (one ROC per library, same task+tag) come from
@@ -122,8 +124,6 @@ trained learners); grid runs emit them automatically after
 
 ### 3. Grid runs (detached; sessions die with the container)
 ```sh
-pid/scripts/run_pid.sh clean     filelists/clean_150.txt 0
-pid/scripts/run_pid.sh bkg_mixed filelists/bkg_200.txt   20 cache/pid_features "eid,ehad" [seed]
 pid/scripts/run_pid.sh clean26071 filelists/clean26071_local.txt 0 cache/pid_features
 pid/scripts/run_pid.sh bkg26071  filelists/bkg26071_local.txt  10 cache/pid_features
 pid/scripts/run_pid.sh status

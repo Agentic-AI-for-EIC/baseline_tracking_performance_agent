@@ -5,7 +5,7 @@ description: >-
   fit (TH1F.Fit(TF1("gaus")), two-pass refit) to Delta(p)/p between
   reconstructed and true central tracks, for truth-matched pairs, binned in
   truth momentum p (log) and truth eta (0.5 bins) per species, then compared between
-  the clean (Type 1) and +background (Type 2, bkg_mixed) datasets. Covers the
+  the clean (Type 1) and +background (Type 2, bkg26071) datasets. Covers the
   R<1 physical-maximum convention, fit_converged handling, and the
   clean-vs-bkg comparison. Use when asked about momentum resolution,
   resolution sigma vs p, or a resolution-vs-background study.
@@ -14,7 +14,7 @@ description: >-
 # Momentum resolution
 
 ## What I do
-Runs `python -m trkperf resolution ...` on the clean and bkg_mixed datasets,
+Runs `python -m trkperf resolution ...` on the clean26071 and bkg26071 reproduction datasets,
 then the clean-vs-bkg comparison. Output is one row per (species, p_bin,
 eta_bin) with `n_matched`, `mu`, `sigma`, `mu_err`, `sigma_err`, `chi2_ndf`,
 `fit_converged`, `insufficient_stats`.
@@ -45,15 +45,15 @@ every campaign file (AGENTS.md).
 ## Procedure
 Follow `trkperf-grid-workflow` for discovery/escalation/compare. The commands:
 
-Type 1 (clean; JLab, strict):
+Type 1 (clean; local 26071 reproduction over the login00 xrootd tunnel, strict):
 ```sh
-python -m trkperf resolution --file-list filelists/clean_150.txt \
-    --dataset-tag clean --min-q2-tier 1
+python -m trkperf resolution --file-list filelists/clean26071_local.txt \
+    --dataset-tag clean26071 --min-q2-tier 1
 ```
-Type 2 (+background; flaky endpoint, tolerate skips and cache):
+Type 2 (+background; same local tunnel; keep --cache-dir + tolerate transient tunnel drops):
 ```sh
-python -m trkperf resolution --file-list filelists/bkg_200.txt \
-    --dataset-tag bkg_mixed --min-q2-tier 1 \
+python -m trkperf resolution --file-list filelists/bkg26071_local.txt \
+    --dataset-tag bkg26071 --min-q2-tier 1 \
     --max-file-failures 20 --cache-dir cache/bkg_files
 ```
 Batch bkg launches: `scripts/launch_bkg.sh` (detached; cheap to relaunch
@@ -62,14 +62,14 @@ after session teardown via the cache).
 Compare:
 ```sh
 python -m trkperf compare --metric resolution \
-    --clean output/resolution_clean.json \
-    --bkg output/resolution_bkg_mixed.json --out-dir output
+    --clean output/resolution_clean26071.json \
+    --bkg output/resolution_bkg26071.json --out-dir output
 ```
 
 Local, network-free smoke test first:
 ```sh
 python -m trkperf resolution --file data/dataset_small/signal/RECO/*.root \
-    --dataset-tag clean --min-q2-tier 1
+    --dataset-tag clean26071 --min-q2-tier 1
 ```
 
 ## Metric-specific rules
@@ -80,7 +80,7 @@ python -m trkperf resolution --file data/dataset_small/signal/RECO/*.root \
   is a red flag even when `fit_converged` is True.
 - `sigma` must always lie in [0, 1]; if a bin's raw width exceeds that it is
   flagged non-converged, not reported as a huge number.
-- Outputs: `output/resolution_{clean,bkg_mixed}.{json,md,root,png}` (the
+- Outputs: `output/resolution_clean26071,bkg26071.{json,md,root,png}` (the
   linear + log-y sigma-vs-p plots) and `output/resolution_comparison.{json,md}`.
 
 ## Definition of done

@@ -22,8 +22,10 @@
 #                tracking deliverable criteria; set empty for global-only).
 #
 # Examples:
-#   pid/scripts/run_pid.sh clean     filelists/clean_150.txt 0
-#   pid/scripts/run_pid.sh bkg_mixed filelists/bkg_200.txt   20 cache/pid_features "eid,ehad"
+#   pid/scripts/run_pid.sh clean26071 filelists/clean26071_local.txt 0
+#   pid/scripts/run_pid.sh bkg26071   filelists/bkg26071_local.txt   20 cache/pid_features "eid,ehad"
+# (The legacy ("clean","bkg_mixed") tags still resolve, but "clean" (26.02.0) is
+# purged, so the reproducible canonical pair is the 26.07.1 reproduction above.)
 set -e
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 cd "$HERE"
@@ -41,7 +43,7 @@ if [ "${1:-}" = "status" ]; then
   exit 0
 fi
 
-TAG="${1:?dataset_tag: clean|bkg_mixed}"
+TAG="${1:?dataset_tag: clean26071|bkg26071 (legacy clean|bkg_mixed still resolve)}"
 FILELIST="${2:?filelist (one root:// URL or path per line)}"
 MAXFAIL="${3:-0}"
 CACHE="${4:-cache/pid_features}"

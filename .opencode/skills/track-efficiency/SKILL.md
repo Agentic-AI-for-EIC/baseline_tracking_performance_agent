@@ -6,7 +6,7 @@ description: >-
   within-acceptance (matched / in-acceptance truth) and absolute (matched /
   all generated truth), with binomial errors — binned in truth p (log) and
   truth eta (0.5 bins) per species, then compared between the clean (Type 1)
-  and +background (Type 2, bkg_mixed) datasets. Use when asked about
+  and +background (Type 2, bkg26071) datasets. Use when asked about
   reconstruction/tracking efficiency, matched fractions, or efficiency-loss
   under beam background.
 ---
@@ -14,7 +14,7 @@ description: >-
 # Track-finding efficiency
 
 ## What I do
-Runs `python -m trkperf efficiency ...` on the clean and bkg_mixed datasets,
+Runs `python -m trkperf efficiency ...` on the clean26071 and bkg26071 reproduction datasets,
 then the clean-vs-bkg comparison. Output is one row per (species, p_bin,
 eta_bin) with `n_truth`, `n_in_acceptance`, `n_matched`,
 `efficiency_within_acceptance`, `efficiency_within_acceptance_err`,
@@ -44,15 +44,15 @@ collections. Truth selection is primary-only.
 ## Procedure
 Follow `trkperf-grid-workflow` for discovery/escalation/compare. The commands:
 
-Type 1 (clean; JLab, strict):
+Type 1 (clean; local 26071 reproduction over the login00 xrootd tunnel, strict):
 ```sh
-python -m trkperf efficiency --file-list filelists/clean_150.txt \
-    --dataset-tag clean --min-q2-tier 1
+python -m trkperf efficiency --file-list filelists/clean26071_local.txt \
+    --dataset-tag clean26071 --min-q2-tier 1
 ```
-Type 2 (+background; flaky endpoint, tolerate skips and cache):
+Type 2 (+background; same local tunnel; keep --cache-dir + tolerate transient tunnel drops):
 ```sh
-python -m trkperf efficiency --file-list filelists/bkg_200.txt \
-    --dataset-tag bkg_mixed --min-q2-tier 1 \
+python -m trkperf efficiency --file-list filelists/bkg26071_local.txt \
+    --dataset-tag bkg26071 --min-q2-tier 1 \
     --max-file-failures 20 --cache-dir cache/bkg_files
 ```
 Batch bkg launches: `scripts/launch_bkg.sh` (detached; cheap to relaunch
@@ -61,14 +61,14 @@ after session teardown via the cache).
 Compare:
 ```sh
 python -m trkperf compare --metric efficiency \
-    --clean output/efficiency_clean.json \
-    --bkg output/efficiency_bkg_mixed.json --out-dir output
+    --clean output/efficiency_clean26071.json \
+    --bkg output/efficiency_bkg26071.json --out-dir output
 ```
 
 Local, network-free smoke test first:
 ```sh
 python -m trkperf efficiency --file data/dataset_small/signal/RECO/*.root \
-    --dataset-tag clean --min-q2-tier 1
+    --dataset-tag clean26071 --min-q2-tier 1
 ```
 
 ## Metric-specific rules
@@ -78,7 +78,7 @@ python -m trkperf efficiency --file data/dataset_small/signal/RECO/*.root \
   metrics (peaked at ~18 GB RSS on a 30 GB box, once OOM-killed). Do not
   launch it simultaneously with other heavy bkg jobs; the read cache means a
   kill/re-launch only redoes compute, not downloads.
-- Outputs: `output/efficiency_{clean,bkg_mixed}.{json,md,root,png}`
+- Outputs: `output/efficiency_clean26071,bkg26071.{json,md,root,png}`
   (absolute + within-acceptance vs p plots) and
   `output/efficiency_comparison.{json,md}`.
 

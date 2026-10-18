@@ -41,7 +41,7 @@ dataset templates, the flaky-endpoint flags (`--max-file-failures`,
 ```sh
 python -m pid schema-check --dataset clean
 python -m pid schema-check --dataset clean --file <one file>   # adds the link audit
-python -m pid schema-check --dataset bkg_mixed --file <one file>
+python -m pid schema-check --dataset bkg26071 --file <one file>
 ```
 This reads `podio_metadata.events___CollectionTypeInfo` and checks every relation
 the pipeline joins on. **Exit non-zero = a needed link broke or a new production
@@ -55,7 +55,7 @@ gets noticed.
 ### 1. Smoke test on the local pair (no network)
 ```sh
 python -m unittest discover -s pid/tests -v     # 255 tests
-python -m pid all --dataset-tag clean --plot --relax-gates  # features→train→evaluate→importance (smoke checks plumbing; gates print but do not block — drop --relax-gates to enforce them)
+python -m pid all --dataset-tag clean26071 --plot --relax-gates  # features→train→evaluate→importance (smoke checks plumbing; gates print but do not block — drop --relax-gates to enforce them)
 ```
 One file ⇒ the pipeline prints `NOT a quotable performance number` (splits cannot
 be by file) and the +background side refuses to train (~7 pions < the 30/class
@@ -63,11 +63,11 @@ floor). Both behaviours are correct; do not override them to get a number.
 
 ### 2. Features (the long step) — one row per reconstructed track
 ```sh
-python -m pid features --file-list filelists/clean_150.txt --dataset-tag clean \
-    --cache-dir cache/pid_features --out output/pid-features_clean.pkl
-python -m pid features --file-list filelists/bkg_200.txt --dataset-tag bkg_mixed \
+python -m pid features --file-list filelists/clean26071_local.txt --dataset-tag clean26071 \
+    --cache-dir cache/pid_features --out output/pid-features_clean26071.pkl
+python -m pid features --file-list filelists/bkg26071_local.txt --dataset-tag bkg26071 \
     --max-file-failures 20 --cache-dir cache/pid_features \
-    --out output/pid-features_bkg_mixed.pkl
+    --out output/pid-features_bkg26071.pkl
 ```
 `features` prints the median E/p per truth class per leg and **exits non-zero** if
 the backward electron peak is not > 0.8 or the backward pion peak is not < 0.4 —
@@ -77,11 +77,11 @@ reference files: e 0.992 / π 0.195 (clean), 0.995 / 0.238 (bkg).
 ### 3. Train (gates are blocking by default)
 ```sh
 for task in eid ehad hadpid pooled; do
-  python -m pid train --task $task --model lightgbm --dataset-tag clean \
-      --features output/pid-features_clean.pkl --n-iter 24
+  python -m pid train --task $task --model lightgbm --dataset-tag clean26071 \
+      --features output/pid-features_clean26071.pkl --n-iter 24
 done
-python -m pid train --task eid --model xgboost --dataset-tag clean \
-    --features output/pid-features_clean.pkl     # twin-arm agreement check
+python -m pid train --task eid --model xgboost --dataset-tag clean26071 \
+    --features output/pid-features_clean26071.pkl     # twin-arm agreement check
 ```
 Gates: train−test AUC gap < 0.02; the model must beat a **balanced
 label-permutation control** (z ≥ 3 *and* ΔAUC ≥ 0.1 — with ~10 minority
@@ -96,10 +96,10 @@ attribution gate is advisory (no per-track Cherenkov/timing exists to lead with)
 
 ### 4. Evaluate, importance, plots
 ```sh
-python -m pid evaluate --task eid --model lightgbm --dataset-tag clean \
-    --scores output/models/eid_lightgbm_clean/test_scores.pkl --by p,eta --plot
-python -m pid importance --dir output/models/eid_lightgbm_clean \
-    --task eid --model lightgbm --dataset-tag clean --plot
+python -m pid evaluate --task eid --model lightgbm --dataset-tag clean26071 \
+    --scores output/models/eid_lightgbm_clean26071/test_scores.pkl --by p,eta --plot
+python -m pid importance --dir output/models/eid_lightgbm_clean26071 \
+    --task eid --model lightgbm --dataset-tag clean26071 --plot
 ```
 Outputs `output/pid-<task>_<lib>_<tag>-{overall,vs_p,vs_eta,confusion,roc,calibration}`
 as JSON + markdown + ROOT TNtuple (text columns → `*_code` with a legend in the
@@ -110,8 +110,8 @@ with 20 background candidates a point estimate of 0 does not demonstrate 10⁻�
 ### 4b. Maximum-significance working points (the performance package)
 
 ```sh
-python -m pid performance --dataset-tag clean     --model lightgbm
-python -m pid performance --dataset-tag bkg_mixed --model lightgbm
+python -m pid performance --dataset-tag clean26071     --model lightgbm
+python -m pid performance --dataset-tag bkg26071 --model lightgbm
 ```
 
 Channels `eid` (e/pi), `ehad` (e/hadron), `Kpi`, `pK`; hadron channels are reduced

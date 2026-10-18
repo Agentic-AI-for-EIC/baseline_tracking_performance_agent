@@ -6,7 +6,7 @@ description: >-
   mass-hypothesis PID assigns, row-normalised (how often X is classified as
   Y) and column-adjacent efficiency/purity — binned in truth p (log) and
   truth eta (0.5 bins), one row per (bin, truth_species, reco_species), then
-  compared between the clean (Type 1) and +background (Type 2, bkg_mixed)
+  compared between the clean (Type 1) and +background (Type 2, bkg26071)
   datasets. Use when asked about particle identification, misidentification,
   π/K confusion, or PID purity under beam background.
 ---
@@ -14,8 +14,7 @@ description: >-
 # PID confusion matrix
 
 ## What I do
-Runs `python -m trkperf pid-confusion ...` on the clean and bkg_mixed
-datasets, then the clean-vs-bkg comparison. Output is one row per (p_bin,
+Runs `python -m trkperf pid-confusion ...` on the clean26071 and bkg26071 reproduction datasets, then the clean-vs-bkg comparison. Output is one row per (p_bin,
 eta_bin, truth_species, reco_species) with `n_matchedinbin`,
 `confusion_frac`, `confusion_frac_err`, `efficiency`, `efficiency_err`,
 `n_truth_total_in_bin`, `insufficient_stats`.
@@ -47,15 +46,15 @@ tracks enter, so this metric is conditional on track finding.
 ## Procedure
 Follow `trkperf-grid-workflow` for discovery/escalation/compare. The commands:
 
-Type 1 (clean; JLab, strict):
+Type 1 (clean; local 26071 reproduction over the login00 xrootd tunnel, strict):
 ```sh
-python -m trkperf pid-confusion --file-list filelists/clean_150.txt \
-    --dataset-tag clean --min-q2-tier 1
+python -m trkperf pid-confusion --file-list filelists/clean26071_local.txt \
+    --dataset-tag clean26071 --min-q2-tier 1
 ```
-Type 2 (+background; flaky endpoint, tolerate skips and cache):
+Type 2 (+background; same local tunnel; keep --cache-dir + tolerate transient tunnel drops):
 ```sh
-python -m trkperf pid-confusion --file-list filelists/bkg_200.txt \
-    --dataset-tag bkg_mixed --min-q2-tier 1 \
+python -m trkperf pid-confusion --file-list filelists/bkg26071_local.txt \
+    --dataset-tag bkg26071 --min-q2-tier 1 \
     --max-file-failures 20 --cache-dir cache/bkg_files
 ```
 Batch bkg launches: `scripts/launch_bkg.sh` (detached; cheap to relaunch
@@ -64,14 +63,14 @@ after session teardown via the cache).
 Compare:
 ```sh
 python -m trkperf compare --metric pid-confusion \
-    --clean output/pid-confusion_clean.json \
-    --bkg output/pid-confusion_bkg_mixed.json --out-dir output
+    --clean output/pid-confusion_clean26071.json \
+    --bkg output/pid-confusion_bkg26071.json --out-dir output
 ```
 
 Local, network-free smoke test first:
 ```sh
 python -m trkperf pid-confusion --file data/dataset_small/signal/RECO/*.root \
-    --dataset-tag clean --min-q2-tier 1
+    --dataset-tag clean26071 --min-q2-tier 1
 ```
 
 ## Metric-specific rules
@@ -83,7 +82,7 @@ python -m trkperf pid-confusion --file data/dataset_small/signal/RECO/*.root \
   `pid_confusion`).
 - Be explicit that PID is conditional on track matching — it measures
   misidentification of already-found tracks, not absolute ID rates.
-- Outputs: `output/pid-confusion_{clean,bkg_mixed}.{json,md,root}` and
+- Outputs: `output/pid-confusion_clean26071,bkg26071.{json,md,root}` and
   `output/pid-confusion_comparison.{json,md}`.
 
 ## Definition of done

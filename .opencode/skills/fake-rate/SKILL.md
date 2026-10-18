@@ -5,7 +5,7 @@ description: >-
   CentralCKFTracks with no valid truth match (weight >= 0.5), binned in the
   track's OWN reconstructed p (log) and eta (0.5 bins) — deliberately no
   species axis (a fake track has no true species) — then compared between the
-  clean (Type 1) and +background (Type 2, bkg_mixed) datasets. Use when asked
+  clean (Type 1) and +background (Type 2, bkg26071) datasets. Use when asked
   about fake tracks, ghost/background track rates, or reconstruction
   combinatorics under beam background. Warns that single-particle-gun samples
   are invalid for this metric.
@@ -14,7 +14,7 @@ description: >-
 # Fake rate
 
 ## What I do
-Runs `python -m trkperf fake-rate ...` on the clean and bkg_mixed datasets,
+Runs `python -m trkperf fake-rate ...` on the clean26071 and bkg26071 reproduction datasets,
 then the clean-vs-bkg comparison. Output is one row per (p_bin, eta_bin) —
 **no species axis** — with `n_tracks`, `n_fake`, `fake_rate`,
 `fake_rate_err`, `insufficient_stats`.
@@ -41,15 +41,15 @@ conventions:
 ## Procedure
 Follow `trkperf-grid-workflow` for discovery/escalation/compare. The commands:
 
-Type 1 (clean; JLab, strict):
+Type 1 (clean; local 26071 reproduction over the login00 xrootd tunnel, strict):
 ```sh
-python -m trkperf fake-rate --file-list filelists/clean_150.txt \
-    --dataset-tag clean --min-q2-tier 1
+python -m trkperf fake-rate --file-list filelists/clean26071_local.txt \
+    --dataset-tag clean26071 --min-q2-tier 1
 ```
-Type 2 (+background; flaky endpoint, tolerate skips and cache):
+Type 2 (+background; same local tunnel; keep --cache-dir + tolerate transient tunnel drops):
 ```sh
-python -m trkperf fake-rate --file-list filelists/bkg_200.txt \
-    --dataset-tag bkg_mixed --min-q2-tier 1 \
+python -m trkperf fake-rate --file-list filelists/bkg26071_local.txt \
+    --dataset-tag bkg26071 --min-q2-tier 1 \
     --max-file-failures 20 --cache-dir cache/bkg_files
 ```
 Batch bkg launches: `scripts/launch_bkg.sh` (detached; cheap to relaunch
@@ -58,14 +58,14 @@ after session teardown via the cache).
 Compare:
 ```sh
 python -m trkperf compare --metric fake-rate \
-    --clean output/fake-rate_clean.json \
-    --bkg output/fake-rate_bkg_mixed.json --out-dir output
+    --clean output/fake-rate_clean26071.json \
+    --bkg output/fake-rate_bkg26071.json --out-dir output
 ```
 
 Local, network-free smoke test first:
 ```sh
 python -m trkperf fake-rate --file data/dataset_small/signal/RECO/*.root \
-    --dataset-tag clean --min-q2-tier 1
+    --dataset-tag clean26071 --min-q2-tier 1
 ```
 
 ## Metric-specific rules
@@ -76,7 +76,7 @@ python -m trkperf fake-rate --file data/dataset_small/signal/RECO/*.root \
 - Statistics floor: `n_tracks >= 50` per bin; below that `insufficient_stats`.
 - Small fake rates are best read on the log-y companion plot
   (`fake-rate_<tag>_vs_p_logy.png`, ymin pinned at 1e-5).
-- Outputs: `output/fake-rate_{clean,bkg_mixed}.{json,md,root,png}` (linear +
+- Outputs: `output/fake-rate_clean26071,bkg26071.{json,md,root,png}` (linear +
   log-y plots) and `output/fake-rate_comparison.{json,md}`.
 
 ## Definition of done
