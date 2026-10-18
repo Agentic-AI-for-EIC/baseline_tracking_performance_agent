@@ -21,7 +21,7 @@ reco.py       : CentralCKFTracks -> reconstructed kinematics.
 matching.py   : CentralCKFTrackAssociations -> the truth<->reco matched-pairs
                 table (the shared data contract every metric consumes) and
                 the fake-track finder.
-binning.py    : pT/eta bin assignment and the Gaussian-core fit helper.
+binning.py    : p/eta bin assignment and the Gaussian-core fit helper.
 metrics/      : one module per metric (acceptance, resolution, efficiency,
                 fake_rate) — each takes a file list and returns a tidy
                 DataFrame of results, independent of how it will be reported.

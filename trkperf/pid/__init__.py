@@ -2,7 +2,7 @@
 
 confusion.py implements the PID confusion matrix: for each truth species,
 the fraction classified as each reco species (row-normalised), binned in
-(pT, eta). See confusion.py's docstring for details.
+(p, eta). See confusion.py's docstring for details.
 
 This subpackage is the *reconstruction's own* mass-hypothesis PID - it makes no
 model decision. The machine-learning PID pipeline that PLAN.md §"Extending this

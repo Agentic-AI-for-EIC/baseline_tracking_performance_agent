@@ -553,9 +553,9 @@ def overall_table(df, *, task, signal=None, targets=config.FAKE_RATE_TARGETS,
     return out
 
 
-def binned_table(df, *, task, by="pt", signal=None, targets=config.FAKE_RATE_TARGETS,
+def binned_table(df, *, task, by="p", signal=None, targets=config.FAKE_RATE_TARGETS,
                  threshold=None) -> pd.DataFrame:
-    """Efficiency / fake rate / AUC vs pT, p or eta, in the project's bin edges.
+    """Efficiency / fake rate / AUC vs p, pT or eta, in the project's bin edges.
 
     ``threshold`` fixes one working point across all bins (the honest way to quote
     a cut-based performance map); ``None`` re-derives the cut per bin, and the

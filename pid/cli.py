@@ -494,7 +494,7 @@ def build_parser() -> argparse.ArgumentParser:
 
     p = sub.add_parser("performance",
                        help="Maximum-significance working points and the full "
-                            "differential PID performance package (FOM(c), c*, c*(pT), "
+                            "differential PID performance package (FOM(c), c*, c*(p), "
                             "efficiency/fake/purity at c*, 2D maps, rejection vs p, "
                             "n-sigma vs p, confusion matrix, overtraining check).")
     p.add_argument("--dataset-tag", required=True, choices=sorted(config.CAMPAIGN_BY_DATASET_TAG))
@@ -513,7 +513,7 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--out-dir", default=config.OUTPUT_DIR)
     p.add_argument("--plots-dir", default=None, help="Default: <out-dir>/plots")
     p.add_argument("--no-binned-curves", action="store_true",
-                   help="Skip the per-pT-bin FOM(c) curves (faster, fewer figures).")
+                   help="Skip the per-p-bin FOM(c) curves (faster, fewer figures).")
     p.add_argument("--n-thresholds", type=int, default=None,
                    help="Threshold grid for the per-bin curves (default from pid.config).")
     p.add_argument("--model-root", default="", help="Root directory of model artifacts "
