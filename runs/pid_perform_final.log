@@ -1,0 +1,971 @@
+START 2026-10-18T01:14:14Z
+=== clean26071 -> plot_PID/plots_clean_pid_perform ===
+[regions] attached ['barrel', 'forward endcap', 'backward endcap'] acceptance (barrel: 7/7 in acceptance; forward endcap: 0/0 in acceptance; backward endcap: 105305/105334 in acceptance; 0 files skipped, 0 rows unclassifiable)
+[report] wrote output/pid-eid_lightgbm_clean26071-significance_vs_cut.json, output/pid-eid_lightgbm_clean26071-significance_vs_cut.md, output/pid-eid_lightgbm_clean26071-significance_vs_cut.root (401 rows)
+[report] wrote output/pid-eid_lightgbm_clean26071-optimal_cut_vs_p.json, output/pid-eid_lightgbm_clean26071-optimal_cut_vs_p.md, output/pid-eid_lightgbm_clean26071-optimal_cut_vs_p.root (14 rows)
+[report] wrote output/pid-eid_lightgbm_clean26071-at_cut_global.json, output/pid-eid_lightgbm_clean26071-at_cut_global.md, output/pid-eid_lightgbm_clean26071-at_cut_global.root (14 rows)
+[report] wrote output/pid-eid_lightgbm_clean26071-at_cut_per_bin.json, output/pid-eid_lightgbm_clean26071-at_cut_per_bin.md, output/pid-eid_lightgbm_clean26071-at_cut_per_bin.root (14 rows)
+[report] wrote output/pid-eid_lightgbm_clean26071-rejection_vs_p.json, output/pid-eid_lightgbm_clean26071-rejection_vs_p.md, output/pid-eid_lightgbm_clean26071-rejection_vs_p.root (14 rows)
+[report] wrote output/pid-eid_lightgbm_clean26071-efficiency_vs_eta.json, output/pid-eid_lightgbm_clean26071-efficiency_vs_eta.md, output/pid-eid_lightgbm_clean26071-efficiency_vs_eta.root (16 rows)
+[report] wrote output/pid-eid_lightgbm_clean26071-nsigma_vs_p.json, output/pid-eid_lightgbm_clean26071-nsigma_vs_p.md, output/pid-eid_lightgbm_clean26071-nsigma_vs_p.root (14 rows)
+[report] wrote output/pid-eid_lightgbm_clean26071-significance_by_p.json, output/pid-eid_lightgbm_clean26071-significance_by_p.md, output/pid-eid_lightgbm_clean26071-significance_by_p.root (2214 rows)
+[report] wrote output/pid-eid_lightgbm_clean26071-eff_map_p_vs_eta.json, output/pid-eid_lightgbm_clean26071-eff_map_p_vs_eta.md, output/pid-eid_lightgbm_clean26071-eff_map_p_vs_eta.root (224 rows)
+[report] wrote output/pid-eid_lightgbm_clean26071-fake_map_p_vs_eta.json, output/pid-eid_lightgbm_clean26071-fake_map_p_vs_eta.md, output/pid-eid_lightgbm_clean26071-fake_map_p_vs_eta.root (224 rows)
+[plot] wrote output/plot_PID/plots_clean_pid_perform/pid-eid_significance_vs_cut.png
+[plot] wrote output/plot_PID/plots_clean_pid_perform/pid-eid_roc.png
+[plot] wrote output/plot_PID/plots_clean_pid_perform/pid-eid_optimal_cut_vs_p.png
+[plot] wrote output/plot_PID/plots_clean_pid_perform/pid-eid_eff_vs_p.png
+[plot] wrote output/plot_PID/plots_clean_pid_perform/pid-eid_misid_vs_p.png
+[plot] wrote output/plot_PID/plots_clean_pid_perform/pid-eid_purity_vs_p.png
+[plot] wrote output/plot_PID/plots_clean_pid_perform/pid-eid_pion_rejection_vs_p.png
+[plot] wrote output/plot_PID/plots_clean_pid_perform/pid-eid_nsigma_vs_p.png
+[plot] wrote output/plot_PID/plots_clean_pid_perform/pid-eid_significance_vs_cut_by_p.png
+[plot] wrote output/plot_PID/plots_clean_pid_perform/pid-eid_significance_vs_cut_panels.png
+[plot] wrote output/plot_PID/plots_clean_pid_perform/pid-eid_eff_map_p_vs_eta.png
+[plot] wrote output/plot_PID/plots_clean_pid_perform/pid-eid_fake_map_p_vs_eta.png
+[plot] wrote output/plot_PID/plots_clean_pid_perform/pid-eid_score_dist_train_vs_test.png
+[plot] wrote output/plot_PID/plots_clean_pid_perform/pid-eid_score_dist_train_vs_test_peak.png
+[deliverables/eid] complete: 13/13 figures
+[report] wrote output/pid-eid_lightgbm_clean26071_barrel-optimal_cut_vs_p_barrel.json, output/pid-eid_lightgbm_clean26071_barrel-optimal_cut_vs_p_barrel.md, output/pid-eid_lightgbm_clean26071_barrel-optimal_cut_vs_p_barrel.root (14 rows)
+[report] wrote output/pid-eid_lightgbm_clean26071_barrel-at_cut_global_barrel.json, output/pid-eid_lightgbm_clean26071_barrel-at_cut_global_barrel.md, output/pid-eid_lightgbm_clean26071_barrel-at_cut_global_barrel.root (14 rows)
+[report] wrote output/pid-eid_lightgbm_clean26071_barrel-at_cut_per_bin_barrel.json, output/pid-eid_lightgbm_clean26071_barrel-at_cut_per_bin_barrel.md, output/pid-eid_lightgbm_clean26071_barrel-at_cut_per_bin_barrel.root (14 rows)
+[report] wrote output/pid-eid_lightgbm_clean26071_barrel-rejection_vs_p_barrel.json, output/pid-eid_lightgbm_clean26071_barrel-rejection_vs_p_barrel.md, output/pid-eid_lightgbm_clean26071_barrel-rejection_vs_p_barrel.root (14 rows)
+[report] wrote output/pid-eid_lightgbm_clean26071_barrel-nsigma_vs_p_barrel.json, output/pid-eid_lightgbm_clean26071_barrel-nsigma_vs_p_barrel.md, output/pid-eid_lightgbm_clean26071_barrel-nsigma_vs_p_barrel.root (14 rows)
+[report] wrote output/pid-eid_lightgbm_clean26071_barrel-significance_by_p_barrel.json, output/pid-eid_lightgbm_clean26071_barrel-significance_by_p_barrel.md, output/pid-eid_lightgbm_clean26071_barrel-significance_by_p_barrel.root (14 rows)
+/local/scratch/a/wxie/eic/baseline_tracking_performance_agent/pid/plots.py:820: UserWarning: No artists with labels found to put in legend.  Note that artists whose label start with an underscore are ignored when legend() is called with no argument.
+  ax.legend(fontsize=7.5, loc="upper right")
+[plot] wrote output/plot_PID/plots_clean_pid_perform/pid-eid_optimal_cut_vs_p_barrel.png
+[plot] wrote output/plot_PID/plots_clean_pid_perform/pid-eid_eff_vs_p_barrel.png
+/local/scratch/a/wxie/eic/baseline_tracking_performance_agent/pid/plots.py:340: UserWarning: Data has no positive values, and therefore cannot be log-scaled.
+  ax.set_yscale("log")
+[plot] wrote output/plot_PID/plots_clean_pid_perform/pid-eid_misid_vs_p_barrel.png
+[plot] wrote output/plot_PID/plots_clean_pid_perform/pid-eid_purity_vs_p_barrel.png
+[plot] wrote output/plot_PID/plots_clean_pid_perform/pid-eid_rejection_vs_p_barrel.png
+[plot] wrote output/plot_PID/plots_clean_pid_perform/pid-eid_nsigma_vs_p_barrel.png
+[plot] wrote output/plot_PID/plots_clean_pid_perform/pid-eid_significance_vs_cut_by_p_barrel.png
+[plot] wrote output/plot_PID/plots_clean_pid_perform/pid-eid_significance_vs_cut_panels_barrel.png
+[performance/eid/reco/barrel] 7 in-acceptance rows, 6 tables, 8 figures
+[performance/eid/reco/forward endcap] SKIPPED: no in-acceptance rows
+[report] wrote output/pid-eid_lightgbm_clean26071_backward_endcap-optimal_cut_vs_p_backward_endcap.json, output/pid-eid_lightgbm_clean26071_backward_endcap-optimal_cut_vs_p_backward_endcap.md, output/pid-eid_lightgbm_clean26071_backward_endcap-optimal_cut_vs_p_backward_endcap.root (14 rows)
+[report] wrote output/pid-eid_lightgbm_clean26071_backward_endcap-at_cut_global_backward_endcap.json, output/pid-eid_lightgbm_clean26071_backward_endcap-at_cut_global_backward_endcap.md, output/pid-eid_lightgbm_clean26071_backward_endcap-at_cut_global_backward_endcap.root (14 rows)
+[report] wrote output/pid-eid_lightgbm_clean26071_backward_endcap-at_cut_per_bin_backward_endcap.json, output/pid-eid_lightgbm_clean26071_backward_endcap-at_cut_per_bin_backward_endcap.md, output/pid-eid_lightgbm_clean26071_backward_endcap-at_cut_per_bin_backward_endcap.root (14 rows)
+[report] wrote output/pid-eid_lightgbm_clean26071_backward_endcap-rejection_vs_p_backward_endcap.json, output/pid-eid_lightgbm_clean26071_backward_endcap-rejection_vs_p_backward_endcap.md, output/pid-eid_lightgbm_clean26071_backward_endcap-rejection_vs_p_backward_endcap.root (14 rows)
+[report] wrote output/pid-eid_lightgbm_clean26071_backward_endcap-nsigma_vs_p_backward_endcap.json, output/pid-eid_lightgbm_clean26071_backward_endcap-nsigma_vs_p_backward_endcap.md, output/pid-eid_lightgbm_clean26071_backward_endcap-nsigma_vs_p_backward_endcap.root (14 rows)
+[report] wrote output/pid-eid_lightgbm_clean26071_backward_endcap-significance_by_p_backward_endcap.json, output/pid-eid_lightgbm_clean26071_backward_endcap-significance_by_p_backward_endcap.md, output/pid-eid_lightgbm_clean26071_backward_endcap-significance_by_p_backward_endcap.root (2214 rows)
+[plot] wrote output/plot_PID/plots_clean_pid_perform/pid-eid_optimal_cut_vs_p_backward_endcap.png
+[plot] wrote output/plot_PID/plots_clean_pid_perform/pid-eid_eff_vs_p_backward_endcap.png
+[plot] wrote output/plot_PID/plots_clean_pid_perform/pid-eid_misid_vs_p_backward_endcap.png
+[plot] wrote output/plot_PID/plots_clean_pid_perform/pid-eid_purity_vs_p_backward_endcap.png
+[plot] wrote output/plot_PID/plots_clean_pid_perform/pid-eid_rejection_vs_p_backward_endcap.png
+[plot] wrote output/plot_PID/plots_clean_pid_perform/pid-eid_nsigma_vs_p_backward_endcap.png
+[plot] wrote output/plot_PID/plots_clean_pid_perform/pid-eid_significance_vs_cut_by_p_backward_endcap.png
+[plot] wrote output/plot_PID/plots_clean_pid_perform/pid-eid_significance_vs_cut_panels_backward_endcap.png
+[performance/eid/reco/backward endcap] 105305 in-acceptance rows, 6 tables, 8 figures
+[report] wrote output/pid-eid_lightgbm_clean26071-significance_vs_cut_truthpt.json, output/pid-eid_lightgbm_clean26071-significance_vs_cut_truthpt.md, output/pid-eid_lightgbm_clean26071-significance_vs_cut_truthpt.root (401 rows)
+[report] wrote output/pid-eid_lightgbm_clean26071-optimal_cut_vs_p_truthpt.json, output/pid-eid_lightgbm_clean26071-optimal_cut_vs_p_truthpt.md, output/pid-eid_lightgbm_clean26071-optimal_cut_vs_p_truthpt.root (14 rows)
+[report] wrote output/pid-eid_lightgbm_clean26071-at_cut_global_truthpt.json, output/pid-eid_lightgbm_clean26071-at_cut_global_truthpt.md, output/pid-eid_lightgbm_clean26071-at_cut_global_truthpt.root (14 rows)
+[report] wrote output/pid-eid_lightgbm_clean26071-at_cut_per_bin_truthpt.json, output/pid-eid_lightgbm_clean26071-at_cut_per_bin_truthpt.md, output/pid-eid_lightgbm_clean26071-at_cut_per_bin_truthpt.root (14 rows)
+[report] wrote output/pid-eid_lightgbm_clean26071-rejection_vs_p_truthpt.json, output/pid-eid_lightgbm_clean26071-rejection_vs_p_truthpt.md, output/pid-eid_lightgbm_clean26071-rejection_vs_p_truthpt.root (14 rows)
+[report] wrote output/pid-eid_lightgbm_clean26071-efficiency_vs_eta_truthpt.json, output/pid-eid_lightgbm_clean26071-efficiency_vs_eta_truthpt.md, output/pid-eid_lightgbm_clean26071-efficiency_vs_eta_truthpt.root (16 rows)
+[report] wrote output/pid-eid_lightgbm_clean26071-nsigma_vs_p_truthpt.json, output/pid-eid_lightgbm_clean26071-nsigma_vs_p_truthpt.md, output/pid-eid_lightgbm_clean26071-nsigma_vs_p_truthpt.root (14 rows)
+[report] wrote output/pid-eid_lightgbm_clean26071-significance_by_p_truthpt.json, output/pid-eid_lightgbm_clean26071-significance_by_p_truthpt.md, output/pid-eid_lightgbm_clean26071-significance_by_p_truthpt.root (2214 rows)
+[report] wrote output/pid-eid_lightgbm_clean26071-eff_map_p_vs_eta_truthpt.json, output/pid-eid_lightgbm_clean26071-eff_map_p_vs_eta_truthpt.md, output/pid-eid_lightgbm_clean26071-eff_map_p_vs_eta_truthpt.root (224 rows)
+[report] wrote output/pid-eid_lightgbm_clean26071-fake_map_p_vs_eta_truthpt.json, output/pid-eid_lightgbm_clean26071-fake_map_p_vs_eta_truthpt.md, output/pid-eid_lightgbm_clean26071-fake_map_p_vs_eta_truthpt.root (224 rows)
+[plot] wrote output/plot_PID/plots_clean_pid_perform/pid-eid_optimal_cut_vs_p_truthpt.png
+[plot] wrote output/plot_PID/plots_clean_pid_perform/pid-eid_eff_vs_p_truthpt.png
+[plot] wrote output/plot_PID/plots_clean_pid_perform/pid-eid_misid_vs_p_truthpt.png
+[plot] wrote output/plot_PID/plots_clean_pid_perform/pid-eid_purity_vs_p_truthpt.png
+[plot] wrote output/plot_PID/plots_clean_pid_perform/pid-eid_pion_rejection_vs_p_truthpt.png
+[plot] wrote output/plot_PID/plots_clean_pid_perform/pid-eid_nsigma_vs_p_truthpt.png
+[plot] wrote output/plot_PID/plots_clean_pid_perform/pid-eid_significance_vs_cut_by_p_truthpt.png
+[plot] wrote output/plot_PID/plots_clean_pid_perform/pid-eid_significance_vs_cut_panels_truthpt.png
+[plot] wrote output/plot_PID/plots_clean_pid_perform/pid-eid_eff_map_p_vs_eta_truthpt.png
+[plot] wrote output/plot_PID/plots_clean_pid_perform/pid-eid_fake_map_p_vs_eta_truthpt.png
+[deliverables/eid_truthpt] complete: 13/13 figures (3 shared with the reconstructed basis)
+[report] wrote output/pid-eid_lightgbm_clean26071_barrel-optimal_cut_vs_p_truthpt_barrel.json, output/pid-eid_lightgbm_clean26071_barrel-optimal_cut_vs_p_truthpt_barrel.md, output/pid-eid_lightgbm_clean26071_barrel-optimal_cut_vs_p_truthpt_barrel.root (14 rows)
+[report] wrote output/pid-eid_lightgbm_clean26071_barrel-at_cut_global_truthpt_barrel.json, output/pid-eid_lightgbm_clean26071_barrel-at_cut_global_truthpt_barrel.md, output/pid-eid_lightgbm_clean26071_barrel-at_cut_global_truthpt_barrel.root (14 rows)
+[report] wrote output/pid-eid_lightgbm_clean26071_barrel-at_cut_per_bin_truthpt_barrel.json, output/pid-eid_lightgbm_clean26071_barrel-at_cut_per_bin_truthpt_barrel.md, output/pid-eid_lightgbm_clean26071_barrel-at_cut_per_bin_truthpt_barrel.root (14 rows)
+[report] wrote output/pid-eid_lightgbm_clean26071_barrel-rejection_vs_p_truthpt_barrel.json, output/pid-eid_lightgbm_clean26071_barrel-rejection_vs_p_truthpt_barrel.md, output/pid-eid_lightgbm_clean26071_barrel-rejection_vs_p_truthpt_barrel.root (14 rows)
+[report] wrote output/pid-eid_lightgbm_clean26071_barrel-nsigma_vs_p_truthpt_barrel.json, output/pid-eid_lightgbm_clean26071_barrel-nsigma_vs_p_truthpt_barrel.md, output/pid-eid_lightgbm_clean26071_barrel-nsigma_vs_p_truthpt_barrel.root (14 rows)
+[report] wrote output/pid-eid_lightgbm_clean26071_barrel-significance_by_p_truthpt_barrel.json, output/pid-eid_lightgbm_clean26071_barrel-significance_by_p_truthpt_barrel.md, output/pid-eid_lightgbm_clean26071_barrel-significance_by_p_truthpt_barrel.root (14 rows)
+/local/scratch/a/wxie/eic/baseline_tracking_performance_agent/pid/plots.py:820: UserWarning: No artists with labels found to put in legend.  Note that artists whose label start with an underscore are ignored when legend() is called with no argument.
+  ax.legend(fontsize=7.5, loc="upper right")
+[plot] wrote output/plot_PID/plots_clean_pid_perform/pid-eid_optimal_cut_vs_p_barrel_truthpt.png
+[plot] wrote output/plot_PID/plots_clean_pid_perform/pid-eid_eff_vs_p_barrel_truthpt.png
+/local/scratch/a/wxie/eic/baseline_tracking_performance_agent/pid/plots.py:340: UserWarning: Data has no positive values, and therefore cannot be log-scaled.
+  ax.set_yscale("log")
+[plot] wrote output/plot_PID/plots_clean_pid_perform/pid-eid_misid_vs_p_barrel_truthpt.png
+[plot] wrote output/plot_PID/plots_clean_pid_perform/pid-eid_purity_vs_p_barrel_truthpt.png
+[plot] wrote output/plot_PID/plots_clean_pid_perform/pid-eid_rejection_vs_p_barrel_truthpt.png
+[plot] wrote output/plot_PID/plots_clean_pid_perform/pid-eid_nsigma_vs_p_barrel_truthpt.png
+[plot] wrote output/plot_PID/plots_clean_pid_perform/pid-eid_significance_vs_cut_by_p_barrel_truthpt.png
+[plot] wrote output/plot_PID/plots_clean_pid_perform/pid-eid_significance_vs_cut_panels_barrel_truthpt.png
+[performance/eid/truth/barrel] 7 in-acceptance rows, 6 tables, 8 figures
+[performance/eid/truth/forward endcap] SKIPPED: no in-acceptance rows
+[report] wrote output/pid-eid_lightgbm_clean26071_backward_endcap-optimal_cut_vs_p_truthpt_backward_endcap.json, output/pid-eid_lightgbm_clean26071_backward_endcap-optimal_cut_vs_p_truthpt_backward_endcap.md, output/pid-eid_lightgbm_clean26071_backward_endcap-optimal_cut_vs_p_truthpt_backward_endcap.root (14 rows)
+[report] wrote output/pid-eid_lightgbm_clean26071_backward_endcap-at_cut_global_truthpt_backward_endcap.json, output/pid-eid_lightgbm_clean26071_backward_endcap-at_cut_global_truthpt_backward_endcap.md, output/pid-eid_lightgbm_clean26071_backward_endcap-at_cut_global_truthpt_backward_endcap.root (14 rows)
+[report] wrote output/pid-eid_lightgbm_clean26071_backward_endcap-at_cut_per_bin_truthpt_backward_endcap.json, output/pid-eid_lightgbm_clean26071_backward_endcap-at_cut_per_bin_truthpt_backward_endcap.md, output/pid-eid_lightgbm_clean26071_backward_endcap-at_cut_per_bin_truthpt_backward_endcap.root (14 rows)
+[report] wrote output/pid-eid_lightgbm_clean26071_backward_endcap-rejection_vs_p_truthpt_backward_endcap.json, output/pid-eid_lightgbm_clean26071_backward_endcap-rejection_vs_p_truthpt_backward_endcap.md, output/pid-eid_lightgbm_clean26071_backward_endcap-rejection_vs_p_truthpt_backward_endcap.root (14 rows)
+[report] wrote output/pid-eid_lightgbm_clean26071_backward_endcap-nsigma_vs_p_truthpt_backward_endcap.json, output/pid-eid_lightgbm_clean26071_backward_endcap-nsigma_vs_p_truthpt_backward_endcap.md, output/pid-eid_lightgbm_clean26071_backward_endcap-nsigma_vs_p_truthpt_backward_endcap.root (14 rows)
+[report] wrote output/pid-eid_lightgbm_clean26071_backward_endcap-significance_by_p_truthpt_backward_endcap.json, output/pid-eid_lightgbm_clean26071_backward_endcap-significance_by_p_truthpt_backward_endcap.md, output/pid-eid_lightgbm_clean26071_backward_endcap-significance_by_p_truthpt_backward_endcap.root (2214 rows)
+[plot] wrote output/plot_PID/plots_clean_pid_perform/pid-eid_optimal_cut_vs_p_backward_endcap_truthpt.png
+[plot] wrote output/plot_PID/plots_clean_pid_perform/pid-eid_eff_vs_p_backward_endcap_truthpt.png
+[plot] wrote output/plot_PID/plots_clean_pid_perform/pid-eid_misid_vs_p_backward_endcap_truthpt.png
+[plot] wrote output/plot_PID/plots_clean_pid_perform/pid-eid_purity_vs_p_backward_endcap_truthpt.png
+[plot] wrote output/plot_PID/plots_clean_pid_perform/pid-eid_rejection_vs_p_backward_endcap_truthpt.png
+[plot] wrote output/plot_PID/plots_clean_pid_perform/pid-eid_nsigma_vs_p_backward_endcap_truthpt.png
+[plot] wrote output/plot_PID/plots_clean_pid_perform/pid-eid_significance_vs_cut_by_p_backward_endcap_truthpt.png
+[plot] wrote output/plot_PID/plots_clean_pid_perform/pid-eid_significance_vs_cut_panels_backward_endcap_truthpt.png
+[performance/eid/truth/backward endcap] 105305 in-acceptance rows, 6 tables, 8 figures
+[regions] attached ['barrel', 'forward endcap', 'backward endcap'] acceptance (barrel: 9/9 in acceptance; forward endcap: 0/0 in acceptance; backward endcap: 106950/106987 in acceptance; 0 files skipped, 0 rows unclassifiable)
+[report] wrote output/pid-ehad_lightgbm_clean26071-significance_vs_cut.json, output/pid-ehad_lightgbm_clean26071-significance_vs_cut.md, output/pid-ehad_lightgbm_clean26071-significance_vs_cut.root (401 rows)
+[report] wrote output/pid-ehad_lightgbm_clean26071-optimal_cut_vs_p.json, output/pid-ehad_lightgbm_clean26071-optimal_cut_vs_p.md, output/pid-ehad_lightgbm_clean26071-optimal_cut_vs_p.root (14 rows)
+[report] wrote output/pid-ehad_lightgbm_clean26071-at_cut_global.json, output/pid-ehad_lightgbm_clean26071-at_cut_global.md, output/pid-ehad_lightgbm_clean26071-at_cut_global.root (14 rows)
+[report] wrote output/pid-ehad_lightgbm_clean26071-at_cut_per_bin.json, output/pid-ehad_lightgbm_clean26071-at_cut_per_bin.md, output/pid-ehad_lightgbm_clean26071-at_cut_per_bin.root (14 rows)
+[report] wrote output/pid-ehad_lightgbm_clean26071-rejection_vs_p.json, output/pid-ehad_lightgbm_clean26071-rejection_vs_p.md, output/pid-ehad_lightgbm_clean26071-rejection_vs_p.root (14 rows)
+[report] wrote output/pid-ehad_lightgbm_clean26071-efficiency_vs_eta.json, output/pid-ehad_lightgbm_clean26071-efficiency_vs_eta.md, output/pid-ehad_lightgbm_clean26071-efficiency_vs_eta.root (16 rows)
+[report] wrote output/pid-ehad_lightgbm_clean26071-nsigma_vs_p.json, output/pid-ehad_lightgbm_clean26071-nsigma_vs_p.md, output/pid-ehad_lightgbm_clean26071-nsigma_vs_p.root (14 rows)
+[report] wrote output/pid-ehad_lightgbm_clean26071-significance_by_p.json, output/pid-ehad_lightgbm_clean26071-significance_by_p.md, output/pid-ehad_lightgbm_clean26071-significance_by_p.root (2414 rows)
+[report] wrote output/pid-ehad_lightgbm_clean26071-eff_map_p_vs_eta.json, output/pid-ehad_lightgbm_clean26071-eff_map_p_vs_eta.md, output/pid-ehad_lightgbm_clean26071-eff_map_p_vs_eta.root (224 rows)
+[report] wrote output/pid-ehad_lightgbm_clean26071-fake_map_p_vs_eta.json, output/pid-ehad_lightgbm_clean26071-fake_map_p_vs_eta.md, output/pid-ehad_lightgbm_clean26071-fake_map_p_vs_eta.root (224 rows)
+[plot] wrote output/plot_PID/plots_clean_pid_perform/pid-ehad_significance_vs_cut.png
+[plot] wrote output/plot_PID/plots_clean_pid_perform/pid-ehad_roc.png
+[plot] wrote output/plot_PID/plots_clean_pid_perform/pid-ehad_optimal_cut_vs_p.png
+[plot] wrote output/plot_PID/plots_clean_pid_perform/pid-ehad_eff_vs_p.png
+[plot] wrote output/plot_PID/plots_clean_pid_perform/pid-ehad_misid_vs_p.png
+[plot] wrote output/plot_PID/plots_clean_pid_perform/pid-ehad_purity_vs_p.png
+[plot] wrote output/plot_PID/plots_clean_pid_perform/pid-ehad_rejection_vs_p.png
+[plot] wrote output/plot_PID/plots_clean_pid_perform/pid-ehad_nsigma_vs_p.png
+[plot] wrote output/plot_PID/plots_clean_pid_perform/pid-ehad_significance_vs_cut_by_p.png
+[plot] wrote output/plot_PID/plots_clean_pid_perform/pid-ehad_significance_vs_cut_panels.png
+[plot] wrote output/plot_PID/plots_clean_pid_perform/pid-ehad_eff_map_p_vs_eta.png
+[plot] wrote output/plot_PID/plots_clean_pid_perform/pid-ehad_fake_map_p_vs_eta.png
+[plot] wrote output/plot_PID/plots_clean_pid_perform/pid-ehad_score_dist_train_vs_test.png
+[plot] wrote output/plot_PID/plots_clean_pid_perform/pid-ehad_score_dist_train_vs_test_peak.png
+[deliverables/ehad] complete: 13/13 figures
+[report] wrote output/pid-ehad_lightgbm_clean26071_barrel-optimal_cut_vs_p_barrel.json, output/pid-ehad_lightgbm_clean26071_barrel-optimal_cut_vs_p_barrel.md, output/pid-ehad_lightgbm_clean26071_barrel-optimal_cut_vs_p_barrel.root (14 rows)
+[report] wrote output/pid-ehad_lightgbm_clean26071_barrel-at_cut_global_barrel.json, output/pid-ehad_lightgbm_clean26071_barrel-at_cut_global_barrel.md, output/pid-ehad_lightgbm_clean26071_barrel-at_cut_global_barrel.root (14 rows)
+[report] wrote output/pid-ehad_lightgbm_clean26071_barrel-at_cut_per_bin_barrel.json, output/pid-ehad_lightgbm_clean26071_barrel-at_cut_per_bin_barrel.md, output/pid-ehad_lightgbm_clean26071_barrel-at_cut_per_bin_barrel.root (14 rows)
+[report] wrote output/pid-ehad_lightgbm_clean26071_barrel-rejection_vs_p_barrel.json, output/pid-ehad_lightgbm_clean26071_barrel-rejection_vs_p_barrel.md, output/pid-ehad_lightgbm_clean26071_barrel-rejection_vs_p_barrel.root (14 rows)
+[report] wrote output/pid-ehad_lightgbm_clean26071_barrel-nsigma_vs_p_barrel.json, output/pid-ehad_lightgbm_clean26071_barrel-nsigma_vs_p_barrel.md, output/pid-ehad_lightgbm_clean26071_barrel-nsigma_vs_p_barrel.root (14 rows)
+[report] wrote output/pid-ehad_lightgbm_clean26071_barrel-significance_by_p_barrel.json, output/pid-ehad_lightgbm_clean26071_barrel-significance_by_p_barrel.md, output/pid-ehad_lightgbm_clean26071_barrel-significance_by_p_barrel.root (14 rows)
+/local/scratch/a/wxie/eic/baseline_tracking_performance_agent/pid/plots.py:820: UserWarning: No artists with labels found to put in legend.  Note that artists whose label start with an underscore are ignored when legend() is called with no argument.
+  ax.legend(fontsize=7.5, loc="upper right")
+[plot] wrote output/plot_PID/plots_clean_pid_perform/pid-ehad_optimal_cut_vs_p_barrel.png
+[plot] wrote output/plot_PID/plots_clean_pid_perform/pid-ehad_eff_vs_p_barrel.png
+[plot] wrote output/plot_PID/plots_clean_pid_perform/pid-ehad_misid_vs_p_barrel.png
+[plot] wrote output/plot_PID/plots_clean_pid_perform/pid-ehad_purity_vs_p_barrel.png
+[plot] wrote output/plot_PID/plots_clean_pid_perform/pid-ehad_rejection_vs_p_barrel.png
+[plot] wrote output/plot_PID/plots_clean_pid_perform/pid-ehad_nsigma_vs_p_barrel.png
+[plot] wrote output/plot_PID/plots_clean_pid_perform/pid-ehad_significance_vs_cut_by_p_barrel.png
+[plot] wrote output/plot_PID/plots_clean_pid_perform/pid-ehad_significance_vs_cut_panels_barrel.png
+[performance/ehad/reco/barrel] 9 in-acceptance rows, 6 tables, 8 figures
+[performance/ehad/reco/forward endcap] SKIPPED: no in-acceptance rows
+[report] wrote output/pid-ehad_lightgbm_clean26071_backward_endcap-optimal_cut_vs_p_backward_endcap.json, output/pid-ehad_lightgbm_clean26071_backward_endcap-optimal_cut_vs_p_backward_endcap.md, output/pid-ehad_lightgbm_clean26071_backward_endcap-optimal_cut_vs_p_backward_endcap.root (14 rows)
+[report] wrote output/pid-ehad_lightgbm_clean26071_backward_endcap-at_cut_global_backward_endcap.json, output/pid-ehad_lightgbm_clean26071_backward_endcap-at_cut_global_backward_endcap.md, output/pid-ehad_lightgbm_clean26071_backward_endcap-at_cut_global_backward_endcap.root (14 rows)
+[report] wrote output/pid-ehad_lightgbm_clean26071_backward_endcap-at_cut_per_bin_backward_endcap.json, output/pid-ehad_lightgbm_clean26071_backward_endcap-at_cut_per_bin_backward_endcap.md, output/pid-ehad_lightgbm_clean26071_backward_endcap-at_cut_per_bin_backward_endcap.root (14 rows)
+[report] wrote output/pid-ehad_lightgbm_clean26071_backward_endcap-rejection_vs_p_backward_endcap.json, output/pid-ehad_lightgbm_clean26071_backward_endcap-rejection_vs_p_backward_endcap.md, output/pid-ehad_lightgbm_clean26071_backward_endcap-rejection_vs_p_backward_endcap.root (14 rows)
+[report] wrote output/pid-ehad_lightgbm_clean26071_backward_endcap-nsigma_vs_p_backward_endcap.json, output/pid-ehad_lightgbm_clean26071_backward_endcap-nsigma_vs_p_backward_endcap.md, output/pid-ehad_lightgbm_clean26071_backward_endcap-nsigma_vs_p_backward_endcap.root (14 rows)
+[report] wrote output/pid-ehad_lightgbm_clean26071_backward_endcap-significance_by_p_backward_endcap.json, output/pid-ehad_lightgbm_clean26071_backward_endcap-significance_by_p_backward_endcap.md, output/pid-ehad_lightgbm_clean26071_backward_endcap-significance_by_p_backward_endcap.root (2414 rows)
+[plot] wrote output/plot_PID/plots_clean_pid_perform/pid-ehad_optimal_cut_vs_p_backward_endcap.png
+[plot] wrote output/plot_PID/plots_clean_pid_perform/pid-ehad_eff_vs_p_backward_endcap.png
+[plot] wrote output/plot_PID/plots_clean_pid_perform/pid-ehad_misid_vs_p_backward_endcap.png
+[plot] wrote output/plot_PID/plots_clean_pid_perform/pid-ehad_purity_vs_p_backward_endcap.png
+[plot] wrote output/plot_PID/plots_clean_pid_perform/pid-ehad_rejection_vs_p_backward_endcap.png
+[plot] wrote output/plot_PID/plots_clean_pid_perform/pid-ehad_nsigma_vs_p_backward_endcap.png
+[plot] wrote output/plot_PID/plots_clean_pid_perform/pid-ehad_significance_vs_cut_by_p_backward_endcap.png
+[plot] wrote output/plot_PID/plots_clean_pid_perform/pid-ehad_significance_vs_cut_panels_backward_endcap.png
+[performance/ehad/reco/backward endcap] 106950 in-acceptance rows, 6 tables, 8 figures
+[report] wrote output/pid-ehad_lightgbm_clean26071-significance_vs_cut_truthpt.json, output/pid-ehad_lightgbm_clean26071-significance_vs_cut_truthpt.md, output/pid-ehad_lightgbm_clean26071-significance_vs_cut_truthpt.root (401 rows)
+[report] wrote output/pid-ehad_lightgbm_clean26071-optimal_cut_vs_p_truthpt.json, output/pid-ehad_lightgbm_clean26071-optimal_cut_vs_p_truthpt.md, output/pid-ehad_lightgbm_clean26071-optimal_cut_vs_p_truthpt.root (14 rows)
+[report] wrote output/pid-ehad_lightgbm_clean26071-at_cut_global_truthpt.json, output/pid-ehad_lightgbm_clean26071-at_cut_global_truthpt.md, output/pid-ehad_lightgbm_clean26071-at_cut_global_truthpt.root (14 rows)
+[report] wrote output/pid-ehad_lightgbm_clean26071-at_cut_per_bin_truthpt.json, output/pid-ehad_lightgbm_clean26071-at_cut_per_bin_truthpt.md, output/pid-ehad_lightgbm_clean26071-at_cut_per_bin_truthpt.root (14 rows)
+[report] wrote output/pid-ehad_lightgbm_clean26071-rejection_vs_p_truthpt.json, output/pid-ehad_lightgbm_clean26071-rejection_vs_p_truthpt.md, output/pid-ehad_lightgbm_clean26071-rejection_vs_p_truthpt.root (14 rows)
+[report] wrote output/pid-ehad_lightgbm_clean26071-efficiency_vs_eta_truthpt.json, output/pid-ehad_lightgbm_clean26071-efficiency_vs_eta_truthpt.md, output/pid-ehad_lightgbm_clean26071-efficiency_vs_eta_truthpt.root (16 rows)
+[report] wrote output/pid-ehad_lightgbm_clean26071-nsigma_vs_p_truthpt.json, output/pid-ehad_lightgbm_clean26071-nsigma_vs_p_truthpt.md, output/pid-ehad_lightgbm_clean26071-nsigma_vs_p_truthpt.root (14 rows)
+[report] wrote output/pid-ehad_lightgbm_clean26071-significance_by_p_truthpt.json, output/pid-ehad_lightgbm_clean26071-significance_by_p_truthpt.md, output/pid-ehad_lightgbm_clean26071-significance_by_p_truthpt.root (2214 rows)
+[report] wrote output/pid-ehad_lightgbm_clean26071-eff_map_p_vs_eta_truthpt.json, output/pid-ehad_lightgbm_clean26071-eff_map_p_vs_eta_truthpt.md, output/pid-ehad_lightgbm_clean26071-eff_map_p_vs_eta_truthpt.root (224 rows)
+[report] wrote output/pid-ehad_lightgbm_clean26071-fake_map_p_vs_eta_truthpt.json, output/pid-ehad_lightgbm_clean26071-fake_map_p_vs_eta_truthpt.md, output/pid-ehad_lightgbm_clean26071-fake_map_p_vs_eta_truthpt.root (224 rows)
+[plot] wrote output/plot_PID/plots_clean_pid_perform/pid-ehad_optimal_cut_vs_p_truthpt.png
+[plot] wrote output/plot_PID/plots_clean_pid_perform/pid-ehad_eff_vs_p_truthpt.png
+[plot] wrote output/plot_PID/plots_clean_pid_perform/pid-ehad_misid_vs_p_truthpt.png
+[plot] wrote output/plot_PID/plots_clean_pid_perform/pid-ehad_purity_vs_p_truthpt.png
+[plot] wrote output/plot_PID/plots_clean_pid_perform/pid-ehad_rejection_vs_p_truthpt.png
+[plot] wrote output/plot_PID/plots_clean_pid_perform/pid-ehad_nsigma_vs_p_truthpt.png
+[plot] wrote output/plot_PID/plots_clean_pid_perform/pid-ehad_significance_vs_cut_by_p_truthpt.png
+[plot] wrote output/plot_PID/plots_clean_pid_perform/pid-ehad_significance_vs_cut_panels_truthpt.png
+[plot] wrote output/plot_PID/plots_clean_pid_perform/pid-ehad_eff_map_p_vs_eta_truthpt.png
+[plot] wrote output/plot_PID/plots_clean_pid_perform/pid-ehad_fake_map_p_vs_eta_truthpt.png
+[deliverables/ehad_truthpt] complete: 13/13 figures (3 shared with the reconstructed basis)
+[report] wrote output/pid-ehad_lightgbm_clean26071_barrel-optimal_cut_vs_p_truthpt_barrel.json, output/pid-ehad_lightgbm_clean26071_barrel-optimal_cut_vs_p_truthpt_barrel.md, output/pid-ehad_lightgbm_clean26071_barrel-optimal_cut_vs_p_truthpt_barrel.root (14 rows)
+[report] wrote output/pid-ehad_lightgbm_clean26071_barrel-at_cut_global_truthpt_barrel.json, output/pid-ehad_lightgbm_clean26071_barrel-at_cut_global_truthpt_barrel.md, output/pid-ehad_lightgbm_clean26071_barrel-at_cut_global_truthpt_barrel.root (14 rows)
+[report] wrote output/pid-ehad_lightgbm_clean26071_barrel-at_cut_per_bin_truthpt_barrel.json, output/pid-ehad_lightgbm_clean26071_barrel-at_cut_per_bin_truthpt_barrel.md, output/pid-ehad_lightgbm_clean26071_barrel-at_cut_per_bin_truthpt_barrel.root (14 rows)
+[report] wrote output/pid-ehad_lightgbm_clean26071_barrel-rejection_vs_p_truthpt_barrel.json, output/pid-ehad_lightgbm_clean26071_barrel-rejection_vs_p_truthpt_barrel.md, output/pid-ehad_lightgbm_clean26071_barrel-rejection_vs_p_truthpt_barrel.root (14 rows)
+[report] wrote output/pid-ehad_lightgbm_clean26071_barrel-nsigma_vs_p_truthpt_barrel.json, output/pid-ehad_lightgbm_clean26071_barrel-nsigma_vs_p_truthpt_barrel.md, output/pid-ehad_lightgbm_clean26071_barrel-nsigma_vs_p_truthpt_barrel.root (14 rows)
+[report] wrote output/pid-ehad_lightgbm_clean26071_barrel-significance_by_p_truthpt_barrel.json, output/pid-ehad_lightgbm_clean26071_barrel-significance_by_p_truthpt_barrel.md, output/pid-ehad_lightgbm_clean26071_barrel-significance_by_p_truthpt_barrel.root (14 rows)
+/local/scratch/a/wxie/eic/baseline_tracking_performance_agent/pid/plots.py:820: UserWarning: No artists with labels found to put in legend.  Note that artists whose label start with an underscore are ignored when legend() is called with no argument.
+  ax.legend(fontsize=7.5, loc="upper right")
+[plot] wrote output/plot_PID/plots_clean_pid_perform/pid-ehad_optimal_cut_vs_p_barrel_truthpt.png
+[plot] wrote output/plot_PID/plots_clean_pid_perform/pid-ehad_eff_vs_p_barrel_truthpt.png
+[plot] wrote output/plot_PID/plots_clean_pid_perform/pid-ehad_misid_vs_p_barrel_truthpt.png
+[plot] wrote output/plot_PID/plots_clean_pid_perform/pid-ehad_purity_vs_p_barrel_truthpt.png
+[plot] wrote output/plot_PID/plots_clean_pid_perform/pid-ehad_rejection_vs_p_barrel_truthpt.png
+[plot] wrote output/plot_PID/plots_clean_pid_perform/pid-ehad_nsigma_vs_p_barrel_truthpt.png
+[plot] wrote output/plot_PID/plots_clean_pid_perform/pid-ehad_significance_vs_cut_by_p_barrel_truthpt.png
+[plot] wrote output/plot_PID/plots_clean_pid_perform/pid-ehad_significance_vs_cut_panels_barrel_truthpt.png
+[performance/ehad/truth/barrel] 9 in-acceptance rows, 6 tables, 8 figures
+[performance/ehad/truth/forward endcap] SKIPPED: no in-acceptance rows
+[report] wrote output/pid-ehad_lightgbm_clean26071_backward_endcap-optimal_cut_vs_p_truthpt_backward_endcap.json, output/pid-ehad_lightgbm_clean26071_backward_endcap-optimal_cut_vs_p_truthpt_backward_endcap.md, output/pid-ehad_lightgbm_clean26071_backward_endcap-optimal_cut_vs_p_truthpt_backward_endcap.root (14 rows)
+[report] wrote output/pid-ehad_lightgbm_clean26071_backward_endcap-at_cut_global_truthpt_backward_endcap.json, output/pid-ehad_lightgbm_clean26071_backward_endcap-at_cut_global_truthpt_backward_endcap.md, output/pid-ehad_lightgbm_clean26071_backward_endcap-at_cut_global_truthpt_backward_endcap.root (14 rows)
+[report] wrote output/pid-ehad_lightgbm_clean26071_backward_endcap-at_cut_per_bin_truthpt_backward_endcap.json, output/pid-ehad_lightgbm_clean26071_backward_endcap-at_cut_per_bin_truthpt_backward_endcap.md, output/pid-ehad_lightgbm_clean26071_backward_endcap-at_cut_per_bin_truthpt_backward_endcap.root (14 rows)
+[report] wrote output/pid-ehad_lightgbm_clean26071_backward_endcap-rejection_vs_p_truthpt_backward_endcap.json, output/pid-ehad_lightgbm_clean26071_backward_endcap-rejection_vs_p_truthpt_backward_endcap.md, output/pid-ehad_lightgbm_clean26071_backward_endcap-rejection_vs_p_truthpt_backward_endcap.root (14 rows)
+[report] wrote output/pid-ehad_lightgbm_clean26071_backward_endcap-nsigma_vs_p_truthpt_backward_endcap.json, output/pid-ehad_lightgbm_clean26071_backward_endcap-nsigma_vs_p_truthpt_backward_endcap.md, output/pid-ehad_lightgbm_clean26071_backward_endcap-nsigma_vs_p_truthpt_backward_endcap.root (14 rows)
+[report] wrote output/pid-ehad_lightgbm_clean26071_backward_endcap-significance_by_p_truthpt_backward_endcap.json, output/pid-ehad_lightgbm_clean26071_backward_endcap-significance_by_p_truthpt_backward_endcap.md, output/pid-ehad_lightgbm_clean26071_backward_endcap-significance_by_p_truthpt_backward_endcap.root (2214 rows)
+[plot] wrote output/plot_PID/plots_clean_pid_perform/pid-ehad_optimal_cut_vs_p_backward_endcap_truthpt.png
+[plot] wrote output/plot_PID/plots_clean_pid_perform/pid-ehad_eff_vs_p_backward_endcap_truthpt.png
+[plot] wrote output/plot_PID/plots_clean_pid_perform/pid-ehad_misid_vs_p_backward_endcap_truthpt.png
+[plot] wrote output/plot_PID/plots_clean_pid_perform/pid-ehad_purity_vs_p_backward_endcap_truthpt.png
+[plot] wrote output/plot_PID/plots_clean_pid_perform/pid-ehad_rejection_vs_p_backward_endcap_truthpt.png
+[plot] wrote output/plot_PID/plots_clean_pid_perform/pid-ehad_nsigma_vs_p_backward_endcap_truthpt.png
+[plot] wrote output/plot_PID/plots_clean_pid_perform/pid-ehad_significance_vs_cut_by_p_backward_endcap_truthpt.png
+[plot] wrote output/plot_PID/plots_clean_pid_perform/pid-ehad_significance_vs_cut_panels_backward_endcap_truthpt.png
+[performance/ehad/truth/backward endcap] 106950 in-acceptance rows, 6 tables, 8 figures
+[regions] attached ['barrel', 'forward endcap', 'backward endcap'] acceptance (barrel: 46/46 in acceptance; forward endcap: 179737/183491 in acceptance; backward endcap: 0/0 in acceptance; 0 files skipped, 0 rows unclassifiable)
+[report] wrote output/pid-Kpi_lightgbm_clean26071-significance_vs_cut.json, output/pid-Kpi_lightgbm_clean26071-significance_vs_cut.md, output/pid-Kpi_lightgbm_clean26071-significance_vs_cut.root (401 rows)
+[report] wrote output/pid-Kpi_lightgbm_clean26071-optimal_cut_vs_p.json, output/pid-Kpi_lightgbm_clean26071-optimal_cut_vs_p.md, output/pid-Kpi_lightgbm_clean26071-optimal_cut_vs_p.root (14 rows)
+[report] wrote output/pid-Kpi_lightgbm_clean26071-at_cut_global.json, output/pid-Kpi_lightgbm_clean26071-at_cut_global.md, output/pid-Kpi_lightgbm_clean26071-at_cut_global.root (14 rows)
+[report] wrote output/pid-Kpi_lightgbm_clean26071-at_cut_per_bin.json, output/pid-Kpi_lightgbm_clean26071-at_cut_per_bin.md, output/pid-Kpi_lightgbm_clean26071-at_cut_per_bin.root (14 rows)
+[report] wrote output/pid-Kpi_lightgbm_clean26071-rejection_vs_p.json, output/pid-Kpi_lightgbm_clean26071-rejection_vs_p.md, output/pid-Kpi_lightgbm_clean26071-rejection_vs_p.root (14 rows)
+[report] wrote output/pid-Kpi_lightgbm_clean26071-efficiency_vs_eta.json, output/pid-Kpi_lightgbm_clean26071-efficiency_vs_eta.md, output/pid-Kpi_lightgbm_clean26071-efficiency_vs_eta.root (16 rows)
+[report] wrote output/pid-Kpi_lightgbm_clean26071-nsigma_vs_p.json, output/pid-Kpi_lightgbm_clean26071-nsigma_vs_p.md, output/pid-Kpi_lightgbm_clean26071-nsigma_vs_p.root (14 rows)
+[report] wrote output/pid-Kpi_lightgbm_clean26071-significance_by_p.json, output/pid-Kpi_lightgbm_clean26071-significance_by_p.md, output/pid-Kpi_lightgbm_clean26071-significance_by_p.root (2614 rows)
+[report] wrote output/pid-Kpi_lightgbm_clean26071-eff_map_p_vs_eta.json, output/pid-Kpi_lightgbm_clean26071-eff_map_p_vs_eta.md, output/pid-Kpi_lightgbm_clean26071-eff_map_p_vs_eta.root (224 rows)
+[report] wrote output/pid-Kpi_lightgbm_clean26071-fake_map_p_vs_eta.json, output/pid-Kpi_lightgbm_clean26071-fake_map_p_vs_eta.md, output/pid-Kpi_lightgbm_clean26071-fake_map_p_vs_eta.root (224 rows)
+[report] wrote output/pid-Kpi_lightgbm_clean26071-confusion_matrix_atcut.json, output/pid-Kpi_lightgbm_clean26071-confusion_matrix_atcut.md, output/pid-Kpi_lightgbm_clean26071-confusion_matrix_atcut.root (12 rows)
+[plot] wrote output/plot_PID/plots_clean_pid_perform/pid-Kpi_significance_vs_cut.png
+[plot] wrote output/plot_PID/plots_clean_pid_perform/pid-Kpi_roc.png
+[plot] wrote output/plot_PID/plots_clean_pid_perform/pid-Kpi_optimal_cut_vs_p.png
+[plot] wrote output/plot_PID/plots_clean_pid_perform/pid-Kpi_eff_vs_p.png
+[plot] wrote output/plot_PID/plots_clean_pid_perform/pid-Kpi_misid_vs_p.png
+[plot] wrote output/plot_PID/plots_clean_pid_perform/pid-Kpi_purity_vs_p.png
+[plot] wrote output/plot_PID/plots_clean_pid_perform/pid-Kpi_rejection_vs_p.png
+[plot] wrote output/plot_PID/plots_clean_pid_perform/pid-Kpi_nsigma_vs_p.png
+[plot] wrote output/plot_PID/plots_clean_pid_perform/pid-Kpi_significance_vs_cut_by_p.png
+[plot] wrote output/plot_PID/plots_clean_pid_perform/pid-Kpi_significance_vs_cut_panels.png
+[plot] wrote output/plot_PID/plots_clean_pid_perform/pid-Kpi_eff_map_p_vs_eta.png
+[plot] wrote output/plot_PID/plots_clean_pid_perform/pid-Kpi_fake_map_p_vs_eta.png
+[plot] wrote output/plot_PID/plots_clean_pid_perform/pid-Kpi_score_dist_train_vs_test.png
+[plot] wrote output/plot_PID/plots_clean_pid_perform/pid-Kpi_score_dist_train_vs_test_peak.png
+[plot] wrote output/plot_PID/plots_clean_pid_perform/pid-hadpid_lightgbm_clean26071-confusion_matrix.png
+[plot] wrote output/plot_PID/plots_clean_pid_perform/pid-hadpid_lightgbm_clean26071-confusion_matrix_atcut.png
+[deliverables/Kpi] complete: 13/13 figures
+[report] wrote output/pid-Kpi_lightgbm_clean26071_barrel-optimal_cut_vs_p_barrel.json, output/pid-Kpi_lightgbm_clean26071_barrel-optimal_cut_vs_p_barrel.md, output/pid-Kpi_lightgbm_clean26071_barrel-optimal_cut_vs_p_barrel.root (14 rows)
+[report] wrote output/pid-Kpi_lightgbm_clean26071_barrel-at_cut_global_barrel.json, output/pid-Kpi_lightgbm_clean26071_barrel-at_cut_global_barrel.md, output/pid-Kpi_lightgbm_clean26071_barrel-at_cut_global_barrel.root (14 rows)
+[report] wrote output/pid-Kpi_lightgbm_clean26071_barrel-at_cut_per_bin_barrel.json, output/pid-Kpi_lightgbm_clean26071_barrel-at_cut_per_bin_barrel.md, output/pid-Kpi_lightgbm_clean26071_barrel-at_cut_per_bin_barrel.root (14 rows)
+[report] wrote output/pid-Kpi_lightgbm_clean26071_barrel-rejection_vs_p_barrel.json, output/pid-Kpi_lightgbm_clean26071_barrel-rejection_vs_p_barrel.md, output/pid-Kpi_lightgbm_clean26071_barrel-rejection_vs_p_barrel.root (14 rows)
+[report] wrote output/pid-Kpi_lightgbm_clean26071_barrel-nsigma_vs_p_barrel.json, output/pid-Kpi_lightgbm_clean26071_barrel-nsigma_vs_p_barrel.md, output/pid-Kpi_lightgbm_clean26071_barrel-nsigma_vs_p_barrel.root (14 rows)
+[report] wrote output/pid-Kpi_lightgbm_clean26071_barrel-significance_by_p_barrel.json, output/pid-Kpi_lightgbm_clean26071_barrel-significance_by_p_barrel.md, output/pid-Kpi_lightgbm_clean26071_barrel-significance_by_p_barrel.root (214 rows)
+[plot] wrote output/plot_PID/plots_clean_pid_perform/pid-Kpi_optimal_cut_vs_p_barrel.png
+[plot] wrote output/plot_PID/plots_clean_pid_perform/pid-Kpi_eff_vs_p_barrel.png
+[plot] wrote output/plot_PID/plots_clean_pid_perform/pid-Kpi_misid_vs_p_barrel.png
+[plot] wrote output/plot_PID/plots_clean_pid_perform/pid-Kpi_purity_vs_p_barrel.png
+[plot] wrote output/plot_PID/plots_clean_pid_perform/pid-Kpi_rejection_vs_p_barrel.png
+[plot] wrote output/plot_PID/plots_clean_pid_perform/pid-Kpi_nsigma_vs_p_barrel.png
+[plot] wrote output/plot_PID/plots_clean_pid_perform/pid-Kpi_significance_vs_cut_by_p_barrel.png
+[plot] wrote output/plot_PID/plots_clean_pid_perform/pid-Kpi_significance_vs_cut_panels_barrel.png
+[performance/Kpi/reco/barrel] 41 in-acceptance rows, 6 tables, 8 figures
+[report] wrote output/pid-Kpi_lightgbm_clean26071_forward_endcap-optimal_cut_vs_p_forward_endcap.json, output/pid-Kpi_lightgbm_clean26071_forward_endcap-optimal_cut_vs_p_forward_endcap.md, output/pid-Kpi_lightgbm_clean26071_forward_endcap-optimal_cut_vs_p_forward_endcap.root (14 rows)
+[report] wrote output/pid-Kpi_lightgbm_clean26071_forward_endcap-at_cut_global_forward_endcap.json, output/pid-Kpi_lightgbm_clean26071_forward_endcap-at_cut_global_forward_endcap.md, output/pid-Kpi_lightgbm_clean26071_forward_endcap-at_cut_global_forward_endcap.root (14 rows)
+[report] wrote output/pid-Kpi_lightgbm_clean26071_forward_endcap-at_cut_per_bin_forward_endcap.json, output/pid-Kpi_lightgbm_clean26071_forward_endcap-at_cut_per_bin_forward_endcap.md, output/pid-Kpi_lightgbm_clean26071_forward_endcap-at_cut_per_bin_forward_endcap.root (14 rows)
+[report] wrote output/pid-Kpi_lightgbm_clean26071_forward_endcap-rejection_vs_p_forward_endcap.json, output/pid-Kpi_lightgbm_clean26071_forward_endcap-rejection_vs_p_forward_endcap.md, output/pid-Kpi_lightgbm_clean26071_forward_endcap-rejection_vs_p_forward_endcap.root (14 rows)
+[report] wrote output/pid-Kpi_lightgbm_clean26071_forward_endcap-nsigma_vs_p_forward_endcap.json, output/pid-Kpi_lightgbm_clean26071_forward_endcap-nsigma_vs_p_forward_endcap.md, output/pid-Kpi_lightgbm_clean26071_forward_endcap-nsigma_vs_p_forward_endcap.root (14 rows)
+[report] wrote output/pid-Kpi_lightgbm_clean26071_forward_endcap-significance_by_p_forward_endcap.json, output/pid-Kpi_lightgbm_clean26071_forward_endcap-significance_by_p_forward_endcap.md, output/pid-Kpi_lightgbm_clean26071_forward_endcap-significance_by_p_forward_endcap.root (2614 rows)
+[plot] wrote output/plot_PID/plots_clean_pid_perform/pid-Kpi_optimal_cut_vs_p_forward_endcap.png
+[plot] wrote output/plot_PID/plots_clean_pid_perform/pid-Kpi_eff_vs_p_forward_endcap.png
+[plot] wrote output/plot_PID/plots_clean_pid_perform/pid-Kpi_misid_vs_p_forward_endcap.png
+[plot] wrote output/plot_PID/plots_clean_pid_perform/pid-Kpi_purity_vs_p_forward_endcap.png
+[plot] wrote output/plot_PID/plots_clean_pid_perform/pid-Kpi_rejection_vs_p_forward_endcap.png
+[plot] wrote output/plot_PID/plots_clean_pid_perform/pid-Kpi_nsigma_vs_p_forward_endcap.png
+[plot] wrote output/plot_PID/plots_clean_pid_perform/pid-Kpi_significance_vs_cut_by_p_forward_endcap.png
+[plot] wrote output/plot_PID/plots_clean_pid_perform/pid-Kpi_significance_vs_cut_panels_forward_endcap.png
+[performance/Kpi/reco/forward endcap] 164010 in-acceptance rows, 6 tables, 8 figures
+[performance/Kpi/reco/backward endcap] SKIPPED: no in-acceptance rows
+[report] wrote output/pid-Kpi_lightgbm_clean26071-significance_vs_cut_truthpt.json, output/pid-Kpi_lightgbm_clean26071-significance_vs_cut_truthpt.md, output/pid-Kpi_lightgbm_clean26071-significance_vs_cut_truthpt.root (401 rows)
+[report] wrote output/pid-Kpi_lightgbm_clean26071-optimal_cut_vs_p_truthpt.json, output/pid-Kpi_lightgbm_clean26071-optimal_cut_vs_p_truthpt.md, output/pid-Kpi_lightgbm_clean26071-optimal_cut_vs_p_truthpt.root (14 rows)
+[report] wrote output/pid-Kpi_lightgbm_clean26071-at_cut_global_truthpt.json, output/pid-Kpi_lightgbm_clean26071-at_cut_global_truthpt.md, output/pid-Kpi_lightgbm_clean26071-at_cut_global_truthpt.root (14 rows)
+[report] wrote output/pid-Kpi_lightgbm_clean26071-at_cut_per_bin_truthpt.json, output/pid-Kpi_lightgbm_clean26071-at_cut_per_bin_truthpt.md, output/pid-Kpi_lightgbm_clean26071-at_cut_per_bin_truthpt.root (14 rows)
+[report] wrote output/pid-Kpi_lightgbm_clean26071-rejection_vs_p_truthpt.json, output/pid-Kpi_lightgbm_clean26071-rejection_vs_p_truthpt.md, output/pid-Kpi_lightgbm_clean26071-rejection_vs_p_truthpt.root (14 rows)
+[report] wrote output/pid-Kpi_lightgbm_clean26071-efficiency_vs_eta_truthpt.json, output/pid-Kpi_lightgbm_clean26071-efficiency_vs_eta_truthpt.md, output/pid-Kpi_lightgbm_clean26071-efficiency_vs_eta_truthpt.root (16 rows)
+[report] wrote output/pid-Kpi_lightgbm_clean26071-nsigma_vs_p_truthpt.json, output/pid-Kpi_lightgbm_clean26071-nsigma_vs_p_truthpt.md, output/pid-Kpi_lightgbm_clean26071-nsigma_vs_p_truthpt.root (14 rows)
+[report] wrote output/pid-Kpi_lightgbm_clean26071-significance_by_p_truthpt.json, output/pid-Kpi_lightgbm_clean26071-significance_by_p_truthpt.md, output/pid-Kpi_lightgbm_clean26071-significance_by_p_truthpt.root (2814 rows)
+[report] wrote output/pid-Kpi_lightgbm_clean26071-eff_map_p_vs_eta_truthpt.json, output/pid-Kpi_lightgbm_clean26071-eff_map_p_vs_eta_truthpt.md, output/pid-Kpi_lightgbm_clean26071-eff_map_p_vs_eta_truthpt.root (224 rows)
+[report] wrote output/pid-Kpi_lightgbm_clean26071-fake_map_p_vs_eta_truthpt.json, output/pid-Kpi_lightgbm_clean26071-fake_map_p_vs_eta_truthpt.md, output/pid-Kpi_lightgbm_clean26071-fake_map_p_vs_eta_truthpt.root (224 rows)
+[report] wrote output/pid-Kpi_lightgbm_clean26071-confusion_matrix_atcut.json, output/pid-Kpi_lightgbm_clean26071-confusion_matrix_atcut.md, output/pid-Kpi_lightgbm_clean26071-confusion_matrix_atcut.root (12 rows)
+[plot] wrote output/plot_PID/plots_clean_pid_perform/pid-Kpi_optimal_cut_vs_p_truthpt.png
+[plot] wrote output/plot_PID/plots_clean_pid_perform/pid-Kpi_eff_vs_p_truthpt.png
+[plot] wrote output/plot_PID/plots_clean_pid_perform/pid-Kpi_misid_vs_p_truthpt.png
+[plot] wrote output/plot_PID/plots_clean_pid_perform/pid-Kpi_purity_vs_p_truthpt.png
+[plot] wrote output/plot_PID/plots_clean_pid_perform/pid-Kpi_rejection_vs_p_truthpt.png
+[plot] wrote output/plot_PID/plots_clean_pid_perform/pid-Kpi_nsigma_vs_p_truthpt.png
+[plot] wrote output/plot_PID/plots_clean_pid_perform/pid-Kpi_significance_vs_cut_by_p_truthpt.png
+[plot] wrote output/plot_PID/plots_clean_pid_perform/pid-Kpi_significance_vs_cut_panels_truthpt.png
+[plot] wrote output/plot_PID/plots_clean_pid_perform/pid-Kpi_eff_map_p_vs_eta_truthpt.png
+[plot] wrote output/plot_PID/plots_clean_pid_perform/pid-Kpi_fake_map_p_vs_eta_truthpt.png
+[deliverables/Kpi_truthpt] complete: 13/13 figures (3 shared with the reconstructed basis)
+[report] wrote output/pid-Kpi_lightgbm_clean26071_barrel-optimal_cut_vs_p_truthpt_barrel.json, output/pid-Kpi_lightgbm_clean26071_barrel-optimal_cut_vs_p_truthpt_barrel.md, output/pid-Kpi_lightgbm_clean26071_barrel-optimal_cut_vs_p_truthpt_barrel.root (14 rows)
+[report] wrote output/pid-Kpi_lightgbm_clean26071_barrel-at_cut_global_truthpt_barrel.json, output/pid-Kpi_lightgbm_clean26071_barrel-at_cut_global_truthpt_barrel.md, output/pid-Kpi_lightgbm_clean26071_barrel-at_cut_global_truthpt_barrel.root (14 rows)
+[report] wrote output/pid-Kpi_lightgbm_clean26071_barrel-at_cut_per_bin_truthpt_barrel.json, output/pid-Kpi_lightgbm_clean26071_barrel-at_cut_per_bin_truthpt_barrel.md, output/pid-Kpi_lightgbm_clean26071_barrel-at_cut_per_bin_truthpt_barrel.root (14 rows)
+[report] wrote output/pid-Kpi_lightgbm_clean26071_barrel-rejection_vs_p_truthpt_barrel.json, output/pid-Kpi_lightgbm_clean26071_barrel-rejection_vs_p_truthpt_barrel.md, output/pid-Kpi_lightgbm_clean26071_barrel-rejection_vs_p_truthpt_barrel.root (14 rows)
+[report] wrote output/pid-Kpi_lightgbm_clean26071_barrel-nsigma_vs_p_truthpt_barrel.json, output/pid-Kpi_lightgbm_clean26071_barrel-nsigma_vs_p_truthpt_barrel.md, output/pid-Kpi_lightgbm_clean26071_barrel-nsigma_vs_p_truthpt_barrel.root (14 rows)
+[report] wrote output/pid-Kpi_lightgbm_clean26071_barrel-significance_by_p_truthpt_barrel.json, output/pid-Kpi_lightgbm_clean26071_barrel-significance_by_p_truthpt_barrel.md, output/pid-Kpi_lightgbm_clean26071_barrel-significance_by_p_truthpt_barrel.root (214 rows)
+[plot] wrote output/plot_PID/plots_clean_pid_perform/pid-Kpi_optimal_cut_vs_p_barrel_truthpt.png
+[plot] wrote output/plot_PID/plots_clean_pid_perform/pid-Kpi_eff_vs_p_barrel_truthpt.png
+[plot] wrote output/plot_PID/plots_clean_pid_perform/pid-Kpi_misid_vs_p_barrel_truthpt.png
+[plot] wrote output/plot_PID/plots_clean_pid_perform/pid-Kpi_purity_vs_p_barrel_truthpt.png
+[plot] wrote output/plot_PID/plots_clean_pid_perform/pid-Kpi_rejection_vs_p_barrel_truthpt.png
+[plot] wrote output/plot_PID/plots_clean_pid_perform/pid-Kpi_nsigma_vs_p_barrel_truthpt.png
+[plot] wrote output/plot_PID/plots_clean_pid_perform/pid-Kpi_significance_vs_cut_by_p_barrel_truthpt.png
+[plot] wrote output/plot_PID/plots_clean_pid_perform/pid-Kpi_significance_vs_cut_panels_barrel_truthpt.png
+[performance/Kpi/truth/barrel] 41 in-acceptance rows, 6 tables, 8 figures
+[report] wrote output/pid-Kpi_lightgbm_clean26071_forward_endcap-optimal_cut_vs_p_truthpt_forward_endcap.json, output/pid-Kpi_lightgbm_clean26071_forward_endcap-optimal_cut_vs_p_truthpt_forward_endcap.md, output/pid-Kpi_lightgbm_clean26071_forward_endcap-optimal_cut_vs_p_truthpt_forward_endcap.root (14 rows)
+[report] wrote output/pid-Kpi_lightgbm_clean26071_forward_endcap-at_cut_global_truthpt_forward_endcap.json, output/pid-Kpi_lightgbm_clean26071_forward_endcap-at_cut_global_truthpt_forward_endcap.md, output/pid-Kpi_lightgbm_clean26071_forward_endcap-at_cut_global_truthpt_forward_endcap.root (14 rows)
+[report] wrote output/pid-Kpi_lightgbm_clean26071_forward_endcap-at_cut_per_bin_truthpt_forward_endcap.json, output/pid-Kpi_lightgbm_clean26071_forward_endcap-at_cut_per_bin_truthpt_forward_endcap.md, output/pid-Kpi_lightgbm_clean26071_forward_endcap-at_cut_per_bin_truthpt_forward_endcap.root (14 rows)
+[report] wrote output/pid-Kpi_lightgbm_clean26071_forward_endcap-rejection_vs_p_truthpt_forward_endcap.json, output/pid-Kpi_lightgbm_clean26071_forward_endcap-rejection_vs_p_truthpt_forward_endcap.md, output/pid-Kpi_lightgbm_clean26071_forward_endcap-rejection_vs_p_truthpt_forward_endcap.root (14 rows)
+[report] wrote output/pid-Kpi_lightgbm_clean26071_forward_endcap-nsigma_vs_p_truthpt_forward_endcap.json, output/pid-Kpi_lightgbm_clean26071_forward_endcap-nsigma_vs_p_truthpt_forward_endcap.md, output/pid-Kpi_lightgbm_clean26071_forward_endcap-nsigma_vs_p_truthpt_forward_endcap.root (14 rows)
+[report] wrote output/pid-Kpi_lightgbm_clean26071_forward_endcap-significance_by_p_truthpt_forward_endcap.json, output/pid-Kpi_lightgbm_clean26071_forward_endcap-significance_by_p_truthpt_forward_endcap.md, output/pid-Kpi_lightgbm_clean26071_forward_endcap-significance_by_p_truthpt_forward_endcap.root (2814 rows)
+[plot] wrote output/plot_PID/plots_clean_pid_perform/pid-Kpi_optimal_cut_vs_p_forward_endcap_truthpt.png
+[plot] wrote output/plot_PID/plots_clean_pid_perform/pid-Kpi_eff_vs_p_forward_endcap_truthpt.png
+[plot] wrote output/plot_PID/plots_clean_pid_perform/pid-Kpi_misid_vs_p_forward_endcap_truthpt.png
+[plot] wrote output/plot_PID/plots_clean_pid_perform/pid-Kpi_purity_vs_p_forward_endcap_truthpt.png
+[plot] wrote output/plot_PID/plots_clean_pid_perform/pid-Kpi_rejection_vs_p_forward_endcap_truthpt.png
+[plot] wrote output/plot_PID/plots_clean_pid_perform/pid-Kpi_nsigma_vs_p_forward_endcap_truthpt.png
+[plot] wrote output/plot_PID/plots_clean_pid_perform/pid-Kpi_significance_vs_cut_by_p_forward_endcap_truthpt.png
+[plot] wrote output/plot_PID/plots_clean_pid_perform/pid-Kpi_significance_vs_cut_panels_forward_endcap_truthpt.png
+[performance/Kpi/truth/forward endcap] 164010 in-acceptance rows, 6 tables, 8 figures
+[performance/Kpi/truth/backward endcap] SKIPPED: no in-acceptance rows
+[regions] attached ['barrel', 'forward endcap', 'backward endcap'] acceptance (barrel: 46/46 in acceptance; forward endcap: 179737/183491 in acceptance; backward endcap: 0/0 in acceptance; 0 files skipped, 0 rows unclassifiable)
+[report] wrote output/pid-pK_lightgbm_clean26071-significance_vs_cut.json, output/pid-pK_lightgbm_clean26071-significance_vs_cut.md, output/pid-pK_lightgbm_clean26071-significance_vs_cut.root (401 rows)
+[report] wrote output/pid-pK_lightgbm_clean26071-optimal_cut_vs_p.json, output/pid-pK_lightgbm_clean26071-optimal_cut_vs_p.md, output/pid-pK_lightgbm_clean26071-optimal_cut_vs_p.root (14 rows)
+[report] wrote output/pid-pK_lightgbm_clean26071-at_cut_global.json, output/pid-pK_lightgbm_clean26071-at_cut_global.md, output/pid-pK_lightgbm_clean26071-at_cut_global.root (14 rows)
+[report] wrote output/pid-pK_lightgbm_clean26071-at_cut_per_bin.json, output/pid-pK_lightgbm_clean26071-at_cut_per_bin.md, output/pid-pK_lightgbm_clean26071-at_cut_per_bin.root (14 rows)
+[report] wrote output/pid-pK_lightgbm_clean26071-rejection_vs_p.json, output/pid-pK_lightgbm_clean26071-rejection_vs_p.md, output/pid-pK_lightgbm_clean26071-rejection_vs_p.root (14 rows)
+[report] wrote output/pid-pK_lightgbm_clean26071-efficiency_vs_eta.json, output/pid-pK_lightgbm_clean26071-efficiency_vs_eta.md, output/pid-pK_lightgbm_clean26071-efficiency_vs_eta.root (16 rows)
+[report] wrote output/pid-pK_lightgbm_clean26071-nsigma_vs_p.json, output/pid-pK_lightgbm_clean26071-nsigma_vs_p.md, output/pid-pK_lightgbm_clean26071-nsigma_vs_p.root (14 rows)
+[report] wrote output/pid-pK_lightgbm_clean26071-significance_by_p.json, output/pid-pK_lightgbm_clean26071-significance_by_p.md, output/pid-pK_lightgbm_clean26071-significance_by_p.root (2614 rows)
+[report] wrote output/pid-pK_lightgbm_clean26071-eff_map_p_vs_eta.json, output/pid-pK_lightgbm_clean26071-eff_map_p_vs_eta.md, output/pid-pK_lightgbm_clean26071-eff_map_p_vs_eta.root (224 rows)
+[report] wrote output/pid-pK_lightgbm_clean26071-fake_map_p_vs_eta.json, output/pid-pK_lightgbm_clean26071-fake_map_p_vs_eta.md, output/pid-pK_lightgbm_clean26071-fake_map_p_vs_eta.root (224 rows)
+[report] wrote output/pid-pK_lightgbm_clean26071-confusion_matrix_atcut.json, output/pid-pK_lightgbm_clean26071-confusion_matrix_atcut.md, output/pid-pK_lightgbm_clean26071-confusion_matrix_atcut.root (12 rows)
+[plot] wrote output/plot_PID/plots_clean_pid_perform/pid-pK_significance_vs_cut.png
+[plot] wrote output/plot_PID/plots_clean_pid_perform/pid-pK_roc.png
+[plot] wrote output/plot_PID/plots_clean_pid_perform/pid-pK_optimal_cut_vs_p.png
+[plot] wrote output/plot_PID/plots_clean_pid_perform/pid-pK_eff_vs_p.png
+[plot] wrote output/plot_PID/plots_clean_pid_perform/pid-pK_misid_vs_p.png
+[plot] wrote output/plot_PID/plots_clean_pid_perform/pid-pK_purity_vs_p.png
+[plot] wrote output/plot_PID/plots_clean_pid_perform/pid-pK_rejection_vs_p.png
+[plot] wrote output/plot_PID/plots_clean_pid_perform/pid-pK_nsigma_vs_p.png
+[plot] wrote output/plot_PID/plots_clean_pid_perform/pid-pK_significance_vs_cut_by_p.png
+[plot] wrote output/plot_PID/plots_clean_pid_perform/pid-pK_significance_vs_cut_panels.png
+[plot] wrote output/plot_PID/plots_clean_pid_perform/pid-pK_eff_map_p_vs_eta.png
+[plot] wrote output/plot_PID/plots_clean_pid_perform/pid-pK_fake_map_p_vs_eta.png
+[plot] wrote output/plot_PID/plots_clean_pid_perform/pid-pK_score_dist_train_vs_test.png
+[plot] wrote output/plot_PID/plots_clean_pid_perform/pid-pK_score_dist_train_vs_test_peak.png
+[plot] wrote output/plot_PID/plots_clean_pid_perform/pid-hadpid_lightgbm_clean26071-confusion_matrix_atcut.png
+[deliverables/pK] complete: 13/13 figures
+[report] wrote output/pid-pK_lightgbm_clean26071_barrel-optimal_cut_vs_p_barrel.json, output/pid-pK_lightgbm_clean26071_barrel-optimal_cut_vs_p_barrel.md, output/pid-pK_lightgbm_clean26071_barrel-optimal_cut_vs_p_barrel.root (14 rows)
+[report] wrote output/pid-pK_lightgbm_clean26071_barrel-at_cut_global_barrel.json, output/pid-pK_lightgbm_clean26071_barrel-at_cut_global_barrel.md, output/pid-pK_lightgbm_clean26071_barrel-at_cut_global_barrel.root (14 rows)
+[report] wrote output/pid-pK_lightgbm_clean26071_barrel-at_cut_per_bin_barrel.json, output/pid-pK_lightgbm_clean26071_barrel-at_cut_per_bin_barrel.md, output/pid-pK_lightgbm_clean26071_barrel-at_cut_per_bin_barrel.root (14 rows)
+[report] wrote output/pid-pK_lightgbm_clean26071_barrel-rejection_vs_p_barrel.json, output/pid-pK_lightgbm_clean26071_barrel-rejection_vs_p_barrel.md, output/pid-pK_lightgbm_clean26071_barrel-rejection_vs_p_barrel.root (14 rows)
+[report] wrote output/pid-pK_lightgbm_clean26071_barrel-nsigma_vs_p_barrel.json, output/pid-pK_lightgbm_clean26071_barrel-nsigma_vs_p_barrel.md, output/pid-pK_lightgbm_clean26071_barrel-nsigma_vs_p_barrel.root (14 rows)
+[report] wrote output/pid-pK_lightgbm_clean26071_barrel-significance_by_p_barrel.json, output/pid-pK_lightgbm_clean26071_barrel-significance_by_p_barrel.md, output/pid-pK_lightgbm_clean26071_barrel-significance_by_p_barrel.root (14 rows)
+/local/scratch/a/wxie/eic/baseline_tracking_performance_agent/pid/plots.py:820: UserWarning: No artists with labels found to put in legend.  Note that artists whose label start with an underscore are ignored when legend() is called with no argument.
+  ax.legend(fontsize=7.5, loc="upper right")
+[plot] wrote output/plot_PID/plots_clean_pid_perform/pid-pK_optimal_cut_vs_p_barrel.png
+[plot] wrote output/plot_PID/plots_clean_pid_perform/pid-pK_eff_vs_p_barrel.png
+[plot] wrote output/plot_PID/plots_clean_pid_perform/pid-pK_misid_vs_p_barrel.png
+[plot] wrote output/plot_PID/plots_clean_pid_perform/pid-pK_purity_vs_p_barrel.png
+[plot] wrote output/plot_PID/plots_clean_pid_perform/pid-pK_rejection_vs_p_barrel.png
+[plot] wrote output/plot_PID/plots_clean_pid_perform/pid-pK_nsigma_vs_p_barrel.png
+[plot] wrote output/plot_PID/plots_clean_pid_perform/pid-pK_significance_vs_cut_by_p_barrel.png
+[plot] wrote output/plot_PID/plots_clean_pid_perform/pid-pK_significance_vs_cut_panels_barrel.png
+[performance/pK/reco/barrel] 9 in-acceptance rows, 6 tables, 8 figures
+[report] wrote output/pid-pK_lightgbm_clean26071_forward_endcap-optimal_cut_vs_p_forward_endcap.json, output/pid-pK_lightgbm_clean26071_forward_endcap-optimal_cut_vs_p_forward_endcap.md, output/pid-pK_lightgbm_clean26071_forward_endcap-optimal_cut_vs_p_forward_endcap.root (14 rows)
+[report] wrote output/pid-pK_lightgbm_clean26071_forward_endcap-at_cut_global_forward_endcap.json, output/pid-pK_lightgbm_clean26071_forward_endcap-at_cut_global_forward_endcap.md, output/pid-pK_lightgbm_clean26071_forward_endcap-at_cut_global_forward_endcap.root (14 rows)
+[report] wrote output/pid-pK_lightgbm_clean26071_forward_endcap-at_cut_per_bin_forward_endcap.json, output/pid-pK_lightgbm_clean26071_forward_endcap-at_cut_per_bin_forward_endcap.md, output/pid-pK_lightgbm_clean26071_forward_endcap-at_cut_per_bin_forward_endcap.root (14 rows)
+[report] wrote output/pid-pK_lightgbm_clean26071_forward_endcap-rejection_vs_p_forward_endcap.json, output/pid-pK_lightgbm_clean26071_forward_endcap-rejection_vs_p_forward_endcap.md, output/pid-pK_lightgbm_clean26071_forward_endcap-rejection_vs_p_forward_endcap.root (14 rows)
+[report] wrote output/pid-pK_lightgbm_clean26071_forward_endcap-nsigma_vs_p_forward_endcap.json, output/pid-pK_lightgbm_clean26071_forward_endcap-nsigma_vs_p_forward_endcap.md, output/pid-pK_lightgbm_clean26071_forward_endcap-nsigma_vs_p_forward_endcap.root (14 rows)
+[report] wrote output/pid-pK_lightgbm_clean26071_forward_endcap-significance_by_p_forward_endcap.json, output/pid-pK_lightgbm_clean26071_forward_endcap-significance_by_p_forward_endcap.md, output/pid-pK_lightgbm_clean26071_forward_endcap-significance_by_p_forward_endcap.root (2614 rows)
+[plot] wrote output/plot_PID/plots_clean_pid_perform/pid-pK_optimal_cut_vs_p_forward_endcap.png
+[plot] wrote output/plot_PID/plots_clean_pid_perform/pid-pK_eff_vs_p_forward_endcap.png
+[plot] wrote output/plot_PID/plots_clean_pid_perform/pid-pK_misid_vs_p_forward_endcap.png
+[plot] wrote output/plot_PID/plots_clean_pid_perform/pid-pK_purity_vs_p_forward_endcap.png
+[plot] wrote output/plot_PID/plots_clean_pid_perform/pid-pK_rejection_vs_p_forward_endcap.png
+[plot] wrote output/plot_PID/plots_clean_pid_perform/pid-pK_nsigma_vs_p_forward_endcap.png
+[plot] wrote output/plot_PID/plots_clean_pid_perform/pid-pK_significance_vs_cut_by_p_forward_endcap.png
+[plot] wrote output/plot_PID/plots_clean_pid_perform/pid-pK_significance_vs_cut_panels_forward_endcap.png
+[performance/pK/reco/forward endcap] 31647 in-acceptance rows, 6 tables, 8 figures
+[performance/pK/reco/backward endcap] SKIPPED: no in-acceptance rows
+[report] wrote output/pid-pK_lightgbm_clean26071-significance_vs_cut_truthpt.json, output/pid-pK_lightgbm_clean26071-significance_vs_cut_truthpt.md, output/pid-pK_lightgbm_clean26071-significance_vs_cut_truthpt.root (401 rows)
+[report] wrote output/pid-pK_lightgbm_clean26071-optimal_cut_vs_p_truthpt.json, output/pid-pK_lightgbm_clean26071-optimal_cut_vs_p_truthpt.md, output/pid-pK_lightgbm_clean26071-optimal_cut_vs_p_truthpt.root (14 rows)
+[report] wrote output/pid-pK_lightgbm_clean26071-at_cut_global_truthpt.json, output/pid-pK_lightgbm_clean26071-at_cut_global_truthpt.md, output/pid-pK_lightgbm_clean26071-at_cut_global_truthpt.root (14 rows)
+[report] wrote output/pid-pK_lightgbm_clean26071-at_cut_per_bin_truthpt.json, output/pid-pK_lightgbm_clean26071-at_cut_per_bin_truthpt.md, output/pid-pK_lightgbm_clean26071-at_cut_per_bin_truthpt.root (14 rows)
+[report] wrote output/pid-pK_lightgbm_clean26071-rejection_vs_p_truthpt.json, output/pid-pK_lightgbm_clean26071-rejection_vs_p_truthpt.md, output/pid-pK_lightgbm_clean26071-rejection_vs_p_truthpt.root (14 rows)
+[report] wrote output/pid-pK_lightgbm_clean26071-efficiency_vs_eta_truthpt.json, output/pid-pK_lightgbm_clean26071-efficiency_vs_eta_truthpt.md, output/pid-pK_lightgbm_clean26071-efficiency_vs_eta_truthpt.root (16 rows)
+[report] wrote output/pid-pK_lightgbm_clean26071-nsigma_vs_p_truthpt.json, output/pid-pK_lightgbm_clean26071-nsigma_vs_p_truthpt.md, output/pid-pK_lightgbm_clean26071-nsigma_vs_p_truthpt.root (14 rows)
+[report] wrote output/pid-pK_lightgbm_clean26071-significance_by_p_truthpt.json, output/pid-pK_lightgbm_clean26071-significance_by_p_truthpt.md, output/pid-pK_lightgbm_clean26071-significance_by_p_truthpt.root (2814 rows)
+[report] wrote output/pid-pK_lightgbm_clean26071-eff_map_p_vs_eta_truthpt.json, output/pid-pK_lightgbm_clean26071-eff_map_p_vs_eta_truthpt.md, output/pid-pK_lightgbm_clean26071-eff_map_p_vs_eta_truthpt.root (224 rows)
+[report] wrote output/pid-pK_lightgbm_clean26071-fake_map_p_vs_eta_truthpt.json, output/pid-pK_lightgbm_clean26071-fake_map_p_vs_eta_truthpt.md, output/pid-pK_lightgbm_clean26071-fake_map_p_vs_eta_truthpt.root (224 rows)
+[report] wrote output/pid-pK_lightgbm_clean26071-confusion_matrix_atcut.json, output/pid-pK_lightgbm_clean26071-confusion_matrix_atcut.md, output/pid-pK_lightgbm_clean26071-confusion_matrix_atcut.root (12 rows)
+[plot] wrote output/plot_PID/plots_clean_pid_perform/pid-pK_optimal_cut_vs_p_truthpt.png
+[plot] wrote output/plot_PID/plots_clean_pid_perform/pid-pK_eff_vs_p_truthpt.png
+[plot] wrote output/plot_PID/plots_clean_pid_perform/pid-pK_misid_vs_p_truthpt.png
+[plot] wrote output/plot_PID/plots_clean_pid_perform/pid-pK_purity_vs_p_truthpt.png
+[plot] wrote output/plot_PID/plots_clean_pid_perform/pid-pK_rejection_vs_p_truthpt.png
+[plot] wrote output/plot_PID/plots_clean_pid_perform/pid-pK_nsigma_vs_p_truthpt.png
+[plot] wrote output/plot_PID/plots_clean_pid_perform/pid-pK_significance_vs_cut_by_p_truthpt.png
+[plot] wrote output/plot_PID/plots_clean_pid_perform/pid-pK_significance_vs_cut_panels_truthpt.png
+[plot] wrote output/plot_PID/plots_clean_pid_perform/pid-pK_eff_map_p_vs_eta_truthpt.png
+[plot] wrote output/plot_PID/plots_clean_pid_perform/pid-pK_fake_map_p_vs_eta_truthpt.png
+[deliverables/pK_truthpt] complete: 13/13 figures (3 shared with the reconstructed basis)
+[report] wrote output/pid-pK_lightgbm_clean26071_barrel-optimal_cut_vs_p_truthpt_barrel.json, output/pid-pK_lightgbm_clean26071_barrel-optimal_cut_vs_p_truthpt_barrel.md, output/pid-pK_lightgbm_clean26071_barrel-optimal_cut_vs_p_truthpt_barrel.root (14 rows)
+[report] wrote output/pid-pK_lightgbm_clean26071_barrel-at_cut_global_truthpt_barrel.json, output/pid-pK_lightgbm_clean26071_barrel-at_cut_global_truthpt_barrel.md, output/pid-pK_lightgbm_clean26071_barrel-at_cut_global_truthpt_barrel.root (14 rows)
+[report] wrote output/pid-pK_lightgbm_clean26071_barrel-at_cut_per_bin_truthpt_barrel.json, output/pid-pK_lightgbm_clean26071_barrel-at_cut_per_bin_truthpt_barrel.md, output/pid-pK_lightgbm_clean26071_barrel-at_cut_per_bin_truthpt_barrel.root (14 rows)
+[report] wrote output/pid-pK_lightgbm_clean26071_barrel-rejection_vs_p_truthpt_barrel.json, output/pid-pK_lightgbm_clean26071_barrel-rejection_vs_p_truthpt_barrel.md, output/pid-pK_lightgbm_clean26071_barrel-rejection_vs_p_truthpt_barrel.root (14 rows)
+[report] wrote output/pid-pK_lightgbm_clean26071_barrel-nsigma_vs_p_truthpt_barrel.json, output/pid-pK_lightgbm_clean26071_barrel-nsigma_vs_p_truthpt_barrel.md, output/pid-pK_lightgbm_clean26071_barrel-nsigma_vs_p_truthpt_barrel.root (14 rows)
+[report] wrote output/pid-pK_lightgbm_clean26071_barrel-significance_by_p_truthpt_barrel.json, output/pid-pK_lightgbm_clean26071_barrel-significance_by_p_truthpt_barrel.md, output/pid-pK_lightgbm_clean26071_barrel-significance_by_p_truthpt_barrel.root (14 rows)
+/local/scratch/a/wxie/eic/baseline_tracking_performance_agent/pid/plots.py:820: UserWarning: No artists with labels found to put in legend.  Note that artists whose label start with an underscore are ignored when legend() is called with no argument.
+  ax.legend(fontsize=7.5, loc="upper right")
+[plot] wrote output/plot_PID/plots_clean_pid_perform/pid-pK_optimal_cut_vs_p_barrel_truthpt.png
+[plot] wrote output/plot_PID/plots_clean_pid_perform/pid-pK_eff_vs_p_barrel_truthpt.png
+[plot] wrote output/plot_PID/plots_clean_pid_perform/pid-pK_misid_vs_p_barrel_truthpt.png
+[plot] wrote output/plot_PID/plots_clean_pid_perform/pid-pK_purity_vs_p_barrel_truthpt.png
+[plot] wrote output/plot_PID/plots_clean_pid_perform/pid-pK_rejection_vs_p_barrel_truthpt.png
+[plot] wrote output/plot_PID/plots_clean_pid_perform/pid-pK_nsigma_vs_p_barrel_truthpt.png
+[plot] wrote output/plot_PID/plots_clean_pid_perform/pid-pK_significance_vs_cut_by_p_barrel_truthpt.png
+[plot] wrote output/plot_PID/plots_clean_pid_perform/pid-pK_significance_vs_cut_panels_barrel_truthpt.png
+[performance/pK/truth/barrel] 9 in-acceptance rows, 6 tables, 8 figures
+[report] wrote output/pid-pK_lightgbm_clean26071_forward_endcap-optimal_cut_vs_p_truthpt_forward_endcap.json, output/pid-pK_lightgbm_clean26071_forward_endcap-optimal_cut_vs_p_truthpt_forward_endcap.md, output/pid-pK_lightgbm_clean26071_forward_endcap-optimal_cut_vs_p_truthpt_forward_endcap.root (14 rows)
+[report] wrote output/pid-pK_lightgbm_clean26071_forward_endcap-at_cut_global_truthpt_forward_endcap.json, output/pid-pK_lightgbm_clean26071_forward_endcap-at_cut_global_truthpt_forward_endcap.md, output/pid-pK_lightgbm_clean26071_forward_endcap-at_cut_global_truthpt_forward_endcap.root (14 rows)
+[report] wrote output/pid-pK_lightgbm_clean26071_forward_endcap-at_cut_per_bin_truthpt_forward_endcap.json, output/pid-pK_lightgbm_clean26071_forward_endcap-at_cut_per_bin_truthpt_forward_endcap.md, output/pid-pK_lightgbm_clean26071_forward_endcap-at_cut_per_bin_truthpt_forward_endcap.root (14 rows)
+[report] wrote output/pid-pK_lightgbm_clean26071_forward_endcap-rejection_vs_p_truthpt_forward_endcap.json, output/pid-pK_lightgbm_clean26071_forward_endcap-rejection_vs_p_truthpt_forward_endcap.md, output/pid-pK_lightgbm_clean26071_forward_endcap-rejection_vs_p_truthpt_forward_endcap.root (14 rows)
+[report] wrote output/pid-pK_lightgbm_clean26071_forward_endcap-nsigma_vs_p_truthpt_forward_endcap.json, output/pid-pK_lightgbm_clean26071_forward_endcap-nsigma_vs_p_truthpt_forward_endcap.md, output/pid-pK_lightgbm_clean26071_forward_endcap-nsigma_vs_p_truthpt_forward_endcap.root (14 rows)
+[report] wrote output/pid-pK_lightgbm_clean26071_forward_endcap-significance_by_p_truthpt_forward_endcap.json, output/pid-pK_lightgbm_clean26071_forward_endcap-significance_by_p_truthpt_forward_endcap.md, output/pid-pK_lightgbm_clean26071_forward_endcap-significance_by_p_truthpt_forward_endcap.root (2814 rows)
+[plot] wrote output/plot_PID/plots_clean_pid_perform/pid-pK_optimal_cut_vs_p_forward_endcap_truthpt.png
+[plot] wrote output/plot_PID/plots_clean_pid_perform/pid-pK_eff_vs_p_forward_endcap_truthpt.png
+[plot] wrote output/plot_PID/plots_clean_pid_perform/pid-pK_misid_vs_p_forward_endcap_truthpt.png
+[plot] wrote output/plot_PID/plots_clean_pid_perform/pid-pK_purity_vs_p_forward_endcap_truthpt.png
+[plot] wrote output/plot_PID/plots_clean_pid_perform/pid-pK_rejection_vs_p_forward_endcap_truthpt.png
+[plot] wrote output/plot_PID/plots_clean_pid_perform/pid-pK_nsigma_vs_p_forward_endcap_truthpt.png
+[plot] wrote output/plot_PID/plots_clean_pid_perform/pid-pK_significance_vs_cut_by_p_forward_endcap_truthpt.png
+[plot] wrote output/plot_PID/plots_clean_pid_perform/pid-pK_significance_vs_cut_panels_forward_endcap_truthpt.png
+[performance/pK/truth/forward endcap] 31647 in-acceptance rows, 6 tables, 8 figures
+[performance/pK/truth/backward endcap] SKIPPED: no in-acceptance rows
+[plot] wrote output/plot_PID/plots_clean_pid_perform/pid-eid_lightgbm_clean26071-nsigma_vs_p.png
+[plot] wrote output/plot_PID/plots_clean_pid_perform/pid-eid_lightgbm_clean26071-nsigma_vs_p_truthpt.png
+[plot] wrote output/plot_PID/plots_clean_pid_perform/pid-ehad_lightgbm_clean26071-nsigma_vs_p.png
+[plot] wrote output/plot_PID/plots_clean_pid_perform/pid-ehad_lightgbm_clean26071-nsigma_vs_p_truthpt.png
+[plot] wrote output/plot_PID/plots_clean_pid_perform/pid-hadpid_lightgbm_clean26071-nsigma_vs_p.png
+[plot] wrote output/plot_PID/plots_clean_pid_perform/pid-hadpid_lightgbm_clean26071-nsigma_vs_p_truthpt.png
+[report] wrote output/pid-deliverables_lightgbm_clean26071.json, output/pid-deliverables_lightgbm_clean26071.md, output/pid-deliverables_lightgbm_clean26071.root (104 rows)
+[report] wrote output/pid-working_points_lightgbm_clean26071.json, output/pid-working_points_lightgbm_clean26071.md, output/pid-working_points_lightgbm_clean26071.root (24 rows)
+
+[performance] maximum-significance working points
+channel      status binning_basis  threshold  significance  efficiency  fake_rate  purity  rejection  rejection_lower_limit  n_background_total                                                                                                                                                                                                                                                         caution
+    eid    headline          reco     0.0475           NaN         NaN        NaN     NaN        NaN                    NaN                 NaN                                                                                                                                                                                                            only 7 in-acceptance candidates in barrel (floor 50)
+    eid    headline          reco     0.0475      314.9157      0.9965     0.1030  0.9946     9.7074                 9.0761              5242.0                                                                                                                                                                                                                                                                
+    eid    headline          reco     0.0475      314.9222      0.9965     0.1039  0.9945     9.6289                 9.0068              5267.0                                                                                                                                                                                                                                                                
+    eid    headline         truth     0.0475           NaN         NaN        NaN     NaN        NaN                    NaN                 NaN                                                                                                                                                                                                            only 7 in-acceptance candidates in barrel (floor 50)
+    eid    headline         truth     0.0475      314.9157      0.9965     0.1030  0.9946     9.7074                 9.0761              5242.0                                                                                                                                                                                                                                                                
+    eid    headline         truth     0.0475      314.9222      0.9965     0.1039  0.9945     9.6289                 9.0068              5267.0                                                                                                                                                                                                                                                                
+   ehad    headline          reco     0.0675           NaN         NaN        NaN     NaN        NaN                    NaN                 NaN                                                                                                                                                                                                            only 9 in-acceptance candidates in barrel (floor 50)
+   ehad    headline          reco     0.0675      314.7248      0.9960     0.0886  0.9939    11.2902                10.5925              6887.0                                                                                                                                                                                                                                                                
+   ehad    headline          reco     0.0675      314.7250      0.9960     0.0897  0.9938    11.1465                10.4641              6922.0                                                                                                                                                                                                                                                                
+   ehad    headline         truth     0.0675           NaN         NaN        NaN     NaN        NaN                    NaN                 NaN                                                                                                                                                                                                            only 9 in-acceptance candidates in barrel (floor 50)
+   ehad    headline         truth     0.0675      314.7248      0.9960     0.0886  0.9939    11.2902                10.5925              6887.0                                                                                                                                                                                                                                                                
+   ehad    headline         truth     0.0675      314.7250      0.9960     0.0897  0.9938    11.1465                10.4641              6922.0                                                                                                                                                                                                                                                                
+    Kpi exploratory          reco     0.3725           NaN         NaN        NaN     NaN        NaN                    NaN                 NaN permissive optimum: fake rate 0.79 at c*, so the FOM gain comes from keeping signal rather than rejecting background - the separation power is poor (compare the AUC before quoting this as a selection); only 41 in-acceptance candidates in barrel (floor 50)
+    Kpi exploratory          reco     0.3725       40.8455      0.9283     0.7841  0.1129     1.2753                 1.2724            148090.0                                                        permissive optimum: fake rate 0.79 at c*, so the FOM gain comes from keeping signal rather than rejecting background - the separation power is poor (compare the AUC before quoting this as a selection)
+    Kpi exploratory          reco     0.3725       41.4266      0.9297     0.7864  0.1132     1.2716                 1.2688            151094.0                                                        permissive optimum: fake rate 0.79 at c*, so the FOM gain comes from keeping signal rather than rejecting background - the separation power is poor (compare the AUC before quoting this as a selection)
+    Kpi exploratory         truth     0.3725           NaN         NaN        NaN     NaN        NaN                    NaN                 NaN permissive optimum: fake rate 0.79 at c*, so the FOM gain comes from keeping signal rather than rejecting background - the separation power is poor (compare the AUC before quoting this as a selection); only 41 in-acceptance candidates in barrel (floor 50)
+    Kpi exploratory         truth     0.3725       40.8455      0.9283     0.7841  0.1129     1.2753                 1.2724            148090.0                                                        permissive optimum: fake rate 0.79 at c*, so the FOM gain comes from keeping signal rather than rejecting background - the separation power is poor (compare the AUC before quoting this as a selection)
+    Kpi exploratory         truth     0.3725       41.4266      0.9297     0.7864  0.1132     1.2716                 1.2688            151094.0                                                        permissive optimum: fake rate 0.79 at c*, so the FOM gain comes from keeping signal rather than rejecting background - the separation power is poor (compare the AUC before quoting this as a selection)
+     pK exploratory          reco     0.3325           NaN         NaN        NaN     NaN        NaN                    NaN                 NaN  permissive optimum: fake rate 0.76 at c*, so the FOM gain comes from keeping signal rather than rejecting background - the separation power is poor (compare the AUC before quoting this as a selection); only 9 in-acceptance candidates in barrel (floor 50)
+     pK exploratory          reco     0.3325       91.0709      0.9522     0.7577  0.5539     1.3197                 1.3101             15920.0                                                        permissive optimum: fake rate 0.76 at c*, so the FOM gain comes from keeping signal rather than rejecting background - the separation power is poor (compare the AUC before quoting this as a selection)
+     pK exploratory          reco     0.3325       92.2818      0.9527     0.7583  0.5541     1.3188                 1.3093             16311.0                                                        permissive optimum: fake rate 0.76 at c*, so the FOM gain comes from keeping signal rather than rejecting background - the separation power is poor (compare the AUC before quoting this as a selection)
+     pK exploratory         truth     0.3325           NaN         NaN        NaN     NaN        NaN                    NaN                 NaN  permissive optimum: fake rate 0.76 at c*, so the FOM gain comes from keeping signal rather than rejecting background - the separation power is poor (compare the AUC before quoting this as a selection); only 9 in-acceptance candidates in barrel (floor 50)
+     pK exploratory         truth     0.3325       91.0709      0.9522     0.7577  0.5539     1.3197                 1.3101             15920.0                                                        permissive optimum: fake rate 0.76 at c*, so the FOM gain comes from keeping signal rather than rejecting background - the separation power is poor (compare the AUC before quoting this as a selection)
+     pK exploratory         truth     0.3325       92.2818      0.9527     0.7583  0.5541     1.3188                 1.3093             16311.0                                                        permissive optimum: fake rate 0.76 at c*, so the FOM gain comes from keeping signal rather than rejecting background - the separation power is poor (compare the AUC before quoting this as a selection)
+[performance] WARNING: 8 channel(s) have no valid working point: eid, eid, ehad, ehad, Kpi, Kpi, pK, pK
+[performance] CAUTION eid: only 7 in-acceptance candidates in barrel (floor 50)
+[performance] CAUTION eid: only 7 in-acceptance candidates in barrel (floor 50)
+[performance] CAUTION ehad: only 9 in-acceptance candidates in barrel (floor 50)
+[performance] CAUTION ehad: only 9 in-acceptance candidates in barrel (floor 50)
+[performance] CAUTION Kpi: permissive optimum: fake rate 0.79 at c*, so the FOM gain comes from keeping signal rather than rejecting background - the separation power is poor (compare the AUC before quoting this as a selection); only 41 in-acceptance candidates in barrel (floor 50)
+[performance] CAUTION Kpi: permissive optimum: fake rate 0.79 at c*, so the FOM gain comes from keeping signal rather than rejecting background - the separation power is poor (compare the AUC before quoting this as a selection)
+[performance] CAUTION Kpi: permissive optimum: fake rate 0.79 at c*, so the FOM gain comes from keeping signal rather than rejecting background - the separation power is poor (compare the AUC before quoting this as a selection)
+[performance] CAUTION Kpi: permissive optimum: fake rate 0.79 at c*, so the FOM gain comes from keeping signal rather than rejecting background - the separation power is poor (compare the AUC before quoting this as a selection); only 41 in-acceptance candidates in barrel (floor 50)
+[performance] CAUTION Kpi: permissive optimum: fake rate 0.79 at c*, so the FOM gain comes from keeping signal rather than rejecting background - the separation power is poor (compare the AUC before quoting this as a selection)
+[performance] CAUTION Kpi: permissive optimum: fake rate 0.79 at c*, so the FOM gain comes from keeping signal rather than rejecting background - the separation power is poor (compare the AUC before quoting this as a selection)
+[performance] CAUTION pK: permissive optimum: fake rate 0.76 at c*, so the FOM gain comes from keeping signal rather than rejecting background - the separation power is poor (compare the AUC before quoting this as a selection); only 9 in-acceptance candidates in barrel (floor 50)
+[performance] CAUTION pK: permissive optimum: fake rate 0.76 at c*, so the FOM gain comes from keeping signal rather than rejecting background - the separation power is poor (compare the AUC before quoting this as a selection)
+[performance] CAUTION pK: permissive optimum: fake rate 0.76 at c*, so the FOM gain comes from keeping signal rather than rejecting background - the separation power is poor (compare the AUC before quoting this as a selection)
+[performance] CAUTION pK: permissive optimum: fake rate 0.76 at c*, so the FOM gain comes from keeping signal rather than rejecting background - the separation power is poor (compare the AUC before quoting this as a selection); only 9 in-acceptance candidates in barrel (floor 50)
+[performance] CAUTION pK: permissive optimum: fake rate 0.76 at c*, so the FOM gain comes from keeping signal rather than rejecting background - the separation power is poor (compare the AUC before quoting this as a selection)
+[performance] CAUTION pK: permissive optimum: fake rate 0.76 at c*, so the FOM gain comes from keeping signal rather than rejecting background - the separation power is poor (compare the AUC before quoting this as a selection)
+/opt/local/lib/python3.13/site-packages/XRootD/client/finalize.py:46: FutureWarning: `torch.distributed.reduce_op` is deprecated, please use `torch.distributed.ReduceOp` instead
+  if isinstance(obj, File) and obj.is_open():
+clean exit=0 2026-10-18T01:19:50Z
+=== bkg26071 -> plot_PID/plots_bkgmix_pid_perform ===
+[regions] attached ['barrel', 'forward endcap', 'backward endcap'] acceptance (barrel: 0/0 in acceptance; forward endcap: 0/0 in acceptance; backward endcap: 12358/12363 in acceptance; 0 files skipped, 0 rows unclassifiable)
+[report] wrote output/pid-eid_lightgbm_bkg26071-significance_vs_cut.json, output/pid-eid_lightgbm_bkg26071-significance_vs_cut.md, output/pid-eid_lightgbm_bkg26071-significance_vs_cut.root (401 rows)
+[report] wrote output/pid-eid_lightgbm_bkg26071-optimal_cut_vs_p.json, output/pid-eid_lightgbm_bkg26071-optimal_cut_vs_p.md, output/pid-eid_lightgbm_bkg26071-optimal_cut_vs_p.root (14 rows)
+[report] wrote output/pid-eid_lightgbm_bkg26071-at_cut_global.json, output/pid-eid_lightgbm_bkg26071-at_cut_global.md, output/pid-eid_lightgbm_bkg26071-at_cut_global.root (14 rows)
+[report] wrote output/pid-eid_lightgbm_bkg26071-at_cut_per_bin.json, output/pid-eid_lightgbm_bkg26071-at_cut_per_bin.md, output/pid-eid_lightgbm_bkg26071-at_cut_per_bin.root (14 rows)
+[report] wrote output/pid-eid_lightgbm_bkg26071-rejection_vs_p.json, output/pid-eid_lightgbm_bkg26071-rejection_vs_p.md, output/pid-eid_lightgbm_bkg26071-rejection_vs_p.root (14 rows)
+[report] wrote output/pid-eid_lightgbm_bkg26071-efficiency_vs_eta.json, output/pid-eid_lightgbm_bkg26071-efficiency_vs_eta.md, output/pid-eid_lightgbm_bkg26071-efficiency_vs_eta.root (16 rows)
+[report] wrote output/pid-eid_lightgbm_bkg26071-nsigma_vs_p.json, output/pid-eid_lightgbm_bkg26071-nsigma_vs_p.md, output/pid-eid_lightgbm_bkg26071-nsigma_vs_p.root (14 rows)
+[report] wrote output/pid-eid_lightgbm_bkg26071-significance_by_p.json, output/pid-eid_lightgbm_bkg26071-significance_by_p.md, output/pid-eid_lightgbm_bkg26071-significance_by_p.root (1814 rows)
+[report] wrote output/pid-eid_lightgbm_bkg26071-eff_map_p_vs_eta.json, output/pid-eid_lightgbm_bkg26071-eff_map_p_vs_eta.md, output/pid-eid_lightgbm_bkg26071-eff_map_p_vs_eta.root (224 rows)
+[report] wrote output/pid-eid_lightgbm_bkg26071-fake_map_p_vs_eta.json, output/pid-eid_lightgbm_bkg26071-fake_map_p_vs_eta.md, output/pid-eid_lightgbm_bkg26071-fake_map_p_vs_eta.root (224 rows)
+[plot] wrote output/plot_PID/plots_bkgmix_pid_perform/pid-eid_significance_vs_cut.png
+[plot] wrote output/plot_PID/plots_bkgmix_pid_perform/pid-eid_roc.png
+[plot] wrote output/plot_PID/plots_bkgmix_pid_perform/pid-eid_optimal_cut_vs_p.png
+[plot] wrote output/plot_PID/plots_bkgmix_pid_perform/pid-eid_eff_vs_p.png
+[plot] wrote output/plot_PID/plots_bkgmix_pid_perform/pid-eid_misid_vs_p.png
+[plot] wrote output/plot_PID/plots_bkgmix_pid_perform/pid-eid_purity_vs_p.png
+[plot] wrote output/plot_PID/plots_bkgmix_pid_perform/pid-eid_pion_rejection_vs_p.png
+[plot] wrote output/plot_PID/plots_bkgmix_pid_perform/pid-eid_nsigma_vs_p.png
+[plot] wrote output/plot_PID/plots_bkgmix_pid_perform/pid-eid_significance_vs_cut_by_p.png
+[plot] wrote output/plot_PID/plots_bkgmix_pid_perform/pid-eid_significance_vs_cut_panels.png
+[plot] wrote output/plot_PID/plots_bkgmix_pid_perform/pid-eid_eff_map_p_vs_eta.png
+[plot] wrote output/plot_PID/plots_bkgmix_pid_perform/pid-eid_fake_map_p_vs_eta.png
+[plot] wrote output/plot_PID/plots_bkgmix_pid_perform/pid-eid_score_dist_train_vs_test.png
+[plot] wrote output/plot_PID/plots_bkgmix_pid_perform/pid-eid_score_dist_train_vs_test_peak.png
+[deliverables/eid] complete: 13/13 figures
+[performance/eid/reco/barrel] SKIPPED: no in-acceptance rows
+[performance/eid/reco/forward endcap] SKIPPED: no in-acceptance rows
+[report] wrote output/pid-eid_lightgbm_bkg26071_backward_endcap-optimal_cut_vs_p_backward_endcap.json, output/pid-eid_lightgbm_bkg26071_backward_endcap-optimal_cut_vs_p_backward_endcap.md, output/pid-eid_lightgbm_bkg26071_backward_endcap-optimal_cut_vs_p_backward_endcap.root (14 rows)
+[report] wrote output/pid-eid_lightgbm_bkg26071_backward_endcap-at_cut_global_backward_endcap.json, output/pid-eid_lightgbm_bkg26071_backward_endcap-at_cut_global_backward_endcap.md, output/pid-eid_lightgbm_bkg26071_backward_endcap-at_cut_global_backward_endcap.root (14 rows)
+[report] wrote output/pid-eid_lightgbm_bkg26071_backward_endcap-at_cut_per_bin_backward_endcap.json, output/pid-eid_lightgbm_bkg26071_backward_endcap-at_cut_per_bin_backward_endcap.md, output/pid-eid_lightgbm_bkg26071_backward_endcap-at_cut_per_bin_backward_endcap.root (14 rows)
+[report] wrote output/pid-eid_lightgbm_bkg26071_backward_endcap-rejection_vs_p_backward_endcap.json, output/pid-eid_lightgbm_bkg26071_backward_endcap-rejection_vs_p_backward_endcap.md, output/pid-eid_lightgbm_bkg26071_backward_endcap-rejection_vs_p_backward_endcap.root (14 rows)
+[report] wrote output/pid-eid_lightgbm_bkg26071_backward_endcap-nsigma_vs_p_backward_endcap.json, output/pid-eid_lightgbm_bkg26071_backward_endcap-nsigma_vs_p_backward_endcap.md, output/pid-eid_lightgbm_bkg26071_backward_endcap-nsigma_vs_p_backward_endcap.root (14 rows)
+[report] wrote output/pid-eid_lightgbm_bkg26071_backward_endcap-significance_by_p_backward_endcap.json, output/pid-eid_lightgbm_bkg26071_backward_endcap-significance_by_p_backward_endcap.md, output/pid-eid_lightgbm_bkg26071_backward_endcap-significance_by_p_backward_endcap.root (1814 rows)
+[plot] wrote output/plot_PID/plots_bkgmix_pid_perform/pid-eid_optimal_cut_vs_p_backward_endcap.png
+[plot] wrote output/plot_PID/plots_bkgmix_pid_perform/pid-eid_eff_vs_p_backward_endcap.png
+[plot] wrote output/plot_PID/plots_bkgmix_pid_perform/pid-eid_misid_vs_p_backward_endcap.png
+[plot] wrote output/plot_PID/plots_bkgmix_pid_perform/pid-eid_purity_vs_p_backward_endcap.png
+[plot] wrote output/plot_PID/plots_bkgmix_pid_perform/pid-eid_rejection_vs_p_backward_endcap.png
+[plot] wrote output/plot_PID/plots_bkgmix_pid_perform/pid-eid_nsigma_vs_p_backward_endcap.png
+[plot] wrote output/plot_PID/plots_bkgmix_pid_perform/pid-eid_significance_vs_cut_by_p_backward_endcap.png
+[plot] wrote output/plot_PID/plots_bkgmix_pid_perform/pid-eid_significance_vs_cut_panels_backward_endcap.png
+[performance/eid/reco/backward endcap] 12358 in-acceptance rows, 6 tables, 8 figures
+[report] wrote output/pid-eid_lightgbm_bkg26071-significance_vs_cut_truthpt.json, output/pid-eid_lightgbm_bkg26071-significance_vs_cut_truthpt.md, output/pid-eid_lightgbm_bkg26071-significance_vs_cut_truthpt.root (401 rows)
+[report] wrote output/pid-eid_lightgbm_bkg26071-optimal_cut_vs_p_truthpt.json, output/pid-eid_lightgbm_bkg26071-optimal_cut_vs_p_truthpt.md, output/pid-eid_lightgbm_bkg26071-optimal_cut_vs_p_truthpt.root (14 rows)
+[report] wrote output/pid-eid_lightgbm_bkg26071-at_cut_global_truthpt.json, output/pid-eid_lightgbm_bkg26071-at_cut_global_truthpt.md, output/pid-eid_lightgbm_bkg26071-at_cut_global_truthpt.root (14 rows)
+[report] wrote output/pid-eid_lightgbm_bkg26071-at_cut_per_bin_truthpt.json, output/pid-eid_lightgbm_bkg26071-at_cut_per_bin_truthpt.md, output/pid-eid_lightgbm_bkg26071-at_cut_per_bin_truthpt.root (14 rows)
+[report] wrote output/pid-eid_lightgbm_bkg26071-rejection_vs_p_truthpt.json, output/pid-eid_lightgbm_bkg26071-rejection_vs_p_truthpt.md, output/pid-eid_lightgbm_bkg26071-rejection_vs_p_truthpt.root (14 rows)
+[report] wrote output/pid-eid_lightgbm_bkg26071-efficiency_vs_eta_truthpt.json, output/pid-eid_lightgbm_bkg26071-efficiency_vs_eta_truthpt.md, output/pid-eid_lightgbm_bkg26071-efficiency_vs_eta_truthpt.root (16 rows)
+[report] wrote output/pid-eid_lightgbm_bkg26071-nsigma_vs_p_truthpt.json, output/pid-eid_lightgbm_bkg26071-nsigma_vs_p_truthpt.md, output/pid-eid_lightgbm_bkg26071-nsigma_vs_p_truthpt.root (14 rows)
+[report] wrote output/pid-eid_lightgbm_bkg26071-significance_by_p_truthpt.json, output/pid-eid_lightgbm_bkg26071-significance_by_p_truthpt.md, output/pid-eid_lightgbm_bkg26071-significance_by_p_truthpt.root (1814 rows)
+[report] wrote output/pid-eid_lightgbm_bkg26071-eff_map_p_vs_eta_truthpt.json, output/pid-eid_lightgbm_bkg26071-eff_map_p_vs_eta_truthpt.md, output/pid-eid_lightgbm_bkg26071-eff_map_p_vs_eta_truthpt.root (224 rows)
+[report] wrote output/pid-eid_lightgbm_bkg26071-fake_map_p_vs_eta_truthpt.json, output/pid-eid_lightgbm_bkg26071-fake_map_p_vs_eta_truthpt.md, output/pid-eid_lightgbm_bkg26071-fake_map_p_vs_eta_truthpt.root (224 rows)
+[plot] wrote output/plot_PID/plots_bkgmix_pid_perform/pid-eid_optimal_cut_vs_p_truthpt.png
+[plot] wrote output/plot_PID/plots_bkgmix_pid_perform/pid-eid_eff_vs_p_truthpt.png
+[plot] wrote output/plot_PID/plots_bkgmix_pid_perform/pid-eid_misid_vs_p_truthpt.png
+[plot] wrote output/plot_PID/plots_bkgmix_pid_perform/pid-eid_purity_vs_p_truthpt.png
+[plot] wrote output/plot_PID/plots_bkgmix_pid_perform/pid-eid_pion_rejection_vs_p_truthpt.png
+[plot] wrote output/plot_PID/plots_bkgmix_pid_perform/pid-eid_nsigma_vs_p_truthpt.png
+[plot] wrote output/plot_PID/plots_bkgmix_pid_perform/pid-eid_significance_vs_cut_by_p_truthpt.png
+[plot] wrote output/plot_PID/plots_bkgmix_pid_perform/pid-eid_significance_vs_cut_panels_truthpt.png
+[plot] wrote output/plot_PID/plots_bkgmix_pid_perform/pid-eid_eff_map_p_vs_eta_truthpt.png
+[plot] wrote output/plot_PID/plots_bkgmix_pid_perform/pid-eid_fake_map_p_vs_eta_truthpt.png
+[deliverables/eid_truthpt] complete: 13/13 figures (3 shared with the reconstructed basis)
+[performance/eid/truth/barrel] SKIPPED: no in-acceptance rows
+[performance/eid/truth/forward endcap] SKIPPED: no in-acceptance rows
+[report] wrote output/pid-eid_lightgbm_bkg26071_backward_endcap-optimal_cut_vs_p_truthpt_backward_endcap.json, output/pid-eid_lightgbm_bkg26071_backward_endcap-optimal_cut_vs_p_truthpt_backward_endcap.md, output/pid-eid_lightgbm_bkg26071_backward_endcap-optimal_cut_vs_p_truthpt_backward_endcap.root (14 rows)
+[report] wrote output/pid-eid_lightgbm_bkg26071_backward_endcap-at_cut_global_truthpt_backward_endcap.json, output/pid-eid_lightgbm_bkg26071_backward_endcap-at_cut_global_truthpt_backward_endcap.md, output/pid-eid_lightgbm_bkg26071_backward_endcap-at_cut_global_truthpt_backward_endcap.root (14 rows)
+[report] wrote output/pid-eid_lightgbm_bkg26071_backward_endcap-at_cut_per_bin_truthpt_backward_endcap.json, output/pid-eid_lightgbm_bkg26071_backward_endcap-at_cut_per_bin_truthpt_backward_endcap.md, output/pid-eid_lightgbm_bkg26071_backward_endcap-at_cut_per_bin_truthpt_backward_endcap.root (14 rows)
+[report] wrote output/pid-eid_lightgbm_bkg26071_backward_endcap-rejection_vs_p_truthpt_backward_endcap.json, output/pid-eid_lightgbm_bkg26071_backward_endcap-rejection_vs_p_truthpt_backward_endcap.md, output/pid-eid_lightgbm_bkg26071_backward_endcap-rejection_vs_p_truthpt_backward_endcap.root (14 rows)
+[report] wrote output/pid-eid_lightgbm_bkg26071_backward_endcap-nsigma_vs_p_truthpt_backward_endcap.json, output/pid-eid_lightgbm_bkg26071_backward_endcap-nsigma_vs_p_truthpt_backward_endcap.md, output/pid-eid_lightgbm_bkg26071_backward_endcap-nsigma_vs_p_truthpt_backward_endcap.root (14 rows)
+[report] wrote output/pid-eid_lightgbm_bkg26071_backward_endcap-significance_by_p_truthpt_backward_endcap.json, output/pid-eid_lightgbm_bkg26071_backward_endcap-significance_by_p_truthpt_backward_endcap.md, output/pid-eid_lightgbm_bkg26071_backward_endcap-significance_by_p_truthpt_backward_endcap.root (1814 rows)
+[plot] wrote output/plot_PID/plots_bkgmix_pid_perform/pid-eid_optimal_cut_vs_p_backward_endcap_truthpt.png
+[plot] wrote output/plot_PID/plots_bkgmix_pid_perform/pid-eid_eff_vs_p_backward_endcap_truthpt.png
+[plot] wrote output/plot_PID/plots_bkgmix_pid_perform/pid-eid_misid_vs_p_backward_endcap_truthpt.png
+[plot] wrote output/plot_PID/plots_bkgmix_pid_perform/pid-eid_purity_vs_p_backward_endcap_truthpt.png
+[plot] wrote output/plot_PID/plots_bkgmix_pid_perform/pid-eid_rejection_vs_p_backward_endcap_truthpt.png
+[plot] wrote output/plot_PID/plots_bkgmix_pid_perform/pid-eid_nsigma_vs_p_backward_endcap_truthpt.png
+[plot] wrote output/plot_PID/plots_bkgmix_pid_perform/pid-eid_significance_vs_cut_by_p_backward_endcap_truthpt.png
+[plot] wrote output/plot_PID/plots_bkgmix_pid_perform/pid-eid_significance_vs_cut_panels_backward_endcap_truthpt.png
+[performance/eid/truth/backward endcap] 12358 in-acceptance rows, 6 tables, 8 figures
+[regions] attached ['barrel', 'forward endcap', 'backward endcap'] acceptance (barrel: 0/0 in acceptance; forward endcap: 0/0 in acceptance; backward endcap: 12555/12560 in acceptance; 0 files skipped, 0 rows unclassifiable)
+[report] wrote output/pid-ehad_lightgbm_bkg26071-significance_vs_cut.json, output/pid-ehad_lightgbm_bkg26071-significance_vs_cut.md, output/pid-ehad_lightgbm_bkg26071-significance_vs_cut.root (401 rows)
+[report] wrote output/pid-ehad_lightgbm_bkg26071-optimal_cut_vs_p.json, output/pid-ehad_lightgbm_bkg26071-optimal_cut_vs_p.md, output/pid-ehad_lightgbm_bkg26071-optimal_cut_vs_p.root (14 rows)
+[report] wrote output/pid-ehad_lightgbm_bkg26071-at_cut_global.json, output/pid-ehad_lightgbm_bkg26071-at_cut_global.md, output/pid-ehad_lightgbm_bkg26071-at_cut_global.root (14 rows)
+[report] wrote output/pid-ehad_lightgbm_bkg26071-at_cut_per_bin.json, output/pid-ehad_lightgbm_bkg26071-at_cut_per_bin.md, output/pid-ehad_lightgbm_bkg26071-at_cut_per_bin.root (14 rows)
+[report] wrote output/pid-ehad_lightgbm_bkg26071-rejection_vs_p.json, output/pid-ehad_lightgbm_bkg26071-rejection_vs_p.md, output/pid-ehad_lightgbm_bkg26071-rejection_vs_p.root (14 rows)
+[report] wrote output/pid-ehad_lightgbm_bkg26071-efficiency_vs_eta.json, output/pid-ehad_lightgbm_bkg26071-efficiency_vs_eta.md, output/pid-ehad_lightgbm_bkg26071-efficiency_vs_eta.root (16 rows)
+[report] wrote output/pid-ehad_lightgbm_bkg26071-nsigma_vs_p.json, output/pid-ehad_lightgbm_bkg26071-nsigma_vs_p.md, output/pid-ehad_lightgbm_bkg26071-nsigma_vs_p.root (14 rows)
+[report] wrote output/pid-ehad_lightgbm_bkg26071-significance_by_p.json, output/pid-ehad_lightgbm_bkg26071-significance_by_p.md, output/pid-ehad_lightgbm_bkg26071-significance_by_p.root (2014 rows)
+[report] wrote output/pid-ehad_lightgbm_bkg26071-eff_map_p_vs_eta.json, output/pid-ehad_lightgbm_bkg26071-eff_map_p_vs_eta.md, output/pid-ehad_lightgbm_bkg26071-eff_map_p_vs_eta.root (224 rows)
+[report] wrote output/pid-ehad_lightgbm_bkg26071-fake_map_p_vs_eta.json, output/pid-ehad_lightgbm_bkg26071-fake_map_p_vs_eta.md, output/pid-ehad_lightgbm_bkg26071-fake_map_p_vs_eta.root (224 rows)
+[plot] wrote output/plot_PID/plots_bkgmix_pid_perform/pid-ehad_significance_vs_cut.png
+[plot] wrote output/plot_PID/plots_bkgmix_pid_perform/pid-ehad_roc.png
+[plot] wrote output/plot_PID/plots_bkgmix_pid_perform/pid-ehad_optimal_cut_vs_p.png
+[plot] wrote output/plot_PID/plots_bkgmix_pid_perform/pid-ehad_eff_vs_p.png
+[plot] wrote output/plot_PID/plots_bkgmix_pid_perform/pid-ehad_misid_vs_p.png
+[plot] wrote output/plot_PID/plots_bkgmix_pid_perform/pid-ehad_purity_vs_p.png
+[plot] wrote output/plot_PID/plots_bkgmix_pid_perform/pid-ehad_rejection_vs_p.png
+[plot] wrote output/plot_PID/plots_bkgmix_pid_perform/pid-ehad_nsigma_vs_p.png
+[plot] wrote output/plot_PID/plots_bkgmix_pid_perform/pid-ehad_significance_vs_cut_by_p.png
+[plot] wrote output/plot_PID/plots_bkgmix_pid_perform/pid-ehad_significance_vs_cut_panels.png
+[plot] wrote output/plot_PID/plots_bkgmix_pid_perform/pid-ehad_eff_map_p_vs_eta.png
+[plot] wrote output/plot_PID/plots_bkgmix_pid_perform/pid-ehad_fake_map_p_vs_eta.png
+[plot] wrote output/plot_PID/plots_bkgmix_pid_perform/pid-ehad_score_dist_train_vs_test.png
+[plot] wrote output/plot_PID/plots_bkgmix_pid_perform/pid-ehad_score_dist_train_vs_test_peak.png
+[deliverables/ehad] complete: 13/13 figures
+[performance/ehad/reco/barrel] SKIPPED: no in-acceptance rows
+[performance/ehad/reco/forward endcap] SKIPPED: no in-acceptance rows
+[report] wrote output/pid-ehad_lightgbm_bkg26071_backward_endcap-optimal_cut_vs_p_backward_endcap.json, output/pid-ehad_lightgbm_bkg26071_backward_endcap-optimal_cut_vs_p_backward_endcap.md, output/pid-ehad_lightgbm_bkg26071_backward_endcap-optimal_cut_vs_p_backward_endcap.root (14 rows)
+[report] wrote output/pid-ehad_lightgbm_bkg26071_backward_endcap-at_cut_global_backward_endcap.json, output/pid-ehad_lightgbm_bkg26071_backward_endcap-at_cut_global_backward_endcap.md, output/pid-ehad_lightgbm_bkg26071_backward_endcap-at_cut_global_backward_endcap.root (14 rows)
+[report] wrote output/pid-ehad_lightgbm_bkg26071_backward_endcap-at_cut_per_bin_backward_endcap.json, output/pid-ehad_lightgbm_bkg26071_backward_endcap-at_cut_per_bin_backward_endcap.md, output/pid-ehad_lightgbm_bkg26071_backward_endcap-at_cut_per_bin_backward_endcap.root (14 rows)
+[report] wrote output/pid-ehad_lightgbm_bkg26071_backward_endcap-rejection_vs_p_backward_endcap.json, output/pid-ehad_lightgbm_bkg26071_backward_endcap-rejection_vs_p_backward_endcap.md, output/pid-ehad_lightgbm_bkg26071_backward_endcap-rejection_vs_p_backward_endcap.root (14 rows)
+[report] wrote output/pid-ehad_lightgbm_bkg26071_backward_endcap-nsigma_vs_p_backward_endcap.json, output/pid-ehad_lightgbm_bkg26071_backward_endcap-nsigma_vs_p_backward_endcap.md, output/pid-ehad_lightgbm_bkg26071_backward_endcap-nsigma_vs_p_backward_endcap.root (14 rows)
+[report] wrote output/pid-ehad_lightgbm_bkg26071_backward_endcap-significance_by_p_backward_endcap.json, output/pid-ehad_lightgbm_bkg26071_backward_endcap-significance_by_p_backward_endcap.md, output/pid-ehad_lightgbm_bkg26071_backward_endcap-significance_by_p_backward_endcap.root (2014 rows)
+[plot] wrote output/plot_PID/plots_bkgmix_pid_perform/pid-ehad_optimal_cut_vs_p_backward_endcap.png
+[plot] wrote output/plot_PID/plots_bkgmix_pid_perform/pid-ehad_eff_vs_p_backward_endcap.png
+[plot] wrote output/plot_PID/plots_bkgmix_pid_perform/pid-ehad_misid_vs_p_backward_endcap.png
+[plot] wrote output/plot_PID/plots_bkgmix_pid_perform/pid-ehad_purity_vs_p_backward_endcap.png
+[plot] wrote output/plot_PID/plots_bkgmix_pid_perform/pid-ehad_rejection_vs_p_backward_endcap.png
+[plot] wrote output/plot_PID/plots_bkgmix_pid_perform/pid-ehad_nsigma_vs_p_backward_endcap.png
+[plot] wrote output/plot_PID/plots_bkgmix_pid_perform/pid-ehad_significance_vs_cut_by_p_backward_endcap.png
+[plot] wrote output/plot_PID/plots_bkgmix_pid_perform/pid-ehad_significance_vs_cut_panels_backward_endcap.png
+[performance/ehad/reco/backward endcap] 12555 in-acceptance rows, 6 tables, 8 figures
+[report] wrote output/pid-ehad_lightgbm_bkg26071-significance_vs_cut_truthpt.json, output/pid-ehad_lightgbm_bkg26071-significance_vs_cut_truthpt.md, output/pid-ehad_lightgbm_bkg26071-significance_vs_cut_truthpt.root (401 rows)
+[report] wrote output/pid-ehad_lightgbm_bkg26071-optimal_cut_vs_p_truthpt.json, output/pid-ehad_lightgbm_bkg26071-optimal_cut_vs_p_truthpt.md, output/pid-ehad_lightgbm_bkg26071-optimal_cut_vs_p_truthpt.root (14 rows)
+[report] wrote output/pid-ehad_lightgbm_bkg26071-at_cut_global_truthpt.json, output/pid-ehad_lightgbm_bkg26071-at_cut_global_truthpt.md, output/pid-ehad_lightgbm_bkg26071-at_cut_global_truthpt.root (14 rows)
+[report] wrote output/pid-ehad_lightgbm_bkg26071-at_cut_per_bin_truthpt.json, output/pid-ehad_lightgbm_bkg26071-at_cut_per_bin_truthpt.md, output/pid-ehad_lightgbm_bkg26071-at_cut_per_bin_truthpt.root (14 rows)
+[report] wrote output/pid-ehad_lightgbm_bkg26071-rejection_vs_p_truthpt.json, output/pid-ehad_lightgbm_bkg26071-rejection_vs_p_truthpt.md, output/pid-ehad_lightgbm_bkg26071-rejection_vs_p_truthpt.root (14 rows)
+[report] wrote output/pid-ehad_lightgbm_bkg26071-efficiency_vs_eta_truthpt.json, output/pid-ehad_lightgbm_bkg26071-efficiency_vs_eta_truthpt.md, output/pid-ehad_lightgbm_bkg26071-efficiency_vs_eta_truthpt.root (16 rows)
+[report] wrote output/pid-ehad_lightgbm_bkg26071-nsigma_vs_p_truthpt.json, output/pid-ehad_lightgbm_bkg26071-nsigma_vs_p_truthpt.md, output/pid-ehad_lightgbm_bkg26071-nsigma_vs_p_truthpt.root (14 rows)
+[report] wrote output/pid-ehad_lightgbm_bkg26071-significance_by_p_truthpt.json, output/pid-ehad_lightgbm_bkg26071-significance_by_p_truthpt.md, output/pid-ehad_lightgbm_bkg26071-significance_by_p_truthpt.root (2014 rows)
+[report] wrote output/pid-ehad_lightgbm_bkg26071-eff_map_p_vs_eta_truthpt.json, output/pid-ehad_lightgbm_bkg26071-eff_map_p_vs_eta_truthpt.md, output/pid-ehad_lightgbm_bkg26071-eff_map_p_vs_eta_truthpt.root (224 rows)
+[report] wrote output/pid-ehad_lightgbm_bkg26071-fake_map_p_vs_eta_truthpt.json, output/pid-ehad_lightgbm_bkg26071-fake_map_p_vs_eta_truthpt.md, output/pid-ehad_lightgbm_bkg26071-fake_map_p_vs_eta_truthpt.root (224 rows)
+[plot] wrote output/plot_PID/plots_bkgmix_pid_perform/pid-ehad_optimal_cut_vs_p_truthpt.png
+[plot] wrote output/plot_PID/plots_bkgmix_pid_perform/pid-ehad_eff_vs_p_truthpt.png
+[plot] wrote output/plot_PID/plots_bkgmix_pid_perform/pid-ehad_misid_vs_p_truthpt.png
+[plot] wrote output/plot_PID/plots_bkgmix_pid_perform/pid-ehad_purity_vs_p_truthpt.png
+[plot] wrote output/plot_PID/plots_bkgmix_pid_perform/pid-ehad_rejection_vs_p_truthpt.png
+[plot] wrote output/plot_PID/plots_bkgmix_pid_perform/pid-ehad_nsigma_vs_p_truthpt.png
+[plot] wrote output/plot_PID/plots_bkgmix_pid_perform/pid-ehad_significance_vs_cut_by_p_truthpt.png
+[plot] wrote output/plot_PID/plots_bkgmix_pid_perform/pid-ehad_significance_vs_cut_panels_truthpt.png
+[plot] wrote output/plot_PID/plots_bkgmix_pid_perform/pid-ehad_eff_map_p_vs_eta_truthpt.png
+[plot] wrote output/plot_PID/plots_bkgmix_pid_perform/pid-ehad_fake_map_p_vs_eta_truthpt.png
+[deliverables/ehad_truthpt] complete: 13/13 figures (3 shared with the reconstructed basis)
+[performance/ehad/truth/barrel] SKIPPED: no in-acceptance rows
+[performance/ehad/truth/forward endcap] SKIPPED: no in-acceptance rows
+[report] wrote output/pid-ehad_lightgbm_bkg26071_backward_endcap-optimal_cut_vs_p_truthpt_backward_endcap.json, output/pid-ehad_lightgbm_bkg26071_backward_endcap-optimal_cut_vs_p_truthpt_backward_endcap.md, output/pid-ehad_lightgbm_bkg26071_backward_endcap-optimal_cut_vs_p_truthpt_backward_endcap.root (14 rows)
+[report] wrote output/pid-ehad_lightgbm_bkg26071_backward_endcap-at_cut_global_truthpt_backward_endcap.json, output/pid-ehad_lightgbm_bkg26071_backward_endcap-at_cut_global_truthpt_backward_endcap.md, output/pid-ehad_lightgbm_bkg26071_backward_endcap-at_cut_global_truthpt_backward_endcap.root (14 rows)
+[report] wrote output/pid-ehad_lightgbm_bkg26071_backward_endcap-at_cut_per_bin_truthpt_backward_endcap.json, output/pid-ehad_lightgbm_bkg26071_backward_endcap-at_cut_per_bin_truthpt_backward_endcap.md, output/pid-ehad_lightgbm_bkg26071_backward_endcap-at_cut_per_bin_truthpt_backward_endcap.root (14 rows)
+[report] wrote output/pid-ehad_lightgbm_bkg26071_backward_endcap-rejection_vs_p_truthpt_backward_endcap.json, output/pid-ehad_lightgbm_bkg26071_backward_endcap-rejection_vs_p_truthpt_backward_endcap.md, output/pid-ehad_lightgbm_bkg26071_backward_endcap-rejection_vs_p_truthpt_backward_endcap.root (14 rows)
+[report] wrote output/pid-ehad_lightgbm_bkg26071_backward_endcap-nsigma_vs_p_truthpt_backward_endcap.json, output/pid-ehad_lightgbm_bkg26071_backward_endcap-nsigma_vs_p_truthpt_backward_endcap.md, output/pid-ehad_lightgbm_bkg26071_backward_endcap-nsigma_vs_p_truthpt_backward_endcap.root (14 rows)
+[report] wrote output/pid-ehad_lightgbm_bkg26071_backward_endcap-significance_by_p_truthpt_backward_endcap.json, output/pid-ehad_lightgbm_bkg26071_backward_endcap-significance_by_p_truthpt_backward_endcap.md, output/pid-ehad_lightgbm_bkg26071_backward_endcap-significance_by_p_truthpt_backward_endcap.root (2014 rows)
+[plot] wrote output/plot_PID/plots_bkgmix_pid_perform/pid-ehad_optimal_cut_vs_p_backward_endcap_truthpt.png
+[plot] wrote output/plot_PID/plots_bkgmix_pid_perform/pid-ehad_eff_vs_p_backward_endcap_truthpt.png
+[plot] wrote output/plot_PID/plots_bkgmix_pid_perform/pid-ehad_misid_vs_p_backward_endcap_truthpt.png
+[plot] wrote output/plot_PID/plots_bkgmix_pid_perform/pid-ehad_purity_vs_p_backward_endcap_truthpt.png
+[plot] wrote output/plot_PID/plots_bkgmix_pid_perform/pid-ehad_rejection_vs_p_backward_endcap_truthpt.png
+[plot] wrote output/plot_PID/plots_bkgmix_pid_perform/pid-ehad_nsigma_vs_p_backward_endcap_truthpt.png
+[plot] wrote output/plot_PID/plots_bkgmix_pid_perform/pid-ehad_significance_vs_cut_by_p_backward_endcap_truthpt.png
+[plot] wrote output/plot_PID/plots_bkgmix_pid_perform/pid-ehad_significance_vs_cut_panels_backward_endcap_truthpt.png
+[performance/ehad/truth/backward endcap] 12555 in-acceptance rows, 6 tables, 8 figures
+[regions] attached ['barrel', 'forward endcap', 'backward endcap'] acceptance (barrel: 7/7 in acceptance; forward endcap: 20982/21414 in acceptance; backward endcap: 0/0 in acceptance; 0 files skipped, 0 rows unclassifiable)
+[report] wrote output/pid-Kpi_lightgbm_bkg26071-significance_vs_cut.json, output/pid-Kpi_lightgbm_bkg26071-significance_vs_cut.md, output/pid-Kpi_lightgbm_bkg26071-significance_vs_cut.root (401 rows)
+[report] wrote output/pid-Kpi_lightgbm_bkg26071-optimal_cut_vs_p.json, output/pid-Kpi_lightgbm_bkg26071-optimal_cut_vs_p.md, output/pid-Kpi_lightgbm_bkg26071-optimal_cut_vs_p.root (14 rows)
+[report] wrote output/pid-Kpi_lightgbm_bkg26071-at_cut_global.json, output/pid-Kpi_lightgbm_bkg26071-at_cut_global.md, output/pid-Kpi_lightgbm_bkg26071-at_cut_global.root (14 rows)
+[report] wrote output/pid-Kpi_lightgbm_bkg26071-at_cut_per_bin.json, output/pid-Kpi_lightgbm_bkg26071-at_cut_per_bin.md, output/pid-Kpi_lightgbm_bkg26071-at_cut_per_bin.root (14 rows)
+[report] wrote output/pid-Kpi_lightgbm_bkg26071-rejection_vs_p.json, output/pid-Kpi_lightgbm_bkg26071-rejection_vs_p.md, output/pid-Kpi_lightgbm_bkg26071-rejection_vs_p.root (14 rows)
+[report] wrote output/pid-Kpi_lightgbm_bkg26071-efficiency_vs_eta.json, output/pid-Kpi_lightgbm_bkg26071-efficiency_vs_eta.md, output/pid-Kpi_lightgbm_bkg26071-efficiency_vs_eta.root (16 rows)
+[report] wrote output/pid-Kpi_lightgbm_bkg26071-nsigma_vs_p.json, output/pid-Kpi_lightgbm_bkg26071-nsigma_vs_p.md, output/pid-Kpi_lightgbm_bkg26071-nsigma_vs_p.root (14 rows)
+[report] wrote output/pid-Kpi_lightgbm_bkg26071-significance_by_p.json, output/pid-Kpi_lightgbm_bkg26071-significance_by_p.md, output/pid-Kpi_lightgbm_bkg26071-significance_by_p.root (2614 rows)
+[report] wrote output/pid-Kpi_lightgbm_bkg26071-eff_map_p_vs_eta.json, output/pid-Kpi_lightgbm_bkg26071-eff_map_p_vs_eta.md, output/pid-Kpi_lightgbm_bkg26071-eff_map_p_vs_eta.root (224 rows)
+[report] wrote output/pid-Kpi_lightgbm_bkg26071-fake_map_p_vs_eta.json, output/pid-Kpi_lightgbm_bkg26071-fake_map_p_vs_eta.md, output/pid-Kpi_lightgbm_bkg26071-fake_map_p_vs_eta.root (224 rows)
+[report] wrote output/pid-Kpi_lightgbm_bkg26071-confusion_matrix_atcut.json, output/pid-Kpi_lightgbm_bkg26071-confusion_matrix_atcut.md, output/pid-Kpi_lightgbm_bkg26071-confusion_matrix_atcut.root (12 rows)
+[plot] wrote output/plot_PID/plots_bkgmix_pid_perform/pid-Kpi_significance_vs_cut.png
+[plot] wrote output/plot_PID/plots_bkgmix_pid_perform/pid-Kpi_roc.png
+[plot] wrote output/plot_PID/plots_bkgmix_pid_perform/pid-Kpi_optimal_cut_vs_p.png
+[plot] wrote output/plot_PID/plots_bkgmix_pid_perform/pid-Kpi_eff_vs_p.png
+[plot] wrote output/plot_PID/plots_bkgmix_pid_perform/pid-Kpi_misid_vs_p.png
+[plot] wrote output/plot_PID/plots_bkgmix_pid_perform/pid-Kpi_purity_vs_p.png
+[plot] wrote output/plot_PID/plots_bkgmix_pid_perform/pid-Kpi_rejection_vs_p.png
+[plot] wrote output/plot_PID/plots_bkgmix_pid_perform/pid-Kpi_nsigma_vs_p.png
+[plot] wrote output/plot_PID/plots_bkgmix_pid_perform/pid-Kpi_significance_vs_cut_by_p.png
+[plot] wrote output/plot_PID/plots_bkgmix_pid_perform/pid-Kpi_significance_vs_cut_panels.png
+[plot] wrote output/plot_PID/plots_bkgmix_pid_perform/pid-Kpi_eff_map_p_vs_eta.png
+[plot] wrote output/plot_PID/plots_bkgmix_pid_perform/pid-Kpi_fake_map_p_vs_eta.png
+[plot] wrote output/plot_PID/plots_bkgmix_pid_perform/pid-Kpi_score_dist_train_vs_test.png
+[plot] wrote output/plot_PID/plots_bkgmix_pid_perform/pid-Kpi_score_dist_train_vs_test_peak.png
+[plot] wrote output/plot_PID/plots_bkgmix_pid_perform/pid-hadpid_lightgbm_bkg26071-confusion_matrix.png
+[plot] wrote output/plot_PID/plots_bkgmix_pid_perform/pid-hadpid_lightgbm_bkg26071-confusion_matrix_atcut.png
+[deliverables/Kpi] complete: 13/13 figures
+[report] wrote output/pid-Kpi_lightgbm_bkg26071_barrel-optimal_cut_vs_p_barrel.json, output/pid-Kpi_lightgbm_bkg26071_barrel-optimal_cut_vs_p_barrel.md, output/pid-Kpi_lightgbm_bkg26071_barrel-optimal_cut_vs_p_barrel.root (14 rows)
+[report] wrote output/pid-Kpi_lightgbm_bkg26071_barrel-at_cut_global_barrel.json, output/pid-Kpi_lightgbm_bkg26071_barrel-at_cut_global_barrel.md, output/pid-Kpi_lightgbm_bkg26071_barrel-at_cut_global_barrel.root (14 rows)
+[report] wrote output/pid-Kpi_lightgbm_bkg26071_barrel-at_cut_per_bin_barrel.json, output/pid-Kpi_lightgbm_bkg26071_barrel-at_cut_per_bin_barrel.md, output/pid-Kpi_lightgbm_bkg26071_barrel-at_cut_per_bin_barrel.root (14 rows)
+[report] wrote output/pid-Kpi_lightgbm_bkg26071_barrel-rejection_vs_p_barrel.json, output/pid-Kpi_lightgbm_bkg26071_barrel-rejection_vs_p_barrel.md, output/pid-Kpi_lightgbm_bkg26071_barrel-rejection_vs_p_barrel.root (14 rows)
+[report] wrote output/pid-Kpi_lightgbm_bkg26071_barrel-nsigma_vs_p_barrel.json, output/pid-Kpi_lightgbm_bkg26071_barrel-nsigma_vs_p_barrel.md, output/pid-Kpi_lightgbm_bkg26071_barrel-nsigma_vs_p_barrel.root (14 rows)
+[report] wrote output/pid-Kpi_lightgbm_bkg26071_barrel-significance_by_p_barrel.json, output/pid-Kpi_lightgbm_bkg26071_barrel-significance_by_p_barrel.md, output/pid-Kpi_lightgbm_bkg26071_barrel-significance_by_p_barrel.root (14 rows)
+/local/scratch/a/wxie/eic/baseline_tracking_performance_agent/pid/plots.py:820: UserWarning: No artists with labels found to put in legend.  Note that artists whose label start with an underscore are ignored when legend() is called with no argument.
+  ax.legend(fontsize=7.5, loc="upper right")
+[plot] wrote output/plot_PID/plots_bkgmix_pid_perform/pid-Kpi_optimal_cut_vs_p_barrel.png
+/local/scratch/a/wxie/eic/baseline_tracking_performance_agent/pid/plots.py:349: UserWarning: No artists with labels found to put in legend.  Note that artists whose label start with an underscore are ignored when legend() is called with no argument.
+  ax.legend(fontsize=7.5, loc="lower left")
+[plot] wrote output/plot_PID/plots_bkgmix_pid_perform/pid-Kpi_eff_vs_p_barrel.png
+[plot] wrote output/plot_PID/plots_bkgmix_pid_perform/pid-Kpi_misid_vs_p_barrel.png
+[plot] wrote output/plot_PID/plots_bkgmix_pid_perform/pid-Kpi_purity_vs_p_barrel.png
+[plot] wrote output/plot_PID/plots_bkgmix_pid_perform/pid-Kpi_rejection_vs_p_barrel.png
+[plot] wrote output/plot_PID/plots_bkgmix_pid_perform/pid-Kpi_nsigma_vs_p_barrel.png
+[plot] wrote output/plot_PID/plots_bkgmix_pid_perform/pid-Kpi_significance_vs_cut_by_p_barrel.png
+[plot] wrote output/plot_PID/plots_bkgmix_pid_perform/pid-Kpi_significance_vs_cut_panels_barrel.png
+[performance/Kpi/reco/barrel] 5 in-acceptance rows, 6 tables, 8 figures
+[report] wrote output/pid-Kpi_lightgbm_bkg26071_forward_endcap-optimal_cut_vs_p_forward_endcap.json, output/pid-Kpi_lightgbm_bkg26071_forward_endcap-optimal_cut_vs_p_forward_endcap.md, output/pid-Kpi_lightgbm_bkg26071_forward_endcap-optimal_cut_vs_p_forward_endcap.root (14 rows)
+[report] wrote output/pid-Kpi_lightgbm_bkg26071_forward_endcap-at_cut_global_forward_endcap.json, output/pid-Kpi_lightgbm_bkg26071_forward_endcap-at_cut_global_forward_endcap.md, output/pid-Kpi_lightgbm_bkg26071_forward_endcap-at_cut_global_forward_endcap.root (14 rows)
+[report] wrote output/pid-Kpi_lightgbm_bkg26071_forward_endcap-at_cut_per_bin_forward_endcap.json, output/pid-Kpi_lightgbm_bkg26071_forward_endcap-at_cut_per_bin_forward_endcap.md, output/pid-Kpi_lightgbm_bkg26071_forward_endcap-at_cut_per_bin_forward_endcap.root (14 rows)
+[report] wrote output/pid-Kpi_lightgbm_bkg26071_forward_endcap-rejection_vs_p_forward_endcap.json, output/pid-Kpi_lightgbm_bkg26071_forward_endcap-rejection_vs_p_forward_endcap.md, output/pid-Kpi_lightgbm_bkg26071_forward_endcap-rejection_vs_p_forward_endcap.root (14 rows)
+[report] wrote output/pid-Kpi_lightgbm_bkg26071_forward_endcap-nsigma_vs_p_forward_endcap.json, output/pid-Kpi_lightgbm_bkg26071_forward_endcap-nsigma_vs_p_forward_endcap.md, output/pid-Kpi_lightgbm_bkg26071_forward_endcap-nsigma_vs_p_forward_endcap.root (14 rows)
+[report] wrote output/pid-Kpi_lightgbm_bkg26071_forward_endcap-significance_by_p_forward_endcap.json, output/pid-Kpi_lightgbm_bkg26071_forward_endcap-significance_by_p_forward_endcap.md, output/pid-Kpi_lightgbm_bkg26071_forward_endcap-significance_by_p_forward_endcap.root (2614 rows)
+[plot] wrote output/plot_PID/plots_bkgmix_pid_perform/pid-Kpi_optimal_cut_vs_p_forward_endcap.png
+[plot] wrote output/plot_PID/plots_bkgmix_pid_perform/pid-Kpi_eff_vs_p_forward_endcap.png
+[plot] wrote output/plot_PID/plots_bkgmix_pid_perform/pid-Kpi_misid_vs_p_forward_endcap.png
+[plot] wrote output/plot_PID/plots_bkgmix_pid_perform/pid-Kpi_purity_vs_p_forward_endcap.png
+[plot] wrote output/plot_PID/plots_bkgmix_pid_perform/pid-Kpi_rejection_vs_p_forward_endcap.png
+[plot] wrote output/plot_PID/plots_bkgmix_pid_perform/pid-Kpi_nsigma_vs_p_forward_endcap.png
+[plot] wrote output/plot_PID/plots_bkgmix_pid_perform/pid-Kpi_significance_vs_cut_by_p_forward_endcap.png
+[plot] wrote output/plot_PID/plots_bkgmix_pid_perform/pid-Kpi_significance_vs_cut_panels_forward_endcap.png
+[performance/Kpi/reco/forward endcap] 19123 in-acceptance rows, 6 tables, 8 figures
+[performance/Kpi/reco/backward endcap] SKIPPED: no in-acceptance rows
+[report] wrote output/pid-Kpi_lightgbm_bkg26071-significance_vs_cut_truthpt.json, output/pid-Kpi_lightgbm_bkg26071-significance_vs_cut_truthpt.md, output/pid-Kpi_lightgbm_bkg26071-significance_vs_cut_truthpt.root (401 rows)
+[report] wrote output/pid-Kpi_lightgbm_bkg26071-optimal_cut_vs_p_truthpt.json, output/pid-Kpi_lightgbm_bkg26071-optimal_cut_vs_p_truthpt.md, output/pid-Kpi_lightgbm_bkg26071-optimal_cut_vs_p_truthpt.root (14 rows)
+[report] wrote output/pid-Kpi_lightgbm_bkg26071-at_cut_global_truthpt.json, output/pid-Kpi_lightgbm_bkg26071-at_cut_global_truthpt.md, output/pid-Kpi_lightgbm_bkg26071-at_cut_global_truthpt.root (14 rows)
+[report] wrote output/pid-Kpi_lightgbm_bkg26071-at_cut_per_bin_truthpt.json, output/pid-Kpi_lightgbm_bkg26071-at_cut_per_bin_truthpt.md, output/pid-Kpi_lightgbm_bkg26071-at_cut_per_bin_truthpt.root (14 rows)
+[report] wrote output/pid-Kpi_lightgbm_bkg26071-rejection_vs_p_truthpt.json, output/pid-Kpi_lightgbm_bkg26071-rejection_vs_p_truthpt.md, output/pid-Kpi_lightgbm_bkg26071-rejection_vs_p_truthpt.root (14 rows)
+[report] wrote output/pid-Kpi_lightgbm_bkg26071-efficiency_vs_eta_truthpt.json, output/pid-Kpi_lightgbm_bkg26071-efficiency_vs_eta_truthpt.md, output/pid-Kpi_lightgbm_bkg26071-efficiency_vs_eta_truthpt.root (16 rows)
+[report] wrote output/pid-Kpi_lightgbm_bkg26071-nsigma_vs_p_truthpt.json, output/pid-Kpi_lightgbm_bkg26071-nsigma_vs_p_truthpt.md, output/pid-Kpi_lightgbm_bkg26071-nsigma_vs_p_truthpt.root (14 rows)
+[report] wrote output/pid-Kpi_lightgbm_bkg26071-significance_by_p_truthpt.json, output/pid-Kpi_lightgbm_bkg26071-significance_by_p_truthpt.md, output/pid-Kpi_lightgbm_bkg26071-significance_by_p_truthpt.root (2814 rows)
+[report] wrote output/pid-Kpi_lightgbm_bkg26071-eff_map_p_vs_eta_truthpt.json, output/pid-Kpi_lightgbm_bkg26071-eff_map_p_vs_eta_truthpt.md, output/pid-Kpi_lightgbm_bkg26071-eff_map_p_vs_eta_truthpt.root (224 rows)
+[report] wrote output/pid-Kpi_lightgbm_bkg26071-fake_map_p_vs_eta_truthpt.json, output/pid-Kpi_lightgbm_bkg26071-fake_map_p_vs_eta_truthpt.md, output/pid-Kpi_lightgbm_bkg26071-fake_map_p_vs_eta_truthpt.root (224 rows)
+[report] wrote output/pid-Kpi_lightgbm_bkg26071-confusion_matrix_atcut.json, output/pid-Kpi_lightgbm_bkg26071-confusion_matrix_atcut.md, output/pid-Kpi_lightgbm_bkg26071-confusion_matrix_atcut.root (12 rows)
+[plot] wrote output/plot_PID/plots_bkgmix_pid_perform/pid-Kpi_optimal_cut_vs_p_truthpt.png
+[plot] wrote output/plot_PID/plots_bkgmix_pid_perform/pid-Kpi_eff_vs_p_truthpt.png
+[plot] wrote output/plot_PID/plots_bkgmix_pid_perform/pid-Kpi_misid_vs_p_truthpt.png
+[plot] wrote output/plot_PID/plots_bkgmix_pid_perform/pid-Kpi_purity_vs_p_truthpt.png
+[plot] wrote output/plot_PID/plots_bkgmix_pid_perform/pid-Kpi_rejection_vs_p_truthpt.png
+[plot] wrote output/plot_PID/plots_bkgmix_pid_perform/pid-Kpi_nsigma_vs_p_truthpt.png
+[plot] wrote output/plot_PID/plots_bkgmix_pid_perform/pid-Kpi_significance_vs_cut_by_p_truthpt.png
+[plot] wrote output/plot_PID/plots_bkgmix_pid_perform/pid-Kpi_significance_vs_cut_panels_truthpt.png
+[plot] wrote output/plot_PID/plots_bkgmix_pid_perform/pid-Kpi_eff_map_p_vs_eta_truthpt.png
+[plot] wrote output/plot_PID/plots_bkgmix_pid_perform/pid-Kpi_fake_map_p_vs_eta_truthpt.png
+[deliverables/Kpi_truthpt] complete: 13/13 figures (3 shared with the reconstructed basis)
+[report] wrote output/pid-Kpi_lightgbm_bkg26071_barrel-optimal_cut_vs_p_truthpt_barrel.json, output/pid-Kpi_lightgbm_bkg26071_barrel-optimal_cut_vs_p_truthpt_barrel.md, output/pid-Kpi_lightgbm_bkg26071_barrel-optimal_cut_vs_p_truthpt_barrel.root (14 rows)
+[report] wrote output/pid-Kpi_lightgbm_bkg26071_barrel-at_cut_global_truthpt_barrel.json, output/pid-Kpi_lightgbm_bkg26071_barrel-at_cut_global_truthpt_barrel.md, output/pid-Kpi_lightgbm_bkg26071_barrel-at_cut_global_truthpt_barrel.root (14 rows)
+[report] wrote output/pid-Kpi_lightgbm_bkg26071_barrel-at_cut_per_bin_truthpt_barrel.json, output/pid-Kpi_lightgbm_bkg26071_barrel-at_cut_per_bin_truthpt_barrel.md, output/pid-Kpi_lightgbm_bkg26071_barrel-at_cut_per_bin_truthpt_barrel.root (14 rows)
+[report] wrote output/pid-Kpi_lightgbm_bkg26071_barrel-rejection_vs_p_truthpt_barrel.json, output/pid-Kpi_lightgbm_bkg26071_barrel-rejection_vs_p_truthpt_barrel.md, output/pid-Kpi_lightgbm_bkg26071_barrel-rejection_vs_p_truthpt_barrel.root (14 rows)
+[report] wrote output/pid-Kpi_lightgbm_bkg26071_barrel-nsigma_vs_p_truthpt_barrel.json, output/pid-Kpi_lightgbm_bkg26071_barrel-nsigma_vs_p_truthpt_barrel.md, output/pid-Kpi_lightgbm_bkg26071_barrel-nsigma_vs_p_truthpt_barrel.root (14 rows)
+[report] wrote output/pid-Kpi_lightgbm_bkg26071_barrel-significance_by_p_truthpt_barrel.json, output/pid-Kpi_lightgbm_bkg26071_barrel-significance_by_p_truthpt_barrel.md, output/pid-Kpi_lightgbm_bkg26071_barrel-significance_by_p_truthpt_barrel.root (14 rows)
+/local/scratch/a/wxie/eic/baseline_tracking_performance_agent/pid/plots.py:820: UserWarning: No artists with labels found to put in legend.  Note that artists whose label start with an underscore are ignored when legend() is called with no argument.
+  ax.legend(fontsize=7.5, loc="upper right")
+[plot] wrote output/plot_PID/plots_bkgmix_pid_perform/pid-Kpi_optimal_cut_vs_p_barrel_truthpt.png
+/local/scratch/a/wxie/eic/baseline_tracking_performance_agent/pid/plots.py:349: UserWarning: No artists with labels found to put in legend.  Note that artists whose label start with an underscore are ignored when legend() is called with no argument.
+  ax.legend(fontsize=7.5, loc="lower left")
+[plot] wrote output/plot_PID/plots_bkgmix_pid_perform/pid-Kpi_eff_vs_p_barrel_truthpt.png
+[plot] wrote output/plot_PID/plots_bkgmix_pid_perform/pid-Kpi_misid_vs_p_barrel_truthpt.png
+[plot] wrote output/plot_PID/plots_bkgmix_pid_perform/pid-Kpi_purity_vs_p_barrel_truthpt.png
+[plot] wrote output/plot_PID/plots_bkgmix_pid_perform/pid-Kpi_rejection_vs_p_barrel_truthpt.png
+[plot] wrote output/plot_PID/plots_bkgmix_pid_perform/pid-Kpi_nsigma_vs_p_barrel_truthpt.png
+[plot] wrote output/plot_PID/plots_bkgmix_pid_perform/pid-Kpi_significance_vs_cut_by_p_barrel_truthpt.png
+[plot] wrote output/plot_PID/plots_bkgmix_pid_perform/pid-Kpi_significance_vs_cut_panels_barrel_truthpt.png
+[performance/Kpi/truth/barrel] 5 in-acceptance rows, 6 tables, 8 figures
+[report] wrote output/pid-Kpi_lightgbm_bkg26071_forward_endcap-optimal_cut_vs_p_truthpt_forward_endcap.json, output/pid-Kpi_lightgbm_bkg26071_forward_endcap-optimal_cut_vs_p_truthpt_forward_endcap.md, output/pid-Kpi_lightgbm_bkg26071_forward_endcap-optimal_cut_vs_p_truthpt_forward_endcap.root (14 rows)
+[report] wrote output/pid-Kpi_lightgbm_bkg26071_forward_endcap-at_cut_global_truthpt_forward_endcap.json, output/pid-Kpi_lightgbm_bkg26071_forward_endcap-at_cut_global_truthpt_forward_endcap.md, output/pid-Kpi_lightgbm_bkg26071_forward_endcap-at_cut_global_truthpt_forward_endcap.root (14 rows)
+[report] wrote output/pid-Kpi_lightgbm_bkg26071_forward_endcap-at_cut_per_bin_truthpt_forward_endcap.json, output/pid-Kpi_lightgbm_bkg26071_forward_endcap-at_cut_per_bin_truthpt_forward_endcap.md, output/pid-Kpi_lightgbm_bkg26071_forward_endcap-at_cut_per_bin_truthpt_forward_endcap.root (14 rows)
+[report] wrote output/pid-Kpi_lightgbm_bkg26071_forward_endcap-rejection_vs_p_truthpt_forward_endcap.json, output/pid-Kpi_lightgbm_bkg26071_forward_endcap-rejection_vs_p_truthpt_forward_endcap.md, output/pid-Kpi_lightgbm_bkg26071_forward_endcap-rejection_vs_p_truthpt_forward_endcap.root (14 rows)
+[report] wrote output/pid-Kpi_lightgbm_bkg26071_forward_endcap-nsigma_vs_p_truthpt_forward_endcap.json, output/pid-Kpi_lightgbm_bkg26071_forward_endcap-nsigma_vs_p_truthpt_forward_endcap.md, output/pid-Kpi_lightgbm_bkg26071_forward_endcap-nsigma_vs_p_truthpt_forward_endcap.root (14 rows)
+[report] wrote output/pid-Kpi_lightgbm_bkg26071_forward_endcap-significance_by_p_truthpt_forward_endcap.json, output/pid-Kpi_lightgbm_bkg26071_forward_endcap-significance_by_p_truthpt_forward_endcap.md, output/pid-Kpi_lightgbm_bkg26071_forward_endcap-significance_by_p_truthpt_forward_endcap.root (2814 rows)
+[plot] wrote output/plot_PID/plots_bkgmix_pid_perform/pid-Kpi_optimal_cut_vs_p_forward_endcap_truthpt.png
+[plot] wrote output/plot_PID/plots_bkgmix_pid_perform/pid-Kpi_eff_vs_p_forward_endcap_truthpt.png
+[plot] wrote output/plot_PID/plots_bkgmix_pid_perform/pid-Kpi_misid_vs_p_forward_endcap_truthpt.png
+[plot] wrote output/plot_PID/plots_bkgmix_pid_perform/pid-Kpi_purity_vs_p_forward_endcap_truthpt.png
+[plot] wrote output/plot_PID/plots_bkgmix_pid_perform/pid-Kpi_rejection_vs_p_forward_endcap_truthpt.png
+[plot] wrote output/plot_PID/plots_bkgmix_pid_perform/pid-Kpi_nsigma_vs_p_forward_endcap_truthpt.png
+[plot] wrote output/plot_PID/plots_bkgmix_pid_perform/pid-Kpi_significance_vs_cut_by_p_forward_endcap_truthpt.png
+[plot] wrote output/plot_PID/plots_bkgmix_pid_perform/pid-Kpi_significance_vs_cut_panels_forward_endcap_truthpt.png
+[performance/Kpi/truth/forward endcap] 19123 in-acceptance rows, 6 tables, 8 figures
+[performance/Kpi/truth/backward endcap] SKIPPED: no in-acceptance rows
+[regions] attached ['barrel', 'forward endcap', 'backward endcap'] acceptance (barrel: 7/7 in acceptance; forward endcap: 20982/21414 in acceptance; backward endcap: 0/0 in acceptance; 0 files skipped, 0 rows unclassifiable)
+[report] wrote output/pid-pK_lightgbm_bkg26071-significance_vs_cut.json, output/pid-pK_lightgbm_bkg26071-significance_vs_cut.md, output/pid-pK_lightgbm_bkg26071-significance_vs_cut.root (401 rows)
+[report] wrote output/pid-pK_lightgbm_bkg26071-optimal_cut_vs_p.json, output/pid-pK_lightgbm_bkg26071-optimal_cut_vs_p.md, output/pid-pK_lightgbm_bkg26071-optimal_cut_vs_p.root (14 rows)
+[report] wrote output/pid-pK_lightgbm_bkg26071-at_cut_global.json, output/pid-pK_lightgbm_bkg26071-at_cut_global.md, output/pid-pK_lightgbm_bkg26071-at_cut_global.root (14 rows)
+[report] wrote output/pid-pK_lightgbm_bkg26071-at_cut_per_bin.json, output/pid-pK_lightgbm_bkg26071-at_cut_per_bin.md, output/pid-pK_lightgbm_bkg26071-at_cut_per_bin.root (14 rows)
+[report] wrote output/pid-pK_lightgbm_bkg26071-rejection_vs_p.json, output/pid-pK_lightgbm_bkg26071-rejection_vs_p.md, output/pid-pK_lightgbm_bkg26071-rejection_vs_p.root (14 rows)
+[report] wrote output/pid-pK_lightgbm_bkg26071-efficiency_vs_eta.json, output/pid-pK_lightgbm_bkg26071-efficiency_vs_eta.md, output/pid-pK_lightgbm_bkg26071-efficiency_vs_eta.root (16 rows)
+[report] wrote output/pid-pK_lightgbm_bkg26071-nsigma_vs_p.json, output/pid-pK_lightgbm_bkg26071-nsigma_vs_p.md, output/pid-pK_lightgbm_bkg26071-nsigma_vs_p.root (14 rows)
+[report] wrote output/pid-pK_lightgbm_bkg26071-significance_by_p.json, output/pid-pK_lightgbm_bkg26071-significance_by_p.md, output/pid-pK_lightgbm_bkg26071-significance_by_p.root (2614 rows)
+[report] wrote output/pid-pK_lightgbm_bkg26071-eff_map_p_vs_eta.json, output/pid-pK_lightgbm_bkg26071-eff_map_p_vs_eta.md, output/pid-pK_lightgbm_bkg26071-eff_map_p_vs_eta.root (224 rows)
+[report] wrote output/pid-pK_lightgbm_bkg26071-fake_map_p_vs_eta.json, output/pid-pK_lightgbm_bkg26071-fake_map_p_vs_eta.md, output/pid-pK_lightgbm_bkg26071-fake_map_p_vs_eta.root (224 rows)
+[report] wrote output/pid-pK_lightgbm_bkg26071-confusion_matrix_atcut.json, output/pid-pK_lightgbm_bkg26071-confusion_matrix_atcut.md, output/pid-pK_lightgbm_bkg26071-confusion_matrix_atcut.root (12 rows)
+[plot] wrote output/plot_PID/plots_bkgmix_pid_perform/pid-pK_significance_vs_cut.png
+[plot] wrote output/plot_PID/plots_bkgmix_pid_perform/pid-pK_roc.png
+[plot] wrote output/plot_PID/plots_bkgmix_pid_perform/pid-pK_optimal_cut_vs_p.png
+[plot] wrote output/plot_PID/plots_bkgmix_pid_perform/pid-pK_eff_vs_p.png
+[plot] wrote output/plot_PID/plots_bkgmix_pid_perform/pid-pK_misid_vs_p.png
+[plot] wrote output/plot_PID/plots_bkgmix_pid_perform/pid-pK_purity_vs_p.png
+[plot] wrote output/plot_PID/plots_bkgmix_pid_perform/pid-pK_rejection_vs_p.png
+[plot] wrote output/plot_PID/plots_bkgmix_pid_perform/pid-pK_nsigma_vs_p.png
+[plot] wrote output/plot_PID/plots_bkgmix_pid_perform/pid-pK_significance_vs_cut_by_p.png
+[plot] wrote output/plot_PID/plots_bkgmix_pid_perform/pid-pK_significance_vs_cut_panels.png
+[plot] wrote output/plot_PID/plots_bkgmix_pid_perform/pid-pK_eff_map_p_vs_eta.png
+[plot] wrote output/plot_PID/plots_bkgmix_pid_perform/pid-pK_fake_map_p_vs_eta.png
+[plot] wrote output/plot_PID/plots_bkgmix_pid_perform/pid-pK_score_dist_train_vs_test.png
+[plot] wrote output/plot_PID/plots_bkgmix_pid_perform/pid-pK_score_dist_train_vs_test_peak.png
+[plot] wrote output/plot_PID/plots_bkgmix_pid_perform/pid-hadpid_lightgbm_bkg26071-confusion_matrix_atcut.png
+[deliverables/pK] complete: 13/13 figures
+[report] wrote output/pid-pK_lightgbm_bkg26071_barrel-optimal_cut_vs_p_barrel.json, output/pid-pK_lightgbm_bkg26071_barrel-optimal_cut_vs_p_barrel.md, output/pid-pK_lightgbm_bkg26071_barrel-optimal_cut_vs_p_barrel.root (14 rows)
+[report] wrote output/pid-pK_lightgbm_bkg26071_barrel-at_cut_global_barrel.json, output/pid-pK_lightgbm_bkg26071_barrel-at_cut_global_barrel.md, output/pid-pK_lightgbm_bkg26071_barrel-at_cut_global_barrel.root (14 rows)
+[report] wrote output/pid-pK_lightgbm_bkg26071_barrel-at_cut_per_bin_barrel.json, output/pid-pK_lightgbm_bkg26071_barrel-at_cut_per_bin_barrel.md, output/pid-pK_lightgbm_bkg26071_barrel-at_cut_per_bin_barrel.root (14 rows)
+[report] wrote output/pid-pK_lightgbm_bkg26071_barrel-rejection_vs_p_barrel.json, output/pid-pK_lightgbm_bkg26071_barrel-rejection_vs_p_barrel.md, output/pid-pK_lightgbm_bkg26071_barrel-rejection_vs_p_barrel.root (14 rows)
+[report] wrote output/pid-pK_lightgbm_bkg26071_barrel-nsigma_vs_p_barrel.json, output/pid-pK_lightgbm_bkg26071_barrel-nsigma_vs_p_barrel.md, output/pid-pK_lightgbm_bkg26071_barrel-nsigma_vs_p_barrel.root (14 rows)
+[report] wrote output/pid-pK_lightgbm_bkg26071_barrel-significance_by_p_barrel.json, output/pid-pK_lightgbm_bkg26071_barrel-significance_by_p_barrel.md, output/pid-pK_lightgbm_bkg26071_barrel-significance_by_p_barrel.root (14 rows)
+/local/scratch/a/wxie/eic/baseline_tracking_performance_agent/pid/plots.py:820: UserWarning: No artists with labels found to put in legend.  Note that artists whose label start with an underscore are ignored when legend() is called with no argument.
+  ax.legend(fontsize=7.5, loc="upper right")
+[plot] wrote output/plot_PID/plots_bkgmix_pid_perform/pid-pK_optimal_cut_vs_p_barrel.png
+[plot] wrote output/plot_PID/plots_bkgmix_pid_perform/pid-pK_eff_vs_p_barrel.png
+/local/scratch/a/wxie/eic/baseline_tracking_performance_agent/pid/plots.py:359: UserWarning: No artists with labels found to put in legend.  Note that artists whose label start with an underscore are ignored when legend() is called with no argument.
+  ax.legend(fontsize=7.5, loc="upper right")
+[plot] wrote output/plot_PID/plots_bkgmix_pid_perform/pid-pK_misid_vs_p_barrel.png
+[plot] wrote output/plot_PID/plots_bkgmix_pid_perform/pid-pK_purity_vs_p_barrel.png
+/local/scratch/a/wxie/eic/baseline_tracking_performance_agent/pid/plots.py:404: UserWarning: No artists with labels found to put in legend.  Note that artists whose label start with an underscore are ignored when legend() is called with no argument.
+  ax.legend(fontsize=7.5, loc="lower left")
+[plot] wrote output/plot_PID/plots_bkgmix_pid_perform/pid-pK_rejection_vs_p_barrel.png
+[plot] wrote output/plot_PID/plots_bkgmix_pid_perform/pid-pK_nsigma_vs_p_barrel.png
+[plot] wrote output/plot_PID/plots_bkgmix_pid_perform/pid-pK_significance_vs_cut_by_p_barrel.png
+[plot] wrote output/plot_PID/plots_bkgmix_pid_perform/pid-pK_significance_vs_cut_panels_barrel.png
+[performance/pK/reco/barrel] 2 in-acceptance rows, 6 tables, 8 figures
+[report] wrote output/pid-pK_lightgbm_bkg26071_forward_endcap-optimal_cut_vs_p_forward_endcap.json, output/pid-pK_lightgbm_bkg26071_forward_endcap-optimal_cut_vs_p_forward_endcap.md, output/pid-pK_lightgbm_bkg26071_forward_endcap-optimal_cut_vs_p_forward_endcap.root (14 rows)
+[report] wrote output/pid-pK_lightgbm_bkg26071_forward_endcap-at_cut_global_forward_endcap.json, output/pid-pK_lightgbm_bkg26071_forward_endcap-at_cut_global_forward_endcap.md, output/pid-pK_lightgbm_bkg26071_forward_endcap-at_cut_global_forward_endcap.root (14 rows)
+[report] wrote output/pid-pK_lightgbm_bkg26071_forward_endcap-at_cut_per_bin_forward_endcap.json, output/pid-pK_lightgbm_bkg26071_forward_endcap-at_cut_per_bin_forward_endcap.md, output/pid-pK_lightgbm_bkg26071_forward_endcap-at_cut_per_bin_forward_endcap.root (14 rows)
+[report] wrote output/pid-pK_lightgbm_bkg26071_forward_endcap-rejection_vs_p_forward_endcap.json, output/pid-pK_lightgbm_bkg26071_forward_endcap-rejection_vs_p_forward_endcap.md, output/pid-pK_lightgbm_bkg26071_forward_endcap-rejection_vs_p_forward_endcap.root (14 rows)
+[report] wrote output/pid-pK_lightgbm_bkg26071_forward_endcap-nsigma_vs_p_forward_endcap.json, output/pid-pK_lightgbm_bkg26071_forward_endcap-nsigma_vs_p_forward_endcap.md, output/pid-pK_lightgbm_bkg26071_forward_endcap-nsigma_vs_p_forward_endcap.root (14 rows)
+[report] wrote output/pid-pK_lightgbm_bkg26071_forward_endcap-significance_by_p_forward_endcap.json, output/pid-pK_lightgbm_bkg26071_forward_endcap-significance_by_p_forward_endcap.md, output/pid-pK_lightgbm_bkg26071_forward_endcap-significance_by_p_forward_endcap.root (2614 rows)
+[plot] wrote output/plot_PID/plots_bkgmix_pid_perform/pid-pK_optimal_cut_vs_p_forward_endcap.png
+[plot] wrote output/plot_PID/plots_bkgmix_pid_perform/pid-pK_eff_vs_p_forward_endcap.png
+[plot] wrote output/plot_PID/plots_bkgmix_pid_perform/pid-pK_misid_vs_p_forward_endcap.png
+[plot] wrote output/plot_PID/plots_bkgmix_pid_perform/pid-pK_purity_vs_p_forward_endcap.png
+[plot] wrote output/plot_PID/plots_bkgmix_pid_perform/pid-pK_rejection_vs_p_forward_endcap.png
+[plot] wrote output/plot_PID/plots_bkgmix_pid_perform/pid-pK_nsigma_vs_p_forward_endcap.png
+[plot] wrote output/plot_PID/plots_bkgmix_pid_perform/pid-pK_significance_vs_cut_by_p_forward_endcap.png
+[plot] wrote output/plot_PID/plots_bkgmix_pid_perform/pid-pK_significance_vs_cut_panels_forward_endcap.png
+[performance/pK/reco/forward endcap] 3737 in-acceptance rows, 6 tables, 8 figures
+[performance/pK/reco/backward endcap] SKIPPED: no in-acceptance rows
+[report] wrote output/pid-pK_lightgbm_bkg26071-significance_vs_cut_truthpt.json, output/pid-pK_lightgbm_bkg26071-significance_vs_cut_truthpt.md, output/pid-pK_lightgbm_bkg26071-significance_vs_cut_truthpt.root (401 rows)
+[report] wrote output/pid-pK_lightgbm_bkg26071-optimal_cut_vs_p_truthpt.json, output/pid-pK_lightgbm_bkg26071-optimal_cut_vs_p_truthpt.md, output/pid-pK_lightgbm_bkg26071-optimal_cut_vs_p_truthpt.root (14 rows)
+[report] wrote output/pid-pK_lightgbm_bkg26071-at_cut_global_truthpt.json, output/pid-pK_lightgbm_bkg26071-at_cut_global_truthpt.md, output/pid-pK_lightgbm_bkg26071-at_cut_global_truthpt.root (14 rows)
+[report] wrote output/pid-pK_lightgbm_bkg26071-at_cut_per_bin_truthpt.json, output/pid-pK_lightgbm_bkg26071-at_cut_per_bin_truthpt.md, output/pid-pK_lightgbm_bkg26071-at_cut_per_bin_truthpt.root (14 rows)
+[report] wrote output/pid-pK_lightgbm_bkg26071-rejection_vs_p_truthpt.json, output/pid-pK_lightgbm_bkg26071-rejection_vs_p_truthpt.md, output/pid-pK_lightgbm_bkg26071-rejection_vs_p_truthpt.root (14 rows)
+[report] wrote output/pid-pK_lightgbm_bkg26071-efficiency_vs_eta_truthpt.json, output/pid-pK_lightgbm_bkg26071-efficiency_vs_eta_truthpt.md, output/pid-pK_lightgbm_bkg26071-efficiency_vs_eta_truthpt.root (16 rows)
+[report] wrote output/pid-pK_lightgbm_bkg26071-nsigma_vs_p_truthpt.json, output/pid-pK_lightgbm_bkg26071-nsigma_vs_p_truthpt.md, output/pid-pK_lightgbm_bkg26071-nsigma_vs_p_truthpt.root (14 rows)
+[report] wrote output/pid-pK_lightgbm_bkg26071-significance_by_p_truthpt.json, output/pid-pK_lightgbm_bkg26071-significance_by_p_truthpt.md, output/pid-pK_lightgbm_bkg26071-significance_by_p_truthpt.root (2614 rows)
+[report] wrote output/pid-pK_lightgbm_bkg26071-eff_map_p_vs_eta_truthpt.json, output/pid-pK_lightgbm_bkg26071-eff_map_p_vs_eta_truthpt.md, output/pid-pK_lightgbm_bkg26071-eff_map_p_vs_eta_truthpt.root (224 rows)
+[report] wrote output/pid-pK_lightgbm_bkg26071-fake_map_p_vs_eta_truthpt.json, output/pid-pK_lightgbm_bkg26071-fake_map_p_vs_eta_truthpt.md, output/pid-pK_lightgbm_bkg26071-fake_map_p_vs_eta_truthpt.root (224 rows)
+[report] wrote output/pid-pK_lightgbm_bkg26071-confusion_matrix_atcut.json, output/pid-pK_lightgbm_bkg26071-confusion_matrix_atcut.md, output/pid-pK_lightgbm_bkg26071-confusion_matrix_atcut.root (12 rows)
+[plot] wrote output/plot_PID/plots_bkgmix_pid_perform/pid-pK_optimal_cut_vs_p_truthpt.png
+[plot] wrote output/plot_PID/plots_bkgmix_pid_perform/pid-pK_eff_vs_p_truthpt.png
+[plot] wrote output/plot_PID/plots_bkgmix_pid_perform/pid-pK_misid_vs_p_truthpt.png
+[plot] wrote output/plot_PID/plots_bkgmix_pid_perform/pid-pK_purity_vs_p_truthpt.png
+[plot] wrote output/plot_PID/plots_bkgmix_pid_perform/pid-pK_rejection_vs_p_truthpt.png
+[plot] wrote output/plot_PID/plots_bkgmix_pid_perform/pid-pK_nsigma_vs_p_truthpt.png
+[plot] wrote output/plot_PID/plots_bkgmix_pid_perform/pid-pK_significance_vs_cut_by_p_truthpt.png
+[plot] wrote output/plot_PID/plots_bkgmix_pid_perform/pid-pK_significance_vs_cut_panels_truthpt.png
+[plot] wrote output/plot_PID/plots_bkgmix_pid_perform/pid-pK_eff_map_p_vs_eta_truthpt.png
+[plot] wrote output/plot_PID/plots_bkgmix_pid_perform/pid-pK_fake_map_p_vs_eta_truthpt.png
+[deliverables/pK_truthpt] complete: 13/13 figures (3 shared with the reconstructed basis)
+[report] wrote output/pid-pK_lightgbm_bkg26071_barrel-optimal_cut_vs_p_truthpt_barrel.json, output/pid-pK_lightgbm_bkg26071_barrel-optimal_cut_vs_p_truthpt_barrel.md, output/pid-pK_lightgbm_bkg26071_barrel-optimal_cut_vs_p_truthpt_barrel.root (14 rows)
+[report] wrote output/pid-pK_lightgbm_bkg26071_barrel-at_cut_global_truthpt_barrel.json, output/pid-pK_lightgbm_bkg26071_barrel-at_cut_global_truthpt_barrel.md, output/pid-pK_lightgbm_bkg26071_barrel-at_cut_global_truthpt_barrel.root (14 rows)
+[report] wrote output/pid-pK_lightgbm_bkg26071_barrel-at_cut_per_bin_truthpt_barrel.json, output/pid-pK_lightgbm_bkg26071_barrel-at_cut_per_bin_truthpt_barrel.md, output/pid-pK_lightgbm_bkg26071_barrel-at_cut_per_bin_truthpt_barrel.root (14 rows)
+[report] wrote output/pid-pK_lightgbm_bkg26071_barrel-rejection_vs_p_truthpt_barrel.json, output/pid-pK_lightgbm_bkg26071_barrel-rejection_vs_p_truthpt_barrel.md, output/pid-pK_lightgbm_bkg26071_barrel-rejection_vs_p_truthpt_barrel.root (14 rows)
+[report] wrote output/pid-pK_lightgbm_bkg26071_barrel-nsigma_vs_p_truthpt_barrel.json, output/pid-pK_lightgbm_bkg26071_barrel-nsigma_vs_p_truthpt_barrel.md, output/pid-pK_lightgbm_bkg26071_barrel-nsigma_vs_p_truthpt_barrel.root (14 rows)
+[report] wrote output/pid-pK_lightgbm_bkg26071_barrel-significance_by_p_truthpt_barrel.json, output/pid-pK_lightgbm_bkg26071_barrel-significance_by_p_truthpt_barrel.md, output/pid-pK_lightgbm_bkg26071_barrel-significance_by_p_truthpt_barrel.root (14 rows)
+/local/scratch/a/wxie/eic/baseline_tracking_performance_agent/pid/plots.py:820: UserWarning: No artists with labels found to put in legend.  Note that artists whose label start with an underscore are ignored when legend() is called with no argument.
+  ax.legend(fontsize=7.5, loc="upper right")
+[plot] wrote output/plot_PID/plots_bkgmix_pid_perform/pid-pK_optimal_cut_vs_p_barrel_truthpt.png
+[plot] wrote output/plot_PID/plots_bkgmix_pid_perform/pid-pK_eff_vs_p_barrel_truthpt.png
+/local/scratch/a/wxie/eic/baseline_tracking_performance_agent/pid/plots.py:359: UserWarning: No artists with labels found to put in legend.  Note that artists whose label start with an underscore are ignored when legend() is called with no argument.
+  ax.legend(fontsize=7.5, loc="upper right")
+[plot] wrote output/plot_PID/plots_bkgmix_pid_perform/pid-pK_misid_vs_p_barrel_truthpt.png
+[plot] wrote output/plot_PID/plots_bkgmix_pid_perform/pid-pK_purity_vs_p_barrel_truthpt.png
+/local/scratch/a/wxie/eic/baseline_tracking_performance_agent/pid/plots.py:404: UserWarning: No artists with labels found to put in legend.  Note that artists whose label start with an underscore are ignored when legend() is called with no argument.
+  ax.legend(fontsize=7.5, loc="lower left")
+[plot] wrote output/plot_PID/plots_bkgmix_pid_perform/pid-pK_rejection_vs_p_barrel_truthpt.png
+[plot] wrote output/plot_PID/plots_bkgmix_pid_perform/pid-pK_nsigma_vs_p_barrel_truthpt.png
+[plot] wrote output/plot_PID/plots_bkgmix_pid_perform/pid-pK_significance_vs_cut_by_p_barrel_truthpt.png
+[plot] wrote output/plot_PID/plots_bkgmix_pid_perform/pid-pK_significance_vs_cut_panels_barrel_truthpt.png
+[performance/pK/truth/barrel] 2 in-acceptance rows, 6 tables, 8 figures
+[report] wrote output/pid-pK_lightgbm_bkg26071_forward_endcap-optimal_cut_vs_p_truthpt_forward_endcap.json, output/pid-pK_lightgbm_bkg26071_forward_endcap-optimal_cut_vs_p_truthpt_forward_endcap.md, output/pid-pK_lightgbm_bkg26071_forward_endcap-optimal_cut_vs_p_truthpt_forward_endcap.root (14 rows)
+[report] wrote output/pid-pK_lightgbm_bkg26071_forward_endcap-at_cut_global_truthpt_forward_endcap.json, output/pid-pK_lightgbm_bkg26071_forward_endcap-at_cut_global_truthpt_forward_endcap.md, output/pid-pK_lightgbm_bkg26071_forward_endcap-at_cut_global_truthpt_forward_endcap.root (14 rows)
+[report] wrote output/pid-pK_lightgbm_bkg26071_forward_endcap-at_cut_per_bin_truthpt_forward_endcap.json, output/pid-pK_lightgbm_bkg26071_forward_endcap-at_cut_per_bin_truthpt_forward_endcap.md, output/pid-pK_lightgbm_bkg26071_forward_endcap-at_cut_per_bin_truthpt_forward_endcap.root (14 rows)
+[report] wrote output/pid-pK_lightgbm_bkg26071_forward_endcap-rejection_vs_p_truthpt_forward_endcap.json, output/pid-pK_lightgbm_bkg26071_forward_endcap-rejection_vs_p_truthpt_forward_endcap.md, output/pid-pK_lightgbm_bkg26071_forward_endcap-rejection_vs_p_truthpt_forward_endcap.root (14 rows)
+[report] wrote output/pid-pK_lightgbm_bkg26071_forward_endcap-nsigma_vs_p_truthpt_forward_endcap.json, output/pid-pK_lightgbm_bkg26071_forward_endcap-nsigma_vs_p_truthpt_forward_endcap.md, output/pid-pK_lightgbm_bkg26071_forward_endcap-nsigma_vs_p_truthpt_forward_endcap.root (14 rows)
+[report] wrote output/pid-pK_lightgbm_bkg26071_forward_endcap-significance_by_p_truthpt_forward_endcap.json, output/pid-pK_lightgbm_bkg26071_forward_endcap-significance_by_p_truthpt_forward_endcap.md, output/pid-pK_lightgbm_bkg26071_forward_endcap-significance_by_p_truthpt_forward_endcap.root (2614 rows)
+[plot] wrote output/plot_PID/plots_bkgmix_pid_perform/pid-pK_optimal_cut_vs_p_forward_endcap_truthpt.png
+[plot] wrote output/plot_PID/plots_bkgmix_pid_perform/pid-pK_eff_vs_p_forward_endcap_truthpt.png
+[plot] wrote output/plot_PID/plots_bkgmix_pid_perform/pid-pK_misid_vs_p_forward_endcap_truthpt.png
+[plot] wrote output/plot_PID/plots_bkgmix_pid_perform/pid-pK_purity_vs_p_forward_endcap_truthpt.png
+[plot] wrote output/plot_PID/plots_bkgmix_pid_perform/pid-pK_rejection_vs_p_forward_endcap_truthpt.png
+[plot] wrote output/plot_PID/plots_bkgmix_pid_perform/pid-pK_nsigma_vs_p_forward_endcap_truthpt.png
+[plot] wrote output/plot_PID/plots_bkgmix_pid_perform/pid-pK_significance_vs_cut_by_p_forward_endcap_truthpt.png
+[plot] wrote output/plot_PID/plots_bkgmix_pid_perform/pid-pK_significance_vs_cut_panels_forward_endcap_truthpt.png
+[performance/pK/truth/forward endcap] 3737 in-acceptance rows, 6 tables, 8 figures
+[performance/pK/truth/backward endcap] SKIPPED: no in-acceptance rows
+[plot] wrote output/plot_PID/plots_bkgmix_pid_perform/pid-eid_lightgbm_bkg26071-nsigma_vs_p.png
+[plot] wrote output/plot_PID/plots_bkgmix_pid_perform/pid-eid_lightgbm_bkg26071-nsigma_vs_p_truthpt.png
+[plot] wrote output/plot_PID/plots_bkgmix_pid_perform/pid-ehad_lightgbm_bkg26071-nsigma_vs_p.png
+[plot] wrote output/plot_PID/plots_bkgmix_pid_perform/pid-ehad_lightgbm_bkg26071-nsigma_vs_p_truthpt.png
+[plot] wrote output/plot_PID/plots_bkgmix_pid_perform/pid-hadpid_lightgbm_bkg26071-nsigma_vs_p.png
+[plot] wrote output/plot_PID/plots_bkgmix_pid_perform/pid-hadpid_lightgbm_bkg26071-nsigma_vs_p_truthpt.png
+[report] wrote output/pid-deliverables_lightgbm_bkg26071.json, output/pid-deliverables_lightgbm_bkg26071.md, output/pid-deliverables_lightgbm_bkg26071.root (104 rows)
+[report] wrote output/pid-working_points_lightgbm_bkg26071.json, output/pid-working_points_lightgbm_bkg26071.md, output/pid-working_points_lightgbm_bkg26071.root (20 rows)
+
+[performance] maximum-significance working points
+channel      status binning_basis  threshold  significance  efficiency  fake_rate  purity  rejection  rejection_lower_limit  n_background_total                                                                                                                                                                                                                                                        caution
+    eid    headline          reco     0.0250      107.2282      0.9960     0.2237  0.9874     4.4698                 3.9695               666.0                                                                                                                                                                                                                                                               
+    eid    headline          reco     0.0250      107.2191      0.9960     0.2250  0.9872     4.4437                 3.9498               671.0                                                                                                                                                                                                                                                               
+    eid    headline         truth     0.0250      107.2282      0.9960     0.2237  0.9874     4.4698                 3.9695               666.0                                                                                                                                                                                                                                                               
+    eid    headline         truth     0.0250      107.2191      0.9960     0.2250  0.9872     4.4437                 3.9498               671.0                                                                                                                                                                                                                                                               
+   ehad    headline          reco     0.0550      107.0833      0.9932     0.1703  0.9875     5.8707                 5.1869               863.0                                                                                                                                                                                                                                                               
+   ehad    headline          reco     0.0550      107.0742      0.9932     0.1717  0.9873     5.8255                 5.1518               868.0                                                                                                                                                                                                                                                               
+   ehad    headline         truth     0.0550      107.0833      0.9932     0.1703  0.9875     5.8707                 5.1869               863.0                                                                                                                                                                                                                                                               
+   ehad    headline         truth     0.0550      107.0742      0.9932     0.1717  0.9873     5.8255                 5.1518               868.0                                                                                                                                                                                                                                                               
+    Kpi exploratory          reco     0.4025           NaN         NaN        NaN     NaN        NaN                    NaN                 NaN permissive optimum: fake rate 0.86 at c*, so the FOM gain comes from keeping signal rather than rejecting background - the separation power is poor (compare the AUC before quoting this as a selection); only 5 in-acceptance candidates in barrel (floor 50)
+    Kpi exploratory          reco     0.4025       13.6934      0.9393     0.8600  0.1063     1.1628                 1.1569             17245.0                                                       permissive optimum: fake rate 0.86 at c*, so the FOM gain comes from keeping signal rather than rejecting background - the separation power is poor (compare the AUC before quoting this as a selection)
+    Kpi exploratory          reco     0.4025       13.8936      0.9402     0.8611  0.1067     1.1613                 1.1556             17587.0                                                       permissive optimum: fake rate 0.86 at c*, so the FOM gain comes from keeping signal rather than rejecting background - the separation power is poor (compare the AUC before quoting this as a selection)
+    Kpi exploratory         truth     0.4025           NaN         NaN        NaN     NaN        NaN                    NaN                 NaN permissive optimum: fake rate 0.86 at c*, so the FOM gain comes from keeping signal rather than rejecting background - the separation power is poor (compare the AUC before quoting this as a selection); only 5 in-acceptance candidates in barrel (floor 50)
+    Kpi exploratory         truth     0.4025       13.6934      0.9393     0.8600  0.1063     1.1628                 1.1569             17245.0                                                       permissive optimum: fake rate 0.86 at c*, so the FOM gain comes from keeping signal rather than rejecting background - the separation power is poor (compare the AUC before quoting this as a selection)
+    Kpi exploratory         truth     0.4025       13.8936      0.9402     0.8611  0.1067     1.1613                 1.1556             17587.0                                                       permissive optimum: fake rate 0.86 at c*, so the FOM gain comes from keeping signal rather than rejecting background - the separation power is poor (compare the AUC before quoting this as a selection)
+     pK exploratory          reco     0.3350           NaN         NaN        NaN     NaN        NaN                    NaN                 NaN permissive optimum: fake rate 0.91 at c*, so the FOM gain comes from keeping signal rather than rejecting background - the separation power is poor (compare the AUC before quoting this as a selection); only 2 in-acceptance candidates in barrel (floor 50)
+     pK exploratory          reco     0.3350       30.6028      0.9785     0.9127  0.5149     1.0957                 1.0832              1878.0                                                       permissive optimum: fake rate 0.91 at c*, so the FOM gain comes from keeping signal rather than rejecting background - the separation power is poor (compare the AUC before quoting this as a selection)
+     pK exploratory          reco     0.3350       31.0590      0.9791     0.9122  0.5159     1.0963                 1.0839              1924.0                                                       permissive optimum: fake rate 0.91 at c*, so the FOM gain comes from keeping signal rather than rejecting background - the separation power is poor (compare the AUC before quoting this as a selection)
+     pK exploratory         truth     0.3350           NaN         NaN        NaN     NaN        NaN                    NaN                 NaN permissive optimum: fake rate 0.91 at c*, so the FOM gain comes from keeping signal rather than rejecting background - the separation power is poor (compare the AUC before quoting this as a selection); only 2 in-acceptance candidates in barrel (floor 50)
+     pK exploratory         truth     0.3350       30.6028      0.9785     0.9127  0.5149     1.0957                 1.0832              1878.0                                                       permissive optimum: fake rate 0.91 at c*, so the FOM gain comes from keeping signal rather than rejecting background - the separation power is poor (compare the AUC before quoting this as a selection)
+     pK exploratory         truth     0.3350       31.0590      0.9791     0.9122  0.5159     1.0963                 1.0839              1924.0                                                       permissive optimum: fake rate 0.91 at c*, so the FOM gain comes from keeping signal rather than rejecting background - the separation power is poor (compare the AUC before quoting this as a selection)
+[performance] WARNING: 4 channel(s) have no valid working point: Kpi, Kpi, pK, pK
+[performance] CAUTION Kpi: permissive optimum: fake rate 0.86 at c*, so the FOM gain comes from keeping signal rather than rejecting background - the separation power is poor (compare the AUC before quoting this as a selection); only 5 in-acceptance candidates in barrel (floor 50)
+[performance] CAUTION Kpi: permissive optimum: fake rate 0.86 at c*, so the FOM gain comes from keeping signal rather than rejecting background - the separation power is poor (compare the AUC before quoting this as a selection)
+[performance] CAUTION Kpi: permissive optimum: fake rate 0.86 at c*, so the FOM gain comes from keeping signal rather than rejecting background - the separation power is poor (compare the AUC before quoting this as a selection)
+[performance] CAUTION Kpi: permissive optimum: fake rate 0.86 at c*, so the FOM gain comes from keeping signal rather than rejecting background - the separation power is poor (compare the AUC before quoting this as a selection); only 5 in-acceptance candidates in barrel (floor 50)
+[performance] CAUTION Kpi: permissive optimum: fake rate 0.86 at c*, so the FOM gain comes from keeping signal rather than rejecting background - the separation power is poor (compare the AUC before quoting this as a selection)
+[performance] CAUTION Kpi: permissive optimum: fake rate 0.86 at c*, so the FOM gain comes from keeping signal rather than rejecting background - the separation power is poor (compare the AUC before quoting this as a selection)
+[performance] CAUTION pK: permissive optimum: fake rate 0.91 at c*, so the FOM gain comes from keeping signal rather than rejecting background - the separation power is poor (compare the AUC before quoting this as a selection); only 2 in-acceptance candidates in barrel (floor 50)
+[performance] CAUTION pK: permissive optimum: fake rate 0.91 at c*, so the FOM gain comes from keeping signal rather than rejecting background - the separation power is poor (compare the AUC before quoting this as a selection)
+[performance] CAUTION pK: permissive optimum: fake rate 0.91 at c*, so the FOM gain comes from keeping signal rather than rejecting background - the separation power is poor (compare the AUC before quoting this as a selection)
+[performance] CAUTION pK: permissive optimum: fake rate 0.91 at c*, so the FOM gain comes from keeping signal rather than rejecting background - the separation power is poor (compare the AUC before quoting this as a selection); only 2 in-acceptance candidates in barrel (floor 50)
+[performance] CAUTION pK: permissive optimum: fake rate 0.91 at c*, so the FOM gain comes from keeping signal rather than rejecting background - the separation power is poor (compare the AUC before quoting this as a selection)
+[performance] CAUTION pK: permissive optimum: fake rate 0.91 at c*, so the FOM gain comes from keeping signal rather than rejecting background - the separation power is poor (compare the AUC before quoting this as a selection)
+/opt/local/lib/python3.13/site-packages/XRootD/client/finalize.py:46: FutureWarning: `torch.distributed.reduce_op` is deprecated, please use `torch.distributed.ReduceOp` instead
+  if isinstance(obj, File) and obj.is_open():
+bkg exit=0 2026-10-18T01:23:55Z
