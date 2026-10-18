@@ -96,8 +96,9 @@ run_metric () {  # $1 metric  $2 tag  $3 filelist  [extra args...]
 
 # Chunk sizing for the heavy clean runs: 300 files / 4 chunks of 75-80. The
 # 300-file clean efficiency peaked near the box's RAM ceiling in one pass;
-# quarters bound it to roughly a quarter of that. bkg runs (275 x 99-event
-# files) completed in one pass and stay unchunked. Tunable, not magic.
+# quarters bound it to roughly a quarter of that. bkg runs (500 x 99-event
+# files, far fewer events than the clean side) complete in one pass and stay
+# unchunked. Tunable, not magic.
 readonly CHUNK_FILES_CLEAN=80
 
 for pair in "clean26071 filelists/clean26071_local.txt 0" \

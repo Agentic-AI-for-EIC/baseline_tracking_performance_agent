@@ -159,7 +159,7 @@ RESOLUTION_FIT_HIST_BINS: int = 100
 RESOLUTION_FIT_CORE_SIGMA: float = 3.0  # refit window = +/- N * first-pass sigma
 # Physical upper bound on the reported resolution: sigma on
 # Delta(p)/p = (p_reco - p_truth) / p_truth. A width of 1.0 means a 100%
-# resolution; anything >= that is unphysical (the reconstructed pT is
+# resolution; anything >= that is unphysical (the reconstructed p is
 # uncorrelated with truth / a diverged fit) and must be flagged rather than
 # reported as a real measurement. The ROOT Gaussian fit constrains sigma to
 # [0, RESOLUTION_MAX_SIGMA]; a fit hitting the upper bound is treated as
@@ -175,7 +175,11 @@ RESOLUTION_MAX_SIGMA: float = 1.0
 # ---------------------------------------------------------------------------
 DATASETS: dict[str, dict] = {
     "clean": {
-        "label": "Type 1: clean (no beam background)",
+        # WARNING (2026-09-25): the JLab /volatile 26.02.0 copies below are
+        # PURGED (tape-only at JLAB-TAPE-SE) - unavailable. The reproducible
+        # clean side of the primary comparison is "clean26071". Kept only as the
+        # historical full-statistics registry entry; not in DATASET_TAG_PAIRS.
+        "label": "Type 1: clean (no beam background) [26.02.0 /volatile PURGED]",
         "campaign": "26.02.0",
         "did": "epic:/RECO/26.02.0/epic_craterlake/DIS/NC/10x100/minQ2=1",
         "xrootd_prefix": "root://dtn-eic.jlab.org:1094//volatile/eic/EPIC/RECO/26.02.0"
@@ -237,9 +241,9 @@ DATASETS: dict[str, dict] = {
         "xrootd_prefix": (
             "root://localhost:1294//scratch/gautschi/wxie/eIC_data_small_set/bkg/reco"),
         "min_q2_tiers": [1],
-        "files_available": {1: 275},
+        "files_available": {1: 500},
         "events_per_file": {1: 99},
-        "start_n_files": 275,
+        "start_n_files": 500,
     },
 }
 

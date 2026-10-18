@@ -152,7 +152,7 @@ def compare_metric(
         merged["insufficient_stats"] = clean_flag | bkg_flag
 
     meta = {
-        "comparison": "bkg_mixed vs clean",
+        "comparison": "background vs clean (tags in *_source_meta)",
         "clean_source_meta": clean_meta,
         "bkg_source_meta": bkg_meta,
     }
