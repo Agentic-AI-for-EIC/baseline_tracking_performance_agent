@@ -173,6 +173,7 @@ def _write_outputs(
     meta = {
         "metric": metric_name,
         "dataset_tag": args.dataset_tag,
+        "campaign": config.DATASETS.get(args.dataset_tag, {}).get("campaign"),
         "min_q2_tier": args.min_q2_tier,
         "n_files": n_files,
         "max_file_failures": args.max_file_failures,
