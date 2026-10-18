@@ -32,10 +32,17 @@ cache/bkg26071_files/
 # tables it feeds (output/pid-features_*.pkl) are ignored above.
 cache/pid_features/
 
-# Full-sample score tables for the 26.07.1 grid (pooled/clean reach ~90 MB):
+# Full-sample score tables and trained model binaries for every tag (the pooled
+# all_scores.pkl reaches ~90 MB; model.joblib/booster.joblib 25-60 MB): all
 # regenerable offline via `python -m pid train --task <t> --model <lib>
-# --dataset-tag clean26071|bkg26071 --features output/pid-features_<tag>.pkl`;
-# the held-out test_scores.pkl (what every table/figure is computed from) IS
-# committed.
-output/models/*_clean26071/all_scores.pkl
-output/models/*_bkg26071/all_scores.pkl
+# --dataset-tag clean|bkg_mixed|clean26071|bkg26071 --features
+# output/pid-features_<tag>.pkl`. The held-out test_scores.pkl (what every
+# table/figure is computed from) IS committed, as are the importance outputs
+# (gain.csv/shap) computed from the model.
+output/models/*/all_scores.pkl
+output/models/*/*.joblib
+
+# Session scratch (opencode helpers + a session transcript), not project code.
+/continue.sh
+/suggest_skills.sh
+/session-*.md
