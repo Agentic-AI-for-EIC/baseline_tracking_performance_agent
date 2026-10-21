@@ -1179,5 +1179,61 @@ class TestCollectionProbe(unittest.TestCase):
             self.assertTrue(truth._collection_present(["f0", "f1"], "b"))
 
 
+class TestRecoHitCut(unittest.TestCase):
+    """The optional reco-side N_hit / N_si quality cut on the fake-rate metric
+    (reco.read_reco_track_hit_counts filter): it must exclude sub-threshold
+    tracks from BOTH numerator and denominator, and be a true no-op (and not
+    even read the hit tables) when disabled."""
+
+    @staticmethod
+    def _flagged(n=20):
+        # all tracks in one (p, eta) cell so grouping yields a single row
+        return pd.DataFrame({
+            "file_id": [0] * n,
+            "event": list(range(n)),
+            "idx": list(range(n)),
+            "p": [2.0] * n,
+            "eta": [0.2] * n,
+            "is_fake": [False] * (n // 2) + [True] * (n // 2),
+        })
+
+    @staticmethod
+    def _counts(n=20):
+        # idx 0,1 (real) have only 3 total hits; idx 10,11 (fake) have only 2
+        # silicon -> 4 tracks fail the >=4 total & >=3 silicon cut.
+        n_hit = np.full(n, 6); n_si = np.full(n, 4)
+        n_hit[0] = n_hit[1] = 3
+        n_si[10] = n_si[11] = 2
+        return pd.DataFrame({"file_id": [0] * n, "event": list(range(n)),
+                             "idx": list(range(n)),
+                             "n_reco_hits": n_hit, "n_reco_si_hits": n_si})
+
+    def _run(self, **kw):
+        from trkperf.metrics import fake_rate as FR
+        with mock.patch("trkperf.reco.read_reco_tracks", return_value=pd.DataFrame()), \
+             mock.patch("trkperf.matching.read_associations", return_value=pd.DataFrame()), \
+             mock.patch("trkperf.matching.find_fake_tracks", return_value=self._flagged()):
+            return FR.compute_fake_rate(["f"], **kw)
+
+    def test_cut_removes_from_both_numerator_and_denominator(self):
+        counts = self._counts()
+        with mock.patch("trkperf.reco.read_reco_track_hit_counts", return_value=counts):
+            out = self._run(min_reco_hits=4, min_reco_si_hits=3)
+        # 20 tracks - 4 failing = 16 kept; removed fakes (2) shrink numerator too
+        self.assertEqual(int(out["n_tracks"].sum()), 16)
+        self.assertEqual(int(out["n_fake"].sum()), 8)          # 10 fakes - 2 removed
+        self.assertEqual(out.attrs["run_params"]["n_reco_cut_removed"], 4)
+        self.assertEqual(out.attrs["run_params"]["min_reco_hits"], 4)
+        self.assertEqual(out.attrs["run_params"]["min_reco_si_hits"], 3)
+
+    def test_default_is_noop_and_never_reads_hit_tables(self):
+        with mock.patch("trkperf.reco.read_reco_track_hit_counts",
+                        side_effect=AssertionError("must not be called")):
+            out = self._run()
+        self.assertEqual(int(out["n_tracks"].sum()), 20)
+        self.assertEqual(int(out["n_fake"].sum()), 10)
+        self.assertEqual(out.attrs["run_params"]["n_reco_cut_removed"], 0)
+
+
 if __name__ == "__main__":
     unittest.main()

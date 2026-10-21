@@ -18,6 +18,9 @@ def _chunk_residuals(
     weight_threshold: float,
     max_failures: int,
     shared: dict,
+    min_reco_hits: int = 0,
+    min_reco_si_hits: int = 0,
+    cut_stats: dict | None = None,
 ) -> pd.DataFrame:
     """Per-chunk stage of the resolution computation: read truth, reco and
     associations for one file-list chunk, build the matched pairs, and keep
@@ -29,6 +32,11 @@ def _chunk_residuals(
     Delta(p)/p values (including any non-finite ones) are passed through
     exactly as the single pass would produce them - `binning.fit_gaussian_core`
     filters non-finite entries at fit time, so fitted sigmas are identical.
+
+    When min_reco_hits/min_reco_si_hits are set, matched pairs are additionally
+    restricted to reconstructed tracks whose OWN hit composition passes the cut
+    (reco.read_reco_track_hit_counts); removed-pair counts accumulate in
+    `cut_stats`.
     """
     truth_df = truth.read_truth_particles(
         file_paths, max_failures=max_failures, primary_only=True, shared_failures=shared
@@ -45,6 +53,19 @@ def _chunk_residuals(
     with np.errstate(divide="ignore", invalid="ignore"):
         matched["delta_p_over_p"] = (matched["reco_p"] - matched["p"]) / matched["p"]
 
+    if min_reco_hits > 0 or min_reco_si_hits > 0:
+        counts = reco.read_reco_track_hit_counts(
+            file_paths, max_failures=max_failures, shared_failures=shared)
+        matched = matched.merge(
+            counts.rename(columns={"idx": "rec_idx"}),
+            on=["file_id", "event", "rec_idx"], how="left")
+        keep = ((matched["n_reco_hits"].fillna(-1) >= min_reco_hits)
+                & (matched["n_reco_si_hits"].fillna(-1) >= min_reco_si_hits))
+        if cut_stats is not None:
+            cut_stats["n_removed"] = cut_stats.get("n_removed", 0) + int((~keep).sum())
+            cut_stats["n_kept"] = cut_stats.get("n_kept", 0) + int(keep.sum())
+        matched = matched[keep]
+
     matched = binning.assign_bins(matched)
     matched = matched.dropna(subset=["p_bin", "eta_bin"])
 
@@ -60,6 +81,8 @@ def compute_resolution(
     weight_threshold: float = config.MATCH_WEIGHT_THRESHOLD,
     max_failures: int = 0,
     chunk_files: int = 0,
+    min_reco_hits: int = 0,
+    min_reco_si_hits: int = 0,
 ) -> pd.DataFrame:
     """Compute the momentum-resolution table for the given files.
 
@@ -82,6 +105,7 @@ def compute_resolution(
     exactly the same values as a single pass and returns identical numbers.
     """
     shared: dict = {}
+    cut_stats: dict = {}
     n_files = len(file_paths)
     if chunk_files and chunk_files > 0 and chunk_files < n_files:
         chunks = [file_paths[i:i + chunk_files] for i in range(0, n_files, chunk_files)]
@@ -89,7 +113,8 @@ def compute_resolution(
         chunks = [list(file_paths)]
     matched = pd.concat(
         [
-            _chunk_residuals(c, species, weight_threshold, max_failures, shared)
+            _chunk_residuals(c, species, weight_threshold, max_failures, shared,
+                             min_reco_hits, min_reco_si_hits, cut_stats)
             for c in chunks
         ],
         ignore_index=True,
@@ -155,5 +180,8 @@ def compute_resolution(
     result["fit_converged"] = result["fit_converged"].fillna(False).astype(bool)
     result.attrs["skipped_files"] = sorted(shared.get("skipped", []))
     result.attrs["run_params"] = {"weight_threshold": weight_threshold, "species": species,
-                                  "chunk_files": chunk_files or 0, "n_chunks": len(chunks)}
+                                  "chunk_files": chunk_files or 0, "n_chunks": len(chunks),
+                                  "min_reco_hits": min_reco_hits,
+                                  "min_reco_si_hits": min_reco_si_hits,
+                                  "n_reco_cut_removed": cut_stats.get("n_removed", 0)}
     return result

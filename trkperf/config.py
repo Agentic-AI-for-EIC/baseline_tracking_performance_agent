@@ -93,6 +93,50 @@ SILICON_TRACKING_TRUTH_HIT_COLLECTIONS: tuple[str, ...] = (
     "TrackerEndcapHits",
 )
 
+# ---------------------------------------------------------------------------
+# Reconstructed-side hit composition (reco-track quality cut, 2026-10).
+# A CentralCKFTracks track carries N tracker measurement hits plus TOF timing
+# objects; `reco.read_reco_track_hit_counts` walks
+#   CentralCKFTracks.measurements -> <tracker measurement collection> -> *_RecHits
+# and classifies each underlying hit by its source collection (resolved through
+# the per-file podio_metadata collection registry). The names below were
+# verified live on the 26.07.1 reproduction file; silicon is detected by the
+# "Si" prefix so a renamed production is still handled, and the explicit set is
+# kept as documentation of the current campaign.
+# ---------------------------------------------------------------------------
+#: Reconstructed silicon hit collections (26.07.1, verified live).
+SILICON_RECO_HIT_COLLECTIONS: tuple[str, ...] = (
+    "SiBarrelTrackerRecHits",
+    "SiBarrelVertexRecHits",
+    "SiEndcapTrackerRecHits",
+)
+
+#: Substrings marking a reco hit collection as NON-tracking (timing objects,
+#: excluded from the reco N_hit total - mirrors the central truth rule, which
+#: counts only tracking collections, not TOF).
+RECO_NONTRACKING_HIT_SUBSTRINGS: tuple[str, ...] = ("TOF",)
+
+
+def is_silicon_reco_hit(collection_name: str) -> bool:
+    """True if a reconstructed hit collection is silicon.
+
+    Prefix rule ("Si") generalises across productions; the explicit
+    26.07.1 set is a documented fast path. Vertex/MPGD/gas collections are
+    not silicon.
+    """
+    return (collection_name in SILICON_RECO_HIT_COLLECTIONS
+            or collection_name.startswith("Si"))
+
+
+def is_tracking_reco_hit(collection_name: str) -> bool:
+    """True if a reconstructed hit collection is a tracking (space-point) hit.
+
+    Timing/calo collections (TOF/...) are excluded so the reco N_hit counts
+    silicon + gaseous tracker layers only, matching the truth N_hit rule.
+    """
+    return not any(sub in collection_name
+                   for sub in RECO_NONTRACKING_HIT_SUBSTRINGS)
+
 CENTRAL_TRACKING_TRUTH_HIT_COLLECTIONS: tuple[str, ...] = (
     "SiBarrelHits",
     "VertexBarrelHits",

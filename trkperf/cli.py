@@ -163,6 +163,24 @@ def _add_common_args(sub: argparse.ArgumentParser) -> None:
         "efficiency and resolution metrics honour it - chunked counts are "
         "merged before ratios/fits, so results are identical to one pass.",
     )
+    sub.add_argument(
+        "--min-reco-hits",
+        type=int,
+        default=0,
+        help="Reco-side quality cut for fake-rate and resolution: keep only "
+        "reconstructed tracks with at least this many tracker hits (silicon + "
+        "gaseous; TOF timing excluded). 0 = off. CentralCKF already needs a "
+        ">=3-silicon seed, so 4 removes ~1% of tracks; use a larger value for "
+        "a cut that actually bites.",
+    )
+    sub.add_argument(
+        "--min-reco-si-hits",
+        type=int,
+        default=0,
+        help="Reco-side silicon-hit floor (with --min-reco-hits) for fake-rate "
+        "and resolution: keep only tracks with at least this many silicon "
+        "hits. 0 = off.",
+    )
 
 
 def _write_outputs(
@@ -226,6 +244,9 @@ def _run_species_metric(metric_name: str, compute_fn):
             kwargs["region"] = args.region
         if metric_name in ("efficiency", "resolution"):
             kwargs["chunk_files"] = args.chunk_files
+        if metric_name in ("resolution", "fake-rate"):
+            kwargs["min_reco_hits"] = args.min_reco_hits
+            kwargs["min_reco_si_hits"] = args.min_reco_si_hits
         df = compute_fn(files, species=args.species, max_failures=args.max_file_failures,
                         **kwargs)
         _write_outputs(df, metric_name, args, n_files=len(files))
@@ -238,7 +259,8 @@ def _run_fake_rate(args: argparse.Namespace):
     io_module.set_cache_dir(args.cache_dir)
     files = _read_file_list(args)
     df = fake_rate_module.compute_fake_rate(
-        files, max_failures=args.max_file_failures
+        files, max_failures=args.max_file_failures,
+        min_reco_hits=args.min_reco_hits, min_reco_si_hits=args.min_reco_si_hits,
     )
     _write_outputs(df, FAKE_RATE_NAME, args, n_files=len(files))
     return df

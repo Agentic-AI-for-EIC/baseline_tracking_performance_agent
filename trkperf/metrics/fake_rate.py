@@ -19,6 +19,8 @@ def compute_fake_rate(
     file_paths: list[str],
     weight_threshold: float = config.MATCH_WEIGHT_THRESHOLD,
     max_failures: int = 0,
+    min_reco_hits: int = 0,
+    min_reco_si_hits: int = 0,
 ) -> pd.DataFrame:
     """Compute the fake-rate table for the given files.
 
@@ -26,6 +28,14 @@ def compute_fake_rate(
     AGENTS.md: ~0 fakes by construction, not a meaningful measurement). This
     function does not itself check the file list's provenance - the SKILL.md
     procedure and the CLI are responsible for warning if given a gun sample.
+
+    Optional reco-side quality cut (both default 0 = off): when
+    ``min_reco_hits`` / ``min_reco_si_hits`` are set, a reconstructed track is
+    only counted (fake or real) if it itself carries at least that many
+    tracker hits (silicon + gaseous; TOF timing excluded) and at least that
+    many silicon hits, per ``reco.read_reco_track_hit_counts``. Note CentralCKF
+    already requires a >=3-silicon seed, so a 3/4 cut removes ~1% of tracks
+    (near-tautological); a *stricter* cut is where it starts to bite.
 
     Returns
     -------
@@ -42,6 +52,18 @@ def compute_fake_rate(
     )
 
     flagged = matching.find_fake_tracks(reco_df, assoc_df, weight_threshold)
+
+    n_reco_cut_removed = 0
+    if min_reco_hits > 0 or min_reco_si_hits > 0:
+        counts = reco.read_reco_track_hit_counts(
+            file_paths, max_failures=max_failures, shared_failures=shared)
+        flagged = flagged.merge(counts, on=["file_id", "event", "idx"], how="left")
+        nh = flagged["n_reco_hits"].fillna(-1)
+        ns = flagged["n_reco_si_hits"].fillna(-1)
+        keep = (nh >= min_reco_hits) & (ns >= min_reco_si_hits)
+        n_reco_cut_removed = int((~keep).sum())
+        flagged = flagged[keep]
+
     flagged = binning.assign_bins(flagged)
     # Tracks with unmeasurable kinematics (qOverP == 0 or NaN angles) can never
     # be binned: count them separately instead of silently dropping them from
@@ -80,5 +102,8 @@ def compute_fake_rate(
     result.attrs["run_params"] = {
         "weight_threshold": weight_threshold,
         "n_unmeasurable_tracks": n_unmeasurable,
+        "min_reco_hits": min_reco_hits,
+        "min_reco_si_hits": min_reco_si_hits,
+        "n_reco_cut_removed": n_reco_cut_removed,
     }
     return result
