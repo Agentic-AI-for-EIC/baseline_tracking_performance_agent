@@ -428,13 +428,15 @@ def plot_bkg_over_clean_ratio(
     clean_df, bkg_df, value_col, err_col, path, *,
     count_cols=None, eta_region_filter=None, eta_window=None,
     title=None, y_label="bkg / clean", group_col="species_group",
+    ymin=None, ymax=None,
 ) -> pd.DataFrame:
     """Plot :func:`bkg_over_clean_ratio` (background / clean) vs momentum p."""
     m = bkg_over_clean_ratio(clean_df, bkg_df, value_col, err_col,
                              count_cols=count_cols, eta_region_filter=eta_region_filter,
                              eta_window=eta_window)
     plot_metric_vs_p(m, "ratio", "ratio_err", path, group_col=group_col,
-                     title=title or "background / clean", y_label=y_label)
+                     title=title or "background / clean", y_label=y_label,
+                     ymin=ymin, ymax=ymax)
     return m
 
 
@@ -459,6 +461,7 @@ def plot_metric_vs_p(
     marker_col: str | None = None,
     group_color: str | None = None,
     ymin: float | None = None,
+    ymax: float | None = None,
     marker_legend_loc: str = "upper right",
     legend_title: str | None = None,
 ) -> None:
@@ -543,8 +546,12 @@ def plot_metric_vs_p(
         ax.set_xscale("log")
     if log_y:
         ax.set_yscale("log")
-    if ymin is not None:
+    if ymin is not None and ymax is not None:
+        ax.set_ylim(ymin, ymax)
+    elif ymin is not None:
         ax.set_ylim(bottom=ymin)
+    elif ymax is not None:
+        ax.set_ylim(top=ymax)
     ax.set_xlabel("p [GeV]")
     ax.set_ylabel(y_label or value_col)
     if title:
