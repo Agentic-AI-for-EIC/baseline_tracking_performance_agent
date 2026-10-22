@@ -387,7 +387,6 @@ def bkg_over_clean_ratio(
     statistic exact and avoids eta-region fan-out when none is selected.
     """
     from . import binning
-    num_col, den_col = count_cols
 
     def pooled(df):
         w = df.copy()
@@ -401,13 +400,35 @@ def bkg_over_clean_ratio(
                 w = w[(w["eta_bin_center"] >= lo) & (w["eta_bin_center"] <= hi)]
         if w.empty:
             return pd.DataFrame(columns=["species_group", "p_bin_center", "v", "e", "n"])
-        g = (w.groupby(["species_group", "p_bin_center"], observed=True)
-             .agg(num=(num_col, "sum"), den=(den_col, "sum")).reset_index())
-        g["n"] = g["den"]
-        with np.errstate(divide="ignore", invalid="ignore"):
-            g["v"] = g["num"] / g["den"]
-        g["e"] = binning.binomial_error(g["num"], g["den"])
-        return g[["species_group", "p_bin_center", "v", "e", "n"]]
+        keys = ["species_group", "p_bin_center"]
+        if count_cols is not None:
+            # count-based metric (acceptance/efficiency/fake-rate): sum the
+            # numerator/denominator over the region's eta bins.
+            num_col, den_col = count_cols
+            g = (w.groupby(keys, observed=True)
+                 .agg(num=(num_col, "sum"), den=(den_col, "sum")).reset_index())
+            with np.errstate(divide="ignore", invalid="ignore"):
+                g["v"] = g["num"] / g["den"]
+            g["e"] = binning.binomial_error(g["num"], g["den"])
+            g["n"] = g["den"]
+        else:
+            # width/σ metric (resolution): inverse-variance-weighted mean over
+            # the region's eta bins, excluding non-converged / zero-error fits.
+            ok = (np.isfinite(w[err_col]) & (w[err_col] > 0)
+                  & ((w["fit_converged"] == True) if "fit_converged" in w.columns else True))  # noqa: E712
+            w = w.assign(_w=np.where(ok, 1.0 / w[err_col].to_numpy(dtype=float) ** 2, 0.0))
+            w["_wv"] = w["_w"] * w[value_col].to_numpy(dtype=float)
+            ncol = "n_matched" if "n_matched" in w.columns else None
+            g = w.groupby(keys, observed=True).agg(**{
+                "_w": ("_w", "sum"), "_wv": ("_wv", "sum"),
+                **({"n": (ncol, "sum")} if ncol else {})}).reset_index()
+            if ncol is None:
+                g["n"] = 1
+            with np.errstate(divide="ignore", invalid="ignore"):
+                g["v"] = g["_wv"] / g["_w"]
+                g["e"] = 1.0 / np.sqrt(g["_w"])
+            g.loc[g["_w"] <= 0, ["v", "e"]] = np.nan
+        return g[keys + ["v", "e", "n"]]
 
     ca, ba = pooled(clean_df), pooled(bkg_df)
     if ca.empty or ba.empty:
