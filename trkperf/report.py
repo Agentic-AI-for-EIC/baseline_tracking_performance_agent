@@ -367,6 +367,78 @@ def aggregate_species_eta_bin(
     return out.drop(columns=["eta_region"])
 
 
+def bkg_over_clean_ratio(
+    clean_df: pd.DataFrame, bkg_df: pd.DataFrame,
+    value_col: str, err_col: str | None,
+    count_cols: tuple[str, str],
+    eta_region_filter: str | None = None,
+    eta_window: tuple[float, float] | None = None,
+) -> pd.DataFrame:
+    """Background-over-clean ratio of a count-based metric, per species group and p.
+
+    Each side's numerator/denominator counts (``count_cols``) are summed over
+    the selected eta bins into a pooled value per (species group, p bin), then
+    ``ratio = value_bkg / value_clean`` with error propagated as
+    ``ratio * sqrt((e_bkg/v_bkg)^2 + (e_clean/v_clean)^2)`` (per-side errors are
+    binomial on the pooled counts). A cell is flagged insufficient when either
+    side lacks statistics, so a ratio never mixes a real number against a thin
+    one. ratio 1 = background changed nothing; <1 (efficiency) or >1 (fake rate)
+    shows the impact. Pooling counts (not averaging per-bin ratios) keeps the
+    statistic exact and avoids eta-region fan-out when none is selected.
+    """
+    from . import binning
+    num_col, den_col = count_cols
+
+    def pooled(df):
+        w = df.copy()
+        w["species_group"] = (w["species"].map(lambda s: SPECIES_GROUPS.get(s, s))
+                              if "species" in w.columns else "all")
+        if "eta_bin_center" in w.columns:
+            if eta_region_filter is not None:
+                w = w[w["eta_bin_center"].map(eta_region) == eta_region_filter]
+            if eta_window is not None:
+                lo, hi = eta_window
+                w = w[(w["eta_bin_center"] >= lo) & (w["eta_bin_center"] <= hi)]
+        if w.empty:
+            return pd.DataFrame(columns=["species_group", "p_bin_center", "v", "e", "n"])
+        g = (w.groupby(["species_group", "p_bin_center"], observed=True)
+             .agg(num=(num_col, "sum"), den=(den_col, "sum")).reset_index())
+        g["n"] = g["den"]
+        with np.errstate(divide="ignore", invalid="ignore"):
+            g["v"] = g["num"] / g["den"]
+        g["e"] = binning.binomial_error(g["num"], g["den"])
+        return g[["species_group", "p_bin_center", "v", "e", "n"]]
+
+    ca, ba = pooled(clean_df), pooled(bkg_df)
+    if ca.empty or ba.empty:
+        return pd.DataFrame(columns=["species_group", "p_bin_center",
+                                     "ratio", "ratio_err", "insufficient_stats"])
+    m = ca.merge(ba, on=["species_group", "p_bin_center"], how="inner",
+                 suffixes=("_clean", "_bkg"))
+    with np.errstate(divide="ignore", invalid="ignore"):
+        m["ratio"] = m["v_bkg"] / m["v_clean"]
+        rel = np.sqrt((m["e_bkg"] / m["v_bkg"]) ** 2 + (m["e_clean"] / m["v_clean"]) ** 2)
+        m["ratio_err"] = m["ratio"] * rel
+    m["insufficient_stats"] = ((m["n_clean"] < config.MIN_ENTRIES_PER_BIN)
+                               | (m["n_bkg"] < config.MIN_ENTRIES_PER_BIN))
+    return m[["species_group", "p_bin_center", "ratio", "ratio_err", "insufficient_stats"]]
+
+
+def plot_bkg_over_clean_ratio(
+    clean_df, bkg_df, value_col, err_col, path, *,
+    count_cols=None, eta_region_filter=None, eta_window=None,
+    title=None, y_label="bkg / clean", group_col="species_group",
+) -> pd.DataFrame:
+    """Plot :func:`bkg_over_clean_ratio` (background / clean) vs momentum p."""
+    m = bkg_over_clean_ratio(clean_df, bkg_df, value_col, err_col,
+                             count_cols=count_cols, eta_region_filter=eta_region_filter,
+                             eta_window=eta_window)
+    plot_metric_vs_p(m, "ratio", "ratio_err", path, group_col=group_col,
+                     title=title or "background / clean", y_label=y_label)
+    return m
+
+
+
 def _markers_for(values: list) -> dict:
     """Map each sorted `values` entry to a distinct marker style, cycling the
     built-in list if there are more values than styles."""
