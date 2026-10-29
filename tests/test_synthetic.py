@@ -16,7 +16,7 @@ from unittest import mock
 import numpy as np
 import pandas as pd
 
-from trkperf import binning, compare, io, report
+from trkperf import binning, compare, io, matching, report
 
 
 class TestGaussianFit(unittest.TestCase):
@@ -1233,6 +1233,45 @@ class TestRecoHitCut(unittest.TestCase):
         self.assertEqual(int(out["n_tracks"].sum()), 20)
         self.assertEqual(int(out["n_fake"].sum()), 10)
         self.assertEqual(out.attrs["run_params"]["n_reco_cut_removed"], 0)
+
+
+class TestBestAssociationNoDoubleCount(unittest.TestCase):
+    """A reconstructed track can appear in CentralCKFTrackAssociations once per
+    contributing MC particle (e.g. a 6-hit track: 5/6 from A, 1/6 from B -> two
+    association rows). The fake-rate grain must be ONE row per track, judged by
+    the DOMINANT association, so the denominator/numerator never double-count
+    a track. This is the exact case raised in review."""
+
+    def _reco(self):
+        return pd.DataFrame({"file_id": [0, 0], "event": [0, 0], "idx": [0, 1],
+                             "p": [2.0, 3.0], "eta": [0.2, 0.5]})
+
+    def _assoc(self):
+        # track 0: two associations (5/6 -> sim0, 1/6 -> sim1); track 1: only 1/6.
+        return pd.DataFrame({"file_id": [0, 0, 0], "event": [0, 0, 0], "idx": [0, 1, 2],
+                             "rec_idx": [0, 0, 1], "sim_idx": [0, 1, 2],
+                             "weight": [5 / 6, 1 / 6, 1 / 6]})
+
+    def test_best_per_track_collapses_to_one_row(self):
+        best = matching._best_association(self._assoc(), ["file_id", "event", "rec_idx"])
+        self.assertEqual(len(best), 2)                      # 3 assoc rows -> 2 tracks
+        self.assertFalse(best.duplicated(["rec_idx"]).any())
+        # the surviving row for track 0 is the dominant 5/6, not 1/6
+        w0 = float(best.loc[best["rec_idx"] == 0, "weight"].iloc[0])
+        self.assertAlmostEqual(w0, 5 / 6)
+
+    def test_find_fake_tracks_is_per_track_and_majority_judged(self):
+        f = matching.find_fake_tracks(self._reco(), self._assoc(),
+                                      weight_threshold=0.5).reset_index(drop=True)
+        self.assertEqual(len(f), 2)                         # one row per track
+        self.assertEqual(f["idx"].tolist(), [0, 1])         # no fan-out / duplication
+        self.assertFalse(bool(f.loc[f["idx"] == 0, "is_fake"].item()))  # best 5/6 -> real
+        self.assertTrue(bool(f.loc[f["idx"] == 1, "is_fake"].item()))   # best 1/6 -> fake
+
+    def test_n_tracks_equals_reco_count(self):
+        # the fake-rate denominator cannot exceed the number of reco tracks.
+        f = matching.find_fake_tracks(self._reco(), self._assoc(), 0.5)
+        self.assertEqual(len(f), len(self._reco()))
 
 
 if __name__ == "__main__":
