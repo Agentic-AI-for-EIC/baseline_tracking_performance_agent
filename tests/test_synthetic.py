@@ -1273,6 +1273,30 @@ class TestBestAssociationNoDoubleCount(unittest.TestCase):
         f = matching.find_fake_tracks(self._reco(), self._assoc(), 0.5)
         self.assertEqual(len(f), len(self._reco()))
 
+    def test_exact_half_split_is_a_fake(self):
+        # A track whose hits split exactly 0.5 / 0.5 between two particles is a
+        # strict-majority tie: neither owns it, so it is a FAKE (and the same
+        # track cannot be claimed by both in resolution).
+        reco = pd.DataFrame({"file_id": [0], "event": [0], "idx": [0],
+                             "p": [2.0], "pt": [1.9], "eta": [0.2], "phi": [0.0],
+                             "charge": [1.0], "pdg": [0], "chi2": [5.0], "ndf": [4.0]})
+        assoc = pd.DataFrame({"file_id": [0, 0], "event": [0, 0], "idx": [0, 1],
+                              "rec_idx": [0, 0], "sim_idx": [0, 1],
+                              "weight": [0.5, 0.5]})
+        f = matching.find_fake_tracks(reco, assoc, weight_threshold=0.5)
+        self.assertTrue(bool(f["is_fake"].item()))
+        # and the truth-keyed pair table marks BOTH particles unmatched for it
+        truth = pd.DataFrame({"file_id": [0, 0], "event": [0, 0], "idx": [0, 1],
+                              "p": [2.0, 2.0], "eta": [0.2, 0.2]})
+        pairs = matching.build_matched_pairs(truth, reco, assoc, weight_threshold=0.5)
+        self.assertFalse(pairs["is_matched"].any())
+        # a 0.51 vs 0.49 split still resolves: owner matched, other fake
+        assoc2 = assoc.copy(); assoc2["weight"] = [0.51, 0.49]
+        f2 = matching.find_fake_tracks(reco, assoc2, weight_threshold=0.5)
+        self.assertFalse(bool(f2["is_fake"].item()))
+        p2 = matching.build_matched_pairs(truth, reco, assoc2, weight_threshold=0.5)
+        self.assertEqual(int(p2.sort_values("idx")["is_matched"].to_numpy().sum()), 1)
+
 
 if __name__ == "__main__":
     unittest.main()

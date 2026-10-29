@@ -147,8 +147,10 @@ impact of beam-induced background on tracking performance.
   (`edm4eic::MCRecoTrackParticleAssociationData`) — `.weight` plus relations
   `_CentralCKFTrackAssociations_rec` (-> CentralCKFTracks) and
   `_CentralCKFTrackAssociations_sim` (-> MCParticles), both `{index,
-  collectionID}`. A match is valid at weight >= 0.5 (state explicitly if a
-  run uses a different threshold). trkperf assumes a single `CentralCKFTracks`
+  collectionID}`. A match is valid only at weight > 0.5 — strict majority (a
+  track's association weights sum to <= 1, so at most one particle can exceed
+  0.5; an exact 50/50-shared track counts as a fake, not attributed to either).
+  State explicitly if a run uses a different threshold. trkperf assumes a single `CentralCKFTracks`
   collection and a single `MCParticles` collection per file and joins on
   `.index` alone; revisit if that assumption ever stops holding.
 - Species: keyed by `MCParticles.PDG`; `trkperf/config.py` is the single

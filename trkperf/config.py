@@ -67,10 +67,14 @@ BARREL_ETA_MAX: float = 1.5
 # ---------------------------------------------------------------------------
 # Truth-reco matching (CentralCKFTrackAssociations.weight).
 # ---------------------------------------------------------------------------
-# A track/particle pair is considered a genuine match if the association
-# weight (the fraction of the track's hits that came from that truth
-# particle) is at least this value. 0.5 = "most of the track's hits are from
-# this particle" - the standard majority-matching convention.
+# A track/particle pair is a genuine match only if the association weight (the
+# fraction of the track's hits that came from that truth particle) is STRICTLY
+# greater than this value - a strict majority. 0.5 = "more than half the
+# track's hits are from this particle". Strict (>) rather than >= matters for
+# the exact-tie case: because a track's association weights sum to <= 1, no
+# two particles can both exceed 0.5, so a strict majority guarantees at most
+# one owner per track (no double counting) and a perfectly 50/50-shared track
+# (e.g. 3/6 + 3/6) is treated as a fake rather than attributed to either.
 MATCH_WEIGHT_THRESHOLD: float = 0.5
 
 # ---------------------------------------------------------------------------

@@ -85,7 +85,8 @@ def build_matched_pairs(
     assoc_df:
         Output of read_associations.
     weight_threshold:
-        Minimum association weight to accept as a genuine match.
+        Association weight must be strictly greater than this to count as a
+        genuine match (strict majority).
 
     Returns
     -------
@@ -110,7 +111,7 @@ def build_matched_pairs(
         how="left",
     ).rename(columns={"weight": "assoc_weight"})
 
-    merged["is_matched"] = merged["assoc_weight"].fillna(0.0) >= weight_threshold
+    merged["is_matched"] = merged["assoc_weight"].fillna(0.0) > weight_threshold
 
     reco_cols = ["pt", "eta", "phi", "p", "charge", "pdg", "chi2", "ndf"]
     reco_renamed = reco_df.rename(columns={c: f"reco_{c}" for c in reco_cols}).rename(
@@ -156,7 +157,7 @@ def find_fake_tracks(
         how="left",
     ).rename(columns={"weight": "assoc_weight"})
 
-    merged["is_fake"] = merged["assoc_weight"].fillna(0.0) < weight_threshold
+    merged["is_fake"] = merged["assoc_weight"].fillna(0.0) <= weight_threshold
     return merged
 
 
@@ -186,7 +187,8 @@ def build_matched_tracks(
     truth_df, reco_df, assoc_df:
         As in :func:`build_matched_pairs`.
     weight_threshold:
-        Minimum association weight for the match to count as genuine.
+        Association weight must be strictly greater than this for the match to
+        count as genuine (strict majority).
 
     Returns
     -------
@@ -196,7 +198,7 @@ def build_matched_tracks(
         Best association weight for this track (NaN if it appears in no
         association at all).
     ``is_matched``
-        ``assoc_weight >= weight_threshold``.
+        ``assoc_weight > weight_threshold`` (strict majority).
     ``truth_idx``
         MCParticles position of the matched truth particle (NA if unmatched).
     ``truth_pdg``, ``truth_species``, ``truth_pt``, ``truth_eta``,
@@ -214,7 +216,7 @@ def build_matched_tracks(
         how="left",
     ).rename(columns={"weight": "assoc_weight", "sim_idx": "truth_idx"})
 
-    merged["is_matched"] = merged["assoc_weight"].fillna(0.0) >= weight_threshold
+    merged["is_matched"] = merged["assoc_weight"].fillna(0.0) > weight_threshold
     merged["is_fake"] = ~merged["is_matched"]
     # Below-threshold best associations keep a (spurious) truth_idx from the
     # merge; blank it so "is_matched == False" never carries a truth label.
