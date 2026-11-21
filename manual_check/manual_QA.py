@@ -16,17 +16,28 @@ What it does (the same physics as trkperf, with all packaging stripped):
          forward endcap  (eta > +1.5)  : {ForwardMPGD,  TrackerEndcap, TOF}
      the silicon subset is the region's collections that are silicon
      (TrackerEndcap in every region, plus the barrel Si collections).
-  4. matches truth <-> reco at association weight >= 0.5 (best match wins),
-  5. draws one plot per region: acceptance & efficiency vs p (the
-     resolution core width + tail fraction are in the figure title); prints per-region totals and
-     a file-wide fake rate (no plot - a fake has no truth species/region).
+   4. matches truth <-> reco at STRICT-majority association weight > 0.5
+      (best match wins), and requires the RECONSTRUCTED track to carry the
+      same 4/3 hit floor as truth acceptance - >= 4 hits of the track's own
+      region's tracking collections (TOF endcap hits count in the endcaps,
+      not in the barrel), >= 3 of them silicon in that region (walks
+      CentralCKFTracks.measurements -> tracker measurements -> *_RecHits via
+      the podio registry, mirroring trkperf.reco.read_reco_track_hit_counts),
+   5. draws one plot per region: acceptance & efficiency vs p (the
+      per-p-bin resolution core widths + tail fraction are in the figure
+      title); prints per-region RAW INTEGER totals ("QA-INTS ..." lines, for
+      exact machine comparison against trkperf via check_qa_parity.py) and
+      a file-wide fake rate (no plot - a fake has no truth species/region).
 
 Conventions deliberately identical to trkperf: primaries only
 (generatorStatus == 1), 8 species, (lo, hi] bins over momentum p (0.1, 100]
-and eta (-4, 4], region by eta-bin centre, match at weight >= 0.5 with the
-single best association winning, individual-hit acceptance counts. Deliberately
-simpler: 7 wide p bins, a robust MAD core width instead of the ROOT
-Gaussian-core fit, per-bin points hidden below 5 entries (trkperf uses 50),
+and eta (-4, 4], region by eta-bin centre, STRICT majority weight > 0.5 with
+the single best association winning, individual-hit acceptance counts, and
+the reco-track 4/3 hit cut on fake rate / efficiency / resolution
+(0 with --no-reco-cut to disable). Deliberately simpler: 7 wide p bins,
+geometric bin centres, per-p-bin MAD core widths instead of the ROOT
+Gaussian-core fit, per-bin acceptance points hidden below 5 entries and
+per-bin efficiency below 5 IN-ACCEPTANCE entries (trkperf uses 50 for both),
 with the bin's n= printed in grey.
 
 Only dependency besides the standard scientific stack: uproot.
@@ -112,8 +123,100 @@ REGIONS = {
 WANT_PDG = {11: "e-", -11: "e+", 211: "pi+", -211: "pi-",
             321: "K+", -321: "K-", 2212: "proton", -2212: "antiproton"}
 
+# ---------------------------------------------------------------------------
+# RECONSTRUCTED-side hit collections per region - the QA mirror of
+# trkperf.config.reco_hit_collections() (26.07.1 names, verified live via the
+# podio registry). A track counts toward the 4/3 reco cut only via its OWN
+# region's sets: the endcap regions include the TOF endcap hits (truth counts
+# them there) and give no credit to barrel silicon; the barrel has no TOF.
+# ---------------------------------------------------------------------------
+RECO_TRACKING = {
+    "barrel": {"SiBarrelTrackerRecHits", "SiBarrelVertexRecHits",
+               "SiEndcapTrackerRecHits", "MPGDBarrelRecHits",
+               "OuterMPGDBarrelRecHits", "BackwardMPGDEndcapRecHits",
+               "ForwardMPGDEndcapRecHits"},
+    "backward endcap": {"BackwardMPGDEndcapRecHits", "SiEndcapTrackerRecHits",
+                        "TOFEndcapClusterHits", "TOFEndcapRecHits"},
+    "forward endcap": {"ForwardMPGDEndcapRecHits", "SiEndcapTrackerRecHits",
+                       "TOFEndcapClusterHits", "TOFEndcapRecHits"},
+}
+RECO_SILICON = {
+    "barrel": {"SiBarrelTrackerRecHits", "SiBarrelVertexRecHits",
+               "SiEndcapTrackerRecHits"},
+    "backward endcap": {"SiEndcapTrackerRecHits"},
+    "forward endcap": {"SiEndcapTrackerRecHits"},
+}
 
-def main(path, outdir, n_dump=2):
+
+def reco_track_hit_names(tree):
+    """{(event, track_idx): [source hit collection names, ...]} or None.
+
+    Walks CentralCKFTracks.measurements -> its measurement collection -> the
+    underlying *_RecHits source collections (collectionIDs resolved through
+    the file's podio_metadata registry). Measurement objects that ARE hits
+    (e.g. TOF endcap cluster hits attached directly) contribute their own
+    collection name. Identical structure to trkperf.reco._hit_counts_one_file.
+    """
+    try:
+        reg = tree.file["podio_metadata/events___CollectionTypeInfo"].array(
+            library="ak")
+        id2name = {int(cid): nm for cid, nm in zip(
+            reg[0]["events___CollectionTypeInfo.collectionID"],
+            reg[0]["events___CollectionTypeInfo.name"])}
+    except Exception as exc:
+        print(f"  NOTE: podio registry unreadable ({type(exc).__name__}); "
+              "reco-track hit cut unavailable (cut treated as PASS)")
+        return None
+    try:
+        mb_a = tree["CentralCKFTracks/CentralCKFTracks.measurements_begin"].array(library="ak")
+        me_a = tree["CentralCKFTracks/CentralCKFTracks.measurements_end"].array(library="ak")
+        ri_a = tree["_CentralCKFTracks_measurements/_CentralCKFTracks_measurements.index"].array(library="ak")
+        rc_a = tree["_CentralCKFTracks_measurements/_CentralCKFTracks_measurements.collectionID"].array(library="ak")
+    except Exception as exc:
+        print(f"  NOTE: track->measurement relation unreadable "
+              f"({type(exc).__name__}); reco-track hit cut unavailable")
+        return None
+    # which referenced object collections wrap hits? (have .hits_begin)
+    wrapped = {}
+    obj_names = {id2name.get(int(c), "") for c in ak.flatten(rc_a).to_list()}
+    obj_names.discard("")
+    for name in obj_names:
+        try:
+            wrapped[name] = (
+                tree[f"{name}/{name}.hits_begin"].array(library="ak"),
+                tree[f"{name}/{name}.hits_end"].array(library="ak"),
+                tree[f"_{name}_hits/_{name}_hits.collectionID"].array(library="ak"))
+        except Exception:
+            continue          # direct-hit collection
+    out = {}
+    for ev in range(len(mb_a)):
+        mb = np.asarray(mb_a[ev], dtype=np.int64)
+        me = np.asarray(me_a[ev], dtype=np.int64)
+        ri = np.asarray(ri_a[ev], dtype=np.int64)
+        rc = np.asarray(rc_a[ev], dtype=np.int64)
+        wdata = {nm: (np.asarray(b[ev], dtype=np.int64),
+                      np.asarray(e[ev], dtype=np.int64),
+                      np.asarray(h[ev], dtype=np.int64))
+                 for nm, (b, e, h) in wrapped.items()}
+        ids_by_name = {v: k for k, v in id2name.items()}
+        wrapped_ids = {ids_by_name[nm] for nm in wdata}
+        for t in range(len(mb)):
+            names = []
+            for j in range(int(mb[t]), int(me[t])):
+                ocid = int(rc[j])
+                if ocid in wrapped_ids:
+                    b_ev, e_ev, h_ev = wdata[id2name.get(ocid, "")]
+                    m = int(ri[j])
+                    if m >= len(b_ev):
+                        continue
+                    names.extend(id2name.get(int(h), "") for h in h_ev[b_ev[m]:e_ev[m]])
+                else:
+                    names.append(id2name.get(ocid, ""))
+            out[(ev, t)] = names
+    return out
+
+
+def main(path, outdir, n_dump=2, reco_cut=True):
     tree = uproot.open(path)["events"]  # "events" is the EDM4eic TTree name
 
     # --- 1. truth particles ------------------------------------------------
@@ -245,6 +348,19 @@ def main(path, outdir, n_dump=2):
             f"({type(exc).__name__}: {exc}). Efficiency/fake rate would be "
             "meaningless - check the file/campaign.") from exc
 
+    # --- 4c. reco-track hit composition (the SAME 4/3 floor as truth) ------
+    track_hit_names = reco_track_hit_names(tree) if reco_cut else None
+
+    def track_ok(region, e, i):
+        """Does reco track (e, i) carry >= 4 hits of `region`'s tracking
+        collections with >= 3 silicon, like trkperf's default cut?"""
+        if track_hit_names is None:
+            return True               # registry unreadable: cannot gate
+        names = track_hit_names.get((int(e), int(i)), [])
+        nh = sum(1 for n in names if n in RECO_TRACKING[region])
+        ns = sum(1 for n in names if n in RECO_SILICON[region])
+        return nh >= ACCEPTANCE_MIN_HITS and ns >= ACCEPTANCE_MIN_SILICON_HITS
+
     # --- 4b. eyeball dump: first n_dump events as plain text ----------------
     # Everything below is computed from these tables; printing a few events
     # lets a reader check each step without reading any code.
@@ -269,13 +385,23 @@ def main(path, outdir, n_dump=2):
         rows_ev = truth[truth["event"] == ev]
         print(f"  MC primaries of interest: {len(rows_ev)}")
         for r in rows_ev:
+            # counts shown for the particle's OWN region set - the same lists
+            # the rule below applies (a global sum here once misled reviews:
+            # barrel silicon must not credit an endcap particle).
+            reg_dump = region_of(r['eta'])
+            cols_dump = REGIONS[reg_dump][1] if reg_dump in REGIONS else None
             hc = hit_by_particle.get((int(r['event']), int(r['idx'])), {})
-            n_tot = sum(hc.values())
-            n_si = sum(v for c, v in hc.items() if c in SILICON_COLLECTIONS)
+            if cols_dump is not None:
+                n_tot = sum(hc.get(c, 0) for c in cols_dump)
+                n_si = sum(hc.get(c, 0) for c in cols_dump
+                           if c in SILICON_COLLECTIONS)
+            else:                                  # out-of-range eta: global
+                n_tot = sum(hc.values())
+                n_si = sum(v for c, v in hc.items() if c in SILICON_COLLECTIONS)
             hits_desc = ",".join(f"{short(c)}x{v}" for c, v in sorted(hc.items())) or "-"
             w_r = best.get((int(r['event']), int(r['idx'])))
             match = (f"-> reco {w_r[1]} w={w_r[0]:.2f} "
-                     f"{'MATCH' if w_r[0] >= MATCH_WEIGHT else 'below-threshold'}"
+                     f"{'MATCH' if w_r[0] > MATCH_WEIGHT else 'no-majority'}"
                      if w_r is not None else "-> no association")
             print(f"    truth {int(r['idx']):3d} {WANT_PDG[int(r['pdg'])] if int(r['pdg']) in WANT_PDG else r['pdg']:>8s} "
                   f"p={r['p']:7.3f} eta={r['eta']:+6.2f} [{region_of(r['eta'])}] "
@@ -311,14 +437,16 @@ def main(path, outdir, n_dump=2):
                              for c in si_cols)
                          for e, i in zip(t["event"], t["idx"])])
         in_acc = (n_tot >= ACCEPTANCE_MIN_HITS) & (n_si >= ACCEPTANCE_MIN_SILICON_HITS)
-        # matching: best association weight >= threshold (reco kinematics
-        # only needed for the residual, not for the match decision itself)
+        # matching: STRICT majority weight > threshold AND the reconstructed
+        # track passes the same 4/3 hit floor (region-scoped) as truth
+        # acceptance; reco kinematics are only needed for the residual.
         matched = np.zeros(len(t), dtype=bool)
         delta = np.full(len(t), np.nan)  # (reco - truth)/truth p
         for k, (e, i, _pdg, pval, _eta) in enumerate(zip(
                 t["event"], t["idx"], t["pdg"], t["p"], t["eta"])):
             w_r = best.get((int(e), int(i)))
-            if w_r is not None and w_r[0] >= MATCH_WEIGHT:
+            if (w_r is not None and w_r[0] > MATCH_WEIGHT
+                    and track_ok(region, int(e), w_r[1])):
                 matched[k] = True
                 info = reco_p.get((int(e), w_r[1]))
                 if info is not None and pval > 0:
@@ -334,13 +462,27 @@ def main(path, outdir, n_dump=2):
             "p binning invariant broken: rows outside (P_MIN, P_MAX] reached the binner"
         acc, eff = np.full_like(P_CENTERS, np.nan), np.full_like(P_CENTERS, np.nan)
         n_bin = np.array([(b == j).sum() for j in range(len(P_CENTERS))])
+        bin_res = []            # per-p-bin MAD core widths (never pooled: a
+        bin_tail = []           # single region-wide MAD mixes p scales badly)
         for j in range(len(P_CENTERS)):
             m = b == j
             if m.sum() >= 5:  # tiny-statistics guard for a 1-file QA
                 acc[j] = in_acc[m].mean()
-                in_bin = in_acc[m]
-                eff[j] = ((matched[m] & in_bin).sum() / in_bin.sum()
-                          if in_bin.sum() else np.nan)
+            in_bin = in_acc[m]
+            # efficiency denominator guard: n_in_acceptance, not n_generated
+            if in_bin.sum() >= 5:
+                eff[j] = (matched[m] & in_bin).sum() / in_bin.sum()
+            rj = delta[m & matched[m]]
+            rj = rj[np.isfinite(rj)]
+            if len(rj) >= 5:
+                mj = np.median(rj)
+                wj = float(1.4826 * np.median(np.abs(rj - mj)))
+                bin_res.append(wj)
+                bin_tail.append(float(np.mean(np.abs(rj - mj) > 3 * wj))
+                                if wj > 0 else float("nan"))
+            else:
+                bin_res.append(float("nan"))
+                bin_tail.append(float("nan"))
         # Resolution = robust CORE width (1.4826 x median-absolute-deviation
         # = sigma for a Gaussian) of Delta(p)/p, not the plain RMS: residuals
         # have heavy tails (mis-reconstruction, brems), and a plain RMS of the
@@ -380,10 +522,10 @@ def main(path, outdir, n_dump=2):
                             fontsize=7, color="0.45")
         ax.legend(fontsize=8, loc="center right")
         ax.set_title(f"{region}: acceptance & efficiency vs p\n"
-                     f"n={len(t)} primaries, "
-                     f"core resolution (MAD)={res_core:.3f}, "
-                     f"{100 * tail_frac:.0f}% beyond 3 sigma",
-                     fontsize=9)
+                     f"n={len(t)} primaries, MAD core width per p bin:\n"
+                     + "/".join("  -  " if np.isnan(x) else f"{x:.3f}"
+                                for x in bin_res),
+                     fontsize=8)
         fig.savefig(os.path.join(outdir, f"qa_{region.replace(' ', '_')}.png"),
                     dpi=130, bbox_inches="tight")
         plt.close(fig)
@@ -392,31 +534,52 @@ def main(path, outdir, n_dump=2):
             print(f"  WARNING {region}: acceptance rule degraded, missing {lost} "
                   "(counted as 0 hits)")
         print(f"{region:15s} n={len(t):5d} acc={acc_all:.3f} "
-              f"eff={eff_all:.3f} core_res={res_core:.3f} tail={tail_frac:.3f} "
+              f"eff={eff_all:.3f} pooled_res_diag={res_core:.3f} tail={tail_frac:.3f} "
               f"matched={int(matched.sum())}")
+        # raw integers for exact machine comparison (check_qa_parity.py)
+        print(f"QA-INTS region={region.replace(' ', '_')} n_gen={len(t)} "
+              f"n_in_acc={int(in_acc.sum())} n_match={int(matched.sum())} "
+              f"n_match_in_acc={int((matched & in_acc).sum())}")
 
     # --- file-wide fake rate (no truth species by construction) --------------
-    # a track is fake if its OWN best association is missing/below threshold.
-    # Same phase-space rule as trkperf: only binnable tracks count (finite
-    # p in range); unbinnable ones are reported separately, not dropped
-    # silently into the denominator.
+    # a track is fake if its OWN best association lacks a strict majority
+    # (missing or <= threshold). Same phase-space rule as trkperf: only
+    # binnable tracks count (finite p in range); unbinnable ones are reported
+    # separately, not dropped silently into the denominator. The universe is
+    # then the tracks passing the reco-side 4/3 hit cut of their OWN region
+    # (matching trkperf's default --min-reco-hits 4 --min-reco-si-hits 3).
     binnable = {k: v for k, v in reco_p.items()
                 if P_MIN < v[0] <= P_MAX
                 and ETA_EDGES[0] < v[1] <= ETA_EDGES[-1]}
-    n_tracks = len(binnable)
-    # .get(key, 0.0): a track with no association at all counts as weight 0,
-    # i.e. fake - same as trkperf's fillna(0) before the threshold comparison
-    n_fake = sum(1 for key in binnable
-                 if best_track.get(key, 0.0) < MATCH_WEIGHT)
-    n_unbinnable = len(reco_p) - n_tracks
+    n_binnable = len(binnable)
+    # track's region by the SAME raw-|eta| rule trkperf's region="auto" uses
+    kept = {k: v for k, v in binnable.items()
+            if track_ok("barrel" if abs(v[1]) < BARREL_ETA_MAX
+                        else ("forward endcap" if v[1] > 0
+                              else "backward endcap"),
+                        k[0], k[1])}
+    n_tracks = len(kept)
+    # best_track.get(key, 0.0): a track with no association at all counts as
+    # weight 0, i.e. fake - same as trkperf's fillna(0) before the threshold
+    # comparison.
+    n_fake = sum(1 for key in kept
+                 if best_track.get(key, 0.0) <= MATCH_WEIGHT)
+    n_unbinnable = len(reco_p) - n_binnable
     print(f"fake rate: {n_fake}/{n_tracks} = "
           f"{(n_fake / n_tracks if n_tracks else float('nan')):.4f} "
-          f"({n_unbinnable} unbinnable tracks excluded)")
+          f"({n_unbinnable} unbinnable + {n_binnable - n_tracks} reco-cut-failed "
+          f"tracks excluded)")
+    print(f"QA-INTS fake n_tracks={n_tracks} n_fake={n_fake} "
+          f"n_cut_removed={n_binnable - n_tracks}")
 
 
 if __name__ == "__main__":
-    if len(sys.argv) < 2:
-        sys.exit("usage: python3 manual_QA.py <file.root> [outdir] [n_dump]")
-    n_dump = int(sys.argv[3]) if len(sys.argv) > 3 else 2
-    main(sys.argv[1], sys.argv[2] if len(sys.argv) > 2 else "qa_out",
-         n_dump=n_dump)
+    args = [a for a in sys.argv[1:] if not a.startswith("--")]
+    flags = {a for a in sys.argv[1:] if a.startswith("--")}
+    unknown = flags - {"--no-reco-cut"}
+    if not args or unknown:
+        sys.exit("usage: python3 manual_QA.py <file.root> [outdir] [n_dump] "
+                 "[--no-reco-cut]")
+    n_dump = int(args[2]) if len(args) > 2 else 2
+    main(args[0], args[1] if len(args) > 1 else "qa_out",
+         n_dump=n_dump, reco_cut="--no-reco-cut" not in flags)

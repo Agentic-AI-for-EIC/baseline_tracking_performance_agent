@@ -82,8 +82,11 @@ run_metric () {  # $1 metric  $2 tag  $3 filelist  [extra args...]
   while (( attempt <= 10 )); do
     ensure_stack || { echo "[repro] FAIL $metric/$tag (stack down, attempt $attempt)"; (( attempt++ )); continue; }
     echo "[repro] $metric $tag $(date -u +%H:%M:%S) (attempt $attempt)"
+    # --min-reco-* are the shipped defaults (config.RECO_MIN_HITS=4 /
+    # RECO_MIN_SILICON_HITS=3, the reco-side mirror of the truth 4/3
+    # acceptance rule); repeated here so the canonical recipe is explicit.
     if python3 -m trkperf "$metric" --file-list "$list" --dataset-tag "$tag" \
-      --min-q2-tier 1 "$@"; then
+      --min-q2-tier 1 --min-reco-hits 4 --min-reco-si-hits 3 "$@"; then
       return 0
     fi
     echo "[repro] attempt $attempt failed for $metric/$tag - retrying"

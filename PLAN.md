@@ -593,3 +593,42 @@ a genuine geometry feature, not a rule artefact.
     cross-check: a large clean-vs-bkg difference in `acceptance` (which should
     be background-independent) would indicate campaign/geometry drift rather
     than a background effect — see section 3 caveat.
+
+---
+
+## As-built addendum (2026-11, rule-alignment pass)
+
+An external review + verification confirmed the intended baseline is
+campaign 26.07.1 with ONE rule on both sides: a track (truth for acceptance,
+reconstructed for the matched metrics) must carry >= 4 tracking hits of its
+region's collection set, >= 3 of them silicon. Changes made code-wide:
+
+- Matching threshold is now STRICT majority (weight > 0.5); the weights of a
+  track's associations sum to <= 1, so at most one particle can own a track
+  (no double-count in fake/efficiency/resolution); exact 50/50-shared tracks
+  are fakes by construction.
+- reco-side cut default ON (config.RECO_MIN_HITS/RECO_MIN_SILICON_HITS=4/3),
+  applied to fake-rate, resolution AND efficiency numerators; the hit
+  classification is region-scoped and mirrors the truth sets exactly
+  (TOFEndcapHits count in the endcaps, barrel silicon earns no endcap
+  credit; central has no TOF) - see config.reco_hit_collections.
+- p_bin_center is geometric sqrt(lo*hi) (log-spaced bins); ROOT-fit
+  sigma_err/mu_err replaced by sigma/sqrt(2 n_core)/sigma/sqrt(n_core);
+  grouped resolution pooled N-weighted (1/sigma_err^2 weights were
+  self-referential through sigma/N and skewed curves).
+- manual_check/manual_QA.py brought in line (strict >, region-scoped
+  reco-track walk, per-p-bin MAD, per-bin eff denominator guard on
+  n_in_acceptance, raw-integer QA-INTS stdout) and
+  manual_check/check_qa_parity.py now compares integers only.
+- Reproduction driver passes --min-reco-hits 4 --min-reco-si-hits 3
+  explicitly; AGENTS.md conventions + the gautschi xrootd path/node
+  instructions updated (4.2.1 OASIS path is gone; verified working:
+  /cvmfs/oasis.opensciencegrid.org/gluex/xrootd/5.0.3).
+
+KNOWN accepted residuals (documented, not fixed): raw GEANT hit counts allow
+low-p curlers to stack 4 hits in 1-2 layers (cellID layer dedup out of
+scope); central reco side counts TOFBarrel measurements while truth central
+has no TOF set; PID chain tables still predate the strict-majority switch
+(re-run deferred by user). Canonical output/* tables and figures are
+PENDING regeneration with this code (Phase D sweep, needs the gautschi
+daemon); until then the committed numbers reflect the previous definitions.

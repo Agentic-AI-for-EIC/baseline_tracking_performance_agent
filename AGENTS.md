@@ -90,16 +90,18 @@ impact of beam-induced background on tracking performance.
   bkg/reco} (300 files x 1409 events; 500 files x 99 events, extended from
   275 on 2026-09-29 - same minQ2=1 production), streamed via a
   localhost-only xrootd daemon + ssh tunnel: start remote
-  `/cvmfs/oasis.opensciencegrid.org/osg/modules/xrootd/4.2.1/bin/xrootd -p
+  `/cvmfs/oasis.opensciencegrid.org/gluex/xrootd/5.0.3/bin/xrootd -p
   1294 -b 127.0.0.1 -l ~/xrdlog/xrootd.log /scratch/gautschi/wxie/
-  eIC_data_small_set` (with `LD_LIBRARY_PATH=<...>/4.2.1/lib64`, else
-  `libXrdServer.so.2` is not found) then `ssh -N -L 1294:127.0.0.1:1294
-  login00.gautschi.rcac.purdue.edu`; filelists/clean26071_local.txt +
+  eIC_data_small_set` (with `LD_LIBRARY_PATH=<...>/5.0.3/lib64`, else the
+  Server plugin is not found; the old `.../osg/modules/xrootd/4.2.1/...`
+  path no longer exists on cvmfs) then `ssh -N -L 1294:127.0.0.1:1294
+  <node>.gautschi.rcac.purdue.edu`; filelists/clean26071_local.txt +
   bkg26071_local.txt carry root://localhost:1294//<absolute path> URLs (the
-  daemon serves absolute paths). Pin EVERYTHING to login00:
-  gautschi.rcac.purdue.edu round-robins over 4 login nodes and the daemon
-  binds 127.0.0.1 on one node only — a tunnel landing on any other node
-  hangs forever. Driver: scripts/run_reproduction_26071.sh
+  daemon serves absolute paths). The daemon binds 127.0.0.1 on the ONE node
+  it runs on and gautschi round-robins over 4 login nodes — the tunnel MUST
+  target that node (`hostname` in the daemon shell; probe with
+  `ssh loginNN ... 'ss -ltn | grep 1294'`), otherwise reads hang with
+  `[ERROR] Operation expired`. Driver: scripts/run_reproduction_26071.sh
   (sequential — 300-file efficiency is the memory peak; tunnel watchdog;
   resumable). This removes the campaign difference from the comparison.
 - Escalation order when a bin lacks statistics: more files in the current
@@ -199,20 +201,41 @@ any PID number.
   the model to beat a balanced label-permutation control.
 
 ## Conventions
-- Bin in truth momentum p (log-spaced) and truth eta (bins of ~0.5), per species.
-- Acceptance: >= ACCEPTANCE_MIN_HITS=4 individual truth hits, of which
-  >= ACCEPTANCE_MIN_SILICON_HITS=3 fall in the silicon tracker, counted over the
-  region's truth-hit collection set (see the hit note above).
+- Bin in truth momentum p (log-spaced) and truth eta (bins of ~0.5), per
+  species. p_bin_center is the GEOMETRIC mean of the log-spaced interval
+  (sqrt(lo*hi)); eta_bin_center arithmetic.
+- Acceptance (truth side): >= ACCEPTANCE_MIN_HITS=4 individual truth hits, of
+  which >= ACCEPTANCE_MIN_SILICON_HITS=3 fall in the silicon tracker, counted
+  over the region's truth-hit collection set (see the hit note above; the
+  endcap regions include TOFEndcapHits in their 4-hit total).
+- Reco-side mirror (DEFAULT ON since 2026-11, config.RECO_MIN_HITS=4 /
+  RECO_MIN_SILICON_HITS=3, `--min-reco-hits/--min-reco-si-hits`, 0 = off):
+  a RECONSTRUCTED track must carry >= 4 hits of its OWN region's tracking
+  collections (>= 3 silicon) per `reco.read_reco_track_hit_counts` — the same
+  region-scoped definition truth uses (TOF endcap hits count in the endcaps,
+  not the barrel; barrel silicon earns no credit in the endcaps). Applied to
+  ALL THREE matched metrics: fake rate (universe = passing tracks, each track
+  once) and efficiency/fake numerators, so truth and reco never disagree on
+  what a tracking hit is.
 - Momentum resolution: Delta(p)/p = (p_reco - p_truth) / p_truth
   (p specifically, consistent with the p/eta binning used everywhere else
   in this project); Gaussian fit to the core, done with **ROOT**
   (`TH1F.Fit(TF1("gaus"))`, not scipy) — see the "ROOT" note below.
+  sigma_err = sigma/sqrt(2 n_core), mu_err = sigma/sqrt(n_core) (NOT ROOT's
+  binned covariance, which assumes one-bin-wide resolution and inflates 50-
+  200% in thin bins); chi2/ndf is reported but is an unweighted binned
+  statistic.
 - Efficiency: report both within-acceptance (matched / in-acceptance truth)
-  and absolute (matched / all generated truth) efficiency; Wilson score-interval
+  and absolute (matched / all generated truth) efficiency; a match additionally
+  requires the reco track to pass the 4/3 cut above; Wilson score-interval
   errors (conservative half-width, never zero-width at eff = 1, NaN at n = 0).
-- Fake rate: reconstructed tracks with no valid truth match / all
-  reconstructed tracks, binned in the track's own (p, eta) — not species (a
-  fake has no true species). Always name the dataset/minQ2 tier(s) used.
+- Fake rate: reconstructed tracks (passing the reco 4/3 cut) whose best
+  association weight does not exceed 0.5 / all such tracks, binned in the
+  track's own (p, eta) — not species (a fake has no true species). The grain
+  is ONE row per track (dominant association), so multi-particle tracks
+  cannot double count. Always name the dataset/minQ2 tier(s) used.
+- Error-bar convention: fraction metrics plot the Wilson 95%-CL half-width;
+  resolution plots are 1-sigma. `trkperf plot` labels the y-axis accordingly.
 - Every metric is run on both Type 1 and Type 2, then compared (ratio and
   difference, per bin, with propagated uncertainty) via `trkperf/compare.py`.
 - On small hosts bound efficiency/resolution peaks with `--chunk-files N`

@@ -296,16 +296,27 @@ def aggregate_eta_species(
             vals = sub[value_col].to_numpy(dtype=float)
             errs = (sub[err_col].to_numpy(dtype=float) if err_col and err_col in sub.columns
                     else np.full_like(vals, np.nan))
-            ok = np.isfinite(vals) & np.isfinite(errs) & (errs > 0)
+            ok = np.isfinite(vals)
             if "fit_converged" in sub.columns:
                 # A non-converged fit carries no meaningful width even when a
                 # number is present: exclude it rather than averaging it in.
                 ok = ok & (sub["fit_converged"].to_numpy() == True)  # noqa: E712
+            nvs = (sub["n_matched"].to_numpy(dtype=float)
+                   if "n_matched" in sub.columns else np.ones_like(vals))
+            ok = ok & (nvs > 0)
             if ok.sum() > 0:
-                w = 1.0 / errs[ok]**2
+                # N-weighted mean of the widths. NOT inverse-variance: the
+                # per-bin sigma_err is itself derived from sigma/sqrt(2N),
+                # so 1/err^2 weighting re-introduces an N-bias and (with
+                # inflated errors in thin bins) skewed whole grouped curves
+                # 14-23% low on 26.07.1. Width-of-width error for the pooled
+                # value: sigma_pooled / sqrt(2 * sum(N)) (Gaussian core).
+                w = nvs[ok]
                 row[value_col] = float(np.sum(vals[ok] * w) / w.sum())
+                n_tot = float(w.sum())
                 if err_col:
-                    row[err_col] = float(1.0 / np.sqrt(w.sum()))
+                    row[err_col] = (float(row[value_col] / np.sqrt(2.0 * n_tot))
+                                    if n_tot > 0 else np.nan)
             else:
                 row[value_col] = np.nan
                 if err_col:
@@ -485,6 +496,7 @@ def plot_metric_vs_p(
     ymax: float | None = None,
     marker_legend_loc: str = "upper right",
     legend_title: str | None = None,
+    cl_hint: str | None = None,
 ) -> None:
     """`value_col` vs `x_col`, one curve per distinct `group_col` value.
 
@@ -574,7 +586,10 @@ def plot_metric_vs_p(
     elif ymax is not None:
         ax.set_ylim(top=ymax)
     ax.set_xlabel("p [GeV]")
-    ax.set_ylabel(y_label or value_col)
+    _lbl = y_label or value_col
+    if cl_hint:
+        _lbl = f"{_lbl}  [{cl_hint}]"
+    ax.set_ylabel(_lbl)
     if title:
         ax.set_title(title)
 

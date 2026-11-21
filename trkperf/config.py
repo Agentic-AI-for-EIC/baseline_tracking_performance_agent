@@ -98,48 +98,120 @@ SILICON_TRACKING_TRUTH_HIT_COLLECTIONS: tuple[str, ...] = (
 )
 
 # ---------------------------------------------------------------------------
-# Reconstructed-side hit composition (reco-track quality cut, 2026-10).
-# A CentralCKFTracks track carries N tracker measurement hits plus TOF timing
-# objects; `reco.read_reco_track_hit_counts` walks
+# Reconstructed-side hit composition - the SAME 4/3 rule as truth acceptance,
+# applied to reconstructed tracks (reco.read_reco_track_hit_counts), and the
+# default of --min-reco-hits / --min-reco-si-hits on fake-rate, resolution and
+# efficiency runs (0 = explicitly off).
+# A CentralCKFTracks track carries tracker measurement hits plus TOF timing
+# objects; the reader walks
 #   CentralCKFTracks.measurements -> <tracker measurement collection> -> *_RecHits
 # and classifies each underlying hit by its source collection (resolved through
-# the per-file podio_metadata collection registry). The names below were
-# verified live on the 26.07.1 reproduction file; silicon is detected by the
-# "Si" prefix so a renamed production is still handled, and the explicit set is
-# kept as documentation of the current campaign.
+# the per-file podio_metadata collection registry). To agree with the truth
+# rule, the classification is REGION-SCOPED: each region counts exactly its
+# TRACKING_REGIONS collections' reco counterparts, and silicon is the region's
+# silicon subset (so endcap regions get TOFEndcap counted and no credit for
+# barrel silicon, while central counts the 7 tracking collections without TOF).
+# The 26.07.1 reco collection names below were verified live via the podio
+# registry (hit sources seen by CentralCKFTracks measurements).
 # ---------------------------------------------------------------------------
-#: Reconstructed silicon hit collections (26.07.1, verified live).
+#: Default reco-track quality floor (0 at the call site disables the cut).
+RECO_MIN_HITS: int = 4
+RECO_MIN_SILICON_HITS: int = 3
+
+#: truth-hit collection -> the reconstructed hit collection(s) of the same
+#: detector system. Exact names win; otherwise every token (case-insensitive)
+#: must appear in the reco collection name, so a renamed production is still
+#: matched (this is what generalises "TrackerEndcapHits" to
+#: "SiEndcapTrackerRecHits").
+RECO_HIT_COLLECTION_MAP: dict[str, dict] = {
+    "SiBarrelHits":       {"exact": ("SiBarrelTrackerRecHits",), "tokens": ("barrel",)},
+    "VertexBarrelHits":   {"exact": ("SiBarrelVertexRecHits",),  "tokens": ("barrel", "vertex")},
+    "TrackerEndcapHits":  {"exact": ("SiEndcapTrackerRecHits",), "tokens": ("endcap", "tracker")},
+    "MPGDBarrelHits":     {"exact": ("MPGDBarrelRecHits",),      "tokens": ("mpgd", "barrel"),
+                           "not": ("outer",)},
+    "OuterMPGDBarrelHits": {"exact": ("OuterMPGDBarrelRecHits",), "tokens": ("outer", "mpgd", "barrel")},
+    "BackwardMPGDEndcapHits": {"exact": ("BackwardMPGDEndcapRecHits",),
+                               "tokens": ("backward", "mpgd")},
+    "ForwardMPGDEndcapHits": {"exact": ("ForwardMPGDEndcapRecHits",),
+                              "tokens": ("forward", "mpgd")},
+    "TOFEndcapHits":      {"exact": ("TOFEndcapClusterHits", "TOFEndcapRecHits"),
+                           "tokens": ("tof", "endcap")},
+    # TOFBarrelHits is in no truth region set, so central never counts
+    # TOFBarrel* on the reco side either (the map covers only tracked systems).
+}
+
+#: Reconstructed silicon hit collections (26.07.1, verified live). Kept for
+#: documentation; the silicon test below derives from the truth silicon names.
 SILICON_RECO_HIT_COLLECTIONS: tuple[str, ...] = (
     "SiBarrelTrackerRecHits",
     "SiBarrelVertexRecHits",
     "SiEndcapTrackerRecHits",
 )
 
-#: Substrings marking a reco hit collection as NON-tracking (timing objects,
-#: excluded from the reco N_hit total - mirrors the central truth rule, which
-#: counts only tracking collections, not TOF).
-RECO_NONTRACKING_HIT_SUBSTRINGS: tuple[str, ...] = ("TOF",)
+
+def _reco_maps_to(reco_name: str, truth_name: str) -> bool:
+    """Does reconstructed hit collection ``reco_name`` belong to the detector
+    system whose truth hits are ``truth_name``?"""
+    spec = RECO_HIT_COLLECTION_MAP.get(truth_name)
+    if spec is None:
+        return False
+    if reco_name in spec["exact"]:
+        return True
+    low = reco_name.lower()
+    toks = spec["tokens"]
+    return bool(toks) and all(t in low for t in toks) \
+        and not any(n in low for n in spec.get("not", ()))
+
+
+def reco_hit_collections(region: str) -> tuple[set[str], set[str]]:
+    """(tracking, silicon) sets of reconstructed hit collection names for a
+    truth tracking region - the reco-side mirror of ``TRACKING_REGIONS``.
+
+    Unknown reco collections resolve to NEITHER set (they are then reported
+    once per run by the reader rather than silently counted).
+    """
+    collections = TRACKING_REGIONS[region]["collections"]
+    tracking: set[str] = set()
+    silicon: set[str] = set()
+    for truth_name in collections:
+        spec = RECO_HIT_COLLECTION_MAP.get(truth_name, {"exact": ()})
+        tracking.update(spec["exact"])
+        if truth_name in SILICON_TRACKING_TRUTH_HIT_COLLECTIONS:
+            silicon.update(spec["exact"])
+
+    def resolve(name: str) -> None:
+        for truth_name in collections:
+            if _reco_maps_to(name, truth_name):
+                tracking.add(name)
+                if truth_name in SILICON_TRACKING_TRUTH_HIT_COLLECTIONS:
+                    silicon.add(name)
+                return
+
+    for name in SILICON_RECO_HIT_COLLECTIONS:
+        resolve(name)
+    return tracking, silicon
 
 
 def is_silicon_reco_hit(collection_name: str) -> bool:
-    """True if a reconstructed hit collection is silicon.
+    """True if a reconstructed hit collection is a silicon tracker system.
 
-    Prefix rule ("Si") generalises across productions; the explicit
-    26.07.1 set is a documented fast path. Vertex/MPGD/gas collections are
-    not silicon.
+    Exact names are the documented silicon map entries. For renamed
+    productions a token match counts only if the name also carries the
+    campaign's silicon marker ("Si" prefix) - without it the barrel tokens
+    cannot tell SiBarrel from OuterMPGDBarrel, and guessing is worse than
+    reporting the name as unknown (which the reader does).
     """
-    return (collection_name in SILICON_RECO_HIT_COLLECTIONS
-            or collection_name.startswith("Si"))
+    low = collection_name.lower()
+    for truth_si in SILICON_TRACKING_TRUTH_HIT_COLLECTIONS:
+        spec = RECO_HIT_COLLECTION_MAP.get(truth_si, {"exact": ()})
+        if collection_name in spec["exact"]:
+            return True
+        toks = spec["tokens"]
+        if toks and low.startswith("si") and all(t in low for t in toks) \
+                and not any(n in low for n in spec.get("not", ())):
+            return True
+    return False
 
-
-def is_tracking_reco_hit(collection_name: str) -> bool:
-    """True if a reconstructed hit collection is a tracking (space-point) hit.
-
-    Timing/calo collections (TOF/...) are excluded so the reco N_hit counts
-    silicon + gaseous tracker layers only, matching the truth N_hit rule.
-    """
-    return not any(sub in collection_name
-                   for sub in RECO_NONTRACKING_HIT_SUBSTRINGS)
 
 CENTRAL_TRACKING_TRUTH_HIT_COLLECTIONS: tuple[str, ...] = (
     "SiBarrelHits",

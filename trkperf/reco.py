@@ -136,13 +136,20 @@ def _hits_of_measurement_collection(tree, coll: str):
     return begin, end, hit_cid
 
 
-def _hit_counts_one_file(path: str) -> pd.DataFrame:
+def _hit_counts_one_file(path: str, region: str = "central") -> pd.DataFrame:
     """Per (file_id=0, event, idx) reconstructed-track tracker/silicon hit counts.
 
     Walks CentralCKFTracks.measurements -> its measurement collection -> the
     underlying *RecHits collection (resolved via the file's podio registry),
-    and also handles measurement objects that are already hits (e.g. TOF),
-    which are excluded from the tracker total by config.is_tracking_reco_hit.
+    and also handles measurement objects that are already hits (e.g. TOF).
+    Counting is REGION-SCOPED via config.reco_hit_collections(): a hit counts
+    only if its source collection belongs to the region's tracking set (so
+    endcap regions count TOF endcap hits and give no credit to barrel
+    silicon; central has no TOF). region="auto" judges EACH track by its own
+    eta (|eta|<1.5 -> central, else forward/backward) - the fake-rate/
+    resolution analogue of the truth rule, which also applies the rule of the
+    particle's own region. Hit collections matching no known truth system are
+    reported once per run and not counted.
 
     podio stores the track->measurement relation as ONE flat ObjectID list per
     event; a track's measurements are the slice [measurements_begin[t] :
@@ -151,9 +158,22 @@ def _hit_counts_one_file(path: str) -> pd.DataFrame:
     target wraps hits (has ``.hits_begin``) we deref to the underlying hit's
     collection; otherwise the target *is* the hit.
     """
+    if region == "auto":
+        tracking = silicon = set()          # per-track, chosen below
+        regions = {r: config.reco_hit_collections(r)
+                   for r in ("central", "backward", "forward")}
+    else:
+        tracking, silicon = config.reco_hit_collections(region)
     tree = io.open_tree(path)
     id2name = _registry_for(path)
     name2id = {v: k for k, v in id2name.items()}
+
+    theta_ev = None
+    if region == "auto":
+        # per-track region needs the track eta (theta lives in
+        # CentralCKFTrackParameters, 1:1 with CentralCKFTracks by (event, idx))
+        theta_ev = tree["CentralCKFTrackParameters/CentralCKFTrackParameters.theta"].array(
+            library="ak")
 
     meas_begin = tree["CentralCKFTracks/CentralCKFTracks.measurements_begin"].array(library="ak")
     meas_end = tree["CentralCKFTracks/CentralCKFTracks.measurements_end"].array(library="ak")
@@ -178,6 +198,7 @@ def _hit_counts_one_file(path: str) -> pd.DataFrame:
         me = np.asarray(meas_end[ev], dtype=np.int64)
         ri = np.asarray(rel_index[ev], dtype=np.int64)
         rc = np.asarray(rel_cid[ev], dtype=np.int64)
+        th = np.asarray(theta_ev[ev], dtype=float) if theta_ev is not None else None
         # per-event, per-measurement-collection underlying-hit offsets / cids
         wdata = {}
         for name, (b, e, hcid) in wrapped.items():
@@ -185,7 +206,7 @@ def _hit_counts_one_file(path: str) -> pd.DataFrame:
                            np.asarray(e[ev], dtype=np.int64),
                            np.asarray(hcid[ev], dtype=np.int64))
         for t in range(len(mb)):
-            cnt_h = cnt_s = 0
+            names = []
             for j in range(int(mb[t]), int(me[t])):
                 ocid = int(rc[j])
                 if ocid in meas_coll_ids:
@@ -197,36 +218,93 @@ def _hit_counts_one_file(path: str) -> pd.DataFrame:
                     if m_local >= len(b_ev):
                         continue
                     lo, hi = int(b_ev[m_local]), int(e_ev[m_local])
-                    hit_names = [id2name.get(int(h), "") for h in hcid_ev[lo:hi]]
+                    names.extend(id2name.get(int(h), "") for h in hcid_ev[lo:hi])
                 else:
-                    hit_names = [id2name.get(ocid, "")]   # direct hit object
-                for hn in hit_names:
-                    if config.is_tracking_reco_hit(hn):
+                    names.append(id2name.get(ocid, ""))   # direct hit object
+            if region == "auto":
+                with np.errstate(divide="ignore", invalid="ignore"):
+                    t_eta = (-np.log(np.tan(float(th[t]) / 2.0))
+                             if (th is not None and t < len(th)) else np.nan)
+                reg = ("central" if np.isfinite(t_eta) and abs(t_eta) < config.BARREL_ETA_MAX
+                       else ("forward" if t_eta > 0 else "backward"))
+                trk_set, si_set = regions[reg]
+                tok_region = reg
+            else:
+                trk_set, si_set = tracking, silicon
+                tok_region = region
+            cnt_h = cnt_s = 0
+            for hn in names:
+                if not hn:
+                    continue
+                if hn in trk_set:
+                    cnt_h += 1
+                    if hn in si_set:
+                        cnt_s += 1
+                elif hn in ALL_RECO_KNOWN:
+                    pass   # documented hit system of ANOTHER region: correctly 0 here
+                elif hn not in _UNKNOWN_SEEN:
+                    # Renamed/unknown production: token fallback, reported once.
+                    # ("si"-prefixed token hits are silicon; ePIC's barrel is
+                    # all-silicon, so a bare barrel token maps to the SiBarrel
+                    # system.)
+                    _UNKNOWN_SEEN.add(hn)
+                    if _maps_to_region_token(hn, tok_region):
+                        print(f"[reco] NOTE: reco hit collection {hn!r} matched "
+                              f"region {tok_region!r} by token rule (not by the "
+                              "documented exact-name map)", file=sys.stderr)
                         cnt_h += 1
-                        if config.is_silicon_reco_hit(hn):
+                        if hn.lower().startswith("si"):
                             cnt_s += 1
+                    else:
+                        print(f"[reco] NOTE: reco hit collection {hn!r} maps to no "
+                              f"truth tracking system; NOT counted in region "
+                              f"{tok_region!r} hit totals", file=sys.stderr)
             rows.append((0, ev, t, cnt_h, cnt_s))
     return pd.DataFrame(rows, columns=["file_id", "event", "idx",
                                         "n_reco_hits", "n_reco_si_hits"])
 
 
-def _reco_hit_cache_path(cache_dir: str, path: str) -> str:
-    key = hashlib.sha256(f"reco_track_hits\x00{os.path.abspath(path)}".encode()).hexdigest()
+#: Reco hit collection names that are documented members of SOME region's
+#: truth system map (so absence from the current region is expected, not
+#: worth a warning). Rebuilt whenever the region sets are queried.
+ALL_RECO_KNOWN: set[str] = set()
+for _r in config.TRACKING_REGIONS:
+    ALL_RECO_KNOWN |= config.reco_hit_collections(_r)[0]
+_UNKNOWN_SEEN: set[str] = set()
+
+
+def _maps_to_region_token(name: str, region: str) -> bool:
+    """Token-rule (not exact-name) membership of ``name`` in ``region``."""
+    for truth_name in config.TRACKING_REGIONS[region]["collections"]:
+        spec = config.RECO_HIT_COLLECTION_MAP.get(truth_name)
+        if spec and spec["tokens"] and all(t in name.lower() for t in spec["tokens"]) \
+                and not any(n in name.lower() for n in spec.get("not", ())):
+            return True
+    return False
+
+
+def _reco_hit_cache_path(cache_dir: str, path: str, region: str) -> str:
+    key = hashlib.sha256(
+        f"reco_track_hits\x00{region}\x00{os.path.abspath(path)}".encode()).hexdigest()
     return os.path.join(cache_dir, key + ".pkl")
 
 
 def read_reco_track_hit_counts(file_paths: list[str], *, max_failures: int = 0,
                                shared_failures: dict | None = None,
-                               cache_dir: str | None = None) -> pd.DataFrame:
-    """Reconstructed-tracker hit composition per track.
+                               cache_dir: str | None = None,
+                               region: str = "central") -> pd.DataFrame:
+    """Reconstructed-tracker hit composition per track, region-scoped.
 
     Returns a DataFrame with columns file_id, event, idx (position within
     ``CentralCKFTracks``, the value ``_CentralCKFTrackAssociations_rec.index``
-    references), ``n_reco_hits`` (tracker space-point hits on the track,
-    silicon + gaseous, TOF timing excluded) and ``n_reco_si_hits`` (the silicon
-    subset). Used by the optional reco-side ``--min-reco-hits`` /
-    ``--min-reco-si-hits`` quality cut; like :func:`read_reco_tracks` the file
-    read is retried once and persistent failures respect the shared budget.
+    references), ``n_reco_hits`` (tracking hits of the region's collection set
+    on the track - silicon + gaseous, TOF endcap included in the endcap
+    regions, matching the truth rule) and ``n_reco_si_hits`` (its silicon
+    subset). Used by the reco-side ``--min-reco-hits`` / ``--min-reco-si-hits``
+    quality cut (default on, see config.RECO_MIN_*); like
+    :func:`read_reco_tracks` the file read is retried once and persistent
+    failures respect the shared budget. The per-file cache key includes the
+    region - counts differ between regions by design.
     """
     cache_dir = cache_dir if cache_dir is not None else io._CACHE_DIR
     frames = []
@@ -236,7 +314,7 @@ def read_reco_track_hit_counts(file_paths: list[str], *, max_failures: int = 0,
     for file_id, path in enumerate(file_paths):
         if path in skipped:
             continue
-        cpath = _reco_hit_cache_path(cache_dir, path) if cache_dir else None
+        cpath = _reco_hit_cache_path(cache_dir, path, region) if cache_dir else None
         if cpath and os.path.exists(cpath):
             try:
                 df = pd.read_pickle(cpath)
@@ -249,7 +327,7 @@ def read_reco_track_hit_counts(file_paths: list[str], *, max_failures: int = 0,
         last_exc = None
         for attempt in range(2):
             try:
-                df = _hit_counts_one_file(path)
+                df = _hit_counts_one_file(path, region=region)
                 df["file_id"] = file_id
                 if cpath:
                     try:

@@ -80,6 +80,13 @@ _PLOT_SPEC: dict[str, list[tuple]] = {
     # matrix — JSON/markdown output is the primary deliverable here.
 }
 
+def _cl_hint(value_col: str) -> str:
+    """Which uncertainty convention the plotted error bars use (AGENTS.md):
+    fraction metrics carry the Wilson 95% CL half-width, resolution widths
+    carry 1-sigma Gaussian-core errors."""
+    return "1σ" if value_col == "sigma" else "Wilson 95% CL"
+
+
 def _plot_specs(
     metric_name: str,
 ) -> list[tuple[str, str, str, bool, float | None, str]]:
@@ -166,20 +173,20 @@ def _add_common_args(sub: argparse.ArgumentParser) -> None:
     sub.add_argument(
         "--min-reco-hits",
         type=int,
-        default=0,
-        help="Reco-side quality cut for fake-rate and resolution: keep only "
-        "reconstructed tracks with at least this many tracker hits (silicon + "
-        "gaseous; TOF timing excluded). 0 = off. CentralCKF already needs a "
-        ">=3-silicon seed, so 4 removes ~1% of tracks; use a larger value for "
-        "a cut that actually bites.",
+        default=config.RECO_MIN_HITS,
+        help="Reco-side quality cut for fake-rate, resolution and efficiency: "
+        "keep only reconstructed tracks with at least this many tracking hits "
+        "of their OWN region's collection set (silicon + gaseous; TOF endcap "
+        "hits counted in the endcaps - the same rule truth acceptance applies, "
+        "hence the 4 default). 0 = off. CentralCKF needs a >=3-silicon seed, "
+        "so 4 removes ~1-2%% of tracks; larger values cut harder.",
     )
     sub.add_argument(
         "--min-reco-si-hits",
         type=int,
-        default=0,
-        help="Reco-side silicon-hit floor (with --min-reco-hits) for fake-rate "
-        "and resolution: keep only tracks with at least this many silicon "
-        "hits. 0 = off.",
+        default=config.RECO_MIN_SILICON_HITS,
+        help="Reco-side silicon-hit floor (with --min-reco-hits) for "
+        "fake-rate, resolution and efficiency. 0 = off.",
     )
 
 
@@ -229,6 +236,7 @@ def _write_outputs(
             df, value_col, err_col, plot_path, group_col=group_col,
             marker_col="eta_bin_center", group_color=group_color, log_y=log_y,
             ymin=ymin, marker_legend_loc=marker_loc,
+            cl_hint=_cl_hint(value_col),
         )
         print(f"[{metric_name}/{args.dataset_tag}] wrote {plot_path}")
 
@@ -244,7 +252,7 @@ def _run_species_metric(metric_name: str, compute_fn):
             kwargs["region"] = args.region
         if metric_name in ("efficiency", "resolution"):
             kwargs["chunk_files"] = args.chunk_files
-        if metric_name in ("resolution", "fake-rate"):
+        if metric_name in ("resolution", "fake-rate", "efficiency"):
             kwargs["min_reco_hits"] = args.min_reco_hits
             kwargs["min_reco_si_hits"] = args.min_reco_si_hits
         df = compute_fn(files, species=args.species, max_failures=args.max_file_failures,
@@ -329,6 +337,7 @@ def _run_plot(args: argparse.Namespace):
                     marker_col=None, group_color=None, log_y=log_y,
                     ymin=ymin, marker_legend_loc=marker_loc,
                     legend_title="eta bin",
+                    cl_hint=_cl_hint(value_col),
                     title=f"{metric_name} {group} ({meta.get('dataset_tag', '')}, "
                           f"{meta.get('region', 'central')} rule)",
                 )
@@ -367,6 +376,7 @@ def _run_plot(args: argparse.Namespace):
             frame, value_col, err_col, plot_path, group_col=group_col,
             marker_col=marker, group_color=group_color, log_y=log_y,
             ymin=ymin, marker_legend_loc=marker_loc,
+            cl_hint=_cl_hint(value_col),
         )
         print(f"[plot/{metric_name}] wrote {plot_path}")
         n_plotted += 1

@@ -18,8 +18,8 @@ def _chunk_residuals(
     weight_threshold: float,
     max_failures: int,
     shared: dict,
-    min_reco_hits: int = 0,
-    min_reco_si_hits: int = 0,
+    min_reco_hits: int = config.RECO_MIN_HITS,
+    min_reco_si_hits: int = config.RECO_MIN_SILICON_HITS,
     cut_stats: dict | None = None,
 ) -> pd.DataFrame:
     """Per-chunk stage of the resolution computation: read truth, reco and
@@ -53,9 +53,10 @@ def _chunk_residuals(
     with np.errstate(divide="ignore", invalid="ignore"):
         matched["delta_p_over_p"] = (matched["reco_p"] - matched["p"]) / matched["p"]
 
-    if min_reco_hits > 0 or min_reco_si_hits > 0:
+    if (min_reco_hits > 0 or min_reco_si_hits > 0) and len(matched):
         counts = reco.read_reco_track_hit_counts(
-            file_paths, max_failures=max_failures, shared_failures=shared)
+            file_paths, max_failures=max_failures, shared_failures=shared,
+            region="auto")   # each track judged by its own eta's region rule
         matched = matched.merge(
             counts.rename(columns={"idx": "rec_idx"}),
             on=["file_id", "event", "rec_idx"], how="left")
@@ -81,8 +82,8 @@ def compute_resolution(
     weight_threshold: float = config.MATCH_WEIGHT_THRESHOLD,
     max_failures: int = 0,
     chunk_files: int = 0,
-    min_reco_hits: int = 0,
-    min_reco_si_hits: int = 0,
+    min_reco_hits: int = config.RECO_MIN_HITS,
+    min_reco_si_hits: int = config.RECO_MIN_SILICON_HITS,
 ) -> pd.DataFrame:
     """Compute the momentum-resolution table for the given files.
 

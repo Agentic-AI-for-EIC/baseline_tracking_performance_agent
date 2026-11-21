@@ -1,85 +1,116 @@
-"""Cross-check manual_QA.py vs trkperf on N files: per-region acceptance,
-within-acceptance efficiency, matched, and global fake rate.
-Usage: python check_qa_parity.py <n_files> <clean|bkg>"""
-import re, sys, subprocess
-import numpy as np, pandas as pd
-from trkperf import truth, reco, matching, binning, report, config, io
+"""Cross-check manual_QA.py vs trkperf on N files - INTEGER-exact.
 
-io.set_cache_dir(f"cache/{sys.argv[2] if len(sys.argv)>2 else 'clean'}26071_files")
-N = int(sys.argv[1]) if len(sys.argv) > 1 else 10
-kind = sys.argv[2] if len(sys.argv) > 2 else "clean"
-files = [l.strip() for l in open(f"filelists/{kind}26071_local.txt") if l.strip()][:N]
+manual_QA.py prints raw integer lines ("QA-INTS region=... n_gen=...
+n_in_acc=... n_match=... n_match_in_acc=..." and
+"QA-INTS fake n_tracks=... n_fake=... n_cut_removed=..."), so this tool
+compares counts, never parsed floats.
 
-REG = {"barrel": "central", "forward endcap": "forward", "backward endcap": "backward"}
+Method per dataset:
+- trkperf side: fake-rate (one table, auto per-track regions) and
+  efficiency central + backward + forward region runs, aggregated over the
+  region's eta bins; all with the shipped defaults (strict >0.5 matching,
+  reco 4/3 cut).
+- manual_QA side: run per file, sum the QA-INTS lines.
 
-def trkperf_one(f):
-    sh = {}
-    t = truth.select_primary(truth.read_truth_particles([f], primary_only=True, shared_failures=sh))
-    t = binning.assign_bins(t)                       # adds eta_bin_center / p_bin_center
-    t = t.dropna(subset=["p_bin", "eta_bin"])        # same phase-space cut as manual_QA (0.1,100],(-4,4]
-    rc = reco.read_reco_tracks([f], shared_failures=sh)
-    a = matching.read_associations([f], shared_failures=sh)
-    pairs = matching.build_matched_pairs(t, rc, a, config.MATCH_WEIGHT_THRESHOLD)
-    # also expose the manual_QA convention (best-per-particle >= 0.5) to isolate the threshold change
-    bs = matching._best_association(a, ["file_id", "event", "sim_idx"])
-    matched_ge = bs.assign(is_m=True)[["file_id", "event", "sim_idx", "weight"]]
-    matched_ge["is_m"] = matched_ge["weight"] >= config.MATCH_WEIGHT_THRESHOLD
-    # per-region acceptance + within-acceptance efficiency (partition particles by eta bin centre)
+Usage: PYTHONPATH=<repo root> python3 manual_check/check_qa_parity.py \
+           <n_files> <clean|bkg>
+"""
+import re
+import subprocess
+import sys
+
+import pandas as pd
+
+from trkperf import report
+
+QA_INTS_REGION = re.compile(
+    r"QA-INTS region=(\S+) n_gen=(\d+) n_in_acc=(\d+) n_match=(\d+) "
+    r"n_match_in_acc=(\d+)")
+QA_INTS_FAKE = re.compile(
+    r"QA-INTS fake n_tracks=(\d+) n_fake=(\d+) n_cut_removed=(\d+)")
+
+REGIONS = [("barrel", "central", "efficiency"),
+           ("backward_endcap", "backward", "efficiency_backward"),
+           ("forward_endcap", "forward", "efficiency_forward")]
+
+
+def qa_ints(files):
+    """Sum manual_QA integer lines over files."""
+    acc = {}
+    for f in files:
+        res = subprocess.run([sys.executable, "manual_check/manual_QA.py", f,
+                              "/tmp/qa_parity", "0"],
+                             capture_output=True, text=True, check=True)
+        for m in QA_INTS_REGION.finditer(res.stdout):
+            d = acc.setdefault(("region", m.group(1)), dict.fromkeys(
+                ["n_gen", "n_in_acc", "n_match", "n_match_in_acc"], 0))
+            for k in d:
+                d[k] += int(m.group({"n_gen": 2, "n_in_acc": 3, "n_match": 4,
+                                     "n_match_in_acc": 5}[k]))
+        for m in QA_INTS_FAKE.finditer(res.stdout):
+            d = acc.setdefault(("fake",), dict.fromkeys(
+                ["n_tracks", "n_fake", "n_cut_removed"], 0))
+            for k in d:
+                d[k] += int(m.group({"n_tracks": 1, "n_fake": 2,
+                                     "n_cut_removed": 3}[k]))
+    return acc
+
+
+def trkperf_totals(files, tag):
+    """Same numbers from trkperf's own pipeline (defaults = strict + 4/3)."""
+    from trkperf.metrics import efficiency as EFF
+    from trkperf.metrics import fake_rate as FR
     out = {}
-    keep = t[["file_id", "event", "idx"]]
-    for region, rulename in REG.items():
-        cols = config.TRACKING_REGIONS[rulename]["collections"]
-        cnt = truth.read_truth_hit_counts([f], collections=cols, keep_particles=keep,
-                                          shared_failures=sh)
-        fl = truth.add_acceptance_flag(t, cnt)
-        sub = fl[fl["eta_bin_center"].map(report.eta_region) == region]
-        n_gen = len(sub); n_acc = int(sub["in_acceptance"].sum())
-        m = sub.merge(pairs[["file_id", "event", "idx", "is_matched"]],
-                      on=["file_id", "event", "idx"], how="left")
-        n_macc = int((m["in_acceptance"] & m["is_matched"].fillna(False)).sum())
-        mg = sub.merge(matched_ge[["file_id", "event", "sim_idx", "is_m"]],
-                       left_on=["file_id", "event", "idx"], right_on=["file_id", "event", "sim_idx"],
-                       how="left")
-        n_macc_ge = int((mg["in_acceptance"] & mg["is_m"].fillna(False)).sum())
-        out[region] = dict(n=n_gen, acc=n_acc, eff_macc=n_macc, eff_macc_ge=n_macc_ge)
-    # fake rate over binnable tracks
-    ff = matching.find_fake_tracks(rc, a, config.MATCH_WEIGHT_THRESHOLD)
-    ff = binning.assign_bins(ff).dropna(subset=["p_bin", "eta_bin"])
-    out["fake"] = dict(n_tracks=int(len(ff)), n_fake=int(ff["is_fake"].sum()),
-                       n_fake_ge=int((ff["assoc_weight"].fillna(0.0) < config.MATCH_WEIGHT_THRESHOLD).sum()))
+    lst = list(files)
+    fk = FR.compute_fake_rate(lst, max_failures=20)
+    fk["R"] = fk["eta_bin_center"].map(report.eta_region)
+    for name, r in [("barrel", "barrel"), ("backward_endcap", "backward endcap"),
+                    ("forward_endcap", "forward endcap")]:
+        s = fk[fk["R"] == r]
+        out[("fake", name)] = {"n_tracks": int(s.n_tracks.sum()),
+                               "n_fake": int(s.n_fake.sum())}
+    for qa_name, rule, fname in REGIONS:
+        eff = EFF.compute_efficiency(
+            lst, max_failures=20,
+            region=rule if rule != "central" else "central")
+        eff["R"] = eff["eta_bin_center"].map(report.eta_region)
+        s = eff[eff["R"] == ("barrel" if qa_name == "barrel" else
+                             ("backward endcap" if qa_name == "backward_endcap"
+                              else "forward endcap"))]
+        out[("region", qa_name)] = {
+            "n_gen": int(s.n_truth.sum()),
+            "n_in_acc": int(s.n_in_acceptance.sum()),
+            "n_match": int(s.n_matched.sum()),
+            "n_match_in_acc": int(s.n_matched_in_acceptance.sum())}
     return out
 
-def qa_one(f):
-    res = subprocess.run([sys.executable, "manual_check/manual_QA.py", f, "/tmp/qa_parity", "0"],
-                         capture_output=True, text=True)
-    out = {}
-    for m in re.finditer(r"(barrel|forward endcap|backward endcap)\s+n=\s*(\d+)\s+acc=([\d.naif]+)\s+eff=([\d.naif]+).*matched=(\d+)", res.stdout):
-        reg, n, acc, eff, matched = m.group(1), int(m.group(2)), m.group(3), m.group(4), int(m.group(5))
-        acc = float(acc) if acc[0].isdigit() else 0.0
-        eff = float(eff) if eff[0].isdigit() else 0.0
-        n_acc = int(round(acc * n)); n_macc = int(round(eff * n_acc))
-        out[reg] = dict(n=n, acc=n_acc, eff_macc=n_macc)
-    mf = re.search(r"fake rate:\s*(\d+)/(\d+)", res.stdout)
-    out["fake"] = dict(n_fake=int(mf.group(1)), n_tracks=int(mf.group(2))) if mf else None
-    return out
 
-def agg(lst, key, sub):
-    return sum(d[key][sub] for d in lst if d.get(key))
+def main():
+    n = int(sys.argv[1]) if len(sys.argv) > 1 else 10
+    kind = sys.argv[2] if len(sys.argv) > 2 else "clean"
+    from trkperf import io
+    io.set_cache_dir(f"cache/{kind}26071_files")
+    files = [l.strip() for l in open(f"filelists/{kind}26071_local.txt")
+             if l.strip()][:n]
+    q = qa_ints(files)
+    t = trkperf_totals(files, kind)
+    bad = 0
+    print(f"{'metric':<44}{'trkperf':>10}{'manual_QA':>10}")
+    for key in sorted(set(q) & set(t)):
+        qq, tt = q[key], t[key]
+        for col in tt:
+            a, b = tt[col], qq.get(col, None)
+            mark = "OK " if a == b else "DIFF"
+            if a != b and col != "n_cut_removed":   # manual-only diagnostic
+                bad += 1
+            print(f"{mark} {'/'.join(key):<38}{a:>12}{str(b):>12}")
+    missing = set(q) ^ set(t)
+    if missing:
+        print("unmatched keys:", missing)
+        bad += 1
+    print("\nRESULT:", "INTEGER-EXACT PARITY" if bad == 0 else f"{bad} MISMATCHES")
+    sys.exit(0 if bad == 0 else 1)
 
-T = [trkperf_one(f) for f in files]
-Q = [qa_one(f) for f in files]
 
-print(f"\n{'metric':<34}{'trkperf':>12}{'manual_QA':>12}{'Δ':>10}")
-for reg in REG:
-    tn, tan, tme = agg(T, reg, "n"), agg(T, reg, "acc"), agg(T, reg, "eff_macc")
-    tmg = agg(T, reg, "eff_macc_ge")
-    qn, qan, qme = agg(Q, reg, "n"), agg(Q, reg, "acc"), agg(Q, reg, "eff_macc")
-    print(f"{'acceptance '+reg:<34}{tan/max(tn,1):>12.6f}{qan/max(qn,1):>12.6f}{tan/max(tn,1)-qan/max(qn,1):>10.2e}")
-    print(f"{'  (n_gen / n_inacc)      '+reg:<34}{f'{tn}/{tan}':>12}{f'{qn}/{qan}':>12}")
-    print(f"{'eff_within_acc '+reg:<34}{tme/max(tan,1):>12.6f}{qme/max(qan,1):>12.6f}{tme/max(tan,1)-qme/max(qan,1):>10.2e}")
-    print(f"{'  eff n_macc strict/GE vs QA '+reg:<34}{f'{tme}/{tmg}':>12}{f'{qme}':>12}   {'OK' if tmg==qme and tan==qan and tn==qn else 'DIFF'}")
-tft, tff, qft, qff = agg(T,"fake","n_tracks"), agg(T,"fake","n_fake"), agg(Q,"fake","n_tracks"), agg(Q,"fake","n_fake")
-tfge = agg(T,"fake","n_fake_ge")
-print(f"{'fake rate (global)':<34}{tff/max(tft,1):>12.6f}{qff/max(qft,1):>12.6f}{tff/max(tft,1)-qff/max(qft,1):>10.2e}")
-print(f"{'  (n_fake / n_tracks)':<34}{f'{tff}/{tft}':>12}{f'{qff}/{qft}':>12}")
-print(f"{'  trkperf n_fake at >=0.5 (as manual_QA)':<34}{tfge:>12}   -> matches manual_QA? {tfge==qff}")
+if __name__ == "__main__":
+    main()

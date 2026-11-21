@@ -40,6 +40,16 @@ def _next_root_name(base: str) -> str:
     return f"{base}_{_ROOT_OBJECT_COUNTER[0]}"
 
 
+def _geometric_center(interval) -> float:
+    """log-mean (geometric) centre of a momentum interval.
+
+    p bins are log-spaced, so the centre quoted on plots/tables is sqrt(lo*hi)
+    - the arithmetic mid would bias every point high on log-x (e.g. 0.3995 vs
+    0.365 for (0.237,0.562]). eta bins are linear, so ``.mid`` stays correct.
+    """
+    return float(np.sqrt(interval.left * interval.right))
+
+
 def assign_bins(
     df: pd.DataFrame,
     p_col: str = "p",
@@ -51,10 +61,12 @@ def assign_bins(
 
     Binning is in TOTAL momentum p (criterion change 2026-10; the frames fed
     here carry truth p for the truth-side metrics and the track's own p for
-    the fake rate). Rows falling outside [p_edges[0], p_edges[-1]] or
-    [eta_edges[0], eta_edges[-1]] get p_bin/eta_bin = NaN (pandas' default
-    pd.cut behaviour) - callers should drop these before computing a metric,
-    they are out of the analysis' defined phase space, not a bug.
+    the fake rate). p_bin_center is the geometric mean of the (log-spaced)
+    interval; eta_bin_center the arithmetic one. Rows falling outside
+    [p_edges[0], p_edges[-1]] or [eta_edges[0], eta_edges[-1]] get
+    p_bin/eta_bin = NaN (pandas' default pd.cut behaviour) - callers should
+    drop these before computing a metric, they are out of the analysis'
+    defined phase space, not a bug.
     """
     out = df.copy()
     out["p_bin"] = pd.cut(out[p_col], bins=p_edges)
@@ -62,7 +74,7 @@ def assign_bins(
     # astype(float): on an empty frame Series.apply preserves the input's
     # categorical dtype, which would poison every downstream fillna/merge.
     out["p_bin_center"] = out["p_bin"].apply(
-        lambda i: i.mid if pd.notna(i) else np.nan
+        lambda i: _geometric_center(i) if pd.notna(i) else np.nan
     ).astype(float)
     out["eta_bin_center"] = out["eta_bin"].apply(
         lambda i: i.mid if pd.notna(i) else np.nan
@@ -98,7 +110,7 @@ def full_bin_grid(species: list[str] | None) -> pd.DataFrame:
     for s in specs:
         for pi in p:
             for ei in eta:
-                recs.append((s, pi, ei, pi.mid, ei.mid))
+                recs.append((s, pi, ei, _geometric_center(pi), ei.mid))
     grid = pd.DataFrame(
         recs, columns=["species", "p_bin", "eta_bin", "p_bin_center", "eta_bin_center"]
     )
@@ -152,12 +164,21 @@ def fit_gaussian_core(
     numbers a user re-fits by hand in a ROOT session match trkperf's exactly,
     and the fitted TF1 can be drawn with the standard ROOT plotting tools.
 
-    Pass 1: histogram `values` over the full `hist_range` and fit a
-    Gaussian, to get a rough (mu, sigma).
+    Pass 1: robust range from the data (median +/- 5 x 1.4826 x MAD, clipped
+    to hist_range, so a narrow core is not binned at 0.01-wide steps from a
+    fixed +/-0.5 window), histogrammed and fitted to get a rough (mu, sigma).
     Pass 2: re-histogram and re-fit restricted to
     [mu - core_sigma*sigma, mu + core_sigma*sigma] from pass 1, so
     non-Gaussian tails (mis-reconstruction, bremsstrahlung, hard scattering)
     do not bias the reported width. The pass-2 result is what is returned.
+
+    Uncertainties: ROOT's binned covariance assumes one-binned-width
+    resolution and inflates sigma_err 50-200% in 50-90-entry bins (measured
+    on 26.07.1). We report the unbinned Gaussian-core estimates instead:
+    sigma_err = sigma / sqrt(2 * n_core) and mu_err = sigma / sqrt(n_core),
+    with n_core the entries inside the final fit range. chi2/ndf stays the
+    ROOT value but is an UNWEIGHTED binned statistic (order-1 only when bin
+    counts are large).
 
     The Gaussian's sigma is constrained (via TF1::SetParLimits) to
     [0, max_sigma]. Since resolution is defined on
@@ -226,7 +247,19 @@ def fit_gaussian_core(
             return None
         return popt, perr, float(res.Chi2()), int(res.Ndf())
 
-    pass1 = _fit(values, hist_range)
+    # Pass-1 range: robust core window from the data itself (median +/- 5 x
+    # 1.4826 x MAD, >= one hist_range bin wide), clipped to the configured
+    # range. A fixed +/-0.5 window would bin a 0.004-wide core in 0.01 steps,
+    # so pass 2 could never resolve it.
+    if n_entries >= 8:
+        med0 = float(np.median(values))
+        mad0 = float(np.median(np.abs(values - med0)))
+        half = max(5.0 * 1.4826 * mad0,
+                   (hist_range[1] - hist_range[0]) / n_bins)
+        r1 = (max(hist_range[0], med0 - half), min(hist_range[1], med0 + half))
+    else:
+        r1 = hist_range
+    pass1 = _fit(values, r1)
     if pass1 is None:
         return GaussianFitResult(n_entries, *([float("nan")] * 4), float("nan"), 0, False)
 
@@ -237,8 +270,10 @@ def fit_gaussian_core(
     if pass2 is None:
         # Fall back to the full-range fit rather than reporting nothing.
         popt, perr, chi2, ndf = pass1
+        used_range = r1
     else:
         popt, perr, chi2, ndf = pass2
+        used_range = core_range
     mu, sigma = popt[1], popt[2]
 
     sigma = abs(sigma)
@@ -264,12 +299,18 @@ def fit_gaussian_core(
             converged=False,
         )
 
+    # Unbinned Gaussian-core error estimates (see docstring): relative width
+    # error 1/sqrt(2 n_core), centroid error sigma/sqrt(n_core).
+    n_core = int(np.count_nonzero((values >= used_range[0]) & (values <= used_range[1])))
+    sigma_err = float(sigma / np.sqrt(2.0 * n_core)) if n_core > 0 else float("nan")
+    mu_err = float(sigma / np.sqrt(float(n_core))) if n_core > 0 else float("nan")
+
     return GaussianFitResult(
         n_entries=n_entries,
         mu=float(mu),
         sigma=float(sigma),
-        mu_err=float(perr[1]),
-        sigma_err=float(perr[2]),
+        mu_err=mu_err,
+        sigma_err=sigma_err,
         chi2=chi2,
         ndf=ndf,
         converged=True,

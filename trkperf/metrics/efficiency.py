@@ -21,6 +21,8 @@ def _chunk_counts(
     region: str,
     shared: dict,
     found: list,
+    min_reco_hits: int = config.RECO_MIN_HITS,
+    min_reco_si_hits: int = config.RECO_MIN_SILICON_HITS,
 ) -> pd.DataFrame:
     """Per-chunk stage of the efficiency computation: read truth, hit-layer
     counts, reco and associations for one file-list chunk, build the matched
@@ -31,6 +33,13 @@ def _chunk_counts(
     chunk rather than the whole sample. ``shared`` (skip-set + failure
     budget) and ``found`` (collections actually read) are caller-owned and
     accumulate across chunks.
+
+    The same region-scoped reco-track 4/3 cut that fake-rate and resolution
+    apply gates the NUMERATORS here: a truth particle counts as matched only
+    when its best-associated reconstructed track also carries
+    >= min_reco_hits tracking hits (>= min_reco_si_hits silicon) per
+    ``reco.read_reco_track_hit_counts(region)``. The denominators (n_truth,
+    truth-side n_in_acceptance) are unaffected. 0/0 disables the gate.
     """
     spec = config.TRACKING_REGIONS[region]
     truth_df = truth.read_truth_particles(
@@ -51,6 +60,21 @@ def _chunk_counts(
         file_paths, max_failures=max_failures, shared_failures=shared
     )
     pairs = matching.build_matched_pairs(truth_df, reco_df, assoc_df, weight_threshold)
+
+    if (min_reco_hits > 0 or min_reco_si_hits > 0) and len(pairs):
+        counts = reco.read_reco_track_hit_counts(
+            file_paths, max_failures=max_failures, shared_failures=shared,
+            region=region)
+        pairs = pairs.merge(counts.rename(columns={"idx": "rec_idx"})[
+            ["file_id", "event", "rec_idx", "n_reco_hits", "n_reco_si_hits"]],
+            on=["file_id", "event", "rec_idx"], how="left")
+        # Unmatched rows have rec_idx NA -> the cut flags stay False there, but
+        # they cannot contribute to a numerator anyway (is_matched is False).
+        reco_ok = ((pairs["n_reco_hits"].fillna(-1) >= min_reco_hits)
+                   & (pairs["n_reco_si_hits"].fillna(-1) >= min_reco_si_hits))
+        shared["n_reco_cut_removed"] = (shared.get("n_reco_cut_removed", 0)
+                                        + int((pairs["is_matched"] & ~reco_ok).sum()))
+        pairs["is_matched"] = pairs["is_matched"] & reco_ok
 
     pairs = binning.assign_bins(pairs)
     pairs = pairs.dropna(subset=["p_bin", "eta_bin"])
@@ -80,6 +104,8 @@ def compute_efficiency(
     max_failures: int = 0,
     region: str = "central",
     chunk_files: int = 0,
+    min_reco_hits: int = config.RECO_MIN_HITS,
+    min_reco_si_hits: int = config.RECO_MIN_SILICON_HITS,
 ) -> pd.DataFrame:
     """Compute the track-finding-efficiency table for the given files.
 
@@ -103,6 +129,13 @@ def compute_efficiency(
     denominator (see config.TRACKING_REGIONS); the absolute efficiency is
     region-independent. Explicit `min_hits`/`min_silicon_hits` override
     the region defaults.
+
+    `min_reco_hits`/`min_reco_si_hits` apply the SAME reco-track quality
+    floor as fake-rate and resolution (default config.RECO_MIN_HITS=4 /
+    config.RECO_MIN_SILICON_HITS=3, region-scoped hit classification): a
+    matched truth particle counts in the numerators only if its reconstructed
+    track carries at least that many tracking hits / silicon hits. Pass 0/0
+    to disable (pre-cut behaviour).
 
     `chunk_files` bounds peak memory by processing the file list in
     consecutive groups of at most that many files (0/None = one pass, the
@@ -131,7 +164,8 @@ def compute_efficiency(
     counts = pd.concat(
         [
             _chunk_counts(c, species, weight_threshold, min_hits, min_silicon_hits,
-                          max_failures, region, shared, found)
+                          max_failures, region, shared, found,
+                          min_reco_hits, min_reco_si_hits)
             for c in chunks
         ],
         ignore_index=True,
@@ -182,6 +216,8 @@ def compute_efficiency(
         "region": region, "collections": list(spec["collections"]),
         "collections_found": list(dict.fromkeys(found)),
         "chunk_files": chunk_files or 0, "n_chunks": len(chunks),
+        "min_reco_hits": min_reco_hits, "min_reco_si_hits": min_reco_si_hits,
+        "n_reco_cut_removed": shared.get("n_reco_cut_removed", 0),
     }
     # n_matched_in_acceptance is kept (not just used for the ratio): grouped
     # plots re-aggregate the within-acceptance efficiency from summed counts,

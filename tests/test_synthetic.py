@@ -16,7 +16,7 @@ from unittest import mock
 import numpy as np
 import pandas as pd
 
-from trkperf import binning, compare, io, matching, report
+from trkperf import binning, compare, config, io, matching, report
 
 
 class TestGaussianFit(unittest.TestCase):
@@ -153,6 +153,13 @@ class TestEmptyInputGrids(unittest.TestCase):
              mock.patch("trkperf.truth.select_primary", return_value=empty_pairs), \
              mock.patch("trkperf.reco.read_reco_tracks", return_value=empty_pairs), \
              mock.patch("trkperf.matching.read_associations", return_value=empty_pairs), \
+             mock.patch("trkperf.reco.read_reco_track_hit_counts",
+                        return_value=pd.DataFrame({
+                            "file_id": pd.Series(dtype="int64"),
+                            "event": pd.Series(dtype="int64"),
+                            "idx": pd.Series(dtype="int64"),
+                            "n_reco_hits": pd.Series(dtype="int64"),
+                            "n_reco_si_hits": pd.Series(dtype="int64")})), \
              mock.patch("trkperf.matching.build_matched_pairs", return_value=empty_pairs):
             result = resolution.compute_resolution(["unreadable.root"])
         n_p = len(config.P_BIN_EDGES) - 1
@@ -806,16 +813,28 @@ class TestChunkedMetrics(unittest.TestCase):
                                  "weight": 0.9, "rec_idx": j, "sim_idx": j})
             return pd.DataFrame(rows)
 
+        def _hit_counts(file_paths, **kw):
+            # every track comfortably passes the default 4/3 reco cut, so the
+            # chunked-vs-single-pass equivalence is not confounded by gating.
+            rows = []
+            for fid, _p in enumerate(file_paths):
+                for j in range(2):
+                    rows.append({"file_id": fid, "event": 0, "idx": j,
+                                 "n_reco_hits": 6, "n_reco_si_hits": 4})
+            return pd.DataFrame(rows)
+
         return (mock.patch("trkperf.truth.read_truth_particles", side_effect=_truth),
                 mock.patch("trkperf.truth.read_truth_hit_counts", side_effect=_layers),
                 mock.patch("trkperf.reco.read_reco_tracks", side_effect=_reco),
-                mock.patch("trkperf.matching.read_associations", side_effect=_assoc))
+                mock.patch("trkperf.matching.read_associations", side_effect=_assoc),
+                mock.patch("trkperf.reco.read_reco_track_hit_counts",
+                           side_effect=_hit_counts))
 
     def test_efficiency_chunked_equals_single_pass(self):
         from trkperf.metrics import efficiency
 
         patches = self._patch_reads()
-        with patches[0], patches[1], patches[2], patches[3]:
+        with patches[0], patches[1], patches[2], patches[3], patches[4]:
             single = efficiency.compute_efficiency(self.FILES)
             chunked = efficiency.compute_efficiency(self.FILES, chunk_files=1)
             big = efficiency.compute_efficiency(self.FILES, chunk_files=99)
@@ -837,7 +856,7 @@ class TestChunkedMetrics(unittest.TestCase):
             return binning.GaussianFitResult(len(values), 0.01, 0.02, 0.001,
                                              0.002, 1.0, 1, True)
 
-        with patches[0], patches[1], patches[2], patches[3], \
+        with patches[0], patches[1], patches[2], patches[3], patches[4], \
                 mock.patch.object(binning, "fit_gaussian_core", side_effect=fake_fit):
             r_single = resolution.compute_resolution(self.FILES)
             single_calls = list(calls)
@@ -1072,7 +1091,7 @@ class TestEtaRegions(unittest.TestCase):
         barrel2 = agg2[agg2["eta_region"] == "barrel"].iloc[0]
         self.assertTrue(barrel2["insufficient_stats"])  # n = 15 < 50
 
-    def test_sigma_inverse_variance(self):
+    def test_sigma_n_weighted(self):
         df = pd.DataFrame([
             {"species": "pi+", "p_bin_center": 1.0, "eta_bin_center": -0.25,
              "sigma": 0.10, "sigma_err": 0.01, "n_matched": 200,
@@ -1086,11 +1105,13 @@ class TestEtaRegions(unittest.TestCase):
         ])
         agg = report.aggregate_eta_species(df, "sigma", "sigma_err", count_cols=None)
         row = agg.iloc[0]
-        # w = 1/0.01^2 : 1/0.02^2 = 4:1 -> (4*0.10 + 1*0.20)/5 = 0.12; the
-        # non-converged row is excluded even though its tiny error would
-        # otherwise dominate the weights.
-        self.assertAlmostEqual(row["sigma"], 0.12, places=6)
-        self.assertAlmostEqual(row["sigma_err"], 1.0 / np.sqrt(10000 + 2500), places=9)
+        # N-weighted mean (equal N -> plain mean of the two converged widths);
+        # the non-converged row is excluded even though its tiny sigma_err
+        # would dominate an inverse-variance weighting - the whole point of
+        # switching: sigma_err is derived FROM sigma/N, so 1/err^2 weights
+        # re-introduce a sample-size bias.
+        self.assertAlmostEqual(row["sigma"], 0.15, places=6)
+        self.assertAlmostEqual(row["sigma_err"], 0.15 / np.sqrt(2 * 400), places=9)
         self.assertEqual(row["n"], 600.0)
 
     def test_eta_centers_follow_their_rule(self):
@@ -1180,10 +1201,11 @@ class TestCollectionProbe(unittest.TestCase):
 
 
 class TestRecoHitCut(unittest.TestCase):
-    """The optional reco-side N_hit / N_si quality cut on the fake-rate metric
-    (reco.read_reco_track_hit_counts filter): it must exclude sub-threshold
-    tracks from BOTH numerator and denominator, and be a true no-op (and not
-    even read the hit tables) when disabled."""
+    """The reco-side N_hit / N_si quality cut on the fake-rate metric
+    (reco.read_reco_track_hit_counts filter): it excludes sub-threshold tracks
+    from BOTH numerator and denominator, is ON by default with the 4/3 floor
+    (the same rule truth acceptance applies), and is a true no-op - never
+    even reading the hit tables - when explicitly disabled with 0/0."""
 
     @staticmethod
     def _flagged(n=20):
@@ -1218,21 +1240,159 @@ class TestRecoHitCut(unittest.TestCase):
     def test_cut_removes_from_both_numerator_and_denominator(self):
         counts = self._counts()
         with mock.patch("trkperf.reco.read_reco_track_hit_counts", return_value=counts):
-            out = self._run(min_reco_hits=4, min_reco_si_hits=3)
+            out = self._run()          # defaults: 4/3 (config.RECO_MIN_*)
         # 20 tracks - 4 failing = 16 kept; removed fakes (2) shrink numerator too
         self.assertEqual(int(out["n_tracks"].sum()), 16)
         self.assertEqual(int(out["n_fake"].sum()), 8)          # 10 fakes - 2 removed
         self.assertEqual(out.attrs["run_params"]["n_reco_cut_removed"], 4)
-        self.assertEqual(out.attrs["run_params"]["min_reco_hits"], 4)
-        self.assertEqual(out.attrs["run_params"]["min_reco_si_hits"], 3)
+        self.assertEqual(out.attrs["run_params"]["min_reco_hits"],
+                         config.RECO_MIN_HITS)
+        self.assertEqual(out.attrs["run_params"]["min_reco_si_hits"],
+                         config.RECO_MIN_SILICON_HITS)
 
-    def test_default_is_noop_and_never_reads_hit_tables(self):
+    def test_explicit_zero_off_never_reads_hit_tables(self):
         with mock.patch("trkperf.reco.read_reco_track_hit_counts",
                         side_effect=AssertionError("must not be called")):
-            out = self._run()
+            out = self._run(min_reco_hits=0, min_reco_si_hits=0)
         self.assertEqual(int(out["n_tracks"].sum()), 20)
         self.assertEqual(int(out["n_fake"].sum()), 10)
         self.assertEqual(out.attrs["run_params"]["n_reco_cut_removed"], 0)
+
+
+class TestRecoHitRegionScoping(unittest.TestCase):
+    """The reco-side hit classification must mirror the truth region sets:
+    TOF endcap hits count in the endcaps (not central); barrel silicon gets no
+    credit in the endcap sets; endcap silicon counts everywhere central does."""
+
+    def test_region_sets_mirror_truth(self):
+        tr_c, si_c = config.reco_hit_collections("central")
+        tr_f, si_f = config.reco_hit_collections("forward")
+        tr_b, si_b = config.reco_hit_collections("backward")
+        # central: all 7 tracking systems, no TOF, 3 silicon systems
+        self.assertNotIn("TOFEndcapClusterHits", tr_c)
+        self.assertEqual(si_c, set(config.SILICON_RECO_HIT_COLLECTIONS))
+        # forward: endcap MPGD + endcap Si + TOF endcap; NO barrel silicon
+        self.assertIn("TOFEndcapClusterHits", tr_f)
+        self.assertIn("ForwardMPGDEndcapRecHits", tr_f)
+        self.assertNotIn("SiBarrelVertexRecHits", tr_f)
+        self.assertNotIn("SiBarrelTrackerRecHits", tr_f)
+        self.assertEqual(si_f, {"SiEndcapTrackerRecHits"})
+        # backward: mirror image
+        self.assertIn("TOFEndcapClusterHits", tr_b)
+        self.assertNotIn("ForwardMPGDEndcapRecHits", tr_b)
+        self.assertEqual(si_b, {"SiEndcapTrackerRecHits"})
+
+    def test_silicon_predicate(self):
+        self.assertTrue(config.is_silicon_reco_hit("SiEndcapTrackerRecHits"))
+        self.assertTrue(config.is_silicon_reco_hit("SiBarrelVertexRecHits"))
+        self.assertFalse(config.is_silicon_reco_hit("TOFEndcapClusterHits"))
+        self.assertFalse(config.is_silicon_reco_hit("ForwardMPGDEndcapRecHits"))
+        # renamed production: Si-prefixed endcap-tracker name maps via tokens
+        self.assertTrue(config.is_silicon_reco_hit("SiTrackerEndcapHits"))
+        # a non-Si name cannot be inferred silicon from the barrel token alone
+        self.assertFalse(config.is_silicon_reco_hit("MPGDBarrelRecHits"))
+
+
+class TestEfficiencyRecoGate(unittest.TestCase):
+    """Efficiency numerators must honour the same reco-track 4/3 cut that
+    fake-rate/resolution apply; denominators must not change."""
+
+    def _patches(self, hits_ok):
+        truth_df = pd.DataFrame([{"file_id": 0, "event": 0, "idx": 0,
+                                  "generator_status": 1, "species": "pi+",
+                                  "pt": 2.0, "p": 2.0, "eta": 0.2}])
+        layers = pd.DataFrame([{"file_id": 0, "event": 0, "idx": 0,
+                                "n_hits_total": 5, "n_hits_si": 4}])
+        reco_df = pd.DataFrame([{"file_id": 0, "event": 0, "idx": 0, "pt": 2.1,
+                                 "eta": 0.2, "phi": 0.0, "p": 2.1, "charge": 1,
+                                 "pdg": 211, "chi2": 3.0, "ndf": 4.0}])
+        assoc_df = pd.DataFrame([{"file_id": 0, "event": 0, "idx": 0,
+                                  "weight": 0.9, "rec_idx": 0, "sim_idx": 0}])
+        counts = pd.DataFrame([{"file_id": 0, "event": 0, "idx": 0,
+                                "n_reco_hits": 6 if hits_ok else 3,
+                                "n_reco_si_hits": 4 if hits_ok else 2}])
+        return (mock.patch("trkperf.truth.read_truth_particles", return_value=truth_df),
+                mock.patch("trkperf.truth.read_truth_hit_counts", return_value=layers),
+                mock.patch("trkperf.reco.read_reco_tracks", return_value=reco_df),
+                mock.patch("trkperf.matching.read_associations", return_value=assoc_df),
+                mock.patch("trkperf.reco.read_reco_track_hit_counts", return_value=counts))
+
+    def test_matched_track_failing_reco_cut_leaves_numerator(self):
+        from trkperf.metrics import efficiency
+        p = self._patches(hits_ok=False)
+        with p[0], p[1], p[2], p[3], p[4]:
+            out = efficiency.compute_efficiency(["f"], species=["pi+"],
+                                                chunk_files=0)
+        row = out[(out["species"] == "pi+") & (out["n_truth"] > 0)].iloc[0]
+        self.assertEqual(int(row["n_truth"]), 1)
+        self.assertEqual(int(row["n_in_acceptance"]), 1)   # denominator unchanged
+        self.assertEqual(int(row["n_matched"]), 0)         # gated out
+        self.assertEqual(int(row["n_matched_in_acceptance"]), 0)
+        self.assertEqual(out.attrs["run_params"]["n_reco_cut_removed"], 1)
+
+    def test_passing_track_counted(self):
+        from trkperf.metrics import efficiency
+        p = self._patches(hits_ok=True)
+        with p[0], p[1], p[2], p[3], p[4]:
+            out = efficiency.compute_efficiency(["f"], species=["pi+"])
+        row = out[(out["species"] == "pi+") & (out["n_truth"] > 0)].iloc[0]
+        self.assertEqual(int(row["n_matched"]), 1)
+        self.assertEqual(int(row["n_matched_in_acceptance"]), 1)
+        self.assertEqual(out.attrs["run_params"]["n_reco_cut_removed"], 0)
+
+    def test_off_restores_previous_behaviour(self):
+        from trkperf.metrics import efficiency
+        p = self._patches(hits_ok=False)
+        with p[0], p[1], p[2], p[3], p[4]:
+            out = efficiency.compute_efficiency(
+                ["f"], species=["pi+"], min_reco_hits=0, min_reco_si_hits=0)
+        row = out[(out["species"] == "pi+") & (out["n_truth"] > 0)].iloc[0]
+        self.assertEqual(int(row["n_matched"]), 1)
+
+
+class TestGeometricCentres(unittest.TestCase):
+    """p_bin_center is the log-mean of the (log-spaced) bin."""
+
+    def test_centres_geometric(self):
+        # pd.cut rounds interval bounds to 3 decimals (precision=3), so the
+        # first p bin is (0.1, 0.237] and its centre sqrt(0.1*0.237).
+        expected = float(np.sqrt(0.1 * 0.237))
+        got = binning.assign_bins(pd.DataFrame({"p": [0.15], "eta": [0.0]}))
+        self.assertAlmostEqual(float(got["p_bin_center"].iloc[0]), expected, places=10)
+        # the geometric centre is strictly below the arithmetic mid on log bins
+        self.assertLess(float(got["p_bin_center"].iloc[0]), (0.1 + 0.237) / 2)
+        # grid rows use the same centres (merge keys align)
+        grid = binning.full_bin_grid(None)
+        self.assertAlmostEqual(float(grid["p_bin_center"].iloc[0]), expected, places=10)
+        # eta centres stay arithmetic (linear bins)
+        self.assertAlmostEqual(float(grid["eta_bin_center"].iloc[0]),
+                               (config.ETA_BIN_EDGES[0] + config.ETA_BIN_EDGES[1]) / 2,
+                               places=10)
+
+
+class TestResolutionCoreErrors(unittest.TestCase):
+    """sigma_err/mu_err come from the core entry count, not the binned
+    covariance (measured inflated 50-200% in thin 26.07.1 bins)."""
+
+    def test_core_error_scaling(self):
+        rng = np.random.default_rng(7)
+        vals = rng.normal(0.0, 0.05, size=4000)
+        fit = binning.fit_gaussian_core(vals)
+        self.assertTrue(fit.converged)
+        self.assertLess(abs(fit.sigma - 0.05), 0.005)
+        # n_core ~ all 4000 (range covers >5 sigma); expect ~ sigma/sqrt(2N)
+        expect = fit.sigma / np.sqrt(2 * 4000)
+        self.assertLess(abs(fit.sigma_err - expect) / expect, 0.15)
+        self.assertLess(fit.sigma_err, fit.sigma / np.sqrt(2 * 500))  # not inflated
+
+    def test_tight_pass1_range_keeps_narrow_cores_fittable(self):
+        # a 0.004-wide core in the default [-0.5, 0.5] full window: with the
+        # old fixed pass-1 range, 100 bins = 0.01 width > the core itself.
+        rng = np.random.default_rng(11)
+        vals = rng.normal(0.0, 0.004, size=3000)
+        fit = binning.fit_gaussian_core(vals)
+        self.assertTrue(fit.converged)
+        self.assertLess(abs(fit.sigma - 0.004), 0.0015)
 
 
 class TestBestAssociationNoDoubleCount(unittest.TestCase):
