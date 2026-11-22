@@ -170,7 +170,9 @@ def fit_gaussian_core(
     Pass 2: re-histogram and re-fit restricted to
     [mu - core_sigma*sigma, mu + core_sigma*sigma] from pass 1, so
     non-Gaussian tails (mis-reconstruction, bremsstrahlung, hard scattering)
-    do not bias the reported width. The pass-2 result is what is returned.
+    do not bias the reported width. The pass-2 result is what is returned;
+    if pass 2 fails to converge the bin is reported NON-converged - pass 1's
+    width includes the tails and must not masquerade as a core resolution.
 
     Uncertainties: ROOT's binned covariance assumes one-binned-width
     resolution and inflates sigma_err 50-200% in 50-90-entry bins (measured
@@ -203,11 +205,21 @@ def fit_gaussian_core(
         h = ROOT.TH1F(
             _next_root_name("h"), "h", n_bins, rng[0], rng[1]
         )
+        # Detach from gDirectory: TH1F registers itself globally, and one
+        # histogram per fit x thousands of bins per run would leak the whole
+        # set into ROOT's current directory for the process lifetime.
+        h.SetDirectory(0)
         for v in vals:
             h.Fill(float(v))
-        if h.GetEntries() < 4:  # need more points than the 3 fit parameters
+        # Count only IN-RANGE entries: Fill() bumps GetEntries() for
+        # under/overflow too, and 4 outside points must not let ROOT fit the
+        # 3 parameters to fewer than 4 real values.
+        if int(h.Integral(1, h.GetNbinsX())) < 4:
             return None
         f = ROOT.TF1(_next_root_name("f"), "gaus", rng[0], rng[1])
+        # NB: no TF1.SetDirectory in this ROOT - TF1 is not registered in
+        # gDirectory by the constructor (unlike TH1F), so only the histogram
+        # needed detaching above.
         # Only constrain sigma (the physical quantity of interest): lower bound
         # keeps it positive; upper bound = RESOLUTION_MAX_SIGMA (1.0) enforces
         # the physical maximum on Delta(p)/p. Leave the amplitude free.
@@ -241,11 +253,17 @@ def fit_gaussian_core(
             return None
         if is_empty or status != 0:
             return None
+        ndf = int(res.Ndf())
+        if ndf <= 0:
+            # A fit with zero (or negative) degrees of freedom has no
+            # chi2/ndf and no meaningful covariance - degenerate, not
+            # converged.
+            return None
         # If the fit pinned sigma against the physical maximum, the data is
         # not describable by a physical resolution -> treat as failed.
         if popt[2] >= max_sigma * 0.999:
             return None
-        return popt, perr, float(res.Chi2()), int(res.Ndf())
+        return popt, perr, float(res.Chi2()), ndf
 
     # Pass-1 range: robust core window from the data itself (median +/- 5 x
     # 1.4826 x MAD, >= one hist_range bin wide), clipped to the configured
@@ -268,12 +286,15 @@ def fit_gaussian_core(
     core_range = (mu1 - core_sigma * abs(sigma1), mu1 + core_sigma * abs(sigma1))
     pass2 = _fit(values, core_range)
     if pass2 is None:
-        # Fall back to the full-range fit rather than reporting nothing.
-        popt, perr, chi2, ndf = pass1
-        used_range = r1
-    else:
-        popt, perr, chi2, ndf = pass2
-        used_range = core_range
+        # No clean core refit: pass 1's width includes the non-Gaussian tails
+        # (brems, mis-reconstruction), so reporting it as a converged CORE
+        # width would be silently wrong. Flag the bin non-converged instead.
+        return GaussianFitResult(
+            n_entries=n_entries, mu=float("nan"), sigma=float("nan"),
+            mu_err=float("nan"), sigma_err=float("nan"),
+            chi2=float("nan"), ndf=0, converged=False)
+    popt, perr, chi2, ndf = pass2
+    used_range = core_range
     mu, sigma = popt[1], popt[2]
 
     sigma = abs(sigma)
@@ -300,10 +321,16 @@ def fit_gaussian_core(
         )
 
     # Unbinned Gaussian-core error estimates (see docstring): relative width
-    # error 1/sqrt(2 n_core), centroid error sigma/sqrt(n_core).
+    # error 1/sqrt(2 n_core), centroid error sigma/sqrt(n_core). A core with
+    # fewer than 4 in-range entries is not a measurement - flag it.
     n_core = int(np.count_nonzero((values >= used_range[0]) & (values <= used_range[1])))
-    sigma_err = float(sigma / np.sqrt(2.0 * n_core)) if n_core > 0 else float("nan")
-    mu_err = float(sigma / np.sqrt(float(n_core))) if n_core > 0 else float("nan")
+    if n_core < 4:
+        return GaussianFitResult(
+            n_entries=n_entries, mu=float("nan"), sigma=float("nan"),
+            mu_err=float("nan"), sigma_err=float("nan"),
+            chi2=float("nan"), ndf=0, converged=False)
+    sigma_err = float(sigma / np.sqrt(2.0 * n_core))
+    mu_err = float(sigma / np.sqrt(float(n_core)))
 
     return GaussianFitResult(
         n_entries=n_entries,

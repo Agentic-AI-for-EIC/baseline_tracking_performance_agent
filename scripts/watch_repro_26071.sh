@@ -28,7 +28,7 @@ while true; do
     step=$(grep '^\[repro\]' "$RLOG" | tail -1 | sed 's/^\[repro\] //')
     done_n=$(grep -c '^\[repro\] DONE' "$RLOG")
     fails=$(grep -c '^\[repro\] FAIL' "$RLOG")
-    driver=$(pgrep -f "bash scripts/run_reproduction_26071.sh" | head -1)
+    driver=$(pgrep -f "run_reproduction_26071.sh" | head -1)
     child=$(pgrep -f "python3 -m trkperf" | head -1)
     if [ -n "$child" ]; then
         cinfo=$(ps -o etime=,time=,args= -p "$child" | awk '{printf "elapsed=%s cpu=%s [%s %s %s]", $1, $2, $4, $5, $6}')
@@ -43,7 +43,7 @@ while true; do
 
     if [ "$done_n" -gt "$base_done" ]; then echo "REPRO DONE"; exit 0; fi
     if [ "$fails" -gt "$base_fails" ]; then echo "REPRO FAIL seen (n=$fails) - triage"; exit 2; fi
-    if [ -z "$driver" ] && [ "$done_n" -eq 0 ]; then
+    if [ -z "$driver" ] && [ "$done_n" -le "$base_done" ]; then
         echo "REPRO DRIVER DEAD without DONE marker - triage needed"; exit 2; fi
     if [ "$SECONDS" -ge "$deadline" ]; then echo "TIMEOUT after ${MAXH}h, still running"; exit 3; fi
     sleep "$INTERVAL"

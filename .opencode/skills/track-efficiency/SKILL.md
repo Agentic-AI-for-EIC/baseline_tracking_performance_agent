@@ -28,7 +28,7 @@ apply to every metric, load the `trkperf-grid-workflow` skill too.
 
 ## Metric definition
 Efficiency uses truth<->reco matching via `CentralCKFTrackAssociations`
-(weight >= 0.5, the standard majority-matching convention). Both numbers are measured
+(weight > 0.5, strict majority - since a track's weights sum to <= 1, at most one particle can own a track). Both numbers are measured
 directly from data (matched / relevant denominator), not derived by
 multiplying a separate acceptance table with a conditional efficiency — so
 `efficiency_absolute` / acceptance need not exactly equal
@@ -36,6 +36,15 @@ multiplying a separate acceptance table with a conditional efficiency — so
 
 - **within-acceptance**: matched & in-acceptance / in-acceptance truth.
 - **absolute**: matched / all generated truth.
+
+A match counts only if the reconstructed track ALSO passes the default
+reco-side floor (>= 4 tracking hits of its own region, >= 3 silicon —
+config.RECO_MIN_HITS/SILICON; --min-reco-hits 0 to lift), so the efficiency
+numerator and the fake-rate universe use the same track quality definition as
+truth uses for acceptance. Each efficiency carries its own statistics floor
+(insufficient_stats_absolute on n_truth, ..._within_acceptance on
+n_in_acceptance); the row-level insufficient_stats is the within-acceptance
+one.
 
 Acceptance uses the same rule as the `acceptance` metric: >= 4 individual truth
 hits, of which >= 3 in the silicon tracker, counted over the region's truth-hit

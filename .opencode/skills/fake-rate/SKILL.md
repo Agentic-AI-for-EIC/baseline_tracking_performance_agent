@@ -2,7 +2,7 @@
 name: fake-rate
 description: >-
   Compute ePIC craterlake fake-track rate — fraction of reconstructed
-  CentralCKFTracks with no valid truth match (weight >= 0.5), binned in the
+  CentralCKFTracks with no strict-majority truth match (best association weight <= 0.5), binned in the
   track's OWN reconstructed p (log) and eta (0.5 bins) — deliberately no
   species axis (a fake track has no true species) — then compared between the
   clean (Type 1) and +background (Type 2, bkg26071) datasets. Use when asked
@@ -28,10 +28,14 @@ comparison / provenance details that apply to every metric, load the
 
 ## Metric definition
 A reconstructed track is "fake" when no `CentralCKFTrackAssociations` match
-to any truth particle has weight >= 0.5 (i.e. less than half its hits come
+to any truth particle has weight <= 0.5 (i.e. no strict majority of its hits come
 from a single truth particle). fake_rate = n_fake / n_tracks per
 reconstructed-(p, eta) bin, with binomial errors. Two deliberate
 conventions:
+Fake/universe grain: one row per reconstructed track; the universe is
+tracks passing the DEFAULT reco-side quality floor (>= 4 tracking hits of
+the track's own region, >= 3 silicon - config.RECO_MIN_HITS/SILICON, same
+rule as truth acceptance; --min-reco-hits 0 --min-reco-si-hits 0 to lift).
 
 - Binned in the **reconstructed** track's own (p, eta) — a fake has no true
   momentum, so truth binning is impossible.

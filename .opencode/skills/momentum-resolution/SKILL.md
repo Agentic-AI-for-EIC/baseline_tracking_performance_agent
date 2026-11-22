@@ -28,7 +28,7 @@ the `trkperf-grid-workflow` skill too.
 ## Metric definition
 Resolution is defined on **total momentum p specifically**: Delta(p)/p =
 (p_reco - p_truth) / p_truth, consistent with the p/eta binning used
-everywhere. Only truth-matched pairs enter (weight >= 0.5 via
+everywhere. Only truth-matched pairs enter (strict weight > 0.5 via
 `CentralCKFTrackAssociations`). Per bin, the Delta(p)/p distribution is fit
 to its Gaussian core with **ROOT** (`TH1F.Fit(TF1("gaus"))`, two-pass core
 refit over +/- `RESOLUTION_FIT_CORE_SIGMA` sigma) — not scipy, so a human

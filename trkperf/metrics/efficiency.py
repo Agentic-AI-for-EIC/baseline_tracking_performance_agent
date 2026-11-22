@@ -206,10 +206,18 @@ def compute_efficiency(
         result["n_matched_in_acceptance"], result["n_in_acceptance"]
     )
 
-    # The statistics floor applies to whichever denominator is smaller
-    # (within-acceptance, since n_in_acceptance <= n_truth always, so one
-    # check covers both denominators).
-    result["insufficient_stats"] = result["n_in_acceptance"] < config.MIN_ENTRIES_PER_BIN
+    # Per-COLUMN statistics floors: each efficiency is gated by its OWN
+    # denominator. The row-level insufficient_stats keeps the within-
+    # acceptance floor (the headline figure of merit, and always the tighter
+    # side since n_in_acceptance <= n_truth) for compare/plot back-compat,
+    # while plots/comparisons can use the per-column flags to stop hiding
+    # well-measured efficiency_absolute bins (e.g. low-p curler rows where
+    # n_truth >> 50 but the particle was out of acceptance).
+    result["insufficient_stats_within_acceptance"] = (
+        result["n_in_acceptance"] < config.MIN_ENTRIES_PER_BIN)
+    result["insufficient_stats_absolute"] = (
+        result["n_truth"] < config.MIN_ENTRIES_PER_BIN)
+    result["insufficient_stats"] = result["insufficient_stats_within_acceptance"]
     result.attrs["skipped_files"] = sorted(shared.get("skipped", []))
     result.attrs["run_params"] = {
         "weight_threshold": weight_threshold, "min_hits": min_hits,

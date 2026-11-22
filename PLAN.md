@@ -173,17 +173,26 @@ correct yet useless. Acceptance and the within-acceptance efficiency
 denominator are therefore defined per region (`trkperf.config.TRACKING_REGIONS`,
 `--region` on the acceptance/efficiency CLI):
 
-| region | truth-hit collections (≥1 hit each) | N_min | measured joint acceptance (clean file) |
-|---|---|---|---|
-| central | the 7 collections above | 4 | unchanged behaviour |
-| backward (electron endcap) | BackwardMPGDEndcapHits, TrackerEndcapHits, TOFEndcapHits | 2 | backward e⁻: ≥1 = 1.000, ≥2 = 0.968, ≥3 = 0.002 |
-| forward (hadron endcap) | ForwardMPGDEndcapHits, TrackerEndcapHits, TOFEndcapHits | 2 | forward π/K/p: ≥1 = 0.519, ≥2 = 0.426, ≥3 = 0.271 |
+| region | truth-hit collections counted | acceptance rule |
+|---|---|---|
+| central | SiBarrelHits, VertexBarrelHits, TrackerEndcapHits, MPGDBarrelHits, OuterMPGDBarrelHits, BackwardMPGDEndcapHits, ForwardMPGDEndcapHits | ≥4 INDIVIDUAL hits, ≥3 in silicon |
+| backward (electron endcap) | BackwardMPGDEndcapHits, TrackerEndcapHits, TOFEndcapHits | ≥4 INDIVIDUAL hits, ≥3 in silicon |
+| forward (hadron endcap) | ForwardMPGDEndcapHits, TrackerEndcapHits, TOFEndcapHits | ≥4 INDIVIDUAL hits, ≥3 in silicon |
 
-Rationale: N_min = 2 is the stereo minimum (two independent measurements make
-a segment); the joint fractions above are the measured justification, with
-≥1/≥3 as brackets. TOF endcap hits count: TOF cluster hits are folded into
-the track fit (26.07.1), so they are tracking-relevant space points, not
-calorimetry. Endcap rules cover endcap disks only: the far-forward
+Rationale (2026-10 rule, superseding the retired collection-proxy
+"≥ N of M collections" / N_min=2 table that stood here — the proxy counted a
+collection once no matter how many layers it held and could not express the
+CKF silicon-seed requirement): a particle is accepted when it leaves ≥4
+individual GEANT truth hits in the region's collection set with ≥3 of them
+in silicon (TrackerEndcapHits in the endcaps, +SiBarrelHits/VertexBarrelHits
+in the barrel) — the same 4/3 floor the CKF seed needs, and now mirrored
+exactly on the reconstructed side (config.RECO_MIN_HITS=4 /
+RECO_MIN_SILICON_HITS=3, region-scoped, applied to fake-rate, resolution and
+efficiency numerators). TOF endcap hits count in the endcap regions: TOF
+cluster hits are folded into the track fit (26.07.1), so they are
+tracking-relevant space points, not calorimetry — and the reco side counts
+TOFEndcap there (and not in the barrel) for symmetry. Endcap rules cover
+endcap disks only: the far-forward
 spectrometer stations (ForwardOffM, Roman Pots) were removed from the forward
 rule (2026-09-25) — they are a separate detector system, not endcap
 tracking. A collection whose branch is absent in a campaign degrades to 0
@@ -416,8 +425,9 @@ series/panel). `trkperf` gained eta-region grouping for plotting only
   re-aggregation for count ratios (summed numerators/denominators, Wilson
   errors recomputed, 50-entry floor re-applied; a kept numerator column
   missing from older JSONs is recovered as sum(value*denom) with a loud
-  NOTE); inverse-variance-weighted mean for resolution sigmas
-  (approximate, non-converged fits excluded).
+  NOTE); n_matched-weighted mean for resolution sigmas
+  (approximate, non-converged fits excluded; the earlier inverse-variance
+  weighting was self-referential through sigma/N and biased grouped curves).
 - `python -m trkperf plot --json ... --grouped --eta-region
   {barrel,"forward endcap","backward endcap"}` writes one plot per detector
   region (`<base>_<suffix>_grouped_<region>.png`, spaces slugged to
@@ -622,8 +632,9 @@ region's collection set, >= 3 of them silicon. Changes made code-wide:
   manual_check/check_qa_parity.py now compares integers only.
 - Reproduction driver passes --min-reco-hits 4 --min-reco-si-hits 3
   explicitly; AGENTS.md conventions + the gautschi xrootd path/node
-  instructions updated (4.2.1 OASIS path is gone; verified working:
-  /cvmfs/oasis.opensciencegrid.org/gluex/xrootd/5.0.3).
+  instructions updated (4.2.1 OASIS path is gone and 5.0.3 is EL7-only;
+  verified working server: /cvmfs/oasis.opensciencegrid.org/gluex/xrootd/4.9.1,
+  serving node now auto-probed across login00-04).
 
 KNOWN accepted residuals (documented, not fixed): raw GEANT hit counts allow
 low-p curlers to stack 4 hits in 1-2 layers (cellID layer dedup out of

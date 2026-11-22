@@ -231,8 +231,9 @@ def aggregate_eta_species(
         (species group, eta region, p bin), e.g. ``("n_in_acceptance",
         "n_generated")``. The value becomes numerator/denominator with a
         Wilson error. If None (resolution sigmas), the value is the
-        inverse-variance weighted mean over the group and `err_col` its
-        propagated error instead.
+        n_matched-weighted mean over the group with error
+        value / sqrt(2 * sum(n_matched)) (inverse-variance weights were
+        self-referential through sigma/N - see aggregate_eta_species).
 
     Returns a DataFrame with ``species_group``, ``eta_region``,
     ``p_bin_center``, the value/err columns, summed ``n`` and a recomputed
@@ -385,17 +386,21 @@ def bkg_over_clean_ratio(
     eta_region_filter: str | None = None,
     eta_window: tuple[float, float] | None = None,
 ) -> pd.DataFrame:
-    """Background-over-clean ratio of a count-based metric, per species group and p.
+    """Background-over-clean ratio of a metric, per species group and p.
 
-    Each side's numerator/denominator counts (``count_cols``) are summed over
-    the selected eta bins into a pooled value per (species group, p bin), then
-    ``ratio = value_bkg / value_clean`` with error propagated as
-    ``ratio * sqrt((e_bkg/v_bkg)^2 + (e_clean/v_clean)^2)`` (per-side errors are
-    binomial on the pooled counts). A cell is flagged insufficient when either
-    side lacks statistics, so a ratio never mixes a real number against a thin
-    one. ratio 1 = background changed nothing; <1 (efficiency) or >1 (fake rate)
-    shows the impact. Pooling counts (not averaging per-bin ratios) keeps the
-    statistic exact and avoids eta-region fan-out when none is selected.
+    Each side is pooled over the selected eta bins into one value per
+    (species group, p bin): count-based metrics sum ``count_cols``
+    numerator/denominator (Wilson per-side error); a width/σ metric with
+    ``count_cols=None`` pools n_matched-weighted (error v/sqrt(2N)), the
+    same estimator as :func:`aggregate_eta_species`. Then
+    ``ratio = v_bkg / v_clean`` with ABSOLUTE-error propagation
+    ``sqrt((e_bkg/v_clean)^2 + (v_bkg*e_clean/v_clean^2)^2)`` - finite even
+    when the numerator is exactly 0. A cell is flagged insufficient when
+    either side lacks statistics, so a ratio never mixes a real number
+    against a thin one. ratio 1 = background changed nothing; <1
+    (efficiency) or >1 (fake rate, sigma) shows the impact. Pooling first
+    (not averaging per-bin ratios) keeps the statistic exact and avoids
+    eta-region fan-out when no region is selected.
     """
     from . import binning
 
@@ -437,11 +442,13 @@ def bkg_over_clean_ratio(
             else:
                 w = w.assign(_w=np.where(ok, 1.0, 0.0))
             w["_wv"] = w["_w"] * w[value_col].to_numpy(dtype=float)
-            g = w.groupby(keys, observed=True).agg(**{
-                "_w": ("_w", "sum"), "_wv": ("_wv", "sum"),
-                **({"n": (ncol, "sum")} if ncol else {})}).reset_index()
-            if ncol is None:
-                g["n"] = g["_w"]
+            g = w.groupby(keys, observed=True).agg(
+                _w=("_w", "sum"), _wv=("_wv", "sum")).reset_index()
+            # n = entries ACTUALLY in the pooled mean (converged rows only),
+            # matching aggregate_eta_species - a cell whose ≥50 matches were
+            # all non-converged must stay insufficient_stats, not pass a floor
+            # counted from the rows excluded above.
+            g["n"] = g["_w"]
             with np.errstate(divide="ignore", invalid="ignore"):
                 g["v"] = g["_wv"] / g["_w"]
                 g["e"] = g["v"] / np.sqrt(2.0 * g["_w"])
@@ -456,13 +463,15 @@ def bkg_over_clean_ratio(
                  suffixes=("_clean", "_bkg"))
     with np.errstate(divide="ignore", invalid="ignore"):
         m["ratio"] = m["v_bkg"] / m["v_clean"]
-        # relative error per side; a zero value has an undefined relative
-        # error (NOT 0*inf=NaN-by-accident), propagate it explicitly.
-        relb = np.where((m["v_bkg"] > 0) & np.isfinite(m["e_bkg"]),
-                        m["e_bkg"] / m["v_bkg"], np.nan)
-        relc = np.where((m["v_clean"] > 0) & np.isfinite(m["e_clean"]),
-                        m["e_clean"] / m["v_clean"], np.nan)
-        m["ratio_err"] = np.abs(m["ratio"]) * np.sqrt(relb ** 2 + relc ** 2)
+        # ABSOLUTE-error propagation, r = b/c  ->  dr = sqrt((eb/c)^2 +
+        # (b*ec/c^2)^2). Unlike the relative form this stays finite when the
+        # numerator is exactly 0 (e.g. zero fake counts in bkg): dr = eb/|c|,
+        # matching compare.py's explicit R==0 handling. Undefined (NaN) only
+        # when the denominator is 0.
+        den = m["v_clean"]
+        m["ratio_err"] = np.sqrt(
+            (m["e_bkg"] / den) ** 2
+            + (m["v_bkg"] * m["e_clean"] / den ** 2) ** 2)
     m["insufficient_stats"] = ((m["n_clean"] < config.MIN_ENTRIES_PER_BIN)
                                | (m["n_bkg"] < config.MIN_ENTRIES_PER_BIN))
     return m[["species_group", "p_bin_center", "ratio", "ratio_err", "insufficient_stats"]]
@@ -509,6 +518,7 @@ def plot_metric_vs_p(
     marker_legend_loc: str = "upper right",
     legend_title: str | None = None,
     cl_hint: str | None = None,
+    insufficient_col: str | None = None,
 ) -> None:
     """`value_col` vs `x_col`, one curve per distinct `group_col` value.
 
@@ -539,8 +549,15 @@ def plot_metric_vs_p(
     """
     os.makedirs(os.path.dirname(path) or ".", exist_ok=True)
     plot_df = df
-    if "insufficient_stats" in df.columns:
-        plot_df = df[~df["insufficient_stats"]]
+    # Per-column insufficiency: a table may carry several value columns with
+    # DIFFERENT denominators (efficiency_absolute is gated by n_truth, not by
+    # the tighter within-acceptance n_in_acceptance) - plot_metric_vs_p must
+    # drop rows insufficient FOR THIS COLUMN, else well-measured values get
+    # hidden by an unrelated column's floor.
+    icol = (insufficient_col if insufficient_col and insufficient_col in df.columns
+            else ("insufficient_stats" if "insufficient_stats" in df.columns else None))
+    if icol:
+        plot_df = df[~df[icol].astype(bool)]
     if log_y:
         plot_df = plot_df[plot_df[value_col] > 0]
 

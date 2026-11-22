@@ -296,6 +296,7 @@ def main(path, outdir, n_dump=2, reco_cut=True):
                        "CentralCKFTrackParameters/CentralCKFTrackParameters.phi"],
                       library="np")
     reco_p = {}  # (event, track idx) -> (p, eta); finite values only
+    track_eta = {}  # (event, track idx) -> eta from theta (even if p unmeasurable)
     for ev in range(n_ev):
         # np.asarray(..., dtype=float): the per-event entries are object
         # arrays; this makes them real float vectors for the math below
@@ -312,6 +313,8 @@ def main(path, outdir, n_dump=2, reco_cut=True):
         with np.errstate(divide="ignore", invalid="ignore"):
             eta = -np.log(np.tan(th / 2.0))
         for i, (v, e) in enumerate(zip(p, eta)):
+            if np.isfinite(e):
+                track_eta[(ev, i)] = float(e)
             if np.isfinite(v) and np.isfinite(e):
                 reco_p[(ev, i)] = (float(v), float(e))
 
@@ -422,8 +425,9 @@ def main(path, outdir, n_dump=2, reco_cut=True):
             if e != ev:
                 continue
             w = best_track.get((e, i))
-            verdict = ("fake" if w is None or w <= MATCH_WEIGHT
-                       else f"matched w={w:.2f}")
+            cut = " 4/3-ok" if track_ok(track_region(eta), e, i) else " 4/3-FAIL"
+            verdict = (("fake" if w is None or w <= MATCH_WEIGHT
+                        else f"matched w={w:.2f}") + cut)
             print(f"    reco {i:3d} p={pval:7.3f} eta={eta:+6.2f} -> {verdict}")
         print()
 
@@ -457,9 +461,11 @@ def main(path, outdir, n_dump=2, reco_cut=True):
             w_r = best.get((int(e), int(i)))
             if w_r is not None and w_r[0] > MATCH_WEIGHT:
                 info = reco_p.get((int(e), w_r[1]))
-                # the track is judged by its OWN eta's region (same rule as
-                # trkperf's region="auto"), not the truth particle's
-                track_region_ = track_region(info[1]) if info is not None else region
+                # the track is judged by its OWN region; eta comes from theta
+                # (like trkperf's region="auto") so a qOverP==0 track still
+                # gets its own region instead of the truth particle's
+                te = track_eta.get((int(e), w_r[1]))
+                track_region_ = track_region(te) if te is not None else region
                 if track_ok(track_region_, int(e), w_r[1]):
                     matched[k] = True
                     if info is not None and pval > 0:

@@ -151,6 +151,19 @@ def compare_metric(
         bkg_flag = merged.get("insufficient_stats_bkg", pd.Series(True, index=merged.index)).fillna(True)
         merged["insufficient_stats"] = clean_flag | bkg_flag
 
+    # Per-column floors (efficiency publishes insufficient_stats_absolute /
+    # ..._within_acceptance because the two efficiencies have DIFFERENT
+    # denominators): combine per side so a comparison row is not flagged
+    # insufficient for efficiency_absolute merely because n_in_acceptance < 50.
+    # Absent on either side (older tables) -> no per-column flag emitted,
+    # consumers fall back to the row-level insufficient_stats as before.
+    for flag in ("insufficient_stats_absolute", "insufficient_stats_within_acceptance"):
+        cc, bb = flag + "_clean", flag + "_bkg"
+        if cc in merged.columns and bb in merged.columns:
+            merged[flag] = (merged[cc].fillna(True).astype(bool)
+                            | merged[bb].fillna(True).astype(bool))
+            merged = merged.drop(columns=[cc, bb])
+
     meta = {
         "comparison": "background vs clean (tags in *_source_meta)",
         "clean_source_meta": clean_meta,

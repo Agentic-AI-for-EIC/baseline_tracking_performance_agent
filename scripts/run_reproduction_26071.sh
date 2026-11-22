@@ -11,17 +11,18 @@ export PYTHONUNBUFFERED=1
 
 tunnel_alive() { (exec 3<>/dev/tcp/127.0.0.1/1294) 2>/dev/null; }
 # NOTE (updated 2026-11): the xrootd daemon binds 127.0.0.1 on ONE gautschi
-# login node while gautschi.rcac.purdue.edu round-robins over four - the
-# tunnel MUST land on the node where the daemon actually listens, so the
-# serving node is probed instead of pinning login00 (the daemon last ran
-# from login02). GAUTSCHI_HOST=<host> overrides the probe. The old OSG
-# 4.2.1 path under /cvmfs/oasis.../osg/modules/ is gone; verified working:
-# gluex 5.0.3 below.
-readonly XROOTD_BIN=/cvmfs/oasis.opensciencegrid.org/gluex/xrootd/5.0.3/bin/xrootd
-readonly XROOTD_LIB=/cvmfs/oasis.opensciencegrid.org/gluex/xrootd/5.0.3/lib64
+# login node while gautschi.rcac.purdue.edu round-robins - the tunnel MUST
+# land on the node where the daemon actually listens, so the serving node is
+# PROBED (login00-04) instead of pinned (daemon ran from login02, then
+# login04). GAUTSCHI_HOST=<host> overrides the probe. Server binary: gluex
+# 4.9.1 (verified 2026-11 on EL9 - binds :1294, reads serve fine; the old
+# OSG 4.2.1 path under /cvmfs/oasis.../osg/modules/ is gone and gluex 5.0.3
+# is EL7-only: libssl.so.10 error; 3.3.2 is a last-resort fallback).
+readonly XROOTD_BIN=/cvmfs/oasis.opensciencegrid.org/gluex/xrootd/4.9.1/bin/xrootd
+readonly XROOTD_LIB=/cvmfs/oasis.opensciencegrid.org/gluex/xrootd/4.9.1/lib64
 readonly XROOTD_ROOT=/scratch/gautschi/wxie/eIC_data_small_set
 detect_gautschi_host() {
-  for n in login00 login01 login02 login03; do
+  for n in login00 login01 login02 login03 login04; do
     if timeout 20 ssh -o BatchMode=yes -o ConnectTimeout=8 \
          "$n.gautschi.rcac.purdue.edu" \
          '(ss -ltn 2>/dev/null || netstat -ltn 2>/dev/null) | grep -qw 1294' \
@@ -104,13 +105,19 @@ run_metric () {  # $1 metric  $2 tag  $3 filelist  [extra args...]
   # cheap, so many attempts converge where few would die.
   local attempt=1
   while (( attempt <= 10 )); do
-    ensure_stack || { echo "[repro] FAIL $metric/$tag (stack down, attempt $attempt)"; (( attempt++ )); continue; }
+    ensure_stack || { echo "[repro] RETRY $metric/$tag (stack down, attempt $attempt)"; (( attempt++ )); continue; }
     echo "[repro] $metric $tag $(date -u +%H:%M:%S) (attempt $attempt)"
-    # --min-reco-* are the shipped defaults (config.RECO_MIN_HITS=4 /
-    # RECO_MIN_SILICON_HITS=3, the reco-side mirror of the truth 4/3
-    # acceptance rule); repeated here so the canonical recipe is explicit.
+    # The reco-side 4/3 floor (config.RECO_MIN_HITS=4 / RECO_MIN_SILICON_HITS=3)
+    # is the shipped default for the reco-consuming metrics; repeated here
+    # explicitly so the canonical recipe is legible. acceptance is truth-only
+    # and its CLI no longer even accepts these flags.
+    reco_flags=()
+    case "$metric" in
+      efficiency|resolution|fake-rate)
+        reco_flags=(--min-reco-hits 4 --min-reco-si-hits 3) ;;
+    esac
     if python3 -m trkperf "$metric" --file-list "$list" --dataset-tag "$tag" \
-      --min-q2-tier 1 --min-reco-hits 4 --min-reco-si-hits 3 "$@"; then
+      --min-q2-tier 1 "${reco_flags[@]}" "$@"; then
       return 0
     fi
     echo "[repro] attempt $attempt failed for $metric/$tag - retrying"
@@ -173,7 +180,6 @@ for spec in "acceptance none" "acceptance backward" "acceptance forward" \
     FAILED+=("compare-$name")
     continue
   fi
-  ensure_stack || { echo "[repro] compare $name skipped (stack down)"; FAILED+=("compare-$name"); continue; }
   python3 -m trkperf compare --metric "${name}_26071" \
     --clean "$clean_json" \
     --bkg "$bkg_json" \
@@ -181,7 +187,6 @@ for spec in "acceptance none" "acceptance backward" "acceptance forward" \
 done
 for m in acceptance efficiency resolution fake-rate; do
   for tag in clean26071 bkg26071; do
-    ensure_stack || { echo "[repro] plots for $m/$tag skipped (stack down)"; continue; }
     for r in barrel "backward endcap" "forward endcap"; do
       case "$r" in
         barrel) base=$(json_for "$m" "" "$tag") ;;

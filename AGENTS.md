@@ -90,17 +90,17 @@ impact of beam-induced background on tracking performance.
   bkg/reco} (300 files x 1409 events; 500 files x 99 events, extended from
   275 on 2026-09-29 - same minQ2=1 production), streamed via a
   localhost-only xrootd daemon + ssh tunnel: start remote
-  `/cvmfs/oasis.opensciencegrid.org/gluex/xrootd/5.0.3/bin/xrootd -p
+  `/cvmfs/oasis.opensciencegrid.org/gluex/xrootd/4.9.1/bin/xrootd -p
   1294 -b 127.0.0.1 -l ~/xrdlog/xrootd.log /scratch/gautschi/wxie/
-  eIC_data_small_set` (with `LD_LIBRARY_PATH=<...>/5.0.3/lib64`, else the
-  Server plugin is not found; the old `.../osg/modules/xrootd/4.2.1/...`
-  path no longer exists on cvmfs) then `ssh -N -L 1294:127.0.0.1:1294
+  eIC_data_small_set` (with `LD_LIBRARY_PATH=<...>/4.9.1/lib64`; the old
+  `.../osg/modules/xrootd/4.2.1/...` path is gone from cvmfs and gluex
+  5.0.3 is EL7-only (libssl.so.10 error on these EL9 nodes)) then `ssh -N -L 1294:127.0.0.1:1294
   <node>.gautschi.rcac.purdue.edu`; filelists/clean26071_local.txt +
   bkg26071_local.txt carry root://localhost:1294//<absolute path> URLs (the
   daemon serves absolute paths). The daemon binds 127.0.0.1 on the ONE node
-  it runs on and gautschi round-robins over 4 login nodes — the tunnel MUST
-  target that node (`hostname` in the daemon shell; probe with
-  `ssh loginNN ... 'ss -ltn | grep 1294'`), otherwise reads hang with
+  it runs on and gautschi round-robins over login00-04 — the tunnel MUST
+  target that node (`hostname` in the daemon shell; the driver probes
+  login00-04 for `ss -ltn | grep 1294` automatically), otherwise reads hang with
   `[ERROR] Operation expired`. Driver: scripts/run_reproduction_26071.sh
   (sequential — 300-file efficiency is the memory peak; tunnel watchdog;
   resumable). This removes the campaign difference from the comparison.
@@ -226,9 +226,12 @@ any PID number.
   200% in thin bins); chi2/ndf is reported but is an unweighted binned
   statistic.
 - Efficiency: report both within-acceptance (matched / in-acceptance truth)
-  and absolute (matched / all generated truth) efficiency; a match additionally
+  and absolute (matched / all generated truth); a match additionally
   requires the reco track to pass the 4/3 cut above; Wilson score-interval
   errors (conservative half-width, never zero-width at eff = 1, NaN at n = 0).
+  Each column carries its own floor (`insufficient_stats_absolute` on
+  n_truth, `insufficient_stats_within_acceptance` on n_in_acceptance); the
+  row-level `insufficient_stats` is the within-acceptance one.
 - Fake rate: reconstructed tracks (passing the reco 4/3 cut) whose best
   association weight does not exceed 0.5 / all such tracks, binned in the
   track's own (p, eta) — not species (a fake has no true species). The grain

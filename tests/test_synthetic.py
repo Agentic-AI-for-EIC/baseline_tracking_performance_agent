@@ -1342,6 +1342,41 @@ class TestEfficiencyRecoGate(unittest.TestCase):
         self.assertEqual(int(row["n_matched_in_acceptance"]), 1)
         self.assertEqual(out.attrs["run_params"]["n_reco_cut_removed"], 0)
 
+    def test_per_column_statistics_floors(self):
+        # n_truth >= 50 but n_in_acceptance < 50 must keep the ABSOLUTE value
+        # plottable (insufficient_stats_absolute False) while the within-
+        # acceptance column stays flagged - the whole point of splitting flags.
+        from trkperf.metrics import efficiency
+        rows = []
+        for j in range(80):                       # 80 primaries, 1 accepted
+            rows.append({"file_id": 0, "event": j, "idx": 0,
+                         "generator_status": 1, "species": "pi+",
+                         "pt": 2.0, "p": 2.0, "eta": 0.2})
+        truth_df = pd.DataFrame(rows)
+        layers = pd.DataFrame([{"file_id": 0, "event": 0, "idx": 0,
+                                "n_hits_total": 5, "n_hits_si": 4}])
+        reco_df = pd.DataFrame([{"file_id": 0, "event": 0, "idx": 0, "pt": 2.1,
+                                 "eta": 0.2, "phi": 0.0, "p": 2.1, "charge": 1,
+                                 "pdg": 211, "chi2": 3.0, "ndf": 4.0}])
+        assoc_df = pd.DataFrame([{"file_id": 0, "event": 0, "idx": 0,
+                                  "weight": 0.9, "rec_idx": 0, "sim_idx": 0}])
+        counts = pd.DataFrame([{"file_id": 0, "event": 0, "idx": 0,
+                                "n_reco_hits": 6, "n_reco_si_hits": 4}])
+        with mock.patch("trkperf.truth.read_truth_particles", return_value=truth_df), \
+             mock.patch("trkperf.truth.read_truth_hit_counts", return_value=layers), \
+             mock.patch("trkperf.reco.read_reco_tracks", return_value=reco_df), \
+             mock.patch("trkperf.matching.read_associations", return_value=assoc_df), \
+             mock.patch("trkperf.reco.read_reco_track_hit_counts", return_value=counts):
+            out = efficiency.compute_efficiency(["f"] * 80, species=["pi+"],
+                                                min_reco_hits=0, min_reco_si_hits=0)
+        cell = out[out["n_truth"] > 0]
+        self.assertGreaterEqual(int(cell["n_truth"].sum()), config.MIN_ENTRIES_PER_BIN)
+        self.assertLess(int(cell["n_in_acceptance"].sum()), config.MIN_ENTRIES_PER_BIN)
+        self.assertFalse(bool(cell["insufficient_stats_absolute"].iloc[0]))
+        self.assertTrue(bool(cell["insufficient_stats_within_acceptance"].iloc[0]))
+        # back-compat row-level flag == within-acceptance floor
+        self.assertTrue(bool(cell["insufficient_stats"].iloc[0]))
+
     def test_off_restores_previous_behaviour(self):
         from trkperf.metrics import efficiency
         p = self._patches(hits_ok=False)
@@ -1350,6 +1385,25 @@ class TestEfficiencyRecoGate(unittest.TestCase):
                 ["f"], species=["pi+"], min_reco_hits=0, min_reco_si_hits=0)
         row = out[(out["species"] == "pi+") & (out["n_truth"] > 0)].iloc[0]
         self.assertEqual(int(row["n_matched"]), 1)
+
+
+class TestResolutionFitGuards(unittest.TestCase):
+    """Underflow/overflow must not count towards the >=4 fit-points guard, and
+    a failed core refit is non-converged, never the tail-contaminated pass 1."""
+
+    def test_mostly_out_of_range_is_not_converged(self):
+        vals = np.array([0.010, 0.012, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0])
+        fit = binning.fit_gaussian_core(vals, hist_range=(-0.05, 0.05), n_bins=50)
+        # only 2 entries inside the range: GetEntries()==8 would fool the old
+        # guard; Integral(1,nbins)==4-strict must stop it
+        self.assertFalse(fit.converged)
+
+    def test_good_gaussian_still_converges(self):
+        rng = np.random.default_rng(3)
+        fit = binning.fit_gaussian_core(rng.normal(0.0, 0.05, 2000),
+                                        hist_range=(-0.5, 0.5))
+        self.assertTrue(fit.converged)
+        self.assertGreater(fit.chi2_over_ndf, 0)   # ndf>0 enforced
 
 
 class TestGeometricCentres(unittest.TestCase):
@@ -1510,16 +1564,37 @@ class TestRatioPooling(unittest.TestCase):
                                         "sigma", "sigma_err", count_cols=None)
         self.assertAlmostEqual(float(m["ratio"].iloc[0]), 1.5, places=6)
 
-    def test_zero_value_yields_nan_error_not_crash(self):
-        zero = pd.DataFrame([
+    def test_zero_value_yields_finite_absolute_error(self):
+        # count-based: bkg k=0 of n>0 -> v=0 with finite Wilson error ->
+        # ratio 0.0 and FINITE ratio_err (e_bkg/v_clean), not 0*inf NaN
+        clean = pd.DataFrame([
             {"species": "pi+", "p_bin_center": 1.0, "eta_bin_center": -0.25,
-             "sigma": 0.0, "sigma_err": 0.01, "n_matched": 100,
-             "fit_converged": True, "insufficient_stats": False}])
-        base = self._frame(1.0)
-        m = report.bkg_over_clean_ratio(base, zero, "sigma", "sigma_err",
-                                        count_cols=None)
+             "fake_rate": 0.02, "fake_rate_err": 0.004,
+             "n_fake": 20, "n_tracks": 1000, "insufficient_stats": False}])
+        bkg = pd.DataFrame([
+            {"species": "pi+", "p_bin_center": 1.0, "eta_bin_center": -0.25,
+             "fake_rate": 0.0, "fake_rate_err": 0.001,
+             "n_fake": 0, "n_tracks": 1000, "insufficient_stats": False}])
+        m = report.bkg_over_clean_ratio(clean, bkg, "fake_rate", "fake_rate_err",
+                                        count_cols=("n_fake", "n_tracks"))
         self.assertEqual(float(m["ratio"].iloc[0]), 0.0)
-        self.assertTrue(np.isnan(m["ratio_err"].iloc[0]))
+        self.assertTrue(np.isfinite(m["ratio_err"].iloc[0]))
+        # count branch recomputes per-side errors from POOLED counts (Wilson),
+        # so the expected error uses binomial_error(0, 1000), not the input col
+        from trkperf import binning
+        expect = float(binning.binomial_error(0, 1000)) / 0.02
+        self.assertAlmostEqual(float(m["ratio_err"].iloc[0]), expect, places=9)
+
+    def test_ratio_sigma_n_excludes_nonconverged(self):
+        # >=50 non-converged entries must NOT clear the floor for the pooled
+        # sigma cell (n counts only converged, pooled entries)
+        base = self._frame(1.0)
+        junk = base.copy()
+        junk["fit_converged"] = False
+        junk["sigma"] = 0.111
+        m = report.bkg_over_clean_ratio(base[base.fit_converged], junk,
+                                        "sigma", "sigma_err", count_cols=None)
+        self.assertTrue(bool(m["insufficient_stats"].iloc[0]))
 
 
 if __name__ == "__main__":

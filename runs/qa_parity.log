@@ -1,0 +1,17 @@
+
+metric                                 trkperf   manual_QA         Δ
+acceptance barrel                     0.937318    0.937573 -2.55e-04
+  (n_gen / n_inacc)      barrel    19623/18393 19623/18398
+eff_within_acc barrel                 0.647638    0.647570  6.73e-05
+  eff n_macc strict/GE vs QA barrel 11912/11912       11914   DIFF
+acceptance forward endcap             0.703874    0.703874  0.00e+00
+  (n_gen / n_inacc)      forward endcap 42850/30161 42850/30161
+eff_within_acc forward endcap         0.872783    0.872750  3.32e-05
+  eff n_macc strict/GE vs QA forward endcap 26324/26326       26323   DIFF
+acceptance backward endcap            0.991917    0.992047 -1.29e-04
+  (n_gen / n_inacc)      backward endcap 15465/15340 15465/15342
+eff_within_acc backward endcap        0.956714    0.956850 -1.36e-04
+  eff n_macc strict/GE vs QA backward endcap 14676/14676       14680   DIFF
+fake rate (global)                    0.000255    0.000200  5.46e-05
+  (n_fake / n_tracks)                 14/54943    11/54943
+  trkperf n_fake at >=0.5 (as manual_QA)          11   -> matches manual_QA? True

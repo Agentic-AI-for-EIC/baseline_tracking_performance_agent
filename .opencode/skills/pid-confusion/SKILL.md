@@ -28,7 +28,7 @@ comparison / provenance details that apply to every metric, load the
 
 ## Metric definition
 Uses the same single truth<->reco matched-pairs table as the other matched
-metrics (`CentralCKFTrackAssociations`, weight >= 0.5). The reconstruction's
+metrics (`CentralCKFTrackAssociations`, strict weight > 0.5). The reconstruction's
 assigned species is `reco_pdg` mapped through `config.PDG_TO_SPECIES`; a
 `reco_pdg` outside the tracked species set maps to `"unknown"`, so you can
 see what fraction of tracks the reconstructor failed to classify within

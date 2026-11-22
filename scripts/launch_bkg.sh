@@ -37,6 +37,14 @@ launch() {
 
 launch acceptance_bkg_mixed acceptance --file-list "$FILELIST" --dataset-tag bkg_mixed --min-q2-tier 1
 launch efficiency_bkg_mixed efficiency --file-list "$FILELIST" --dataset-tag bkg_mixed --min-q2-tier 1
+# region variants: the endcap acceptance/efficiency figures each need their
+# region's hit-collection rule (same set the reproduction driver runs).
+for region in backward forward; do
+  launch "acceptance_${region}_bkg_mixed" acceptance --file-list "$FILELIST" \
+      --dataset-tag bkg_mixed --min-q2-tier 1 --region "$region"
+  launch "efficiency_${region}_bkg_mixed" efficiency --file-list "$FILELIST" \
+      --dataset-tag bkg_mixed --min-q2-tier 1 --region "$region"
+done
 launch resolution_bkg_mixed resolution --file-list "$FILELIST" --dataset-tag bkg_mixed --min-q2-tier 1
 launch fake-rate_bkg_mixed fake-rate --file-list "$FILELIST" --dataset-tag bkg_mixed --min-q2-tier 1
 launch pid-confusion_bkg_mixed pid-confusion --file-list "$FILELIST" --dataset-tag bkg_mixed --min-q2-tier 1

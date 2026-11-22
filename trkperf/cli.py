@@ -87,6 +87,16 @@ def _cl_hint(value_col: str) -> str:
     return "1σ" if value_col == "sigma" else "Wilson 95% CL"
 
 
+#: (metric, value column) -> the column whose statistics floor governs THAT
+#: curve when plotting. Efficiency carries per-column flags so a well-
+#: measured efficiency_absolute (n_truth >= 50) is not hidden by the tighter
+#: within-acceptance denominator (n_in_acceptance < 50); everything else uses
+#: the single row-level insufficient_stats.
+_INSUFFICIENT_COL = {
+    ("efficiency", "efficiency_absolute"): "insufficient_stats_absolute",
+}
+
+
 def _plot_specs(
     metric_name: str,
 ) -> list[tuple[str, str, str, bool, float | None, str]]:
@@ -170,6 +180,13 @@ def _add_common_args(sub: argparse.ArgumentParser) -> None:
         "efficiency and resolution metrics honour it - chunked counts are "
         "merged before ratios/fits, so results are identical to one pass.",
     )
+
+
+def _add_reco_cut_args(sub: argparse.ArgumentParser) -> None:
+    """Reco-side 4/3 quality-floor flags for the metrics that consume
+    reconstructed tracks (efficiency, resolution, fake-rate). Deliberately
+    NOT on acceptance (a truth-only metric) so it can never be set and
+    silently ignored."""
     sub.add_argument(
         "--min-reco-hits",
         type=int,
@@ -237,6 +254,7 @@ def _write_outputs(
             marker_col="eta_bin_center", group_color=group_color, log_y=log_y,
             ymin=ymin, marker_legend_loc=marker_loc,
             cl_hint=_cl_hint(value_col),
+            insufficient_col=_INSUFFICIENT_COL.get((metric_name, value_col)),
         )
         print(f"[{metric_name}/{args.dataset_tag}] wrote {plot_path}")
 
@@ -276,7 +294,7 @@ def _run_fake_rate(args: argparse.Namespace):
 
 #: (metric, value column) -> (numerator, denominator) count columns for
 #: exact grouped re-aggregation (see report.aggregate_eta_species). A None
-#: entry means inverse-variance weighting (resolution sigmas).
+#: entry means N-weighted pooling of resolution sigmas.
 _GROUP_COUNTS: dict[tuple[str, str], tuple[str, str] | None] = {
     ("acceptance", "acceptance"): ("n_in_acceptance", "n_generated"),
     ("efficiency", "efficiency_absolute"): ("n_matched", "n_truth"),
@@ -377,6 +395,7 @@ def _run_plot(args: argparse.Namespace):
             marker_col=marker, group_color=group_color, log_y=log_y,
             ymin=ymin, marker_legend_loc=marker_loc,
             cl_hint=_cl_hint(value_col),
+            insufficient_col=_INSUFFICIENT_COL.get((metric_name, value_col)),
         )
         print(f"[plot/{metric_name}] wrote {plot_path}")
         n_plotted += 1
@@ -416,10 +435,13 @@ def build_parser() -> argparse.ArgumentParser:
                 help="Detector region for the acceptance definition "
                 "(default: central; writes <metric>_<region>_<tag> outputs).",
             )
+        if name in ("efficiency", "resolution"):
+            _add_reco_cut_args(p)
         p.set_defaults(func=_run_species_metric(name, fn))
 
     p = sub.add_parser(FAKE_RATE_NAME, help="Compute the fake-rate metric (no species axis).")
     _add_common_args(p)
+    _add_reco_cut_args(p)
     p.set_defaults(func=_run_fake_rate)
 
     p = sub.add_parser("compare", help="Compare a metric's clean vs bkg_mixed JSON results.")

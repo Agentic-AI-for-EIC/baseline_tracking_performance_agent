@@ -19,7 +19,7 @@ description: >-
 `pid/` is the ML PID extension of this project. It **imports `trkperf`** for all
 ROOT I/O, truth/reco reading and truth matching (AGENTS.md: no bespoke file I/O
 outside the package), so PID and the tracking metrics share one matching
-convention (`CentralCKFTrackAssociations.weight >= 0.5`) and are directly
+convention (`CentralCKFTrackAssociations.weight > 0.5`, strict majority) and are directly
 comparable. Plan and verified data model: `PLAN_pid.md`, `AGENTS.md` → "PID data
 model". Runbook: `pid/README.md`.
 

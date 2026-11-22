@@ -28,6 +28,7 @@ from __future__ import annotations
 import hashlib
 import os
 import sys
+import time
 
 import awkward as ak
 import numpy as np
@@ -114,13 +115,18 @@ def read_reco_tracks(file_paths: list[str], *, max_failures: int = 0,
 _MEAS_REL = "_CentralCKFTracks_measurements/_CentralCKFTracks_measurements.{field}"
 
 
-def _registry_for(path: str) -> dict[int, str]:
-    """collectionID -> name, read from this file's podio_metadata registry."""
-    with io.uproot.open(path) as f:
-        arr = f["podio_metadata/events___CollectionTypeInfo"].array(library="ak")
+def _registry_from_file(f) -> dict[int, str]:
+    """collectionID -> name, from an already-open ROOT file's registry."""
+    arr = f["podio_metadata/events___CollectionTypeInfo"].array(library="ak")
     return {int(c): n for c, n in zip(
         arr[0]["events___CollectionTypeInfo.collectionID"],
         arr[0]["events___CollectionTypeInfo.name"])}
+
+
+def _registry_for(path: str) -> dict[int, str]:
+    """collectionID -> name, read from this file's podio_metadata registry."""
+    with io.uproot.open(path) as f:
+        return _registry_from_file(f)
 
 
 def _hits_of_measurement_collection(tree, coll: str):
@@ -164,33 +170,40 @@ def _hit_counts_one_file(path: str, region: str = "central") -> pd.DataFrame:
                    for r in ("central", "backward", "forward")}
     else:
         tracking, silicon = config.reco_hit_collections(region)
-    tree = io.open_tree(path)
-    id2name = _registry_for(path)
-    name2id = {v: k for k, v in id2name.items()}
 
-    theta_ev = None
-    if region == "auto":
-        # per-track region needs the track eta (theta lives in
-        # CentralCKFTrackParameters, 1:1 with CentralCKFTracks by (event, idx))
-        theta_ev = tree["CentralCKFTrackParameters/CentralCKFTrackParameters.theta"].array(
-            library="ak")
+    # ONE open per file (tree + registry from the same handle), fully
+    # materialised inside the `with` so the socket is released per file
+    # instead of accumulating handles across a 500-file run.
+    with io.uproot.open(path) as f:
+        tree = f["events"]
+        id2name = _registry_from_file(f)
+        name2id = {v: k for k, v in id2name.items()}
 
-    meas_begin = tree["CentralCKFTracks/CentralCKFTracks.measurements_begin"].array(library="ak")
-    meas_end = tree["CentralCKFTracks/CentralCKFTracks.measurements_end"].array(library="ak")
-    rel_index = tree[_MEAS_REL.format(field="index")].array(library="ak")
-    rel_cid = tree[_MEAS_REL.format(field="collectionID")].array(library="ak")
-    n_events = len(meas_begin)
+        theta_ev = None
+        if region == "auto":
+            # per-track region needs the track eta (theta lives in
+            # CentralCKFTrackParameters, 1:1 with CentralCKFTracks by
+            # (event, idx))
+            theta_ev = tree[
+                "CentralCKFTrackParameters/CentralCKFTrackParameters.theta"
+            ].array(library="ak")
 
-    # Which object collections are hit-wrapping measurement containers?
-    obj_names = {id2name.get(int(c), "") for c in ak.flatten(rel_cid).to_list() if True}
-    obj_names.discard("")
-    wrapped: dict[str, tuple] = {}          # name -> (begin, end, hit_cid) ak arrays
-    meas_coll_ids: set[int] = set()
-    for name in obj_names:
-        w = _hits_of_measurement_collection(tree, name)
-        if w is not None:
-            wrapped[name] = w
-            meas_coll_ids.add(name2id[name])
+        meas_begin = tree["CentralCKFTracks/CentralCKFTracks.measurements_begin"].array(library="ak")
+        meas_end = tree["CentralCKFTracks/CentralCKFTracks.measurements_end"].array(library="ak")
+        rel_index = tree[_MEAS_REL.format(field="index")].array(library="ak")
+        rel_cid = tree[_MEAS_REL.format(field="collectionID")].array(library="ak")
+        n_events = len(meas_begin)
+
+        # Which object collections are hit-wrapping measurement containers?
+        obj_names = {id2name.get(int(c), "") for c in ak.flatten(rel_cid).to_list()}
+        obj_names.discard("")
+        wrapped: dict[str, tuple] = {}          # name -> (begin, end, hit_cid)
+        meas_coll_ids: set[int] = set()
+        for name in obj_names:
+            w = _hits_of_measurement_collection(tree, name)
+            if w is not None:
+                wrapped[name] = w
+                meas_coll_ids.add(name2id[name])
 
     rows = []
     for ev in range(n_events):
@@ -305,8 +318,11 @@ def _maps_to_region_token(name: str, region: str) -> bool:
 
 
 def _reco_hit_cache_path(cache_dir: str, path: str, region: str) -> str:
+    # raw path as key material, like io._cache_key: os.path.abspath() would
+    # prepend the CWD and collapse the // of root:// URLs, silently binding
+    # every cache hit to the caller's working directory.
     key = hashlib.sha256(
-        f"reco_track_hits\x00{region}\x00{os.path.abspath(path)}".encode()).hexdigest()
+        f"reco_track_hits\x00{region}\x00{path}".encode()).hexdigest()
     return os.path.join(cache_dir, key + ".pkl")
 
 
@@ -352,8 +368,7 @@ def read_reco_track_hit_counts(file_paths: list[str], *, max_failures: int = 0,
                 df["file_id"] = file_id
                 if cpath:
                     try:
-                        tmp = cpath + ".tmp"
-                        df.to_pickle(tmp); os.replace(tmp, cpath)
+                        io._stash_pickle(df, cpath)   # atomic tmp+replace
                     except Exception as exc:  # noqa: BLE001
                         print(f"[reco] WARNING: could not stash hit cache {cpath}: {exc}",
                               file=sys.stderr)
@@ -362,6 +377,8 @@ def read_reco_track_hit_counts(file_paths: list[str], *, max_failures: int = 0,
                 break
             except Exception as exc:  # noqa: BLE001
                 last_exc = exc
+                if attempt == 0:
+                    time.sleep(1)   # brief pause before retry (flaky endpoints)
         if last_exc is not None:
             skipped.append(path)
             print(f"[reco] WARNING: skipping hit-count read ({len(skipped)} failed, "
