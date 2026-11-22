@@ -17,7 +17,7 @@
 #
 # Usage: scripts/launch_bkg.sh [filelist] [max_failures] [cache_dir]
 set -e
-cd /home/wxie/eic/tracking_performance
+cd "$(dirname "$0")/.."   # repo root, relative to this script (location-independent)
 FILELIST="${1:-filelists/bkg_200.txt}"
 MAXFAIL="${2:-60}"
 CACHE="${3:-cache/bkg_files}"

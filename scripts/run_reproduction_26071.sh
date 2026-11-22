@@ -10,14 +10,27 @@ mkdir -p runs output
 export PYTHONUNBUFFERED=1
 
 tunnel_alive() { (exec 3<>/dev/tcp/127.0.0.1/1294) 2>/dev/null; }
-# NOTE (2026-09-25): pin to login00. gautschi.rcac.purdue.edu round-robins
-# over 4 login nodes; the xrootd daemon binds 127.0.0.1 on ONE node, so a
-# tunnel landing on any other node hangs forever. login00 is directly
-# sshable; the daemon must run on the same node the tunnel lands on.
-readonly GAUTSCHI_HOST=login00.gautschi.rcac.purdue.edu
-readonly XROOTD_BIN=/cvmfs/oasis.opensciencegrid.org/osg/modules/xrootd/4.2.1/bin/xrootd
-readonly XROOTD_LIB=/cvmfs/oasis.opensciencegrid.org/osg/modules/xrootd/4.2.1/lib64
+# NOTE (updated 2026-11): the xrootd daemon binds 127.0.0.1 on ONE gautschi
+# login node while gautschi.rcac.purdue.edu round-robins over four - the
+# tunnel MUST land on the node where the daemon actually listens, so the
+# serving node is probed instead of pinning login00 (the daemon last ran
+# from login02). GAUTSCHI_HOST=<host> overrides the probe. The old OSG
+# 4.2.1 path under /cvmfs/oasis.../osg/modules/ is gone; verified working:
+# gluex 5.0.3 below.
+readonly XROOTD_BIN=/cvmfs/oasis.opensciencegrid.org/gluex/xrootd/5.0.3/bin/xrootd
+readonly XROOTD_LIB=/cvmfs/oasis.opensciencegrid.org/gluex/xrootd/5.0.3/lib64
 readonly XROOTD_ROOT=/scratch/gautschi/wxie/eIC_data_small_set
+detect_gautschi_host() {
+  for n in login00 login01 login02 login03; do
+    if timeout 20 ssh -o BatchMode=yes -o ConnectTimeout=8 \
+         "$n.gautschi.rcac.purdue.edu" \
+         '(ss -ltn 2>/dev/null || netstat -ltn 2>/dev/null) | grep -qw 1294' \
+         2>/dev/null; then echo "$n.gautschi.rcac.purdue.edu"; return 0; fi
+  done
+  echo "login00.gautschi.rcac.purdue.edu"   # fall back: start_daemon lands here next
+}
+GAUTSCHI_HOST=${GAUTSCHI_HOST:-$(detect_gautschi_host)}
+readonly GAUTSCHI_HOST
 # A listening port is NOT proof the data path works: a half-dead tunnel
 # accepts the TCP connection but forwards nothing, and uproot then hangs
 # until "Operation expired". Verify with a real read of the first file.
@@ -74,7 +87,18 @@ run_metric () {  # $1 metric  $2 tag  $3 filelist  [extra args...]
       [[ $region == central ]] || out="output/${metric}_${region}_${tag}.json" ;;
     *) out="output/${metric}_${tag}.json" ;;
   esac
-  if [[ -f $out ]]; then echo "[repro] skip $metric/$tag (exists)"; return 0; fi
+  if [[ -f $out ]]; then
+    # REFRESH=1 regenerates everything (required after a methodology change:
+    # committed tables must be deleted first or the idempotent skip keeps the
+    # stale ones).
+    if [[ ${REFRESH:-0} == 1 ]]; then
+      echo "[repro] REFRESH: removing stale ${out%.json}.{json,md,root}"
+      rm -f "${out%.json}".json "${out%.json}".md "${out%.json}".root
+    else
+      echo "[repro] skip $metric/$tag (exists; REFRESH=1 to regenerate)"
+      return 0
+    fi
+  fi
   # Stochastic in-flight drops (fsspec_xrootd segfaults, endpoint hiccups)
   # are retried; the per-file read cache makes every retry after the first
   # cheap, so many attempts converge where few would die.

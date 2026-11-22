@@ -627,8 +627,9 @@ region's collection set, >= 3 of them silicon. Changes made code-wide:
 
 KNOWN accepted residuals (documented, not fixed): raw GEANT hit counts allow
 low-p curlers to stack 4 hits in 1-2 layers (cellID layer dedup out of
-scope); central reco side counts TOFBarrel measurements while truth central
-has no TOF set; PID chain tables still predate the strict-majority switch
+scope); TOFBarrel is in no truth set and no RECO_HIT_COLLECTION_MAP entry, so
+central excludes TOF on BOTH sides (endcap regions include TOFEndcap on both);
+PID chain tables still predate the strict-majority switch
 (re-run deferred by user). Canonical output/* tables and figures are
 PENDING regeneration with this code (Phase D sweep, needs the gautschi
 daemon); until then the committed numbers reflect the previous definitions.

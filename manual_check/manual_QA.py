@@ -361,6 +361,16 @@ def main(path, outdir, n_dump=2, reco_cut=True):
         ns = sum(1 for n in names if n in RECO_SILICON[region])
         return nh >= ACCEPTANCE_MIN_HITS and ns >= ACCEPTANCE_MIN_SILICON_HITS
 
+    def track_region(eta):
+        """Region used to gate a RECONSTRUCTED track: the (lo,hi] eta-bin
+        centre, falling back to the raw sign outside the eta grid - mirrors
+        trkperf's region="auto" exactly."""
+        c = eta_bin_centre(np.array([eta]))[0]
+        if not np.isfinite(c):
+            c = eta
+        return ("barrel" if abs(c) < BARREL_ETA_MAX
+                else ("forward endcap" if c > 0 else "backward endcap"))
+
     # --- 4b. eyeball dump: first n_dump events as plain text ----------------
     # Everything below is computed from these tables; printing a few events
     # lets a reader check each step without reading any code.
@@ -412,7 +422,7 @@ def main(path, outdir, n_dump=2, reco_cut=True):
             if e != ev:
                 continue
             w = best_track.get((e, i))
-            verdict = ("fake" if w is None or w < MATCH_WEIGHT
+            verdict = ("fake" if w is None or w <= MATCH_WEIGHT
                        else f"matched w={w:.2f}")
             print(f"    reco {i:3d} p={pval:7.3f} eta={eta:+6.2f} -> {verdict}")
         print()
@@ -445,12 +455,15 @@ def main(path, outdir, n_dump=2, reco_cut=True):
         for k, (e, i, _pdg, pval, _eta) in enumerate(zip(
                 t["event"], t["idx"], t["pdg"], t["p"], t["eta"])):
             w_r = best.get((int(e), int(i)))
-            if (w_r is not None and w_r[0] > MATCH_WEIGHT
-                    and track_ok(region, int(e), w_r[1])):
-                matched[k] = True
+            if w_r is not None and w_r[0] > MATCH_WEIGHT:
                 info = reco_p.get((int(e), w_r[1]))
-                if info is not None and pval > 0:
-                    delta[k] = (info[0] - pval) / pval
+                # the track is judged by its OWN eta's region (same rule as
+                # trkperf's region="auto"), not the truth particle's
+                track_region_ = track_region(info[1]) if info is not None else region
+                if track_ok(track_region_, int(e), w_r[1]):
+                    matched[k] = True
+                    if info is not None and pval > 0:
+                        delta[k] = (info[0] - pval) / pval
         # bin in p
         # (lo, hi] bins exactly like pd.cut (see eta_bin_centre). Rows are
         # already inside (P_MIN, P_MAX] by the cut above, so every row has
@@ -552,12 +565,11 @@ def main(path, outdir, n_dump=2, reco_cut=True):
                 if P_MIN < v[0] <= P_MAX
                 and ETA_EDGES[0] < v[1] <= ETA_EDGES[-1]}
     n_binnable = len(binnable)
-    # track's region by the SAME raw-|eta| rule trkperf's region="auto" uses
+    # track's region by its eta-BIN CENTRE - the same (lo,hi] rule trkperf's
+    # region="auto" reproduces (raw |eta|<1.5 would put eta=+1.5 in forward,
+    # the binning puts it in (1.0,1.5] -> barrel)
     kept = {k: v for k, v in binnable.items()
-            if track_ok("barrel" if abs(v[1]) < BARREL_ETA_MAX
-                        else ("forward endcap" if v[1] > 0
-                              else "backward endcap"),
-                        k[0], k[1])}
+            if track_ok(track_region(v[1]), k[0], k[1])}
     n_tracks = len(kept)
     # best_track.get(key, 0.0): a track with no association at all counts as
     # weight 0, i.e. fake - same as trkperf's fillna(0) before the threshold

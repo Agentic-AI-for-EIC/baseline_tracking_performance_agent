@@ -63,12 +63,10 @@ def trkperf_totals(files, tag):
     out = {}
     lst = list(files)
     fk = FR.compute_fake_rate(lst, max_failures=20)
-    fk["R"] = fk["eta_bin_center"].map(report.eta_region)
-    for name, r in [("barrel", "barrel"), ("backward_endcap", "backward endcap"),
-                    ("forward_endcap", "forward endcap")]:
-        s = fk[fk["R"] == r]
-        out[("fake", name)] = {"n_tracks": int(s.n_tracks.sum()),
-                               "n_fake": int(s.n_fake.sum())}
+    # manual_QA prints ONE file-wide fake line; compare like-for-like
+    # (the region split of the same rows adds nothing).
+    out[("fake",)] = {"n_tracks": int(fk.n_tracks.sum()),
+                      "n_fake": int(fk.n_fake.sum())}
     for qa_name, rule, fname in REGIONS:
         eff = EFF.compute_efficiency(
             lst, max_failures=20,

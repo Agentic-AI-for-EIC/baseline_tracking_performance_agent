@@ -37,9 +37,10 @@ def _chunk_counts(
     The same region-scoped reco-track 4/3 cut that fake-rate and resolution
     apply gates the NUMERATORS here: a truth particle counts as matched only
     when its best-associated reconstructed track also carries
-    >= min_reco_hits tracking hits (>= min_reco_si_hits silicon) per
-    ``reco.read_reco_track_hit_counts(region)``. The denominators (n_truth,
-    truth-side n_in_acceptance) are unaffected. 0/0 disables the gate.
+    >= min_reco_hits tracking hits (>= min_reco_si_hits silicon) in the
+    TRACK's own region, per ``reco.read_reco_track_hit_counts(region="auto")``.
+    The denominators (n_truth, truth-side n_in_acceptance) are unaffected.
+    0/0 disables the gate.
     """
     spec = config.TRACKING_REGIONS[region]
     truth_df = truth.read_truth_particles(
@@ -64,7 +65,7 @@ def _chunk_counts(
     if (min_reco_hits > 0 or min_reco_si_hits > 0) and len(pairs):
         counts = reco.read_reco_track_hit_counts(
             file_paths, max_failures=max_failures, shared_failures=shared,
-            region=region)
+            region="auto")   # each track judged by its own eta's region rule
         pairs = pairs.merge(counts.rename(columns={"idx": "rec_idx"})[
             ["file_id", "event", "rec_idx", "n_reco_hits", "n_reco_si_hits"]],
             on=["file_id", "event", "rec_idx"], how="left")

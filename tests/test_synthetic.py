@@ -1112,7 +1112,9 @@ class TestEtaRegions(unittest.TestCase):
         # re-introduce a sample-size bias.
         self.assertAlmostEqual(row["sigma"], 0.15, places=6)
         self.assertAlmostEqual(row["sigma_err"], 0.15 / np.sqrt(2 * 400), places=9)
-        self.assertEqual(row["n"], 600.0)
+        # n = entries actually IN the pooled mean (non-converged row excluded),
+        # so the statistics floor reflects what the value is made of.
+        self.assertEqual(row["n"], 400.0)
 
     def test_eta_centers_follow_their_rule(self):
         centers = [-3.75, -1.75, -1.25, -0.75, 0.75, 1.25, 1.75, 3.75]
@@ -1456,6 +1458,68 @@ class TestBestAssociationNoDoubleCount(unittest.TestCase):
         self.assertFalse(bool(f2["is_fake"].item()))
         p2 = matching.build_matched_pairs(truth, reco, assoc2, weight_threshold=0.5)
         self.assertEqual(int(p2.sort_values("idx")["is_matched"].to_numpy().sum()), 1)
+
+
+class TestTrackHitCounts(unittest.TestCase):
+    """Regression for the token-fallback counting bug: an UNKNOWN reco hit
+    collection matched by the token rule must be counted on EVERY occurrence,
+    not only the first (the _UNKNOWN_SEEN warning-dedup must never gate the
+    count itself)."""
+
+    def test_unknown_token_name_counted_every_occurrence(self):
+        from trkperf import reco
+        trk, si = config.reco_hit_collections("forward")
+        names = ["SiEndcapTrackerRecHits",        # known: tracking + silicon
+                 "MysteryEndcapTrackerHits",      # unknown: tokens endcap+tracker
+                 "MysteryEndcapTrackerHits"]      # second occurrence
+        cnt_h, cnt_s = reco._track_hit_counts(names, trk, si, "forward")
+        self.assertEqual((cnt_h, cnt_s), (3, 1))
+        # repeated across tracks/files (after the NOTE was already emitted)
+        cnt_h2, cnt_s2 = reco._track_hit_counts(names, trk, si, "forward")
+        self.assertEqual((cnt_h2, cnt_s2), (3, 1))
+
+    def test_other_region_known_name_never_counts(self):
+        from trkperf import reco
+        trk_f, si_f = config.reco_hit_collections("forward")
+        cnt_h, cnt_s = reco._track_hit_counts(
+            ["SiBarrelVertexRecHits", "TOFEndcapClusterHits"], trk_f, si_f, "forward")
+        self.assertEqual((cnt_h, cnt_s), (1, 0))   # only the TOF endcap hit
+
+
+class TestRatioPooling(unittest.TestCase):
+    """bkg_over_clean_ratio's sigma path pools N-weighted (same estimator as
+    aggregate_eta_species), and zero values give NaN errors, not 0*inf."""
+
+    def _frame(self, scale):
+        return pd.DataFrame([
+            {"species": "pi+", "p_bin_center": 1.0, "eta_bin_center": -0.25,
+             "sigma": 0.10 * scale, "sigma_err": 0.001, "n_matched": 300,
+             "fit_converged": True, "insufficient_stats": False},
+            {"species": "pi+", "p_bin_center": 1.0, "eta_bin_center": 0.25,
+             "sigma": 0.20 * scale, "sigma_err": 0.001, "n_matched": 100,
+             "fit_converged": True, "insufficient_stats": False},
+            {"species": "pi+", "p_bin_center": 1.0, "eta_bin_center": 0.75,
+             "sigma": 5.0 * scale, "sigma_err": 0.0001, "n_matched": 60,
+             "fit_converged": False, "insufficient_stats": True},
+        ])
+
+    def test_sigma_pooled_n_weighted(self):
+        # N-weighted mean of the two converged widths: (0.10*300+0.20*100)/400
+        # = 0.125 (inverse-variance would be ~0.10).
+        m = report.bkg_over_clean_ratio(self._frame(1.0), self._frame(1.5),
+                                        "sigma", "sigma_err", count_cols=None)
+        self.assertAlmostEqual(float(m["ratio"].iloc[0]), 1.5, places=6)
+
+    def test_zero_value_yields_nan_error_not_crash(self):
+        zero = pd.DataFrame([
+            {"species": "pi+", "p_bin_center": 1.0, "eta_bin_center": -0.25,
+             "sigma": 0.0, "sigma_err": 0.01, "n_matched": 100,
+             "fit_converged": True, "insufficient_stats": False}])
+        base = self._frame(1.0)
+        m = report.bkg_over_clean_ratio(base, zero, "sigma", "sigma_err",
+                                        count_cols=None)
+        self.assertEqual(float(m["ratio"].iloc[0]), 0.0)
+        self.assertTrue(np.isnan(m["ratio_err"].iloc[0]))
 
 
 if __name__ == "__main__":

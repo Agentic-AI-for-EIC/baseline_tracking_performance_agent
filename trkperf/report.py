@@ -313,15 +313,15 @@ def aggregate_eta_species(
                 # value: sigma_pooled / sqrt(2 * sum(N)) (Gaussian core).
                 w = nvs[ok]
                 row[value_col] = float(np.sum(vals[ok] * w) / w.sum())
-                n_tot = float(w.sum())
+                n = float(w.sum())          # entries actually in the pooled mean
                 if err_col:
-                    row[err_col] = (float(row[value_col] / np.sqrt(2.0 * n_tot))
-                                    if n_tot > 0 else np.nan)
+                    row[err_col] = (float(row[value_col] / np.sqrt(2.0 * n))
+                                    if n > 0 else np.nan)
             else:
                 row[value_col] = np.nan
+                n = 0.0
                 if err_col:
                     row[err_col] = np.nan
-            n = float(sub["n_matched"].sum()) if "n_matched" in sub.columns else 0
         row["n"] = n
         row["insufficient_stats"] = bool(n < config.MIN_ENTRIES_PER_BIN)
         rows.append(row)
@@ -423,21 +423,28 @@ def bkg_over_clean_ratio(
             g["e"] = binning.binomial_error(g["num"], g["den"])
             g["n"] = g["den"]
         else:
-            # width/σ metric (resolution): inverse-variance-weighted mean over
-            # the region's eta bins, excluding non-converged / zero-error fits.
-            ok = (np.isfinite(w[err_col]) & (w[err_col] > 0)
-                  & ((w["fit_converged"] == True) if "fit_converged" in w.columns else True))  # noqa: E712
-            w = w.assign(_w=np.where(ok, 1.0 / w[err_col].to_numpy(dtype=float) ** 2, 0.0))
-            w["_wv"] = w["_w"] * w[value_col].to_numpy(dtype=float)
+            # width/σ metric (resolution): N-weighted mean over the region's
+            # eta bins (NOT inverse-variance - sigma_err is itself
+            # sigma/sqrt(2N), see aggregate_eta_species), excluding
+            # non-converged fits; pooled error = v / sqrt(2 * sum(N)).
+            ok = np.isfinite(w[value_col])
+            if "fit_converged" in w.columns:
+                ok = ok & (w["fit_converged"] == True)  # noqa: E712
             ncol = "n_matched" if "n_matched" in w.columns else None
+            if ncol:
+                ok = ok & (w[ncol].to_numpy(dtype=float) > 0)
+                w = w.assign(_w=np.where(ok, w[ncol].to_numpy(dtype=float), 0.0))
+            else:
+                w = w.assign(_w=np.where(ok, 1.0, 0.0))
+            w["_wv"] = w["_w"] * w[value_col].to_numpy(dtype=float)
             g = w.groupby(keys, observed=True).agg(**{
                 "_w": ("_w", "sum"), "_wv": ("_wv", "sum"),
                 **({"n": (ncol, "sum")} if ncol else {})}).reset_index()
             if ncol is None:
-                g["n"] = 1
+                g["n"] = g["_w"]
             with np.errstate(divide="ignore", invalid="ignore"):
                 g["v"] = g["_wv"] / g["_w"]
-                g["e"] = 1.0 / np.sqrt(g["_w"])
+                g["e"] = g["v"] / np.sqrt(2.0 * g["_w"])
             g.loc[g["_w"] <= 0, ["v", "e"]] = np.nan
         return g[keys + ["v", "e", "n"]]
 
@@ -449,8 +456,13 @@ def bkg_over_clean_ratio(
                  suffixes=("_clean", "_bkg"))
     with np.errstate(divide="ignore", invalid="ignore"):
         m["ratio"] = m["v_bkg"] / m["v_clean"]
-        rel = np.sqrt((m["e_bkg"] / m["v_bkg"]) ** 2 + (m["e_clean"] / m["v_clean"]) ** 2)
-        m["ratio_err"] = m["ratio"] * rel
+        # relative error per side; a zero value has an undefined relative
+        # error (NOT 0*inf=NaN-by-accident), propagate it explicitly.
+        relb = np.where((m["v_bkg"] > 0) & np.isfinite(m["e_bkg"]),
+                        m["e_bkg"] / m["v_bkg"], np.nan)
+        relc = np.where((m["v_clean"] > 0) & np.isfinite(m["e_clean"]),
+                        m["e_clean"] / m["v_clean"], np.nan)
+        m["ratio_err"] = np.abs(m["ratio"]) * np.sqrt(relb ** 2 + relc ** 2)
     m["insufficient_stats"] = ((m["n_clean"] < config.MIN_ENTRIES_PER_BIN)
                                | (m["n_bkg"] < config.MIN_ENTRIES_PER_BIN))
     return m[["species_group", "p_bin_center", "ratio", "ratio_err", "insufficient_stats"]]

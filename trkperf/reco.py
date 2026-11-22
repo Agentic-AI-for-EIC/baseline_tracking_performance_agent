@@ -225,43 +225,64 @@ def _hit_counts_one_file(path: str, region: str = "central") -> pd.DataFrame:
                 with np.errstate(divide="ignore", invalid="ignore"):
                     t_eta = (-np.log(np.tan(float(th[t]) / 2.0))
                              if (th is not None and t < len(th)) else np.nan)
-                reg = ("central" if np.isfinite(t_eta) and abs(t_eta) < config.BARREL_ETA_MAX
-                       else ("forward" if t_eta > 0 else "backward"))
+                # Region of the track's eta-BIN CENTRE, reproducing pd.cut's
+                # (lo, hi] rule exactly: +1.5 lands in (1.0,1.5] -> central,
+                # -1.5 in (-2.0,-1.5] -> backward (a raw |eta|<1.5 test would
+                # send +1.5 to forward, disagreeing with the eta binning).
+                _E = config.ETA_BIN_EDGES
+                _i = int(np.searchsorted(_E, t_eta, side="left")) - 1
+                _c = (0.5 * (_E[_i] + _E[_i + 1])
+                      if 0 <= _i < len(_E) - 1 else t_eta)
+                reg = ("central" if np.isfinite(_c) and abs(_c) < config.BARREL_ETA_MAX
+                       else ("forward" if _c > 0 else "backward"))
                 trk_set, si_set = regions[reg]
                 tok_region = reg
             else:
                 trk_set, si_set = tracking, silicon
                 tok_region = region
-            cnt_h = cnt_s = 0
-            for hn in names:
-                if not hn:
-                    continue
-                if hn in trk_set:
-                    cnt_h += 1
-                    if hn in si_set:
-                        cnt_s += 1
-                elif hn in ALL_RECO_KNOWN:
-                    pass   # documented hit system of ANOTHER region: correctly 0 here
-                elif hn not in _UNKNOWN_SEEN:
-                    # Renamed/unknown production: token fallback, reported once.
-                    # ("si"-prefixed token hits are silicon; ePIC's barrel is
-                    # all-silicon, so a bare barrel token maps to the SiBarrel
-                    # system.)
-                    _UNKNOWN_SEEN.add(hn)
-                    if _maps_to_region_token(hn, tok_region):
-                        print(f"[reco] NOTE: reco hit collection {hn!r} matched "
-                              f"region {tok_region!r} by token rule (not by the "
-                              "documented exact-name map)", file=sys.stderr)
-                        cnt_h += 1
-                        if hn.lower().startswith("si"):
-                            cnt_s += 1
-                    else:
-                        print(f"[reco] NOTE: reco hit collection {hn!r} maps to no "
-                              f"truth tracking system; NOT counted in region "
-                              f"{tok_region!r} hit totals", file=sys.stderr)
+            cnt_h, cnt_s = _track_hit_counts(names, trk_set, si_set, tok_region)
             rows.append((0, ev, t, cnt_h, cnt_s))
     return pd.DataFrame(rows, columns=["file_id", "event", "idx",
                                         "n_reco_hits", "n_reco_si_hits"])
+
+
+def _track_hit_counts(names, trk_set: set, si_set: set,
+                      tok_region: str) -> tuple[int, int]:
+    """Count (tracking, silicon) hits for one track from source collection names.
+
+    Exact-set membership decides every hit; names outside all documented
+    systems (renamed production) fall back to the token rule EACH TIME - the
+    _UNKNOWN_SEEN set only suppresses the repeat NOTE, never the count.
+    """
+    cnt_h = cnt_s = 0
+    for hn in names:
+        if not hn:
+            continue
+        if hn in trk_set:
+            cnt_h += 1
+            if hn in si_set:
+                cnt_s += 1
+        elif hn in ALL_RECO_KNOWN:
+            continue           # documented system of ANOTHER region: 0 here
+        else:
+            counted = _maps_to_region_token(hn, tok_region)
+            if counted:
+                cnt_h += 1
+                # ePIC barrel is all-silicon: an "si"-prefixed token match is
+                # the only safe silicon call for an unknown name.
+                if hn.lower().startswith("si"):
+                    cnt_s += 1
+            if hn not in _UNKNOWN_SEEN:
+                _UNKNOWN_SEEN.add(hn)
+                if counted:
+                    print(f"[reco] NOTE: reco hit collection {hn!r} matched "
+                          f"region {tok_region!r} by token rule (not by the "
+                          "documented exact-name map)", file=sys.stderr)
+                else:
+                    print(f"[reco] NOTE: reco hit collection {hn!r} maps to no "
+                          f"truth tracking system; NOT counted in region "
+                          f"{tok_region!r} hit totals", file=sys.stderr)
+    return cnt_h, cnt_s
 
 
 #: Reco hit collection names that are documented members of SOME region's
