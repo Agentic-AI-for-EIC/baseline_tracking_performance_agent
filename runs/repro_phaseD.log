@@ -1,0 +1,1877 @@
+[repro] REFRESH=1: purging stale 26071 tables + comparisons
+[repro] acceptance clean26071 15:38:59 (attempt 1)
+[acceptance/clean26071] wrote output/acceptance_clean26071.json, output/acceptance_clean26071.md and output/acceptance_clean26071.root (1024 bins, 499 flagged insufficient statistics, from 300 files)
+[acceptance/clean26071] wrote output/plot_tracking/acceptance_clean26071_vs_p.png
+[repro] acceptance clean26071 17:01:50 (attempt 1)
+[io] WARNING: skipping file (1 failed, max allowed = 0): root://localhost:1294///scratch/gautschi/wxie/eIC_data_small_set/clean/pythia8NCDIS_10x100_minQ2=1_beamEffects_xAngle=-0.025_hiDiv_1.0229.eicrecon.edm4eic.root
+  Failed to open file: [ERROR] Operation expired
+[truth] NOTE: TOFEndcapHits unreadable (RuntimeError); counting 0 hits from it in this run
+scripts/run_reproduction_26071.sh: line 86: 1501589 Bus error               (core dumped) python3 -m trkperf "$metric" --file-list "$list" --dataset-tag "$tag" --min-q2-tier 1 "${reco_flags[@]}" "$@"
+[repro] attempt 1 failed for acceptance/clean26071 - retrying
+[repro] data path down - restarting tunnel
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] tunnel up but no data - restarting remote daemon
+[repro] (re)starting remote xrootd daemon on login04.gautschi.rcac.purdue.edu
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] FATAL: data path still down after tunnel+daemon restart
+[repro] RETRY acceptance/clean26071 (stack down, attempt 2)
+[repro] data path down - restarting tunnel
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] tunnel up but no data - restarting remote daemon
+[repro] (re)starting remote xrootd daemon on login04.gautschi.rcac.purdue.edu
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] FATAL: data path still down after tunnel+daemon restart
+[repro] RETRY acceptance/clean26071 (stack down, attempt 3)
+[repro] data path down - restarting tunnel
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] tunnel up but no data - restarting remote daemon
+[repro] (re)starting remote xrootd daemon on login04.gautschi.rcac.purdue.edu
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] FATAL: data path still down after tunnel+daemon restart
+[repro] RETRY acceptance/clean26071 (stack down, attempt 4)
+[repro] data path down - restarting tunnel
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] tunnel up but no data - restarting remote daemon
+[repro] (re)starting remote xrootd daemon on login04.gautschi.rcac.purdue.edu
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] FATAL: data path still down after tunnel+daemon restart
+[repro] RETRY acceptance/clean26071 (stack down, attempt 5)
+[repro] data path down - restarting tunnel
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] tunnel up but no data - restarting remote daemon
+[repro] (re)starting remote xrootd daemon on login04.gautschi.rcac.purdue.edu
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] FATAL: data path still down after tunnel+daemon restart
+[repro] RETRY acceptance/clean26071 (stack down, attempt 6)
+[repro] data path down - restarting tunnel
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] tunnel up but no data - restarting remote daemon
+[repro] (re)starting remote xrootd daemon on login04.gautschi.rcac.purdue.edu
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] FATAL: data path still down after tunnel+daemon restart
+[repro] RETRY acceptance/clean26071 (stack down, attempt 7)
+[repro] data path down - restarting tunnel
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] tunnel up but no data - restarting remote daemon
+[repro] (re)starting remote xrootd daemon on login04.gautschi.rcac.purdue.edu
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] FATAL: data path still down after tunnel+daemon restart
+[repro] RETRY acceptance/clean26071 (stack down, attempt 8)
+[repro] data path down - restarting tunnel
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] tunnel up but no data - restarting remote daemon
+[repro] (re)starting remote xrootd daemon on login04.gautschi.rcac.purdue.edu
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] FATAL: data path still down after tunnel+daemon restart
+[repro] RETRY acceptance/clean26071 (stack down, attempt 9)
+[repro] data path down - restarting tunnel
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] tunnel up but no data - restarting remote daemon
+[repro] (re)starting remote xrootd daemon on login04.gautschi.rcac.purdue.edu
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] FATAL: data path still down after tunnel+daemon restart
+[repro] RETRY acceptance/clean26071 (stack down, attempt 10)
+[repro] FAIL acceptance/clean26071 (10 attempts exhausted)
+[repro] data path down - restarting tunnel
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] tunnel up but no data - restarting remote daemon
+[repro] (re)starting remote xrootd daemon on login04.gautschi.rcac.purdue.edu
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] FATAL: data path still down after tunnel+daemon restart
+[repro] RETRY acceptance/clean26071 (stack down, attempt 1)
+[repro] data path down - restarting tunnel
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] tunnel up but no data - restarting remote daemon
+[repro] (re)starting remote xrootd daemon on login04.gautschi.rcac.purdue.edu
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] FATAL: data path still down after tunnel+daemon restart
+[repro] RETRY acceptance/clean26071 (stack down, attempt 2)
+[repro] data path down - restarting tunnel
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] tunnel up but no data - restarting remote daemon
+[repro] (re)starting remote xrootd daemon on login04.gautschi.rcac.purdue.edu
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] FATAL: data path still down after tunnel+daemon restart
+[repro] RETRY acceptance/clean26071 (stack down, attempt 3)
+[repro] data path down - restarting tunnel
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] tunnel up but no data - restarting remote daemon
+[repro] (re)starting remote xrootd daemon on login04.gautschi.rcac.purdue.edu
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] FATAL: data path still down after tunnel+daemon restart
+[repro] RETRY acceptance/clean26071 (stack down, attempt 4)
+[repro] data path down - restarting tunnel
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] tunnel up but no data - restarting remote daemon
+[repro] (re)starting remote xrootd daemon on login04.gautschi.rcac.purdue.edu
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] FATAL: data path still down after tunnel+daemon restart
+[repro] RETRY acceptance/clean26071 (stack down, attempt 5)
+[repro] data path down - restarting tunnel
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] tunnel up but no data - restarting remote daemon
+[repro] (re)starting remote xrootd daemon on login04.gautschi.rcac.purdue.edu
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] FATAL: data path still down after tunnel+daemon restart
+[repro] RETRY acceptance/clean26071 (stack down, attempt 6)
+[repro] data path down - restarting tunnel
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] tunnel up but no data - restarting remote daemon
+[repro] (re)starting remote xrootd daemon on login04.gautschi.rcac.purdue.edu
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] FATAL: data path still down after tunnel+daemon restart
+[repro] RETRY acceptance/clean26071 (stack down, attempt 7)
+[repro] data path down - restarting tunnel
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] tunnel up but no data - restarting remote daemon
+[repro] (re)starting remote xrootd daemon on login04.gautschi.rcac.purdue.edu
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] FATAL: data path still down after tunnel+daemon restart
+[repro] RETRY acceptance/clean26071 (stack down, attempt 8)
+[repro] data path down - restarting tunnel
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] tunnel up but no data - restarting remote daemon
+[repro] (re)starting remote xrootd daemon on login04.gautschi.rcac.purdue.edu
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] FATAL: data path still down after tunnel+daemon restart
+[repro] RETRY acceptance/clean26071 (stack down, attempt 9)
+[repro] data path down - restarting tunnel
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] tunnel up but no data - restarting remote daemon
+[repro] (re)starting remote xrootd daemon on login04.gautschi.rcac.purdue.edu
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] FATAL: data path still down after tunnel+daemon restart
+[repro] RETRY acceptance/clean26071 (stack down, attempt 10)
+[repro] FAIL acceptance/clean26071 (10 attempts exhausted)
+[repro] data path down - restarting tunnel
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] tunnel up but no data - restarting remote daemon
+[repro] (re)starting remote xrootd daemon on login04.gautschi.rcac.purdue.edu
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] FATAL: data path still down after tunnel+daemon restart
+[repro] RETRY efficiency/clean26071 (stack down, attempt 1)
+[repro] data path down - restarting tunnel
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] tunnel up but no data - restarting remote daemon
+[repro] (re)starting remote xrootd daemon on login04.gautschi.rcac.purdue.edu
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] FATAL: data path still down after tunnel+daemon restart
+[repro] RETRY efficiency/clean26071 (stack down, attempt 2)
+[repro] data path down - restarting tunnel
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] tunnel up but no data - restarting remote daemon
+[repro] (re)starting remote xrootd daemon on login04.gautschi.rcac.purdue.edu
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] FATAL: data path still down after tunnel+daemon restart
+[repro] RETRY efficiency/clean26071 (stack down, attempt 3)
+[repro] data path down - restarting tunnel
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] tunnel up but no data - restarting remote daemon
+[repro] (re)starting remote xrootd daemon on login04.gautschi.rcac.purdue.edu
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] FATAL: data path still down after tunnel+daemon restart
+[repro] RETRY efficiency/clean26071 (stack down, attempt 4)
+[repro] data path down - restarting tunnel
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] tunnel up but no data - restarting remote daemon
+[repro] (re)starting remote xrootd daemon on login04.gautschi.rcac.purdue.edu
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] FATAL: data path still down after tunnel+daemon restart
+[repro] RETRY efficiency/clean26071 (stack down, attempt 5)
+[repro] data path down - restarting tunnel
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] tunnel up but no data - restarting remote daemon
+[repro] (re)starting remote xrootd daemon on login04.gautschi.rcac.purdue.edu
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] FATAL: data path still down after tunnel+daemon restart
+[repro] RETRY efficiency/clean26071 (stack down, attempt 6)
+[repro] data path down - restarting tunnel
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] tunnel up but no data - restarting remote daemon
+[repro] (re)starting remote xrootd daemon on login04.gautschi.rcac.purdue.edu
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] FATAL: data path still down after tunnel+daemon restart
+[repro] RETRY efficiency/clean26071 (stack down, attempt 7)
+[repro] data path down - restarting tunnel
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] tunnel up but no data - restarting remote daemon
+[repro] (re)starting remote xrootd daemon on login04.gautschi.rcac.purdue.edu
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] FATAL: data path still down after tunnel+daemon restart
+[repro] RETRY efficiency/clean26071 (stack down, attempt 8)
+[repro] data path down - restarting tunnel
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] tunnel up but no data - restarting remote daemon
+[repro] (re)starting remote xrootd daemon on login04.gautschi.rcac.purdue.edu
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] FATAL: data path still down after tunnel+daemon restart
+[repro] RETRY efficiency/clean26071 (stack down, attempt 9)
+[repro] data path down - restarting tunnel
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] tunnel up but no data - restarting remote daemon
+[repro] (re)starting remote xrootd daemon on login04.gautschi.rcac.purdue.edu
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] FATAL: data path still down after tunnel+daemon restart
+[repro] RETRY efficiency/clean26071 (stack down, attempt 10)
+[repro] FAIL efficiency/clean26071 (10 attempts exhausted)
+[repro] data path down - restarting tunnel
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] tunnel up but no data - restarting remote daemon
+[repro] (re)starting remote xrootd daemon on login04.gautschi.rcac.purdue.edu
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] FATAL: data path still down after tunnel+daemon restart
+[repro] RETRY efficiency/clean26071 (stack down, attempt 1)
+[repro] data path down - restarting tunnel
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] tunnel up but no data - restarting remote daemon
+[repro] (re)starting remote xrootd daemon on login04.gautschi.rcac.purdue.edu
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] FATAL: data path still down after tunnel+daemon restart
+[repro] RETRY efficiency/clean26071 (stack down, attempt 2)
+[repro] data path down - restarting tunnel
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] tunnel up but no data - restarting remote daemon
+[repro] (re)starting remote xrootd daemon on login04.gautschi.rcac.purdue.edu
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] FATAL: data path still down after tunnel+daemon restart
+[repro] RETRY efficiency/clean26071 (stack down, attempt 3)
+[repro] data path down - restarting tunnel
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] tunnel up but no data - restarting remote daemon
+[repro] (re)starting remote xrootd daemon on login04.gautschi.rcac.purdue.edu
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] FATAL: data path still down after tunnel+daemon restart
+[repro] RETRY efficiency/clean26071 (stack down, attempt 4)
+[repro] data path down - restarting tunnel
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] tunnel up but no data - restarting remote daemon
+[repro] (re)starting remote xrootd daemon on login04.gautschi.rcac.purdue.edu
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] FATAL: data path still down after tunnel+daemon restart
+[repro] RETRY efficiency/clean26071 (stack down, attempt 5)
+[repro] data path down - restarting tunnel
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] tunnel up but no data - restarting remote daemon
+[repro] (re)starting remote xrootd daemon on login04.gautschi.rcac.purdue.edu
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] FATAL: data path still down after tunnel+daemon restart
+[repro] RETRY efficiency/clean26071 (stack down, attempt 6)
+[repro] data path down - restarting tunnel
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] tunnel up but no data - restarting remote daemon
+[repro] (re)starting remote xrootd daemon on login04.gautschi.rcac.purdue.edu
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] FATAL: data path still down after tunnel+daemon restart
+[repro] RETRY efficiency/clean26071 (stack down, attempt 7)
+[repro] data path down - restarting tunnel
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] tunnel up but no data - restarting remote daemon
+[repro] (re)starting remote xrootd daemon on login04.gautschi.rcac.purdue.edu
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] FATAL: data path still down after tunnel+daemon restart
+[repro] RETRY efficiency/clean26071 (stack down, attempt 8)
+[repro] data path down - restarting tunnel
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] tunnel up but no data - restarting remote daemon
+[repro] (re)starting remote xrootd daemon on login04.gautschi.rcac.purdue.edu
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] FATAL: data path still down after tunnel+daemon restart
+[repro] RETRY efficiency/clean26071 (stack down, attempt 9)
+[repro] data path down - restarting tunnel
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] tunnel up but no data - restarting remote daemon
+[repro] (re)starting remote xrootd daemon on login04.gautschi.rcac.purdue.edu
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] FATAL: data path still down after tunnel+daemon restart
+[repro] RETRY efficiency/clean26071 (stack down, attempt 10)
+[repro] FAIL efficiency/clean26071 (10 attempts exhausted)
+[repro] data path down - restarting tunnel
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] tunnel up but no data - restarting remote daemon
+[repro] (re)starting remote xrootd daemon on login04.gautschi.rcac.purdue.edu
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] FATAL: data path still down after tunnel+daemon restart
+[repro] RETRY efficiency/clean26071 (stack down, attempt 1)
+[repro] data path down - restarting tunnel
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] tunnel up but no data - restarting remote daemon
+[repro] (re)starting remote xrootd daemon on login04.gautschi.rcac.purdue.edu
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] FATAL: data path still down after tunnel+daemon restart
+[repro] RETRY efficiency/clean26071 (stack down, attempt 2)
+[repro] data path down - restarting tunnel
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] tunnel up but no data - restarting remote daemon
+[repro] (re)starting remote xrootd daemon on login04.gautschi.rcac.purdue.edu
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] FATAL: data path still down after tunnel+daemon restart
+[repro] RETRY efficiency/clean26071 (stack down, attempt 3)
+[repro] data path down - restarting tunnel
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] tunnel up but no data - restarting remote daemon
+[repro] (re)starting remote xrootd daemon on login04.gautschi.rcac.purdue.edu
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] FATAL: data path still down after tunnel+daemon restart
+[repro] RETRY efficiency/clean26071 (stack down, attempt 4)
+[repro] data path down - restarting tunnel
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] tunnel up but no data - restarting remote daemon
+[repro] (re)starting remote xrootd daemon on login04.gautschi.rcac.purdue.edu
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] FATAL: data path still down after tunnel+daemon restart
+[repro] RETRY efficiency/clean26071 (stack down, attempt 5)
+[repro] data path down - restarting tunnel
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] tunnel up but no data - restarting remote daemon
+[repro] (re)starting remote xrootd daemon on login04.gautschi.rcac.purdue.edu
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] FATAL: data path still down after tunnel+daemon restart
+[repro] RETRY efficiency/clean26071 (stack down, attempt 6)
+[repro] data path down - restarting tunnel
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] tunnel up but no data - restarting remote daemon
+[repro] (re)starting remote xrootd daemon on login04.gautschi.rcac.purdue.edu
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] FATAL: data path still down after tunnel+daemon restart
+[repro] RETRY efficiency/clean26071 (stack down, attempt 7)
+[repro] data path down - restarting tunnel
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] tunnel up but no data - restarting remote daemon
+[repro] (re)starting remote xrootd daemon on login04.gautschi.rcac.purdue.edu
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] FATAL: data path still down after tunnel+daemon restart
+[repro] RETRY efficiency/clean26071 (stack down, attempt 8)
+[repro] data path down - restarting tunnel
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] tunnel up but no data - restarting remote daemon
+[repro] (re)starting remote xrootd daemon on login04.gautschi.rcac.purdue.edu
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] FATAL: data path still down after tunnel+daemon restart
+[repro] RETRY efficiency/clean26071 (stack down, attempt 9)
+[repro] data path down - restarting tunnel
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] tunnel up but no data - restarting remote daemon
+[repro] (re)starting remote xrootd daemon on login04.gautschi.rcac.purdue.edu
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] FATAL: data path still down after tunnel+daemon restart
+[repro] RETRY efficiency/clean26071 (stack down, attempt 10)
+[repro] FAIL efficiency/clean26071 (10 attempts exhausted)
+[repro] data path down - restarting tunnel
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] tunnel up but no data - restarting remote daemon
+[repro] (re)starting remote xrootd daemon on login04.gautschi.rcac.purdue.edu
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] FATAL: data path still down after tunnel+daemon restart
+[repro] RETRY resolution/clean26071 (stack down, attempt 1)
+[repro] data path down - restarting tunnel
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] tunnel up but no data - restarting remote daemon
+[repro] (re)starting remote xrootd daemon on login04.gautschi.rcac.purdue.edu
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] FATAL: data path still down after tunnel+daemon restart
+[repro] RETRY resolution/clean26071 (stack down, attempt 2)
+[repro] data path down - restarting tunnel
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] tunnel up but no data - restarting remote daemon
+[repro] (re)starting remote xrootd daemon on login04.gautschi.rcac.purdue.edu
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] FATAL: data path still down after tunnel+daemon restart
+[repro] RETRY resolution/clean26071 (stack down, attempt 3)
+[repro] data path down - restarting tunnel
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] tunnel up but no data - restarting remote daemon
+[repro] (re)starting remote xrootd daemon on login04.gautschi.rcac.purdue.edu
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] FATAL: data path still down after tunnel+daemon restart
+[repro] RETRY resolution/clean26071 (stack down, attempt 4)
+[repro] data path down - restarting tunnel
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] tunnel up but no data - restarting remote daemon
+[repro] (re)starting remote xrootd daemon on login04.gautschi.rcac.purdue.edu
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] FATAL: data path still down after tunnel+daemon restart
+[repro] RETRY resolution/clean26071 (stack down, attempt 5)
+[repro] data path down - restarting tunnel
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] tunnel up but no data - restarting remote daemon
+[repro] (re)starting remote xrootd daemon on login04.gautschi.rcac.purdue.edu
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] FATAL: data path still down after tunnel+daemon restart
+[repro] RETRY resolution/clean26071 (stack down, attempt 6)
+[repro] data path down - restarting tunnel
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] tunnel up but no data - restarting remote daemon
+[repro] (re)starting remote xrootd daemon on login04.gautschi.rcac.purdue.edu
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] FATAL: data path still down after tunnel+daemon restart
+[repro] RETRY resolution/clean26071 (stack down, attempt 7)
+[repro] data path down - restarting tunnel
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] tunnel up but no data - restarting remote daemon
+[repro] (re)starting remote xrootd daemon on login04.gautschi.rcac.purdue.edu
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] FATAL: data path still down after tunnel+daemon restart
+[repro] RETRY resolution/clean26071 (stack down, attempt 8)
+[repro] data path down - restarting tunnel
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] tunnel up but no data - restarting remote daemon
+[repro] (re)starting remote xrootd daemon on login04.gautschi.rcac.purdue.edu
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] FATAL: data path still down after tunnel+daemon restart
+[repro] RETRY resolution/clean26071 (stack down, attempt 9)
+[repro] data path down - restarting tunnel
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] tunnel up but no data - restarting remote daemon
+[repro] (re)starting remote xrootd daemon on login04.gautschi.rcac.purdue.edu
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] FATAL: data path still down after tunnel+daemon restart
+[repro] RETRY resolution/clean26071 (stack down, attempt 10)
+[repro] FAIL resolution/clean26071 (10 attempts exhausted)
+[repro] data path down - restarting tunnel
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] tunnel up but no data - restarting remote daemon
+[repro] (re)starting remote xrootd daemon on login04.gautschi.rcac.purdue.edu
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] FATAL: data path still down after tunnel+daemon restart
+[repro] RETRY fake-rate/clean26071 (stack down, attempt 1)
+[repro] data path down - restarting tunnel
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] tunnel up but no data - restarting remote daemon
+[repro] (re)starting remote xrootd daemon on login04.gautschi.rcac.purdue.edu
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] FATAL: data path still down after tunnel+daemon restart
+[repro] RETRY fake-rate/clean26071 (stack down, attempt 2)
+[repro] data path down - restarting tunnel
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] tunnel up but no data - restarting remote daemon
+[repro] (re)starting remote xrootd daemon on login04.gautschi.rcac.purdue.edu
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] FATAL: data path still down after tunnel+daemon restart
+[repro] RETRY fake-rate/clean26071 (stack down, attempt 3)
+[repro] data path down - restarting tunnel
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] tunnel up but no data - restarting remote daemon
+[repro] (re)starting remote xrootd daemon on login04.gautschi.rcac.purdue.edu
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] FATAL: data path still down after tunnel+daemon restart
+[repro] RETRY fake-rate/clean26071 (stack down, attempt 4)
+[repro] data path down - restarting tunnel
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] tunnel up but no data - restarting remote daemon
+[repro] (re)starting remote xrootd daemon on login04.gautschi.rcac.purdue.edu
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] FATAL: data path still down after tunnel+daemon restart
+[repro] RETRY fake-rate/clean26071 (stack down, attempt 5)
+[repro] data path down - restarting tunnel
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] tunnel up but no data - restarting remote daemon
+[repro] (re)starting remote xrootd daemon on login04.gautschi.rcac.purdue.edu
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] FATAL: data path still down after tunnel+daemon restart
+[repro] RETRY fake-rate/clean26071 (stack down, attempt 6)
+[repro] data path down - restarting tunnel
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] tunnel up but no data - restarting remote daemon
+[repro] (re)starting remote xrootd daemon on login04.gautschi.rcac.purdue.edu
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] FATAL: data path still down after tunnel+daemon restart
+[repro] RETRY fake-rate/clean26071 (stack down, attempt 7)
+[repro] data path down - restarting tunnel
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] tunnel up but no data - restarting remote daemon
+[repro] (re)starting remote xrootd daemon on login04.gautschi.rcac.purdue.edu
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] FATAL: data path still down after tunnel+daemon restart
+[repro] RETRY fake-rate/clean26071 (stack down, attempt 8)
+[repro] data path down - restarting tunnel
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] tunnel up but no data - restarting remote daemon
+[repro] (re)starting remote xrootd daemon on login04.gautschi.rcac.purdue.edu
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] FATAL: data path still down after tunnel+daemon restart
+[repro] RETRY fake-rate/clean26071 (stack down, attempt 9)
+[repro] data path down - restarting tunnel
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] tunnel up but no data - restarting remote daemon
+[repro] (re)starting remote xrootd daemon on login04.gautschi.rcac.purdue.edu
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] FATAL: data path still down after tunnel+daemon restart
+[repro] RETRY fake-rate/clean26071 (stack down, attempt 10)
+[repro] FAIL fake-rate/clean26071 (10 attempts exhausted)
+[repro] data path down - restarting tunnel
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] tunnel up but no data - restarting remote daemon
+[repro] (re)starting remote xrootd daemon on login04.gautschi.rcac.purdue.edu
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] FATAL: data path still down after tunnel+daemon restart
+[repro] RETRY acceptance/bkg26071 (stack down, attempt 1)
+[repro] data path down - restarting tunnel
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] tunnel up but no data - restarting remote daemon
+[repro] (re)starting remote xrootd daemon on login04.gautschi.rcac.purdue.edu
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] FATAL: data path still down after tunnel+daemon restart
+[repro] RETRY acceptance/bkg26071 (stack down, attempt 2)
+[repro] data path down - restarting tunnel
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] tunnel up but no data - restarting remote daemon
+[repro] (re)starting remote xrootd daemon on login04.gautschi.rcac.purdue.edu
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] FATAL: data path still down after tunnel+daemon restart
+[repro] RETRY acceptance/bkg26071 (stack down, attempt 3)
+[repro] data path down - restarting tunnel
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] tunnel up but no data - restarting remote daemon
+[repro] (re)starting remote xrootd daemon on login04.gautschi.rcac.purdue.edu
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] FATAL: data path still down after tunnel+daemon restart
+[repro] RETRY acceptance/bkg26071 (stack down, attempt 4)
+[repro] data path down - restarting tunnel
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] tunnel up but no data - restarting remote daemon
+[repro] (re)starting remote xrootd daemon on login04.gautschi.rcac.purdue.edu
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] FATAL: data path still down after tunnel+daemon restart
+[repro] RETRY acceptance/bkg26071 (stack down, attempt 5)
+[repro] data path down - restarting tunnel
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] tunnel up but no data - restarting remote daemon
+[repro] (re)starting remote xrootd daemon on login04.gautschi.rcac.purdue.edu
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] FATAL: data path still down after tunnel+daemon restart
+[repro] RETRY acceptance/bkg26071 (stack down, attempt 6)
+[repro] data path down - restarting tunnel
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] tunnel up but no data - restarting remote daemon
+[repro] (re)starting remote xrootd daemon on login04.gautschi.rcac.purdue.edu
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] FATAL: data path still down after tunnel+daemon restart
+[repro] RETRY acceptance/bkg26071 (stack down, attempt 7)
+[repro] data path down - restarting tunnel
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] tunnel up but no data - restarting remote daemon
+[repro] (re)starting remote xrootd daemon on login04.gautschi.rcac.purdue.edu
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] FATAL: data path still down after tunnel+daemon restart
+[repro] RETRY acceptance/bkg26071 (stack down, attempt 8)
+[repro] data path down - restarting tunnel
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] tunnel up but no data - restarting remote daemon
+[repro] (re)starting remote xrootd daemon on login04.gautschi.rcac.purdue.edu
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] FATAL: data path still down after tunnel+daemon restart
+[repro] RETRY acceptance/bkg26071 (stack down, attempt 9)
+[repro] data path down - restarting tunnel
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] tunnel up but no data - restarting remote daemon
+[repro] (re)starting remote xrootd daemon on login04.gautschi.rcac.purdue.edu
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] FATAL: data path still down after tunnel+daemon restart
+[repro] RETRY acceptance/bkg26071 (stack down, attempt 10)
+[repro] FAIL acceptance/bkg26071 (10 attempts exhausted)
+[repro] data path down - restarting tunnel
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] tunnel up but no data - restarting remote daemon
+[repro] (re)starting remote xrootd daemon on login04.gautschi.rcac.purdue.edu
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] FATAL: data path still down after tunnel+daemon restart
+[repro] RETRY acceptance/bkg26071 (stack down, attempt 1)
+[repro] data path down - restarting tunnel
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] tunnel up but no data - restarting remote daemon
+[repro] (re)starting remote xrootd daemon on login04.gautschi.rcac.purdue.edu
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] FATAL: data path still down after tunnel+daemon restart
+[repro] RETRY acceptance/bkg26071 (stack down, attempt 2)
+[repro] data path down - restarting tunnel
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] tunnel up but no data - restarting remote daemon
+[repro] (re)starting remote xrootd daemon on login04.gautschi.rcac.purdue.edu
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] FATAL: data path still down after tunnel+daemon restart
+[repro] RETRY acceptance/bkg26071 (stack down, attempt 3)
+[repro] data path down - restarting tunnel
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] tunnel up but no data - restarting remote daemon
+[repro] (re)starting remote xrootd daemon on login04.gautschi.rcac.purdue.edu
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] FATAL: data path still down after tunnel+daemon restart
+[repro] RETRY acceptance/bkg26071 (stack down, attempt 4)
+[repro] data path down - restarting tunnel
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] tunnel up but no data - restarting remote daemon
+[repro] (re)starting remote xrootd daemon on login04.gautschi.rcac.purdue.edu
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] FATAL: data path still down after tunnel+daemon restart
+[repro] RETRY acceptance/bkg26071 (stack down, attempt 5)
+[repro] data path down - restarting tunnel
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] tunnel up but no data - restarting remote daemon
+[repro] (re)starting remote xrootd daemon on login04.gautschi.rcac.purdue.edu
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] FATAL: data path still down after tunnel+daemon restart
+[repro] RETRY acceptance/bkg26071 (stack down, attempt 6)
+[repro] data path down - restarting tunnel
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] tunnel up but no data - restarting remote daemon
+[repro] (re)starting remote xrootd daemon on login04.gautschi.rcac.purdue.edu
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] FATAL: data path still down after tunnel+daemon restart
+[repro] RETRY acceptance/bkg26071 (stack down, attempt 7)
+[repro] data path down - restarting tunnel
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] tunnel up but no data - restarting remote daemon
+[repro] (re)starting remote xrootd daemon on login04.gautschi.rcac.purdue.edu
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] FATAL: data path still down after tunnel+daemon restart
+[repro] RETRY acceptance/bkg26071 (stack down, attempt 8)
+[repro] data path down - restarting tunnel
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] tunnel up but no data - restarting remote daemon
+[repro] (re)starting remote xrootd daemon on login04.gautschi.rcac.purdue.edu
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] FATAL: data path still down after tunnel+daemon restart
+[repro] RETRY acceptance/bkg26071 (stack down, attempt 9)
+[repro] data path down - restarting tunnel
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] tunnel up but no data - restarting remote daemon
+[repro] (re)starting remote xrootd daemon on login04.gautschi.rcac.purdue.edu
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] FATAL: data path still down after tunnel+daemon restart
+[repro] RETRY acceptance/bkg26071 (stack down, attempt 10)
+[repro] FAIL acceptance/bkg26071 (10 attempts exhausted)
+[repro] data path down - restarting tunnel
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] tunnel up but no data - restarting remote daemon
+[repro] (re)starting remote xrootd daemon on login04.gautschi.rcac.purdue.edu
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] FATAL: data path still down after tunnel+daemon restart
+[repro] RETRY acceptance/bkg26071 (stack down, attempt 1)
+[repro] data path down - restarting tunnel
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] tunnel up but no data - restarting remote daemon
+[repro] (re)starting remote xrootd daemon on login04.gautschi.rcac.purdue.edu
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] FATAL: data path still down after tunnel+daemon restart
+[repro] RETRY acceptance/bkg26071 (stack down, attempt 2)
+[repro] data path down - restarting tunnel
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] tunnel up but no data - restarting remote daemon
+[repro] (re)starting remote xrootd daemon on login04.gautschi.rcac.purdue.edu
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] FATAL: data path still down after tunnel+daemon restart
+[repro] RETRY acceptance/bkg26071 (stack down, attempt 3)
+[repro] data path down - restarting tunnel
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] tunnel up but no data - restarting remote daemon
+[repro] (re)starting remote xrootd daemon on login04.gautschi.rcac.purdue.edu
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] FATAL: data path still down after tunnel+daemon restart
+[repro] RETRY acceptance/bkg26071 (stack down, attempt 4)
+[repro] data path down - restarting tunnel
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] tunnel up but no data - restarting remote daemon
+[repro] (re)starting remote xrootd daemon on login04.gautschi.rcac.purdue.edu
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] FATAL: data path still down after tunnel+daemon restart
+[repro] RETRY acceptance/bkg26071 (stack down, attempt 5)
+[repro] data path down - restarting tunnel
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] tunnel up but no data - restarting remote daemon
+[repro] (re)starting remote xrootd daemon on login04.gautschi.rcac.purdue.edu
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] FATAL: data path still down after tunnel+daemon restart
+[repro] RETRY acceptance/bkg26071 (stack down, attempt 6)
+[repro] data path down - restarting tunnel
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] tunnel up but no data - restarting remote daemon
+[repro] (re)starting remote xrootd daemon on login04.gautschi.rcac.purdue.edu
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] FATAL: data path still down after tunnel+daemon restart
+[repro] RETRY acceptance/bkg26071 (stack down, attempt 7)
+[repro] data path down - restarting tunnel
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] tunnel up but no data - restarting remote daemon
+[repro] (re)starting remote xrootd daemon on login04.gautschi.rcac.purdue.edu
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] FATAL: data path still down after tunnel+daemon restart
+[repro] RETRY acceptance/bkg26071 (stack down, attempt 8)
+[repro] data path down - restarting tunnel
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] tunnel up but no data - restarting remote daemon
+[repro] (re)starting remote xrootd daemon on login04.gautschi.rcac.purdue.edu
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] FATAL: data path still down after tunnel+daemon restart
+[repro] RETRY acceptance/bkg26071 (stack down, attempt 9)
+[repro] data path down - restarting tunnel
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] tunnel up but no data - restarting remote daemon
+[repro] (re)starting remote xrootd daemon on login04.gautschi.rcac.purdue.edu
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] FATAL: data path still down after tunnel+daemon restart
+[repro] RETRY acceptance/bkg26071 (stack down, attempt 10)
+[repro] FAIL acceptance/bkg26071 (10 attempts exhausted)
+[repro] data path down - restarting tunnel
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] tunnel up but no data - restarting remote daemon
+[repro] (re)starting remote xrootd daemon on login04.gautschi.rcac.purdue.edu
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] FATAL: data path still down after tunnel+daemon restart
+[repro] RETRY efficiency/bkg26071 (stack down, attempt 1)
+[repro] data path down - restarting tunnel
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] tunnel up but no data - restarting remote daemon
+[repro] (re)starting remote xrootd daemon on login04.gautschi.rcac.purdue.edu
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] FATAL: data path still down after tunnel+daemon restart
+[repro] RETRY efficiency/bkg26071 (stack down, attempt 2)
+[repro] data path down - restarting tunnel
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] tunnel up but no data - restarting remote daemon
+[repro] (re)starting remote xrootd daemon on login04.gautschi.rcac.purdue.edu
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] FATAL: data path still down after tunnel+daemon restart
+[repro] RETRY efficiency/bkg26071 (stack down, attempt 3)
+[repro] data path down - restarting tunnel
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] tunnel up but no data - restarting remote daemon
+[repro] (re)starting remote xrootd daemon on login04.gautschi.rcac.purdue.edu
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] FATAL: data path still down after tunnel+daemon restart
+[repro] RETRY efficiency/bkg26071 (stack down, attempt 4)
+[repro] data path down - restarting tunnel
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] tunnel up but no data - restarting remote daemon
+[repro] (re)starting remote xrootd daemon on login04.gautschi.rcac.purdue.edu
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] FATAL: data path still down after tunnel+daemon restart
+[repro] RETRY efficiency/bkg26071 (stack down, attempt 5)
+[repro] data path down - restarting tunnel
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] tunnel up but no data - restarting remote daemon
+[repro] (re)starting remote xrootd daemon on login04.gautschi.rcac.purdue.edu
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] FATAL: data path still down after tunnel+daemon restart
+[repro] RETRY efficiency/bkg26071 (stack down, attempt 6)
+[repro] data path down - restarting tunnel
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] tunnel up but no data - restarting remote daemon
+[repro] (re)starting remote xrootd daemon on login04.gautschi.rcac.purdue.edu
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] FATAL: data path still down after tunnel+daemon restart
+[repro] RETRY efficiency/bkg26071 (stack down, attempt 7)
+[repro] data path down - restarting tunnel
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] tunnel up but no data - restarting remote daemon
+[repro] (re)starting remote xrootd daemon on login04.gautschi.rcac.purdue.edu
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] FATAL: data path still down after tunnel+daemon restart
+[repro] RETRY efficiency/bkg26071 (stack down, attempt 8)
+[repro] data path down - restarting tunnel
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] tunnel up but no data - restarting remote daemon
+[repro] (re)starting remote xrootd daemon on login04.gautschi.rcac.purdue.edu
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] FATAL: data path still down after tunnel+daemon restart
+[repro] RETRY efficiency/bkg26071 (stack down, attempt 9)
+[repro] data path down - restarting tunnel
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] tunnel up but no data - restarting remote daemon
+[repro] (re)starting remote xrootd daemon on login04.gautschi.rcac.purdue.edu
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] FATAL: data path still down after tunnel+daemon restart
+[repro] RETRY efficiency/bkg26071 (stack down, attempt 10)
+[repro] FAIL efficiency/bkg26071 (10 attempts exhausted)
+[repro] data path down - restarting tunnel
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] tunnel up but no data - restarting remote daemon
+[repro] (re)starting remote xrootd daemon on login04.gautschi.rcac.purdue.edu
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] FATAL: data path still down after tunnel+daemon restart
+[repro] RETRY efficiency/bkg26071 (stack down, attempt 1)
+[repro] data path down - restarting tunnel
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] tunnel up but no data - restarting remote daemon
+[repro] (re)starting remote xrootd daemon on login04.gautschi.rcac.purdue.edu
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] FATAL: data path still down after tunnel+daemon restart
+[repro] RETRY efficiency/bkg26071 (stack down, attempt 2)
+[repro] data path down - restarting tunnel
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] tunnel up but no data - restarting remote daemon
+[repro] (re)starting remote xrootd daemon on login04.gautschi.rcac.purdue.edu
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] FATAL: data path still down after tunnel+daemon restart
+[repro] RETRY efficiency/bkg26071 (stack down, attempt 3)
+[repro] data path down - restarting tunnel
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] tunnel up but no data - restarting remote daemon
+[repro] (re)starting remote xrootd daemon on login04.gautschi.rcac.purdue.edu
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] FATAL: data path still down after tunnel+daemon restart
+[repro] RETRY efficiency/bkg26071 (stack down, attempt 4)
+[repro] data path down - restarting tunnel
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] tunnel up but no data - restarting remote daemon
+[repro] (re)starting remote xrootd daemon on login04.gautschi.rcac.purdue.edu
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] FATAL: data path still down after tunnel+daemon restart
+[repro] RETRY efficiency/bkg26071 (stack down, attempt 5)
+[repro] data path down - restarting tunnel
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] tunnel up but no data - restarting remote daemon
+[repro] (re)starting remote xrootd daemon on login04.gautschi.rcac.purdue.edu
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] FATAL: data path still down after tunnel+daemon restart
+[repro] RETRY efficiency/bkg26071 (stack down, attempt 6)
+[repro] data path down - restarting tunnel
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] tunnel up but no data - restarting remote daemon
+[repro] (re)starting remote xrootd daemon on login04.gautschi.rcac.purdue.edu
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] FATAL: data path still down after tunnel+daemon restart
+[repro] RETRY efficiency/bkg26071 (stack down, attempt 7)
+[repro] data path down - restarting tunnel
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] tunnel up but no data - restarting remote daemon
+[repro] (re)starting remote xrootd daemon on login04.gautschi.rcac.purdue.edu
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] FATAL: data path still down after tunnel+daemon restart
+[repro] RETRY efficiency/bkg26071 (stack down, attempt 8)
+[repro] data path down - restarting tunnel
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] tunnel up but no data - restarting remote daemon
+[repro] (re)starting remote xrootd daemon on login04.gautschi.rcac.purdue.edu
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] FATAL: data path still down after tunnel+daemon restart
+[repro] RETRY efficiency/bkg26071 (stack down, attempt 9)
+[repro] data path down - restarting tunnel
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] tunnel up but no data - restarting remote daemon
+[repro] (re)starting remote xrootd daemon on login04.gautschi.rcac.purdue.edu
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] FATAL: data path still down after tunnel+daemon restart
+[repro] RETRY efficiency/bkg26071 (stack down, attempt 10)
+[repro] FAIL efficiency/bkg26071 (10 attempts exhausted)
+[repro] data path down - restarting tunnel
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] tunnel up but no data - restarting remote daemon
+[repro] (re)starting remote xrootd daemon on login04.gautschi.rcac.purdue.edu
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] FATAL: data path still down after tunnel+daemon restart
+[repro] RETRY efficiency/bkg26071 (stack down, attempt 1)
+[repro] data path down - restarting tunnel
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] tunnel up but no data - restarting remote daemon
+[repro] (re)starting remote xrootd daemon on login04.gautschi.rcac.purdue.edu
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] FATAL: data path still down after tunnel+daemon restart
+[repro] RETRY efficiency/bkg26071 (stack down, attempt 2)
+[repro] data path down - restarting tunnel
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] tunnel up but no data - restarting remote daemon
+[repro] (re)starting remote xrootd daemon on login04.gautschi.rcac.purdue.edu
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] FATAL: data path still down after tunnel+daemon restart
+[repro] RETRY efficiency/bkg26071 (stack down, attempt 3)
+[repro] data path down - restarting tunnel
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] tunnel up but no data - restarting remote daemon
+[repro] (re)starting remote xrootd daemon on login04.gautschi.rcac.purdue.edu
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] FATAL: data path still down after tunnel+daemon restart
+[repro] RETRY efficiency/bkg26071 (stack down, attempt 4)
+[repro] data path down - restarting tunnel
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] tunnel up but no data - restarting remote daemon
+[repro] (re)starting remote xrootd daemon on login04.gautschi.rcac.purdue.edu
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] FATAL: data path still down after tunnel+daemon restart
+[repro] RETRY efficiency/bkg26071 (stack down, attempt 5)
+[repro] data path down - restarting tunnel
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] tunnel up but no data - restarting remote daemon
+[repro] (re)starting remote xrootd daemon on login04.gautschi.rcac.purdue.edu
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] FATAL: data path still down after tunnel+daemon restart
+[repro] RETRY efficiency/bkg26071 (stack down, attempt 6)
+[repro] data path down - restarting tunnel
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] tunnel up but no data - restarting remote daemon
+[repro] (re)starting remote xrootd daemon on login04.gautschi.rcac.purdue.edu
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] FATAL: data path still down after tunnel+daemon restart
+[repro] RETRY efficiency/bkg26071 (stack down, attempt 7)
+[repro] data path down - restarting tunnel
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] tunnel up but no data - restarting remote daemon
+[repro] (re)starting remote xrootd daemon on login04.gautschi.rcac.purdue.edu
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] FATAL: data path still down after tunnel+daemon restart
+[repro] RETRY efficiency/bkg26071 (stack down, attempt 8)
+[repro] data path down - restarting tunnel
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] tunnel up but no data - restarting remote daemon
+[repro] (re)starting remote xrootd daemon on login04.gautschi.rcac.purdue.edu
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] FATAL: data path still down after tunnel+daemon restart
+[repro] RETRY efficiency/bkg26071 (stack down, attempt 9)
+[repro] data path down - restarting tunnel
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] tunnel up but no data - restarting remote daemon
+[repro] (re)starting remote xrootd daemon on login04.gautschi.rcac.purdue.edu
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] FATAL: data path still down after tunnel+daemon restart
+[repro] RETRY efficiency/bkg26071 (stack down, attempt 10)
+[repro] FAIL efficiency/bkg26071 (10 attempts exhausted)
+[repro] data path down - restarting tunnel
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] tunnel up but no data - restarting remote daemon
+[repro] (re)starting remote xrootd daemon on login04.gautschi.rcac.purdue.edu
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] FATAL: data path still down after tunnel+daemon restart
+[repro] RETRY resolution/bkg26071 (stack down, attempt 1)
+[repro] data path down - restarting tunnel
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] tunnel up but no data - restarting remote daemon
+[repro] (re)starting remote xrootd daemon on login04.gautschi.rcac.purdue.edu
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] FATAL: data path still down after tunnel+daemon restart
+[repro] RETRY resolution/bkg26071 (stack down, attempt 2)
+[repro] data path down - restarting tunnel
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] tunnel up but no data - restarting remote daemon
+[repro] (re)starting remote xrootd daemon on login04.gautschi.rcac.purdue.edu
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] FATAL: data path still down after tunnel+daemon restart
+[repro] RETRY resolution/bkg26071 (stack down, attempt 3)
+[repro] data path down - restarting tunnel
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] tunnel up but no data - restarting remote daemon
+[repro] (re)starting remote xrootd daemon on login04.gautschi.rcac.purdue.edu
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] FATAL: data path still down after tunnel+daemon restart
+[repro] RETRY resolution/bkg26071 (stack down, attempt 4)
+[repro] data path down - restarting tunnel
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] tunnel up but no data - restarting remote daemon
+[repro] (re)starting remote xrootd daemon on login04.gautschi.rcac.purdue.edu
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] FATAL: data path still down after tunnel+daemon restart
+[repro] RETRY resolution/bkg26071 (stack down, attempt 5)
+[repro] data path down - restarting tunnel
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] tunnel up but no data - restarting remote daemon
+[repro] (re)starting remote xrootd daemon on login04.gautschi.rcac.purdue.edu
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] FATAL: data path still down after tunnel+daemon restart
+[repro] RETRY resolution/bkg26071 (stack down, attempt 6)
+[repro] data path down - restarting tunnel
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] tunnel up but no data - restarting remote daemon
+[repro] (re)starting remote xrootd daemon on login04.gautschi.rcac.purdue.edu
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] FATAL: data path still down after tunnel+daemon restart
+[repro] RETRY resolution/bkg26071 (stack down, attempt 7)
+[repro] data path down - restarting tunnel
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] tunnel up but no data - restarting remote daemon
+[repro] (re)starting remote xrootd daemon on login04.gautschi.rcac.purdue.edu
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] FATAL: data path still down after tunnel+daemon restart
+[repro] RETRY resolution/bkg26071 (stack down, attempt 8)
+[repro] data path down - restarting tunnel
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] tunnel up but no data - restarting remote daemon
+[repro] (re)starting remote xrootd daemon on login04.gautschi.rcac.purdue.edu
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] FATAL: data path still down after tunnel+daemon restart
+[repro] RETRY resolution/bkg26071 (stack down, attempt 9)
+[repro] data path down - restarting tunnel
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] tunnel up but no data - restarting remote daemon
+[repro] (re)starting remote xrootd daemon on login04.gautschi.rcac.purdue.edu
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] FATAL: data path still down after tunnel+daemon restart
+[repro] RETRY resolution/bkg26071 (stack down, attempt 10)
+[repro] FAIL resolution/bkg26071 (10 attempts exhausted)
+[repro] data path down - restarting tunnel
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] tunnel up but no data - restarting remote daemon
+[repro] (re)starting remote xrootd daemon on login04.gautschi.rcac.purdue.edu
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] FATAL: data path still down after tunnel+daemon restart
+[repro] RETRY fake-rate/bkg26071 (stack down, attempt 1)
+[repro] data path down - restarting tunnel
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] tunnel up but no data - restarting remote daemon
+[repro] (re)starting remote xrootd daemon on login04.gautschi.rcac.purdue.edu
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] FATAL: data path still down after tunnel+daemon restart
+[repro] RETRY fake-rate/bkg26071 (stack down, attempt 2)
+[repro] data path down - restarting tunnel
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] tunnel up but no data - restarting remote daemon
+[repro] (re)starting remote xrootd daemon on login04.gautschi.rcac.purdue.edu
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] FATAL: data path still down after tunnel+daemon restart
+[repro] RETRY fake-rate/bkg26071 (stack down, attempt 3)
+[repro] data path down - restarting tunnel
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] tunnel up but no data - restarting remote daemon
+[repro] (re)starting remote xrootd daemon on login04.gautschi.rcac.purdue.edu
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] FATAL: data path still down after tunnel+daemon restart
+[repro] RETRY fake-rate/bkg26071 (stack down, attempt 4)
+[repro] data path down - restarting tunnel
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] tunnel up but no data - restarting remote daemon
+[repro] (re)starting remote xrootd daemon on login04.gautschi.rcac.purdue.edu
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] FATAL: data path still down after tunnel+daemon restart
+[repro] RETRY fake-rate/bkg26071 (stack down, attempt 5)
+[repro] data path down - restarting tunnel
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] tunnel up but no data - restarting remote daemon
+[repro] (re)starting remote xrootd daemon on login04.gautschi.rcac.purdue.edu
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] FATAL: data path still down after tunnel+daemon restart
+[repro] RETRY fake-rate/bkg26071 (stack down, attempt 6)
+[repro] data path down - restarting tunnel
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] tunnel up but no data - restarting remote daemon
+[repro] (re)starting remote xrootd daemon on login04.gautschi.rcac.purdue.edu
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] FATAL: data path still down after tunnel+daemon restart
+[repro] RETRY fake-rate/bkg26071 (stack down, attempt 7)
+[repro] data path down - restarting tunnel
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] tunnel up but no data - restarting remote daemon
+[repro] (re)starting remote xrootd daemon on login04.gautschi.rcac.purdue.edu
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] FATAL: data path still down after tunnel+daemon restart
+[repro] RETRY fake-rate/bkg26071 (stack down, attempt 8)
+[repro] data path down - restarting tunnel
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] tunnel up but no data - restarting remote daemon
+[repro] (re)starting remote xrootd daemon on login04.gautschi.rcac.purdue.edu
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] FATAL: data path still down after tunnel+daemon restart
+[repro] RETRY fake-rate/bkg26071 (stack down, attempt 9)
+[repro] data path down - restarting tunnel
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] tunnel up but no data - restarting remote daemon
+[repro] (re)starting remote xrootd daemon on login04.gautschi.rcac.purdue.edu
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] FATAL: data path still down after tunnel+daemon restart
+[repro] RETRY fake-rate/bkg26071 (stack down, attempt 10)
+[repro] FAIL fake-rate/bkg26071 (10 attempts exhausted)
+[repro] compare acceptance skipped (missing side)
+[repro] compare acceptance-backward skipped (missing side)
+[repro] compare acceptance-forward skipped (missing side)
+[repro] compare efficiency skipped (missing side)
+[repro] compare efficiency-backward skipped (missing side)
+[repro] compare efficiency-forward skipped (missing side)
+[repro] compare resolution skipped (missing side)
+[repro] compare fake-rate skipped (missing side)
+scripts/run_reproduction_26071.sh: line 222: /opt/local/bin/python3: Transport endpoint is not connected
+[repro] plot skip acceptance/clean26071/barrel
+[repro] plot skip acceptance/clean26071/backward endcap
+[repro] plot skip acceptance/clean26071/forward endcap
+scripts/run_reproduction_26071.sh: line 227: /opt/local/bin/python3: Transport endpoint is not connected
+[repro] plot skip acceptance/clean26071/barrel-window
+[repro] plot skip acceptance/bkg26071/barrel
+[repro] plot skip acceptance/bkg26071/backward endcap
+[repro] plot skip acceptance/bkg26071/forward endcap
+[repro] plot skip acceptance/bkg26071/barrel-window
+[repro] plot skip efficiency/clean26071/barrel
+[repro] plot skip efficiency/clean26071/backward endcap
+[repro] plot skip efficiency/clean26071/forward endcap
+[repro] plot skip efficiency/clean26071/barrel-window
+[repro] plot skip efficiency/bkg26071/barrel
+[repro] plot skip efficiency/bkg26071/backward endcap
+[repro] plot skip efficiency/bkg26071/forward endcap
+[repro] plot skip efficiency/bkg26071/barrel-window
+[repro] plot skip resolution/clean26071/barrel
+[repro] plot skip resolution/clean26071/backward endcap
+[repro] plot skip resolution/clean26071/forward endcap
+[repro] plot skip resolution/clean26071/barrel-window
+[repro] plot skip resolution/bkg26071/barrel
+[repro] plot skip resolution/bkg26071/backward endcap
+[repro] plot skip resolution/bkg26071/forward endcap
+[repro] plot skip resolution/bkg26071/barrel-window
+[repro] plot skip fake-rate/clean26071/barrel
+[repro] plot skip fake-rate/clean26071/backward endcap
+[repro] plot skip fake-rate/clean26071/forward endcap
+[repro] plot skip fake-rate/clean26071/barrel-window
+[repro] plot skip fake-rate/bkg26071/barrel
+[repro] plot skip fake-rate/bkg26071/backward endcap
+[repro] plot skip fake-rate/bkg26071/forward endcap
+[repro] plot skip fake-rate/bkg26071/barrel-window
+scripts/run_reproduction_26071.sh: line 244: /opt/local/bin/python3: Transport endpoint is not connected
+[repro] eta-slices failed for output/acceptance_clean26071.json
+[repro] eta-slices skip output/acceptance_backward_clean26071.json (missing)
+[repro] eta-slices skip output/acceptance_forward_clean26071.json (missing)
+scripts/run_reproduction_26071.sh: line 253: /opt/local/bin/python3: Transport endpoint is not connected
+[repro] ratio plots incomplete
+[repro] data path down - restarting tunnel
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] tunnel up but no data - restarting remote daemon
+[repro] (re)starting remote xrootd daemon on login04.gautschi.rcac.purdue.edu
+[repro] (re)starting tunnel to login04.gautschi.rcac.purdue.edu
+scripts/run_reproduction_26071.sh: line 53: /usr/bin/sleep: Transport endpoint is not connected
+scripts/run_reproduction_26071.sh: line 57: /usr/bin/sleep: Transport endpoint is not connected
+[repro] FATAL: data path still down after tunnel+daemon restart
+[repro] manual_QA refresh skipped (stack down)
+scripts/run_reproduction_26071.sh: line 287: /usr/bin/date: Transport endpoint is not connected
+[repro] DONE  WITH FAILURES: acceptance/clean26071 acceptance/clean26071 efficiency/clean26071 efficiency/clean26071 efficiency/clean26071 resolution/clean26071 fake-rate/clean26071 acceptance/bkg26071 acceptance/bkg26071 acceptance/bkg26071 efficiency/bkg26071 efficiency/bkg26071 efficiency/bkg26071 resolution/bkg26071 fake-rate/bkg26071 compare-acceptance compare-acceptance-backward compare-acceptance-forward compare-efficiency compare-efficiency-backward compare-efficiency-forward compare-resolution compare-fake-rate plot-acceptance/clean26071/barrel plot-acceptance/clean26071/backward endcap plot-acceptance/clean26071/forward endcap plot-acceptance/clean26071/barrel-window plot-acceptance/bkg26071/barrel plot-acceptance/bkg26071/backward endcap plot-acceptance/bkg26071/forward endcap plot-acceptance/bkg26071/barrel-window plot-efficiency/clean26071/barrel plot-efficiency/clean26071/backward endcap plot-efficiency/clean26071/forward endcap plot-efficiency/clean26071/barrel-window plot-efficiency/bkg26071/barrel plot-efficiency/bkg26071/backward endcap plot-efficiency/bkg26071/forward endcap plot-efficiency/bkg26071/barrel-window plot-resolution/clean26071/barrel plot-resolution/clean26071/backward endcap plot-resolution/clean26071/forward endcap plot-resolution/clean26071/barrel-window plot-resolution/bkg26071/barrel plot-resolution/bkg26071/backward endcap plot-resolution/bkg26071/forward endcap plot-resolution/bkg26071/barrel-window plot-fake-rate/clean26071/barrel plot-fake-rate/clean26071/backward endcap plot-fake-rate/clean26071/forward endcap plot-fake-rate/clean26071/barrel-window plot-fake-rate/bkg26071/barrel plot-fake-rate/bkg26071/backward endcap plot-fake-rate/bkg26071/forward endcap plot-fake-rate/bkg26071/barrel-window eta-slices-none eta-slices-backward eta-slices-forward ratio-plots manual_QA-stack-down
+[repro] skip acceptance/clean26071 (exists)
+[repro] acceptance clean26071 17:19:00 (attempt 1)
+[acceptance/clean26071] wrote output/acceptance_backward_clean26071.json, output/acceptance_backward_clean26071.md and output/acceptance_backward_clean26071.root (1024 bins, 499 flagged insufficient statistics, from 300 files)
+[acceptance/clean26071] wrote output/plot_tracking/acceptance_backward_clean26071_vs_p.png
+[repro] acceptance clean26071 17:22:48 (attempt 1)
+[acceptance/clean26071] wrote output/acceptance_forward_clean26071.json, output/acceptance_forward_clean26071.md and output/acceptance_forward_clean26071.root (1024 bins, 499 flagged insufficient statistics, from 300 files)
+[acceptance/clean26071] wrote output/plot_tracking/acceptance_forward_clean26071_vs_p.png
+[repro] efficiency clean26071 17:23:44 (attempt 1)
+[efficiency/clean26071] wrote output/efficiency_clean26071.json, output/efficiency_clean26071.md and output/efficiency_clean26071.root (1024 bins, 531 flagged insufficient statistics, from 300 files)
+[efficiency/clean26071] wrote output/plot_tracking/efficiency_clean26071_absolute_vs_p.png
+[efficiency/clean26071] wrote output/plot_tracking/efficiency_clean26071_within_acceptance_vs_p.png
+[repro] efficiency clean26071 17:45:24 (attempt 1)
+[efficiency/clean26071] wrote output/efficiency_backward_clean26071.json, output/efficiency_backward_clean26071.md and output/efficiency_backward_clean26071.root (1024 bins, 556 flagged insufficient statistics, from 300 files)
+[efficiency/clean26071] wrote output/plot_tracking/efficiency_backward_clean26071_absolute_vs_p.png
+[efficiency/clean26071] wrote output/plot_tracking/efficiency_backward_clean26071_within_acceptance_vs_p.png
+[repro] efficiency clean26071 17:47:00 (attempt 1)
+[efficiency/clean26071] wrote output/efficiency_forward_clean26071.json, output/efficiency_forward_clean26071.md and output/efficiency_forward_clean26071.root (1024 bins, 535 flagged insufficient statistics, from 300 files)
+[efficiency/clean26071] wrote output/plot_tracking/efficiency_forward_clean26071_absolute_vs_p.png
+[efficiency/clean26071] wrote output/plot_tracking/efficiency_forward_clean26071_within_acceptance_vs_p.png
+[repro] resolution clean26071 17:48:37 (attempt 1)
+[resolution/clean26071] wrote output/resolution_clean26071.json, output/resolution_clean26071.md and output/resolution_clean26071.root (1024 bins, 634 flagged insufficient statistics, from 300 files)
+[resolution/clean26071] wrote output/plot_tracking/resolution_clean26071_sigma_vs_p.png
+[resolution/clean26071] wrote output/plot_tracking/resolution_clean26071_sigma_vs_p_logy.png
+[repro] fake-rate clean26071 17:49:16 (attempt 1)
+[fake-rate/clean26071] wrote output/fake-rate_clean26071.json, output/fake-rate_clean26071.md and output/fake-rate_clean26071.root (128 bins, 49 flagged insufficient statistics, from 300 files)
+[fake-rate/clean26071] wrote output/plot_tracking/fake-rate_clean26071_vs_p.png
+[fake-rate/clean26071] wrote output/plot_tracking/fake-rate_clean26071_vs_p_logy.png
+[repro] acceptance bkg26071 17:49:29 (attempt 1)
+[acceptance/bkg26071] wrote output/acceptance_bkg26071.json, output/acceptance_bkg26071.md and output/acceptance_bkg26071.root (1024 bins, 738 flagged insufficient statistics, from 500 files)
+[acceptance/bkg26071] wrote output/plot_tracking/acceptance_bkg26071_vs_p.png
+[repro] acceptance bkg26071 20:18:30 (attempt 1)
+[acceptance/bkg26071] wrote output/acceptance_backward_bkg26071.json, output/acceptance_backward_bkg26071.md and output/acceptance_backward_bkg26071.root (1024 bins, 738 flagged insufficient statistics, from 500 files)
+[acceptance/bkg26071] wrote output/plot_tracking/acceptance_backward_bkg26071_vs_p.png
+[repro] acceptance bkg26071 20:41:56 (attempt 1)
+[acceptance/bkg26071] wrote output/acceptance_forward_bkg26071.json, output/acceptance_forward_bkg26071.md and output/acceptance_forward_bkg26071.root (1024 bins, 738 flagged insufficient statistics, from 500 files)
+[acceptance/bkg26071] wrote output/plot_tracking/acceptance_forward_bkg26071_vs_p.png
+[repro] efficiency bkg26071 20:44:53 (attempt 1)
+[efficiency/bkg26071] wrote output/efficiency_bkg26071.json, output/efficiency_bkg26071.md and output/efficiency_bkg26071.root (1024 bins, 761 flagged insufficient statistics, from 500 files)
+[efficiency/bkg26071] wrote output/plot_tracking/efficiency_bkg26071_absolute_vs_p.png
+[efficiency/bkg26071] wrote output/plot_tracking/efficiency_bkg26071_within_acceptance_vs_p.png
+[repro] efficiency bkg26071 21:11:02 (attempt 1)
+[efficiency/bkg26071] wrote output/efficiency_backward_bkg26071.json, output/efficiency_backward_bkg26071.md and output/efficiency_backward_bkg26071.root (1024 bins, 784 flagged insufficient statistics, from 500 files)
+[efficiency/bkg26071] wrote output/plot_tracking/efficiency_backward_bkg26071_absolute_vs_p.png
+[efficiency/bkg26071] wrote output/plot_tracking/efficiency_backward_bkg26071_within_acceptance_vs_p.png
+[repro] efficiency bkg26071 21:14:04 (attempt 1)
+[efficiency/bkg26071] wrote output/efficiency_forward_bkg26071.json, output/efficiency_forward_bkg26071.md and output/efficiency_forward_bkg26071.root (1024 bins, 765 flagged insufficient statistics, from 500 files)
+[efficiency/bkg26071] wrote output/plot_tracking/efficiency_forward_bkg26071_absolute_vs_p.png
+[efficiency/bkg26071] wrote output/plot_tracking/efficiency_forward_bkg26071_within_acceptance_vs_p.png
+[repro] resolution bkg26071 21:17:06 (attempt 1)
+[resolution/bkg26071] wrote output/resolution_bkg26071.json, output/resolution_bkg26071.md and output/resolution_bkg26071.root (1024 bins, 808 flagged insufficient statistics, from 500 files)
+[resolution/bkg26071] wrote output/plot_tracking/resolution_bkg26071_sigma_vs_p.png
+[resolution/bkg26071] wrote output/plot_tracking/resolution_bkg26071_sigma_vs_p_logy.png
+[repro] fake-rate bkg26071 21:19:29 (attempt 1)
+[fake-rate/bkg26071] wrote output/fake-rate_bkg26071.json, output/fake-rate_bkg26071.md and output/fake-rate_bkg26071.root (128 bins, 53 flagged insufficient statistics, from 500 files)
+[fake-rate/bkg26071] wrote output/plot_tracking/fake-rate_bkg26071_vs_p.png
+[fake-rate/bkg26071] wrote output/plot_tracking/fake-rate_bkg26071_vs_p_logy.png
+[compare/acceptance_26071] wrote output/acceptance_26071_comparison.json and output/acceptance_26071_comparison.md (1024 bins compared)
+[compare/acceptance-backward_26071] wrote output/acceptance-backward_26071_comparison.json and output/acceptance-backward_26071_comparison.md (1024 bins compared)
+[compare/acceptance-forward_26071] wrote output/acceptance-forward_26071_comparison.json and output/acceptance-forward_26071_comparison.md (1024 bins compared)
+[compare/efficiency_26071] wrote output/efficiency_26071_comparison.json and output/efficiency_26071_comparison.md (1024 bins compared)
+[compare/efficiency-backward_26071] wrote output/efficiency-backward_26071_comparison.json and output/efficiency-backward_26071_comparison.md (1024 bins compared)
+[compare/efficiency-forward_26071] wrote output/efficiency-forward_26071_comparison.json and output/efficiency-forward_26071_comparison.md (1024 bins compared)
+[compare/resolution_26071] wrote output/resolution_26071_comparison.json and output/resolution_26071_comparison.md (1024 bins compared)
+[compare/fake-rate_26071] wrote output/fake-rate_26071_comparison.json and output/fake-rate_26071_comparison.md (128 bins compared)
+[plot/acceptance] wrote output/plot_tracking/acceptance_clean26071_vs_p_grouped_barrel.png
+[plot/acceptance] wrote output/plot_tracking/acceptance_backward_clean26071_vs_p_grouped_backward_endcap.png
+[plot/acceptance] wrote output/plot_tracking/acceptance_forward_clean26071_vs_p_grouped_forward_endcap.png
+[plot/acceptance] wrote output/plot_tracking/acceptance_clean26071_vs_p_grouped_barrel_window_-1.00_+1.00.png
+[plot/acceptance] wrote output/plot_tracking/acceptance_bkg26071_vs_p_grouped_barrel.png
+[plot/acceptance] wrote output/plot_tracking/acceptance_backward_bkg26071_vs_p_grouped_backward_endcap.png
+[plot/acceptance] wrote output/plot_tracking/acceptance_forward_bkg26071_vs_p_grouped_forward_endcap.png
+[plot/acceptance] wrote output/plot_tracking/acceptance_bkg26071_vs_p_grouped_barrel_window_-1.00_+1.00.png
+[plot/efficiency] wrote output/plot_tracking/efficiency_clean26071_absolute_vs_p_grouped_barrel.png
+[plot/efficiency] wrote output/plot_tracking/efficiency_clean26071_within_acceptance_vs_p_grouped_barrel.png
+[plot/efficiency] wrote output/plot_tracking/efficiency_backward_clean26071_absolute_vs_p_grouped_backward_endcap.png
+[plot/efficiency] wrote output/plot_tracking/efficiency_backward_clean26071_within_acceptance_vs_p_grouped_backward_endcap.png
+[plot/efficiency] wrote output/plot_tracking/efficiency_forward_clean26071_absolute_vs_p_grouped_forward_endcap.png
+[plot/efficiency] wrote output/plot_tracking/efficiency_forward_clean26071_within_acceptance_vs_p_grouped_forward_endcap.png
+[plot/efficiency] wrote output/plot_tracking/efficiency_clean26071_absolute_vs_p_grouped_barrel_window_-1.00_+1.00.png
+[plot/efficiency] wrote output/plot_tracking/efficiency_clean26071_within_acceptance_vs_p_grouped_barrel_window_-1.00_+1.00.png
+[plot/efficiency] wrote output/plot_tracking/efficiency_bkg26071_absolute_vs_p_grouped_barrel.png
+[plot/efficiency] wrote output/plot_tracking/efficiency_bkg26071_within_acceptance_vs_p_grouped_barrel.png
+[plot/efficiency] wrote output/plot_tracking/efficiency_backward_bkg26071_absolute_vs_p_grouped_backward_endcap.png
+[plot/efficiency] wrote output/plot_tracking/efficiency_backward_bkg26071_within_acceptance_vs_p_grouped_backward_endcap.png
+[plot/efficiency] wrote output/plot_tracking/efficiency_forward_bkg26071_absolute_vs_p_grouped_forward_endcap.png
+[plot/efficiency] wrote output/plot_tracking/efficiency_forward_bkg26071_within_acceptance_vs_p_grouped_forward_endcap.png
+[plot/efficiency] wrote output/plot_tracking/efficiency_bkg26071_absolute_vs_p_grouped_barrel_window_-1.00_+1.00.png
+[plot/efficiency] wrote output/plot_tracking/efficiency_bkg26071_within_acceptance_vs_p_grouped_barrel_window_-1.00_+1.00.png
+[plot/resolution] wrote output/plot_tracking/resolution_clean26071_sigma_vs_p_grouped_barrel.png
+[plot/resolution] wrote output/plot_tracking/resolution_clean26071_sigma_vs_p_logy_grouped_barrel.png
+[plot/resolution] wrote output/plot_tracking/resolution_clean26071_sigma_vs_p_grouped_backward_endcap.png
+[plot/resolution] wrote output/plot_tracking/resolution_clean26071_sigma_vs_p_logy_grouped_backward_endcap.png
+[plot/resolution] wrote output/plot_tracking/resolution_clean26071_sigma_vs_p_grouped_forward_endcap.png
+[plot/resolution] wrote output/plot_tracking/resolution_clean26071_sigma_vs_p_logy_grouped_forward_endcap.png
+[plot/resolution] wrote output/plot_tracking/resolution_clean26071_sigma_vs_p_grouped_barrel_window_-1.00_+1.00.png
+[plot/resolution] wrote output/plot_tracking/resolution_clean26071_sigma_vs_p_logy_grouped_barrel_window_-1.00_+1.00.png
+[plot/resolution] wrote output/plot_tracking/resolution_bkg26071_sigma_vs_p_grouped_barrel.png
+[plot/resolution] wrote output/plot_tracking/resolution_bkg26071_sigma_vs_p_logy_grouped_barrel.png
+[plot/resolution] wrote output/plot_tracking/resolution_bkg26071_sigma_vs_p_grouped_backward_endcap.png
+[plot/resolution] wrote output/plot_tracking/resolution_bkg26071_sigma_vs_p_logy_grouped_backward_endcap.png
+[plot/resolution] wrote output/plot_tracking/resolution_bkg26071_sigma_vs_p_grouped_forward_endcap.png
+[plot/resolution] wrote output/plot_tracking/resolution_bkg26071_sigma_vs_p_logy_grouped_forward_endcap.png
+[plot/resolution] wrote output/plot_tracking/resolution_bkg26071_sigma_vs_p_grouped_barrel_window_-1.00_+1.00.png
+[plot/resolution] wrote output/plot_tracking/resolution_bkg26071_sigma_vs_p_logy_grouped_barrel_window_-1.00_+1.00.png
+[plot/fake-rate] wrote output/plot_tracking/fake-rate_clean26071_vs_p_grouped_barrel.png
+[plot/fake-rate] wrote output/plot_tracking/fake-rate_clean26071_vs_p_logy_grouped_barrel.png
+[plot/fake-rate] wrote output/plot_tracking/fake-rate_clean26071_vs_p_grouped_backward_endcap.png
+[plot/fake-rate] wrote output/plot_tracking/fake-rate_clean26071_vs_p_logy_grouped_backward_endcap.png
+[plot/fake-rate] wrote output/plot_tracking/fake-rate_clean26071_vs_p_grouped_forward_endcap.png
+[plot/fake-rate] wrote output/plot_tracking/fake-rate_clean26071_vs_p_logy_grouped_forward_endcap.png
+[plot/fake-rate] wrote output/plot_tracking/fake-rate_clean26071_vs_p_grouped_barrel_window_-1.00_+1.00.png
+[plot/fake-rate] wrote output/plot_tracking/fake-rate_clean26071_vs_p_logy_grouped_barrel_window_-1.00_+1.00.png
+[plot/fake-rate] wrote output/plot_tracking/fake-rate_bkg26071_vs_p_grouped_barrel.png
+[plot/fake-rate] wrote output/plot_tracking/fake-rate_bkg26071_vs_p_logy_grouped_barrel.png
+[plot/fake-rate] wrote output/plot_tracking/fake-rate_bkg26071_vs_p_grouped_backward_endcap.png
+[plot/fake-rate] wrote output/plot_tracking/fake-rate_bkg26071_vs_p_logy_grouped_backward_endcap.png
+[plot/fake-rate] wrote output/plot_tracking/fake-rate_bkg26071_vs_p_grouped_forward_endcap.png
+[plot/fake-rate] wrote output/plot_tracking/fake-rate_bkg26071_vs_p_logy_grouped_forward_endcap.png
+[plot/fake-rate] wrote output/plot_tracking/fake-rate_bkg26071_vs_p_grouped_barrel_window_-1.00_+1.00.png
+[plot/fake-rate] wrote output/plot_tracking/fake-rate_bkg26071_vs_p_logy_grouped_barrel_window_-1.00_+1.00.png
+[plot/acceptance] wrote output/plot_tracking/acceptance_clean26071_vs_p_eta_slices_K.png
+[plot/acceptance] wrote output/plot_tracking/acceptance_clean26071_vs_p_eta_slices_antiproton.png
+[plot/acceptance] wrote output/plot_tracking/acceptance_clean26071_vs_p_eta_slices_e.png
+[plot/acceptance] wrote output/plot_tracking/acceptance_clean26071_vs_p_eta_slices_pi.png
+[plot/acceptance] wrote output/plot_tracking/acceptance_clean26071_vs_p_eta_slices_proton.png
+[plot/acceptance] wrote output/plot_tracking/acceptance_backward_clean26071_vs_p_eta_slices_K.png
+[plot/acceptance] wrote output/plot_tracking/acceptance_backward_clean26071_vs_p_eta_slices_antiproton.png
+[plot/acceptance] wrote output/plot_tracking/acceptance_backward_clean26071_vs_p_eta_slices_e.png
+[plot/acceptance] wrote output/plot_tracking/acceptance_backward_clean26071_vs_p_eta_slices_pi.png
+[plot/acceptance] wrote output/plot_tracking/acceptance_backward_clean26071_vs_p_eta_slices_proton.png
+[plot/acceptance] wrote output/plot_tracking/acceptance_forward_clean26071_vs_p_eta_slices_K.png
+[plot/acceptance] wrote output/plot_tracking/acceptance_forward_clean26071_vs_p_eta_slices_antiproton.png
+[plot/acceptance] wrote output/plot_tracking/acceptance_forward_clean26071_vs_p_eta_slices_e.png
+[plot/acceptance] wrote output/plot_tracking/acceptance_forward_clean26071_vs_p_eta_slices_pi.png
+[plot/acceptance] wrote output/plot_tracking/acceptance_forward_clean26071_vs_p_eta_slices_proton.png
+[ratio] wrote output/plot_tracking/efficiency_ratio_bkg_over_clean_within_acceptance_barrel_vs_p.png
+[ratio] wrote output/plot_tracking/efficiency_ratio_bkg_over_clean_within_acceptance_backward_endcap_vs_p.png
+[ratio] wrote output/plot_tracking/efficiency_ratio_bkg_over_clean_within_acceptance_forward_endcap_vs_p.png
+[ratio] wrote output/plot_tracking/efficiency_ratio_bkg_over_clean_within_acceptance_allEta_vs_p.png
+[ratio] wrote output/plot_tracking/efficiency_ratio_bkg_over_clean_absolute_barrel_vs_p.png
+[ratio] wrote output/plot_tracking/efficiency_ratio_bkg_over_clean_absolute_backward_endcap_vs_p.png
+[ratio] wrote output/plot_tracking/efficiency_ratio_bkg_over_clean_absolute_forward_endcap_vs_p.png
+[ratio] wrote output/plot_tracking/efficiency_ratio_bkg_over_clean_absolute_allEta_vs_p.png
+[ratio] wrote output/plot_tracking/resolution_ratio_bkg_over_clean_allEta_vs_p.png
+[ratio] wrote output/plot_tracking/resolution_ratio_bkg_over_clean_barrel_vs_p.png
+[ratio] wrote output/plot_tracking/resolution_ratio_bkg_over_clean_backward_endcap_vs_p.png
+[ratio] wrote output/plot_tracking/resolution_ratio_bkg_over_clean_forward_endcap_vs_p.png
+[ratio] wrote output/plot_tracking/resolution_ratio_bkg_over_clean_barrel_window_-1.00_+1.00_vs_p.png
+[ratio] 13 plots
+[repro] manual_QA clean refreshed
+[repro] manual_QA bkg refreshed
+[repro] DONE Mon Nov 23 09:22:56 PM UTC 2026

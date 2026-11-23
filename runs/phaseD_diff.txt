@@ -1,0 +1,80 @@
+==============================================================================
+FAKE RATE (region-pooled: fraction + fake/event)
+
+-- clean (events 422700) --
+region                old %    new %  old f/ev  new f/ev N_tracks old       new
+barrel                0.008    0.008    0.8240    0.8200       348295    346605
+backward endcap       0.000    0.000    1.0378    1.0377       438689    438620
+forward endcap        0.010    0.009    1.9266    1.9229       814367    812825
+ALL                   0.007    0.007    3.7884    3.7806      1601351   1598050
+
+-- bkg (events 49500) --
+region                old %    new %  old f/ev  new f/ev N_tracks old       new
+barrel               39.213   15.222    1.3415    0.9565        66406     47346
+backward endcap      15.681   15.525    1.2289    1.2265        60832     60714
+forward endcap        3.723    3.202    2.0060    1.9918        99296     98593
+ALL                  17.338    9.576    4.5764    4.1748       226534    206653
+
+==============================================================================
+EFFICIENCY (region-pooled fractions)
+
+### within_acc
+-- slice barrel (from _central rule tables) --
+   clean  old= 64.21%  new= 63.63%   (n_in_acceptance: 540489 -> 540489)
+   bkg    old= 63.92%  new= 63.13%   (n_in_acceptance: 63039 -> 63039)
+-- slice backward endcap (from _backward rule tables) --
+   clean  old= 95.94%  new= 95.56%   (n_in_acceptance: 457116 -> 457546)
+   bkg    old= 95.65%  new= 95.29%   (n_in_acceptance: 53581 -> 53621)
+-- slice forward endcap (from _forward rule tables) --
+   clean  old= 87.37%  new= 86.04%   (n_in_acceptance: 894360 -> 906482)
+   bkg    old= 86.88%  new= 85.54%   (n_in_acceptance: 105229 -> 106641)
+
+### absolute
+-- slice barrel (from _central rule tables) --
+   clean  old= 60.21%  new= 59.65%   (n_truth: 577097 -> 577097)
+   bkg    old= 59.98%  new= 59.21%   (n_truth: 67269 -> 67269)
+-- slice backward endcap (from _backward rule tables) --
+   clean  old= 95.19%  new= 94.85%   (n_truth: 460988 -> 460988)
+   bkg    old= 94.88%  new= 94.56%   (n_truth: 54041 -> 54041)
+-- slice forward endcap (from _forward rule tables) --
+   clean  old= 62.91%  new= 61.38%   (n_truth: 1271389 -> 1271389)
+   bkg    old= 62.69%  new= 61.18%   (n_truth: 149200 -> 149200)
+
+==============================================================================
+RESOLUTION (per-species N-weighted pooled sigma + converged-bin counts)
+
+-- clean --
+species      old sig  new sig    old N    new N  old conv  new conv  old medErr  new medErr
+K+            0.0350   0.0347    56908    56720        54        54        4.6%        3.0%
+K-            0.0331   0.0332    48200    48060        50        50        5.0%        3.1%
+antiproton    0.0394   0.0391    22704    22596        43        43        9.0%        4.2%
+e+            0.0597   0.0615     3106     3095        18        18       30.5%        7.2%
+e-            0.0391   0.0390   420354   420233        42        43       11.3%        4.9%
+pi+           0.0360   0.0360   502416   501151        66        66        1.9%        1.5%
+pi-           0.0340   0.0340   449421   448304        63        63        1.9%        1.4%
+proton        0.0609   0.0604    61960    61715        50        50        5.5%        3.3%
+
+-- bkg --
+species      old sig  new sig    old N    new N  old conv  new conv  old medErr  new medErr
+K+            0.0386   0.0380     6733     6704        32        33       25.2%        6.2%
+K-            0.0454   0.0389     5638     5624        31        30       25.2%        6.4%
+antiproton    0.0491   0.0448     2564     2553        15        15       29.6%        6.8%
+e+               nan      nan        0        0         0         0        nan%        nan%
+e-            0.0390   0.0388    49175    49163        14        14        5.6%        3.1%
+pi+           0.0363   0.0362    58526    58381        50        50        4.2%        3.0%
+pi-           0.0346   0.0345    52428    52310        45        45        4.2%        2.6%
+proton        0.0662   0.0660     7165     7133        26        26       20.6%        5.8%
+
+==============================================================================
+ACCEPTANCE (region-pooled fraction; central rule table + region rule tables)
+central    clean  acc old= 93.66% new= 93.66%   n_in_acc 540489 -> 540489
+central    bkg    acc old= 93.71% new= 93.71%   n_in_acc 63039 -> 63039
+_backward  clean  acc old= 99.16% new= 99.25%   n_in_acc 457116 -> 457546
+_backward  bkg    acc old= 99.15% new= 99.22%   n_in_acc 53581 -> 53621
+_forward   clean  acc old= 70.35% new= 71.30%   n_in_acc 894360 -> 906482
+_forward   bkg    acc old= 70.53% new= 71.48%   n_in_acc 105229 -> 106641
+
+run_params of new tables (provenance):
+  fake-rate_bkg26071 {'min_reco_hits': 4, 'min_reco_si_hits': 3, 'n_reco_cut_removed': 23510, 'weight_threshold': 0.5, 'campaign': '26.07.1', 'n_files': 500, 'skipped_files': 0}
+  efficiency_bkg26071 {'min_reco_hits': 4, 'min_reco_si_hits': 3, 'n_reco_cut_removed': 2871, 'weight_threshold': 0.5, 'campaign': '26.07.1', 'n_files': 500, 'skipped_files': 0}
+  resolution_clean26071 {'min_reco_hits': 4, 'min_reco_si_hits': 3, 'n_reco_cut_removed': 24124, 'weight_threshold': 0.5, 'campaign': '26.07.1', 'n_files': 300, 'skipped_files': 0}

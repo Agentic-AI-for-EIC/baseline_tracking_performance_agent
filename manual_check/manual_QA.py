@@ -159,7 +159,7 @@ RECO_SILICON = {
 }
 
 
-def reco_track_hit_names(tree):
+def reco_track_hit_names(tree, path):
     """{(event, track_idx): [source hit collection names, ...]} or None.
 
     Walks CentralCKFTracks.measurements -> its measurement collection -> the
@@ -169,14 +169,16 @@ def reco_track_hit_names(tree):
     collection name. Identical structure to trkperf.reco._hit_counts_one_file.
     """
     try:
-        reg = tree.file["podio_metadata/events___CollectionTypeInfo"].array(
-            library="ak")
+        # the registry is a sibling of the tree in the FILE, not a branch:
+        # reopen the directory (uproot 5.7 TTree has no subscriptable .file).
+        with uproot.open(path) as fin:
+            reg = fin["podio_metadata/events___CollectionTypeInfo"].array(
+                library="ak")
         id2name = {int(cid): nm for cid, nm in zip(
             reg[0]["events___CollectionTypeInfo.collectionID"],
             reg[0]["events___CollectionTypeInfo.name"])}
     except Exception as exc:
-        print(f"  NOTE: podio registry unreadable ({type(exc).__name__}); "
-              "reco-track hit cut unavailable (cut treated as PASS)")
+        print(f"  NOTE: podio registry unreadable ({type(exc).__name__}: {exc})")
         return None
     try:
         mb_a = tree["CentralCKFTracks/CentralCKFTracks.measurements_begin"].array(library="ak")
@@ -372,7 +374,15 @@ def main(path, outdir, n_dump=2, reco_cut=True):
             "meaningless - check the file/campaign.") from exc
 
     # --- 4c. reco-track hit composition (the SAME 4/3 floor as truth) ------
-    track_hit_names = reco_track_hit_names(tree) if reco_cut else None
+    # A silently-unavailable cut would report a cut-less universe as if it
+    # were gated - exactly how a parity gap went unnoticed. Fail loudly
+    # instead; --no-reco-cut is the explicit opt-out.
+    track_hit_names = reco_track_hit_names(tree, path) if reco_cut else None
+    if reco_cut and track_hit_names is None:
+        raise SystemExit("manual_QA: reco-track hit cut requested but its "
+                         "inputs are unreadable - refusing to emit a cut-less "
+                         "universe as if it were gated (use --no-reco-cut to "
+                         "disable the cut explicitly).")
 
     def track_ok(region, e, i):
         """Does reco track (e, i) carry >= 4 hits of `region`'s tracking

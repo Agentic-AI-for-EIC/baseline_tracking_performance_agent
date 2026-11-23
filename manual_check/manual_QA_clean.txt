@@ -1,29 +1,32 @@
-primaries of interest: 7664 in 1083 events
+primaries of interest: 10004 in 1409 events
 ----- event 0 -----
-  MC primaries of interest: 2
-    truth  12       e- pt=  1.311 eta= -2.72 [backward endcap] hits(2):BkMPGD,TrkEnd -> reco 1 w=1.00 MATCH
-    truth  13      pi+ pt=  0.863 eta= +3.04 [forward endcap] hits(3):FwMPGD,TOFEnd,TrkEnd -> reco 0 w=1.00 MATCH
+  MC primaries of interest: 4
+    truth   2   proton p= 68.477 eta= +4.04 [out-of-range] hits(total=0,Si=0):- -> no association
+    truth   9       e- p= 10.007 eta= -2.95 [backward endcap] hits(total=6,Si=4):BkMPGDx2,TrkEndx4 -> reco 1 w=1.00 MATCH
+    truth  12      pi+ p=  9.342 eta= +3.28 [forward endcap] hits(total=6,Si=3):FwMPGDx3,TrkEndx3 -> reco 0 w=1.00 MATCH
+    truth  13      pi- p= 22.161 eta= +4.14 [out-of-range] hits(total=0,Si=0):- -> no association
   reco tracks with finite kinematics: 2
-    reco   0 pt=  0.930 eta= +3.04 -> matched w=1.00
-    reco   1 pt=  1.270 eta= -2.72 -> matched w=1.00
+    reco   0 p=  9.587 eta= +3.27 -> matched w=1.00 4/3-ok
+    reco   1 p= 11.565 eta= -2.95 -> matched w=1.00 4/3-ok
 
 ----- event 1 -----
-  MC primaries of interest: 8
-    truth  28       e- pt=  2.169 eta= -2.22 [backward endcap] hits(2):BkMPGD,TrkEnd -> reco 0 w=1.00 MATCH
-    truth  30      pi- pt=  0.210 eta= +4.76 [out-of-range] hits(0):- -> no association
-    truth  31      pi+ pt=  0.163 eta= +3.59 [forward endcap] hits(2):FwMPGD,TrkEnd -> reco 2 w=1.00 MATCH
-    truth  36   proton pt=  0.834 eta= +4.86 [out-of-range] hits(0):- -> no association
-    truth  46      pi+ pt=  0.091 eta= +4.36 [out-of-range] hits(0):- -> no association
-    truth  47      pi- pt=  0.330 eta= +3.03 [forward endcap] hits(2):FwMPGD,TrkEnd -> reco 1 w=1.00 MATCH
-    truth  48      pi+ pt=  0.074 eta= +3.83 [forward endcap] hits(0):- -> no association
-    truth  49      pi- pt=  0.468 eta= +3.47 [forward endcap] hits(2):FwMPGD,TrkEnd -> reco 3 w=1.00 MATCH
-  reco tracks with finite kinematics: 4
-    reco   0 pt=  2.091 eta= -2.22 -> matched w=1.00
-    reco   1 pt=  0.353 eta= +3.04 -> matched w=1.00
-    reco   2 pt=  0.198 eta= +3.58 -> matched w=1.00
-    reco   3 pt=  0.493 eta= +3.47 -> matched w=1.00
+  MC primaries of interest: 6
+    truth  10   proton p= 65.398 eta= +4.22 [out-of-range] hits(total=0,Si=0):- -> no association
+    truth  11       e- p= 10.015 eta= -2.72 [backward endcap] hits(total=7,Si=5):BkMPGDx2,TrkEndx5 -> reco 0 w=1.00 MATCH
+    truth  12      pi+ p= 14.929 eta= +4.62 [out-of-range] hits(total=0,Si=0):- -> no association
+    truth  13      pi- p=  6.467 eta= +3.09 [forward endcap] hits(total=8,Si=5):FwMPGDx2,TOFEndx1,TrkEndx5 -> reco 2 w=1.00 MATCH
+    truth  14      pi+ p= 10.387 eta= +4.19 [out-of-range] hits(total=0,Si=0):- -> no association
+    truth  15      pi- p=  2.607 eta= +2.62 [forward endcap] hits(total=8,Si=5):FwMPGDx2,TOFEndx1,TrkEndx5 -> reco 1 w=1.00 MATCH
+  reco tracks with finite kinematics: 3
+    reco   0 p= 10.954 eta= -2.73 -> matched w=1.00 4/3-ok
+    reco   1 p=  2.609 eta= +2.62 -> matched w=1.00 4/3-ok
+    reco   2 p=  6.524 eta= +3.09 -> matched w=1.00 4/3-ok
 
-barrel          n= 1434 acc=0.613 eff=0.745 core_res=0.006 tail=0.073 matched=944
-backward endcap n= 1185 acc=0.936 eff=0.977 core_res=0.035 tail=0.091 matched=1138
-forward endcap  n= 3139 acc=0.630 eff=0.897 core_res=0.030 tail=0.126 matched=2062
-fake rate: 6/4214 = 0.0014 (36 unbinnable tracks excluded)
+barrel          n= 1965 acc=0.932 eff=0.652 pooled_res_diag=0.006 tail=0.054 matched=1194
+QA-INTS region=barrel n_gen=1965 n_in_acc=1831 n_match=1194 n_match_in_acc=1193
+backward endcap n= 1565 acc=0.991 eff=0.946 pooled_res_diag=0.034 tail=0.121 matched=1468
+QA-INTS region=backward_endcap n_gen=1565 n_in_acc=1551 n_match=1468 n_match_in_acc=1468
+forward endcap  n= 4289 acc=0.720 eff=0.862 pooled_res_diag=0.031 tail=0.131 matched=2664
+QA-INTS region=forward_endcap n_gen=4289 n_in_acc=3089 n_match=2664 n_match_in_acc=2663
+fake rate: 1/5458 = 0.0002 (1 unbinnable + 110 reco-cut-failed tracks excluded)
+QA-INTS fake n_tracks=5458 n_fake=1 n_cut_removed=110
