@@ -109,8 +109,10 @@ SILICON_TRACKING_TRUTH_HIT_COLLECTIONS: tuple[str, ...] = (
 # the per-file podio_metadata collection registry). To agree with the truth
 # rule, the classification is REGION-SCOPED: each region counts exactly its
 # TRACKING_REGIONS collections' reco counterparts, and silicon is the region's
-# silicon subset (so endcap regions get TOFEndcap counted and no credit for
-# barrel silicon, while central counts the 7 tracking collections without TOF).
+# silicon subset (endcap regions count TOFEndcap + the barrel silicon a
+# transition track really crosses; central counts the 7 tracking collections
+# without TOF). The endcap membership is derived from TRACKING_REGIONS, so it
+# changes automatically with the truth sets.
 # The 26.07.1 reco collection names below were verified live via the podio
 # registry (hit sources seen by CentralCKFTracks measurements).
 # ---------------------------------------------------------------------------
@@ -226,10 +228,18 @@ CENTRAL_TRACKING_TRUTH_HIT_COLLECTIONS: tuple[str, ...] = (
 # ---------------------------------------------------------------------------
 # Tracking regions (see PLAN.md 4.1). The central CKF reconstructs endcap
 # tracks, so no new reconstruction chain is needed - but each region counts
-# hits in its own detector systems. The acceptance test itself is the global
-# >= ACCEPTANCE_MIN_HITS total / >= ACCEPTANCE_MIN_SILICON_HITS silicon rule
-# above, applied to the region's collection set (silicon hits outside the
-# region's set cannot help the silicon floor).
+# hits in the detector systems a track in that region can ACTUALLY traverse.
+# The acceptance test is the global >= ACCEPTANCE_MIN_HITS total /
+# >= ACCEPTANCE_MIN_SILICON_HITS silicon rule above, applied to the region's
+# collection set.
+# The endcap sets include the barrel silicon (SiBarrelHits, VertexBarrelHits):
+# the vertex barrel reaches |eta|~2.9, so transition tracks at
+# 1.5<|eta|<~2.9 genuinely seed on barrel + endcap silicon, and CKF really
+# reconstructs them. Counting barrel hits there keeps truth acceptance and
+# the reco-side floor consistent with the reconstruction (so
+# efficiency_absolute <= acceptance and is not deflated ~6-7pp in the
+# (1.5,2.0] bin); above |eta|~2.9 no barrel hits exist, so the added
+# collections simply contribute 0.
 # ---------------------------------------------------------------------------
 TRACKING_REGIONS: dict[str, dict] = {
     "central": {
@@ -239,6 +249,8 @@ TRACKING_REGIONS: dict[str, dict] = {
     },
     "backward": {
         "collections": (
+            "VertexBarrelHits",
+            "SiBarrelHits",
             "BackwardMPGDEndcapHits",
             "TrackerEndcapHits",
             "TOFEndcapHits",
@@ -247,11 +259,13 @@ TRACKING_REGIONS: dict[str, dict] = {
         "min_silicon_hits": ACCEPTANCE_MIN_SILICON_HITS,
     },
     "forward": {
-        # Endcap disks only: 2 MPGD disks (one collection) + 5 Si disks
-        # (in TrackerEndcapHits) + FTOF. The far-forward spectrometer
-        # stations (ForwardOffM, Roman Pots) are deliberately NOT part of
-        # endcap acceptance - they are a separate detector system.
+        # Everything a forward track traverses: barrel silicon (vertex barrel
+        # reaches |eta|~2.9) + endcap silicon disks + forward MPGD + FTOF.
+        # The far-forward spectrometer stations (ForwardOffM, Roman Pots) are
+        # deliberately NOT part of endcap acceptance - a separate detector.
         "collections": (
+            "VertexBarrelHits",
+            "SiBarrelHits",
             "ForwardMPGDEndcapHits",
             "TrackerEndcapHits",
             "TOFEndcapHits",

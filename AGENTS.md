@@ -207,13 +207,15 @@ any PID number.
 - Acceptance (truth side): >= ACCEPTANCE_MIN_HITS=4 individual truth hits, of
   which >= ACCEPTANCE_MIN_SILICON_HITS=3 fall in the silicon tracker, counted
   over the region's truth-hit collection set (see the hit note above; the
-  endcap regions include TOFEndcapHits in their 4-hit total).
+  endcap regions include TOFEndcapHits in their 4-hit total AND the barrel
+  silicon — SiBarrel/VertexBarrel — that transition tracks at 1.5<|eta|<~2.9
+  really cross; above that the barrel collections contribute 0).
 - Reco-side mirror (DEFAULT ON since 2026-11, config.RECO_MIN_HITS=4 /
   RECO_MIN_SILICON_HITS=3, `--min-reco-hits/--min-reco-si-hits`, 0 = off):
   a RECONSTRUCTED track must carry >= 4 hits of its OWN region's tracking
   collections (>= 3 silicon) per `reco.read_reco_track_hit_counts` — the same
   region-scoped definition truth uses (TOF endcap hits count in the endcaps,
-  not the barrel; barrel silicon earns no credit in the endcaps). Applied to
+  not the barrel; endcap sets credit barrel silicon too, option B). Applied to
   ALL THREE matched metrics: fake rate (universe = passing tracks, each track
   once) and efficiency/fake numerators, so truth and reco never disagree on
   what a tracking hit is.

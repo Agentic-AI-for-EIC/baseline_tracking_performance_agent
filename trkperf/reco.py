@@ -149,13 +149,13 @@ def _hit_counts_one_file(path: str, region: str = "central") -> pd.DataFrame:
     underlying *RecHits collection (resolved via the file's podio registry),
     and also handles measurement objects that are already hits (e.g. TOF).
     Counting is REGION-SCOPED via config.reco_hit_collections(): a hit counts
-    only if its source collection belongs to the region's tracking set (so
-    endcap regions count TOF endcap hits and give no credit to barrel
-    silicon; central has no TOF). region="auto" judges EACH track by its own
-    eta (|eta|<1.5 -> central, else forward/backward) - the fake-rate/
-    resolution analogue of the truth rule, which also applies the rule of the
-    particle's own region. Hit collections matching no known truth system are
-    reported once per run and not counted.
+    only if its source collection belongs to the region's tracking set (the
+    endcap regions count TOF endcap hits AND the barrel silicon a transition
+    track really crosses - option B, mirroring TRACKING_REGIONS; central has
+    no TOF). region="auto" judges EACH track by its own eta's region rule -
+    the fake-rate/efficiency/resolution analogue of the truth rule, which also
+    applies the rule of the particle's own region. Hit collections matching no
+    known truth system are reported once per run and not counted.
 
     podio stores the track->measurement relation as ONE flat ObjectID list per
     event; a track's measurements are the slice [measurements_begin[t] :
@@ -321,8 +321,10 @@ def _reco_hit_cache_path(cache_dir: str, path: str, region: str) -> str:
     # raw path as key material, like io._cache_key: os.path.abspath() would
     # prepend the CWD and collapse the // of root:// URLs, silently binding
     # every cache hit to the caller's working directory.
+    # ".v2": region sets follow option B (endcap regions include barrel
+    # silicon); the version bump prevents pre-B caches from being reused.
     key = hashlib.sha256(
-        f"reco_track_hits\x00{region}\x00{path}".encode()).hexdigest()
+        f"reco_track_hits.v2\x00{region}\x00{path}".encode()).hexdigest()
     return os.path.join(cache_dir, key + ".pkl")
 
 

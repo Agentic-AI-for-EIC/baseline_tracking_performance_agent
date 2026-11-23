@@ -176,27 +176,30 @@ denominator are therefore defined per region (`trkperf.config.TRACKING_REGIONS`,
 | region | truth-hit collections counted | acceptance rule |
 |---|---|---|
 | central | SiBarrelHits, VertexBarrelHits, TrackerEndcapHits, MPGDBarrelHits, OuterMPGDBarrelHits, BackwardMPGDEndcapHits, ForwardMPGDEndcapHits | ≥4 INDIVIDUAL hits, ≥3 in silicon |
-| backward (electron endcap) | BackwardMPGDEndcapHits, TrackerEndcapHits, TOFEndcapHits | ≥4 INDIVIDUAL hits, ≥3 in silicon |
-| forward (hadron endcap) | ForwardMPGDEndcapHits, TrackerEndcapHits, TOFEndcapHits | ≥4 INDIVIDUAL hits, ≥3 in silicon |
+| backward (electron endcap) | VertexBarrelHits, SiBarrelHits, BackwardMPGDEndcapHits, TrackerEndcapHits, TOFEndcapHits | ≥4 INDIVIDUAL hits, ≥3 in silicon |
+| forward (hadron endcap) | VertexBarrelHits, SiBarrelHits, ForwardMPGDEndcapHits, TrackerEndcapHits, TOFEndcapHits | ≥4 INDIVIDUAL hits, ≥3 in silicon |
 
-Rationale (2026-10 rule, superseding the retired collection-proxy
-"≥ N of M collections" / N_min=2 table that stood here — the proxy counted a
-collection once no matter how many layers it held and could not express the
-CKF silicon-seed requirement): a particle is accepted when it leaves ≥4
-individual GEANT truth hits in the region's collection set with ≥3 of them
-in silicon (TrackerEndcapHits in the endcaps, +SiBarrelHits/VertexBarrelHits
-in the barrel) — the same 4/3 floor the CKF seed needs, and now mirrored
-exactly on the reconstructed side (config.RECO_MIN_HITS=4 /
-RECO_MIN_SILICON_HITS=3, region-scoped, applied to fake-rate, resolution and
-efficiency numerators). TOF endcap hits count in the endcap regions: TOF
+Rationale (2026-10 rule, 2026-11 option-B amendment; superseding the retired
+collection-proxy "≥ N of M collections" / N_min=2 table that stood here — the
+proxy counted a collection once no matter how many layers it held and could
+not express the CKF silicon-seed requirement): a particle is accepted when it
+leaves ≥4 individual GEANT truth hits in the region's collection set with ≥3
+of them in silicon. The endcap sets include the barrel silicon
+(VertexBarrelHits, SiBarrelHits): the vertex barrel reaches |η|≈2.9, so
+transition tracks at 1.5<|η|<~2.9 genuinely seed on barrel + endcap silicon
+and CKF really reconstructs them — counting barrel hits there keeps truth
+acceptance consistent with the reconstruction (above |η|≈2.9 no barrel hits
+exist, so the added collections contribute 0). The same floor now applies to
+reconstructed tracks (config.RECO_MIN_HITS=4 / RECO_MIN_SILICON_HITS=3,
+region-scoped, applied to fake-rate, resolution and efficiency numerators).
+TOF endcap hits count in the endcap regions: TOF
 cluster hits are folded into the track fit (26.07.1), so they are
 tracking-relevant space points, not calorimetry — and the reco side counts
-TOFEndcap there (and not in the barrel) for symmetry. Endcap rules cover
-endcap disks only: the far-forward
-spectrometer stations (ForwardOffM, Roman Pots) were removed from the forward
-rule (2026-09-25) — they are a separate detector system, not endcap
-tracking. A collection whose branch is absent in a campaign degrades to 0
-hits with a printed NOTE rather than aborting the run.
+TOFEndcap there (and not in the barrel) for symmetry. The far-forward
+spectrometer stations (ForwardOffM, Roman Pots) remain excluded (2026-09-25)
+— a separate detector system, not endcap tracking. A collection whose branch
+is absent in a campaign degrades to 0 hits with a printed NOTE rather than
+aborting the run.
 
 Region tiling (no overlap by construction): bin centres fall at +-0.25,
 +-0.75, ..., so +-1.5 (`trkperf.config.BARREL_ETA_MAX`, a bin EDGE) splits
@@ -620,8 +623,9 @@ region's collection set, >= 3 of them silicon. Changes made code-wide:
 - reco-side cut default ON (config.RECO_MIN_HITS/RECO_MIN_SILICON_HITS=4/3),
   applied to fake-rate, resolution AND efficiency numerators; the hit
   classification is region-scoped and mirrors the truth sets exactly
-  (TOFEndcapHits count in the endcaps, barrel silicon earns no endcap
-  credit; central has no TOF) - see config.reco_hit_collections.
+  (TOFEndcapHits count in the endcaps; barrel silicon credits endcap
+  transition tracks too - later option-B amendment; central has no TOF) -
+  see config.reco_hit_collections.
 - p_bin_center is geometric sqrt(lo*hi) (log-spaced bins); ROOT-fit
   sigma_err/mu_err replaced by sigma/sqrt(2 n_core)/sigma/sqrt(n_core);
   grouped resolution pooled N-weighted (1/sigma_err^2 weights were

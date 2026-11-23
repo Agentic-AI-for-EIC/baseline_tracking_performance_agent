@@ -111,11 +111,13 @@ REGIONS = {
     ),
     "backward endcap": (
         lambda eta: eta_bin_centre(eta) < -BARREL_ETA_MAX,
-        ["BackwardMPGDEndcapHits", "TrackerEndcapHits", "TOFEndcapHits"],
+        ["VertexBarrelHits", "SiBarrelHits",
+         "BackwardMPGDEndcapHits", "TrackerEndcapHits", "TOFEndcapHits"],
     ),
     "forward endcap": (
         lambda eta: eta_bin_centre(eta) > BARREL_ETA_MAX,
-        ["ForwardMPGDEndcapHits", "TrackerEndcapHits", "TOFEndcapHits"],
+        ["VertexBarrelHits", "SiBarrelHits",
+         "ForwardMPGDEndcapHits", "TrackerEndcapHits", "TOFEndcapHits"],
     ),
 }
 
@@ -127,24 +129,29 @@ WANT_PDG = {11: "e-", -11: "e+", 211: "pi+", -211: "pi-",
 # RECONSTRUCTED-side hit collections per region - the QA mirror of
 # trkperf.config.reco_hit_collections() (26.07.1 names, verified live via the
 # podio registry). A track counts toward the 4/3 reco cut only via its OWN
-# region's sets: the endcap regions include the TOF endcap hits (truth counts
-# them there) and give no credit to barrel silicon; the barrel has no TOF.
+# region's sets: the endcap regions include the TOF endcap hits AND the
+# barrel silicon a transition track really crosses (vertex barrel reaches
+# |eta|~2.9; option B, mirroring TRACKING_REGIONS); the barrel has no TOF.
 # ---------------------------------------------------------------------------
 RECO_TRACKING = {
     "barrel": {"SiBarrelTrackerRecHits", "SiBarrelVertexRecHits",
                "SiEndcapTrackerRecHits", "MPGDBarrelRecHits",
                "OuterMPGDBarrelRecHits", "BackwardMPGDEndcapRecHits",
                "ForwardMPGDEndcapRecHits"},
-    "backward endcap": {"BackwardMPGDEndcapRecHits", "SiEndcapTrackerRecHits",
+    "backward endcap": {"SiBarrelTrackerRecHits", "SiBarrelVertexRecHits",
+                        "BackwardMPGDEndcapRecHits", "SiEndcapTrackerRecHits",
                         "TOFEndcapClusterHits", "TOFEndcapRecHits"},
-    "forward endcap": {"ForwardMPGDEndcapRecHits", "SiEndcapTrackerRecHits",
+    "forward endcap": {"SiBarrelTrackerRecHits", "SiBarrelVertexRecHits",
+                       "ForwardMPGDEndcapRecHits", "SiEndcapTrackerRecHits",
                        "TOFEndcapClusterHits", "TOFEndcapRecHits"},
 }
 RECO_SILICON = {
     "barrel": {"SiBarrelTrackerRecHits", "SiBarrelVertexRecHits",
                "SiEndcapTrackerRecHits"},
-    "backward endcap": {"SiEndcapTrackerRecHits"},
-    "forward endcap": {"SiEndcapTrackerRecHits"},
+    "backward endcap": {"SiBarrelTrackerRecHits", "SiBarrelVertexRecHits",
+                        "SiEndcapTrackerRecHits"},
+    "forward endcap": {"SiBarrelTrackerRecHits", "SiBarrelVertexRecHits",
+                       "SiEndcapTrackerRecHits"},
 }
 
 
@@ -399,8 +406,9 @@ def main(path, outdir, n_dump=2, reco_cut=True):
         print(f"  MC primaries of interest: {len(rows_ev)}")
         for r in rows_ev:
             # counts shown for the particle's OWN region set - the same lists
-            # the rule below applies (a global sum here once misled reviews:
-            # barrel silicon must not credit an endcap particle).
+            # the rule below applies (a global sum here once misled reviews;
+            # the endcap sets include barrel silicon only where a transition
+            # track really crosses it, via the region's own collection list).
             reg_dump = region_of(r['eta'])
             cols_dump = REGIONS[reg_dump][1] if reg_dump in REGIONS else None
             hc = hit_by_particle.get((int(r['event']), int(r['idx'])), {})

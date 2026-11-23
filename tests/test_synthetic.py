@@ -1262,9 +1262,10 @@ class TestRecoHitCut(unittest.TestCase):
 
 
 class TestRecoHitRegionScoping(unittest.TestCase):
-    """The reco-side hit classification must mirror the truth region sets:
-    TOF endcap hits count in the endcaps (not central); barrel silicon gets no
-    credit in the endcap sets; endcap silicon counts everywhere central does."""
+    """The reco-side hit classification mirrors the truth region sets:
+    TOF endcap hits count in the endcaps (not central); the endcap sets
+    also credit barrel silicon (option B - the vertex barrel reaches
+    |eta|~2.9, so transition tracks really cross it); central excludes TOF."""
 
     def test_region_sets_mirror_truth(self):
         tr_c, si_c = config.reco_hit_collections("central")
@@ -1273,16 +1274,18 @@ class TestRecoHitRegionScoping(unittest.TestCase):
         # central: all 7 tracking systems, no TOF, 3 silicon systems
         self.assertNotIn("TOFEndcapClusterHits", tr_c)
         self.assertEqual(si_c, set(config.SILICON_RECO_HIT_COLLECTIONS))
-        # forward: endcap MPGD + endcap Si + TOF endcap; NO barrel silicon
+        # forward: endcap MPGD + endcap Si + TOF endcap + barrel silicon
         self.assertIn("TOFEndcapClusterHits", tr_f)
         self.assertIn("ForwardMPGDEndcapRecHits", tr_f)
-        self.assertNotIn("SiBarrelVertexRecHits", tr_f)
-        self.assertNotIn("SiBarrelTrackerRecHits", tr_f)
-        self.assertEqual(si_f, {"SiEndcapTrackerRecHits"})
+        self.assertIn("SiBarrelVertexRecHits", tr_f)
+        self.assertIn("SiBarrelTrackerRecHits", tr_f)
+        self.assertNotIn("MPGDBarrelRecHits", tr_f)   # barrel gas: not forward
+        self.assertEqual(si_f, set(config.SILICON_RECO_HIT_COLLECTIONS))
         # backward: mirror image
         self.assertIn("TOFEndcapClusterHits", tr_b)
+        self.assertIn("SiBarrelVertexRecHits", tr_b)
         self.assertNotIn("ForwardMPGDEndcapRecHits", tr_b)
-        self.assertEqual(si_b, {"SiEndcapTrackerRecHits"})
+        self.assertEqual(si_b, set(config.SILICON_RECO_HIT_COLLECTIONS))
 
     def test_silicon_predicate(self):
         self.assertTrue(config.is_silicon_reco_hit("SiEndcapTrackerRecHits"))
@@ -1535,9 +1538,12 @@ class TestTrackHitCounts(unittest.TestCase):
     def test_other_region_known_name_never_counts(self):
         from trkperf import reco
         trk_f, si_f = config.reco_hit_collections("forward")
+        # forward set now includes barrel silicon (option B); the one name
+        # that belongs to NO forward system is the backward MPGD -> 0 credit
         cnt_h, cnt_s = reco._track_hit_counts(
-            ["SiBarrelVertexRecHits", "TOFEndcapClusterHits"], trk_f, si_f, "forward")
-        self.assertEqual((cnt_h, cnt_s), (1, 0))   # only the TOF endcap hit
+            ["SiBarrelVertexRecHits", "TOFEndcapClusterHits",
+             "BackwardMPGDEndcapRecHits"], trk_f, si_f, "forward")
+        self.assertEqual((cnt_h, cnt_s), (2, 1))   # vtxb(1si)+tof, not the bwd mpgd
 
 
 class TestRatioPooling(unittest.TestCase):

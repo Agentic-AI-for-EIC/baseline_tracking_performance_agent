@@ -35,7 +35,12 @@ collection set (`SiBarrelHits`, `VertexBarrelHits`, `TrackerEndcapHits`,
 `MPGDBarrelHits`, `OuterMPGDBarrelHits`, `BackwardMPGDEndcapHits`,
 `ForwardMPGDEndcapHits`). The >= 3 silicon floor is the CKF seed requirement;
 hit counts come from the per-collection truth-hit entries, so no decoded cellID
-layer number is needed. Purely truth/geometry-level: no matching, no
+layer number is needed. Region sets (config.TRACKING_REGIONS): central = the 7
+above (no TOF); backward/forward = {VertexBarrelHits, SiBarrelHits,
+(Back|Fwd)MPGDEndcapHits, TrackerEndcapHits, TOFEndcapHits} — the endcaps
+credit the barrel silicon transition tracks really cross (option B) and the
+TOF endcap hits; above |eta|~2.9 the barrel collections contribute 0.
+Purely truth/geometry-level: no matching, no
 reconstruction — therefore background-independent. For the canonical same-campaign
 (26.07.1) reproduction pair it is the built-in check that the clean and
 +background sides share an identical detector/reconstruction configuration: a
