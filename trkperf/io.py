@@ -238,8 +238,17 @@ def read_flat_multi(
         last_exc: Exception | None = None
         for attempt in range(2):  # try once, retry once per AGENTS.md
             try:
+                # read_flat materialises the arrays into pandas, so the file
+                # (and its fsspec-xrootd socket) can be closed right after -
+                # one handle per file otherwise leaks across a 500-file run.
                 tree = open_tree(path, tree_name=tree_name)
-                df = read_flat(tree, columns, file_id=file_id)
+                try:
+                    df = read_flat(tree, columns, file_id=file_id)
+                finally:
+                    try:
+                        tree.file.close()
+                    except Exception:  # noqa: BLE001 - best-effort close
+                        pass
                 if cache_path is not None:
                     try:
                         _stash_pickle(df, cache_path)
@@ -345,9 +354,16 @@ def read_nested(
     event). Branches that uproot delivers as records keep their record layout.
     """
     tree = open_tree(path_or_url, tree_name=tree_name)
-    arrays = tree.arrays(
-        list(columns.values()), library="ak", entry_start=entry_start, entry_stop=entry_stop
-    )
+    try:
+        arrays = tree.arrays(
+            list(columns.values()), library="ak",
+            entry_start=entry_start, entry_stop=entry_stop,
+        )
+    finally:
+        try:
+            tree.file.close()
+        except Exception:  # noqa: BLE001 - best-effort close
+            pass
     out = {}
     for name, path in columns.items():
         out[name] = arrays[path]
@@ -356,7 +372,14 @@ def read_nested(
 
 def event_count(path_or_url: str, tree_name: str = "events") -> int:
     """Number of entries in `tree_name`, metadata-only (no branch decompression)."""
-    return int(open_tree(path_or_url, tree_name=tree_name).num_entries)
+    tree = open_tree(path_or_url, tree_name=tree_name)
+    try:
+        return int(tree.num_entries)
+    finally:
+        try:
+            tree.file.close()
+        except Exception:  # noqa: BLE001 - best-effort close
+            pass
 
 
 def expand_by_offsets(flat, begin, end):

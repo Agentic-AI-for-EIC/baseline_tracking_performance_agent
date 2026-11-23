@@ -27,9 +27,10 @@ comparison / provenance details that apply to every metric, load the
 `trkperf-grid-workflow` skill too.
 
 ## Metric definition
-A reconstructed track is "fake" when no `CentralCKFTrackAssociations` match
-to any truth particle has weight <= 0.5 (i.e. no strict majority of its hits come
-from a single truth particle). fake_rate = n_fake / n_tracks per
+A reconstructed track is "fake" when its BEST
+`CentralCKFTrackAssociations` weight is <= 0.5 - i.e. no single truth
+particle contributed a strict majority of the track's hits (matching.py
+uses strict `>` for a genuine match, so a 50/50-shared track is a fake). fake_rate = n_fake / n_tracks per
 reconstructed-(p, eta) bin, with binomial errors. Two deliberate
 conventions:
 Fake/universe grain: one row per reconstructed track; the universe is
@@ -61,7 +62,7 @@ after session teardown via the cache).
 
 Compare:
 ```sh
-python -m trkperf compare --metric fake-rate \
+python -m trkperf compare --metric fake-rate_26071 \
     --clean output/fake-rate_clean26071.json \
     --bkg output/fake-rate_bkg26071.json --out-dir output
 ```

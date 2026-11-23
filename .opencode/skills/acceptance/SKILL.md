@@ -67,7 +67,7 @@ session teardown is cheap thanks to the cache).
 
 Compare:
 ```sh
-python -m trkperf compare --metric acceptance \
+python -m trkperf compare --metric acceptance_26071 \
     --clean output/acceptance_clean26071.json \
     --bkg output/acceptance_bkg26071.json --out-dir output
 ```

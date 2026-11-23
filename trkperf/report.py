@@ -466,12 +466,17 @@ def bkg_over_clean_ratio(
         # ABSOLUTE-error propagation, r = b/c  ->  dr = sqrt((eb/c)^2 +
         # (b*ec/c^2)^2). Unlike the relative form this stays finite when the
         # numerator is exactly 0 (e.g. zero fake counts in bkg): dr = eb/|c|,
-        # matching compare.py's explicit R==0 handling. Undefined (NaN) only
-        # when the denominator is 0.
+        # matching compare.py's explicit R==0 handling.
         den = m["v_clean"]
         m["ratio_err"] = np.sqrt(
             (m["e_bkg"] / den) ** 2
             + (m["v_bkg"] * m["e_clean"] / den ** 2) ** 2)
+    # Undefined denominator (v_clean == 0, e.g. a fake-rate bin with zero
+    # clean fakes but >0 background fakes): IEEE would report +/-inf, but an
+    # infinite ratio is not a measurement - NaN it, like compare.py's
+    # _safe_divide. (NaN rows are dropped by the plot's insufficiency mask.)
+    bad = ~(np.isfinite(den) & (den != 0))
+    m.loc[bad, ["ratio", "ratio_err"]] = np.nan
     m["insufficient_stats"] = ((m["n_clean"] < config.MIN_ENTRIES_PER_BIN)
                                | (m["n_bkg"] < config.MIN_ENTRIES_PER_BIN))
     return m[["species_group", "p_bin_center", "ratio", "ratio_err", "insufficient_stats"]]

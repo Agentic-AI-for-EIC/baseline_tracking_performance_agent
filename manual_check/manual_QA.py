@@ -9,13 +9,16 @@ What it does (the same physics as trkperf, with all packaging stripped):
      reader can eyeball the whole chain without reading any code,
   1. reads truth particles, truth-hit links, reco tracks and associations,
   2. splits truth particles into 3 detector regions by truth eta,
-  3. applies the acceptance rule to each region's own collection set:
-     >= 4 INDIVIDUAL truth hits, >= 3 of them in silicon (the CKF seed)
-         barrel          (|eta| < 1.5) : 7 central collections
-         backward endcap (eta < -1.5)  : {BackwardMPGD, TrackerEndcap, TOF}
-         forward endcap  (eta > +1.5)  : {ForwardMPGD,  TrackerEndcap, TOF}
-     the silicon subset is the region's collections that are silicon
-     (TrackerEndcap in every region, plus the barrel Si collections).
+   3. applies the acceptance rule to each region's own collection set:
+      >= 4 INDIVIDUAL truth hits, >= 3 of them in silicon (the CKF seed)
+          barrel          (|eta| < 1.5) : 7 central collections (no TOF)
+          backward endcap (eta < -1.5)  : {VertexBarrel, SiBarrel,
+                                           BackwardMPGD, TrackerEndcap, TOF}
+          forward endcap  (eta > +1.5)  : {VertexBarrel, SiBarrel,
+                                           ForwardMPGD, TrackerEndcap, TOF}
+      the silicon subset is the region's collections that are silicon - all
+      three silicon systems in every region (option B: the endcap sets
+      include the barrel silicon transition tracks really cross).
    4. matches truth <-> reco at STRICT-majority association weight > 0.5
       (best match wins), and requires the RECONSTRUCTED track to carry the
       same 4/3 hit floor as truth acceptance - >= 4 hits of the track's own

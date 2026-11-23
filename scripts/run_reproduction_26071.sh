@@ -89,16 +89,11 @@ run_metric () {  # $1 metric  $2 tag  $3 filelist  [extra args...]
     *) out="output/${metric}_${tag}.json" ;;
   esac
   if [[ -f $out ]]; then
-    # REFRESH=1 regenerates everything (required after a methodology change:
-    # committed tables must be deleted first or the idempotent skip keeps the
-    # stale ones).
-    if [[ ${REFRESH:-0} == 1 ]]; then
-      echo "[repro] REFRESH: removing stale ${out%.json}.{json,md,root}"
-      rm -f "${out%.json}".json "${out%.json}".md "${out%.json}".root
-    else
-      echo "[repro] skip $metric/$tag (exists; REFRESH=1 to regenerate)"
-      return 0
-    fi
+    # REFRESH=1 was handled ONCE at startup (purge_stale_outputs): by the
+    # time any metric runs, nothing stale exists, so skip-if-present here is
+    # the correct resume semantics - a killed sweep restarts at the first
+    # MISSING metric, not from scratch.
+    echo "[repro] skip $metric/$tag (exists)"; return 0
   fi
   # Stochastic in-flight drops (fsspec_xrootd segfaults, endpoint hiccups)
   # are retried; the per-file read cache makes every retry after the first
@@ -134,6 +129,30 @@ run_metric () {  # $1 metric  $2 tag  $3 filelist  [extra args...]
 # files, far fewer events than the clean side) complete in one pass and stay
 # unchunked. Tunable, not magic.
 readonly CHUNK_FILES_CLEAN=80
+
+# REFRESH=1 (methodology change): purge ALL stale 26071 outputs ONCE, here,
+# before any run - not per metric. Then the sweep is cleanly resumable: if it
+# dies mid-way, RELAUNCH WITH REFRESH=0 and every finished metric is skipped
+# while the first missing one regenerates. (Re-launching with REFRESH=1 again
+# would wipe the finished ones - so don't.)
+purge_stale_outputs() {
+  echo "[repro] REFRESH=1: purging stale 26071 tables + comparisons"
+  for base in acceptance acceptance_backward acceptance_forward \
+              efficiency efficiency_backward efficiency_forward \
+              resolution fake-rate; do
+    for tag in clean26071 bkg26071; do
+      rm -f "output/${base}_${tag}.json" "output/${base}_${tag}.md" \
+            "output/${base}_${tag}.root"
+    done
+  done
+  for name in acceptance acceptance-backward acceptance-forward \
+              efficiency efficiency-backward efficiency-forward \
+              resolution fake-rate; do
+    rm -f "output/${name}_26071_comparison.json" \
+          "output/${name}_26071_comparison.md"
+  done
+}
+[[ ${REFRESH:-0} == 1 ]] && purge_stale_outputs
 
 for pair in "clean26071 filelists/clean26071_local.txt 0" \
             "bkg26071 filelists/bkg26071_local.txt 10"; do

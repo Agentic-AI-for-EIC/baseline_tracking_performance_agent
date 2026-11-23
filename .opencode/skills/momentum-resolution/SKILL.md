@@ -29,10 +29,19 @@ the `trkperf-grid-workflow` skill too.
 Resolution is defined on **total momentum p specifically**: Delta(p)/p =
 (p_reco - p_truth) / p_truth, consistent with the p/eta binning used
 everywhere. Only truth-matched pairs enter (strict weight > 0.5 via
-`CentralCKFTrackAssociations`). Per bin, the Delta(p)/p distribution is fit
+`CentralCKFTrackAssociations`), and only those whose reconstructed track
+passes the DEFAULT reco-side floor (>= 4 tracking hits of its own region,
+>= 3 silicon - config.RECO_MIN_HITS/SILICON; 0/0 lifts it), same as
+fake-rate/efficiency. Per bin, the Delta(p)/p distribution is fit
 to its Gaussian core with **ROOT** (`TH1F.Fit(TF1("gaus"))`, two-pass core
 refit over +/- `RESOLUTION_FIT_CORE_SIGMA` sigma) — not scipy, so a human
-re-fit in a ROOT session reproduces the numbers.
+re-fit in a ROOT session reproduces the numbers. Reported errors are the
+unbinned core estimates sigma_err = sigma/sqrt(2*n_core), mu_err =
+sigma/sqrt(n_core) (ROOT's binned covariance inflates errors 50-200% in
+50-90-entry bins); chi2/ndf is an unweighted binned diagnostic. A failed
+pass-2 core refit makes the bin non-converged - pass 1's tail-contaminated
+width is never reported as a core resolution. Error bars on plots are 1
+sigma (fraction metrics use Wilson 95% CL; y-axes say which).
 
 The reported sigma is physically bounded to [0, 1] on Delta(p)/p
 (`RESOLUTION_MAX_SIGMA` = 1.0 means 100% resolution). A fit whose sigma pins
@@ -61,7 +70,7 @@ after session teardown via the cache).
 
 Compare:
 ```sh
-python -m trkperf compare --metric resolution \
+python -m trkperf compare --metric resolution_26071 \
     --clean output/resolution_clean26071.json \
     --bkg output/resolution_bkg26071.json --out-dir output
 ```

@@ -131,6 +131,11 @@ def _collection_present(file_paths: list[str], branch: str, n_probe_files: int =
             return True
         except Exception:  # noqa: BLE001 - file opened but branch absent
             return False
+        finally:
+            try:
+                tree.file.close()   # metadata probe must not leak handles
+            except Exception:  # noqa: BLE001 - best-effort close
+                pass
     return True
 
 

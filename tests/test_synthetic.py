@@ -1409,6 +1409,35 @@ class TestResolutionFitGuards(unittest.TestCase):
         self.assertGreater(fit.chi2_over_ndf, 0)   # ndf>0 enforced
 
 
+class TestRatioZeroDenominator(unittest.TestCase):
+    """v_clean == 0 with v_bkg > 0 must be NaN, not IEEE +inf."""
+
+    def test_zero_clean_value_yields_nan(self):
+        clean = pd.DataFrame([
+            {"species": "pi+", "p_bin_center": 1.0, "eta_bin_center": -0.25,
+             "fake_rate": 0.0, "fake_rate_err": 0.001,
+             "n_fake": 0, "n_tracks": 1000, "insufficient_stats": False}])
+        bkg = pd.DataFrame([
+            {"species": "pi+", "p_bin_center": 1.0, "eta_bin_center": -0.25,
+             "fake_rate": 0.05, "fake_rate_err": 0.002,
+             "n_fake": 50, "n_tracks": 1000, "insufficient_stats": False}])
+        m = report.bkg_over_clean_ratio(clean, bkg, "fake_rate", "fake_rate_err",
+                                        count_cols=("n_fake", "n_tracks"))
+        self.assertTrue(np.isnan(m["ratio"].iloc[0]))
+        self.assertTrue(np.isnan(m["ratio_err"].iloc[0]))
+        self.assertFalse(np.isinf(m["ratio"].iloc[0]))
+
+
+class TestInvertedWindowRejected(unittest.TestCase):
+    """A med0 outside hist_range must not enable ROOT auto-buffered binning."""
+
+    def test_values_far_outside_range_are_not_converged(self):
+        vals = np.array([3.0, 3.05, 2.95, 3.1, 2.9, 3.02, 2.98, 3.07])
+        fit = binning.fit_gaussian_core(vals, hist_range=(-0.5, 0.5))
+        self.assertFalse(fit.converged)
+        self.assertTrue(np.isnan(fit.sigma))
+
+
 class TestGeometricCentres(unittest.TestCase):
     """p_bin_center is the log-mean of the (log-spaced) bin."""
 

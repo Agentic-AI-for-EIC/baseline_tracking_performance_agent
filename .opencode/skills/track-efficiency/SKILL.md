@@ -69,7 +69,7 @@ after session teardown via the cache).
 
 Compare:
 ```sh
-python -m trkperf compare --metric efficiency \
+python -m trkperf compare --metric efficiency_26071 \
     --clean output/efficiency_clean26071.json \
     --bkg output/efficiency_bkg26071.json --out-dir output
 ```

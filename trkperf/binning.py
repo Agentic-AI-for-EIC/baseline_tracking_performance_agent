@@ -202,6 +202,12 @@ def fit_gaussian_core(
     ROOT = _root()
 
     def _fit(vals: np.ndarray, rng: tuple[float, float]) -> tuple | None:
+        # Degenerate/inverted window (pathological med0 outside hist_range
+        # could clip to xup <= xlow, which makes TH1F silently switch to
+        # ROOT's auto-buffered axis and fit arbitrary outliers instead of
+        # rejecting the bin) -> refuse the fit.
+        if not (np.isfinite(rng[0]) and np.isfinite(rng[1])) or rng[0] >= rng[1]:
+            return None
         h = ROOT.TH1F(
             _next_root_name("h"), "h", n_bins, rng[0], rng[1]
         )
@@ -231,7 +237,9 @@ def fit_gaussian_core(
         f.SetParameters(
             float(h.GetBinContent(peak_bin)),
             float(h.GetBinCenter(peak_bin)),
-            min(float(h.GetRMS()), max_sigma),
+            # keep the seed strictly inside SetParLimits: h.GetRMS() is 0 for
+            # a degenerate all-one-bin histogram and would sit on the bound.
+            max(1e-9, min(float(h.GetRMS()), max_sigma)),
         )
         try:
             res = h.Fit(f, "S Q R N")
