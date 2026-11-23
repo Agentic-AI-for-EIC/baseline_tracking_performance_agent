@@ -4,6 +4,10 @@
 # (root://localhost:1294//...). Sequential by design: the efficiency metric
 # on the 300-file clean sample is the memory peak and must not overlap the
 # others. Resumable: every metric run is skipped if its JSON already exists.
+# Ends with an AUXILIARY stage that regenerates everything the metric/plot
+# loop does not cover: the 15 acceptance eta-slice survey PNGs, the 13
+# bkg/clean ratio PNGs (scripts/make_ratio_plots.py), and the manual_QA
+# txt/QA-PNG refresh - so one REFRESH=1 sweep leaves nothing stale.
 set -uo pipefail
 cd "$(dirname "$0")/.."
 mkdir -p runs output
@@ -225,6 +229,45 @@ for m in acceptance efficiency resolution fake-rate; do
       || { echo "[repro] plot skip $m/$tag/barrel-window"; FAILED+=("plot-$m/$tag/barrel-window"); }
   done
 done
+
+# ---- auxiliary figures produced by NOTHING above ----
+# These 28 PNGs + 2 QA dumps are NOT part of the base/grouped/window plot
+# loop; without this stage they silently keep the previous methodology after
+# a regeneration sweep.
+
+# 15 acceptance eta-slice survey plots (clean only - acceptance is
+# background-free), one invocation per region-rule JSON.
+for spec in none backward forward; do
+  r=${spec}; [[ $r == none ]] && j=output/acceptance_clean26071.json \
+                              || j=output/acceptance_${r}_clean26071.json
+  if [[ -f $j ]]; then
+    python3 -m trkperf plot --json "$j" --eta-slices \
+        --plots-dir output/plot_tracking \
+      || { echo "[repro] eta-slices failed for $j"; FAILED+=("eta-slices-$spec"); }
+  else
+    echo "[repro] eta-slices skip $j (missing)"; FAILED+=("eta-slices-$spec")
+  fi
+done
+
+# 13 bkg/clean ratio plots (efficiency x2 flavours + resolution).
+python3 scripts/make_ratio_plots.py \
+  || { echo "[repro] ratio plots incomplete"; FAILED+=("ratio-plots"); }
+
+# manual_QA eyeball dumps (open ROOT directly -> need the data stack).
+if ensure_stack; then
+  for pair in "clean filelists/clean26071_local.txt manual_check/qa" \
+              "bkg filelists/bkg26071_local.txt manual_check/qa_bkg"; do
+    set -- $pair; kind=$1; list=$2; qa_dir=$3
+    f=$(head -1 "$list")
+    python3 manual_check/manual_QA.py "$f" "$qa_dir" \
+        > "manual_check/manual_QA_${kind}.txt" 2>&1 \
+      || { echo "[repro] manual_QA refresh failed for $kind"; FAILED+=("manual_QA-$kind"); }
+  done
+else
+  echo "[repro] manual_QA refresh skipped (stack down)"
+  FAILED+=("manual_QA-stack-down")
+fi
+
 if (( ${#FAILED[@]} )); then
   echo "[repro] DONE $(date -u) WITH FAILURES: ${FAILED[*]}"
   exit 1

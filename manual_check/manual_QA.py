@@ -502,7 +502,7 @@ def main(path, outdir, n_dump=2, reco_cut=True):
             # efficiency denominator guard: n_in_acceptance, not n_generated
             if in_bin.sum() >= 5:
                 eff[j] = (matched[m] & in_bin).sum() / in_bin.sum()
-            rj = delta[m & matched[m]]
+            rj = delta[m & matched]
             rj = rj[np.isfinite(rj)]
             if len(rj) >= 5:
                 mj = np.median(rj)
