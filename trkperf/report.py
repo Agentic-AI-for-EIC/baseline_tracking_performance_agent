@@ -486,7 +486,7 @@ def plot_bkg_over_clean_ratio(
     clean_df, bkg_df, value_col, err_col, path, *,
     count_cols=None, eta_region_filter=None, eta_window=None,
     title=None, y_label="bkg / clean", group_col="species_group",
-    ymin=None, ymax=None,
+    ymin=None, ymax=None, cl_hint=None,
 ) -> pd.DataFrame:
     """Plot :func:`bkg_over_clean_ratio` (background / clean) vs momentum p."""
     m = bkg_over_clean_ratio(clean_df, bkg_df, value_col, err_col,
@@ -494,7 +494,7 @@ def plot_bkg_over_clean_ratio(
                              eta_window=eta_window)
     plot_metric_vs_p(m, "ratio", "ratio_err", path, group_col=group_col,
                      title=title or "background / clean", y_label=y_label,
-                     ymin=ymin, ymax=ymax)
+                     ymin=ymin, ymax=ymax, cl_hint=cl_hint)
     return m
 
 

@@ -48,6 +48,7 @@ Only dependency besides the standard scientific stack: uproot.
 
 import os
 import sys
+import time
 
 import matplotlib
 
@@ -227,7 +228,16 @@ def reco_track_hit_names(tree):
 
 
 def main(path, outdir, n_dump=2, reco_cut=True):
-    tree = uproot.open(path)["events"]  # "events" is the EDM4eic TTree name
+    # flaky endpoints (Operation expired): retry the open a few times before
+    # giving up - the rest of the script is pure local computation.
+    for attempt in range(3):
+        try:
+            tree = uproot.open(path)["events"]  # "events" is the EDM4eic TTree name
+            break
+        except Exception:
+            if attempt == 2:
+                raise
+            time.sleep(5)
 
     # --- 1. truth particles ------------------------------------------------
     # generatorStatus == 1  <=>  primary particle from the generator

@@ -254,14 +254,29 @@ python3 scripts/make_ratio_plots.py \
   || { echo "[repro] ratio plots incomplete"; FAILED+=("ratio-plots"); }
 
 # manual_QA eyeball dumps (open ROOT directly -> need the data stack).
+# Written to .tmp and moved into place ONLY on a clean run (up to 3
+# attempts): a transient XRootD drop must neither truncate the tracked txt
+# to a traceback nor leave a half-written file behind.
 if ensure_stack; then
   for pair in "clean filelists/clean26071_local.txt manual_check/qa" \
               "bkg filelists/bkg26071_local.txt manual_check/qa_bkg"; do
     set -- $pair; kind=$1; list=$2; qa_dir=$3
     f=$(head -1 "$list")
-    python3 manual_check/manual_QA.py "$f" "$qa_dir" \
-        > "manual_check/manual_QA_${kind}.txt" 2>&1 \
-      || { echo "[repro] manual_QA refresh failed for $kind"; FAILED+=("manual_QA-$kind"); }
+    out="manual_check/manual_QA_${kind}.txt"; tmp="${out}.tmp"
+    ok=0
+    for attempt in 1 2 3; do
+      if python3 manual_check/manual_QA.py "$f" "$qa_dir" > "$tmp" 2>&1 \
+         && grep -q 'QA-INTS fake' "$tmp"; then ok=1; break; fi
+      echo "[repro] manual_QA $kind attempt $attempt failed - retrying"
+      sleep 5
+    done
+    if [[ $ok == 1 ]]; then
+      mv "$tmp" "$out"; echo "[repro] manual_QA $kind refreshed"
+    else
+      rm -f "$tmp"
+      echo "[repro] manual_QA refresh failed for $kind (tracked file kept)"
+      FAILED+=("manual_QA-$kind")
+    fi
   done
 else
   echo "[repro] manual_QA refresh skipped (stack down)"
